@@ -1,5 +1,8 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -7,8 +10,8 @@ export async function updateSession(request: NextRequest) {
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl!,
+    supabaseKey!,
     {
       cookies: {
         getAll() {
@@ -33,17 +36,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect all dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
+    url.pathname = "/auth/login"
     return NextResponse.redirect(url)
   }
 
-  // Redirect logged-in users away from auth pages
-  if (request.nextUrl.pathname.startsWith('/auth') && user) {
+  if (request.nextUrl.pathname.startsWith("/auth") && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 
