@@ -15,7 +15,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <a href="/" className="flex items-center">
             <img
-              src="/logo.png"
+              src="/logos/main-transparent.png"
               alt="Devanhaar - Discover Sikhi"
               className="h-10 w-auto"
             />

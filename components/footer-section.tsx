@@ -141,9 +141,9 @@ export function FooterSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 pb-12 border-b border-white/[0.08]">
             <div>
               <img
-                src="/logo.png"
+                src="/logos/main-white-transparent.png"
                 alt="Devanhaar - Discover Sikhi"
-                className="h-10 w-auto brightness-0 invert mb-6"
+                className="h-10 w-auto mb-6"
               />
               <p className="text-sm text-white/40 leading-relaxed max-w-sm">
                 Creating, developing, and empowering individuals through Sikh

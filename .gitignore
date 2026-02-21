@@ -12,3 +12,8 @@ node_modules/
 .DS_Store
 .vercel
 pnpm-lock.yaml
+
+# Root logo source files (copies live in public/logos/)
+/Devanhaar*.png
+/Devanhaar*.jpg
+/Hero Section.png
