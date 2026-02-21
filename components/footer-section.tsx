@@ -95,13 +95,19 @@ export function FooterSection() {
                 Navigate
               </h4>
               <ul className="space-y-3 text-sm">
-                {["About", "Projects", "Team", "Foundation"].map((l) => (
-                  <li key={l}>
+                {[
+                  { label: "About", href: "/about" },
+                  { label: "Projects", href: "/#projects" },
+                  { label: "Team", href: "/#team" },
+                  { label: "Foundation", href: "/#foundation" },
+                  { label: "Shop", href: "/shop" },
+                ].map((l) => (
+                  <li key={l.label}>
                     <a
-                      href={`#${l.toLowerCase()}`}
+                      href={l.href}
                       className="text-white/50 hover:text-white transition-colors"
                     >
-                      {l}
+                      {l.label}
                     </a>
                   </li>
                 ))}
