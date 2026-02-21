@@ -27,6 +27,7 @@ export function Navbar() {
             <a href="/#team" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Team</a>
             <a href="/#foundation" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Foundation</a>
             <a href="/#media" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Media</a>
+            <a href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Shop</a>
           </nav>
 
           <div className="hidden lg:flex items-center gap-4">
@@ -58,6 +59,7 @@ export function Navbar() {
             <a href="/#team" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Team</a>
             <a href="/#foundation" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Foundation</a>
             <a href="/#media" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Media</a>
+            <a href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Shop</a>
             <a href="/#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Contact Us</a>
             <Button
               onClick={() => {
