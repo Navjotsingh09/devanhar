@@ -21,6 +21,7 @@ const milestones: Milestone[] = [
     description:
       "Devanhaar was born from a simple but powerful idea — that every person deserves the chance to build a better life through compassion, education, and opportunity.",
     accent: "emerald-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=genesis2018",
   },
   {
     year: 2019,
@@ -30,6 +31,7 @@ const milestones: Milestone[] = [
     description:
       "Formalized operations and crafted the strategic roadmap that would guide our mission for years to come.",
     accent: "blue-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=foundation2019",
   },
   {
     year: 2020,
@@ -39,6 +41,7 @@ const milestones: Milestone[] = [
     description:
       "When the world faced unprecedented challenges, Devanhaar mobilized emergency relief — distributing supplies, funding, and hope where it was needed most.",
     accent: "amber-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=resilience2020",
   },
   {
     year: 2021,
@@ -48,6 +51,7 @@ const milestones: Milestone[] = [
     description:
       "Launched scholarships and education initiatives, opening doors for underprivileged students to access quality learning.",
     accent: "violet-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=education2021",
   },
   {
     year: 2022,
@@ -57,6 +61,7 @@ const milestones: Milestone[] = [
     description:
       "Extended programs to new communities, building partnerships that amplified our impact across regions.",
     accent: "rose-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=growth2022",
   },
   {
     year: 2023,
@@ -66,6 +71,7 @@ const milestones: Milestone[] = [
     description:
       "Introduced vocational training and community development programs, helping individuals become self-sufficient.",
     accent: "teal-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=empowerment2023",
   },
   {
     year: 2024,
@@ -75,6 +81,7 @@ const milestones: Milestone[] = [
     description:
       "Embraced technology and data-driven approaches to maximize our reach and effectiveness in serving communities.",
     accent: "orange-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=innovation2024",
   },
   {
     year: 2025,
@@ -84,6 +91,7 @@ const milestones: Milestone[] = [
     description:
       "Scaling proven programs nationally while deepening local impact through grassroots engagement.",
     accent: "cyan-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=momentum2025",
   },
   {
     year: 2026,
@@ -93,6 +101,7 @@ const milestones: Milestone[] = [
     description:
       "Our vision for 2026 and beyond — a world where every individual has access to the resources, education, and support they need to thrive.",
     accent: "indigo-500",
+    image: "https://api.dicebear.com/9.x/shapes/svg?seed=vision2026",
   },
 ];
 
@@ -228,6 +237,16 @@ export default function OurStoryNarrative() {
                     >
                       {m.year}
                     </span>
+
+                    {/* DiceBear illustration */}
+                    <div className="flex justify-center mb-4">
+                      <img
+                        src={m.image}
+                        alt={m.theme}
+                        className="w-24 h-24 rounded-xl"
+                        loading="lazy"
+                      />
+                    </div>
 
                     {/* Icon + badges */}
                     <div className="flex items-center gap-3 mb-6">
