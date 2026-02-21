@@ -17,7 +17,7 @@ export function Navbar() {
             <img
               src="/logos/main-black-transparent.png"
               alt="Devanhaar - Discover Sikhi"
-              className="h-14 w-auto"
+              className="h-10 w-auto"
             />
           </a>
 
