@@ -229,40 +229,38 @@ export default function OurStoryNarrative() {
                   onClick={() => goTo(i)}
                 >
                   <div
-                    className={`relative h-full rounded-2xl border p-8 flex flex-col justify-between ${isActive ? "shadow-2xl" : "shadow-none border-border/50"} transition-shadow duration-500`}
+                    className={`relative h-full rounded-2xl border overflow-hidden flex flex-col ${isActive ? "shadow-2xl" : "shadow-none border-border/50"} transition-shadow duration-500`}
                   >
-                    {/* Year watermark */}
-                    <span
-                      className={`absolute top-4 right-6 text-7xl font-black select-none pointer-events-none ${isActive ? "text-primary/10" : "text-muted/5"}`}
-                    >
-                      {m.year}
-                    </span>
-
-                    {/* DiceBear illustration */}
-                    <div className="flex justify-center mb-4">
+                    {/* Full-width DiceBear illustration */}
+                    <div className="relative w-full h-48 flex-shrink-0">
                       <img
                         src={m.image}
                         alt={m.theme}
-                        className="w-24 h-24 rounded-xl"
+                        className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                    </div>
-
-                    {/* Icon + badges */}
-                    <div className="flex items-center gap-3 mb-6">
-                      <span className="text-4xl">{m.icon}</span>
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary/10 text-primary">
+                      {/* Year watermark overlay */}
+                      <span className="absolute bottom-2 right-4 text-6xl font-black text-white/20 select-none pointer-events-none">
                         {m.year}
                       </span>
-                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                        {m.theme}
-                      </span>
                     </div>
 
-                    {/* Headline + description */}
-                    <div>
-                      <h3 className="text-2xl font-bold mb-3">{m.headline}</h3>
-                      <p className="text-muted-foreground leading-relaxed">
+                    {/* Card content */}
+                    <div className="flex flex-col flex-1 p-6">
+                      {/* Icon + badges */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-3xl">{m.icon}</span>
+                        <span className="text-xs font-bold px-3 py-1 rounded-full bg-primary/10 text-primary">
+                          {m.year}
+                        </span>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                          {m.theme}
+                        </span>
+                      </div>
+
+                      {/* Headline + description */}
+                      <h3 className="text-xl font-bold mb-2">{m.headline}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {m.description}
                       </p>
                     </div>
