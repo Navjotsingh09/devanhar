@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback } from "react"
 import { ArrowRight, ShieldCheck, X, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { supabase } from "@/lib/supabase"
 
 const presetAmounts = [10, 25, 50, 100, 250, 500]
 
@@ -56,20 +57,24 @@ function DonationModal({
     if (amount <= 0) return
     setStep("submitting")
 
-    // Log the donation source for tracking
-    console.log("[Devanhaar] Donation initiated", {
-      source,
-      amount,
-      frequency: donationType,
-      giftAid,
-      donor: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-      },
-      page: typeof window !== "undefined" ? window.location.pathname : "",
-      timestamp: new Date().toISOString(),
-    })
+    // Log donation intent to Supabase
+    if (supabase) {
+      try {
+        await supabase.from("donation_intents").insert([{
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          message: formData.message || null,
+          amount,
+          frequency: donationType,
+          gift_aid: giftAid,
+          source,
+          page: typeof window !== "undefined" ? window.location.pathname : "",
+        }])
+      } catch (err) {
+        console.error("[Devanhaar] Failed to log donation intent:", err)
+      }
+    }
 
     const justGivingUrl = `https://www.justgiving.com/charity/devanhaar/donate?amount=${amount}&frequency=${donationType === "monthly" ? "monthly" : "single"}`
 

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
-import { Mail, Phone, MapPin, ArrowRight } from "lucide-react"
+import { Mail, Phone, MapPin } from "lucide-react"
 import { FooterDonateLink } from "@/components/footer-donate-link"
+import { FooterContactForm } from "@/components/footer-contact-form"
+import { NewsletterForm } from "@/components/newsletter-form"
 
 export function FooterSection() {
   return (
@@ -59,77 +61,7 @@ export function FooterSection() {
             </div>
 
             {/* Contact form */}
-            <div className="rounded-2xl border border-border bg-card p-8 md:p-10">
-              <h3 className="text-lg font-bold text-foreground mb-6">
-                Send us a message
-              </h3>
-              <form className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label
-                      htmlFor="firstName"
-                      className="text-xs font-medium text-muted-foreground mb-2 block"
-                    >
-                      First name
-                    </label>
-                    <input
-                      type="text"
-                      id="firstName"
-                      className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                      placeholder="Your first name"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="lastName"
-                      className="text-xs font-medium text-muted-foreground mb-2 block"
-                    >
-                      Last name
-                    </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                      placeholder="Your last name"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="text-xs font-medium text-muted-foreground mb-2 block"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                    placeholder="your@email.com"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="message"
-                    className="text-xs font-medium text-muted-foreground mb-2 block"
-                  >
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    rows={4}
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
-                    placeholder="Tell us how we can help..."
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl py-5 text-sm"
-                >
-                  Send Message <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
-            </div>
+            <FooterContactForm />
           </div>
         </div>
       </section>
@@ -152,22 +84,7 @@ export function FooterSection() {
               </p>
             </div>
             <div className="flex flex-col justify-end">
-              <div className="max-w-sm ml-auto w-full">
-                <h3 className="text-lg font-bold text-white mb-2">
-                  Be a part of the future of education
-                </h3>
-                <p className="text-sm text-white/40 mb-4">Stay updated with our initiatives</p>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    placeholder="Your email goes here"
-                    className="flex-1 px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  />
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-5 py-3 text-sm">
-                    Subscribe
-                  </Button>
-                </div>
-              </div>
+              <NewsletterForm />
             </div>
           </div>
 
