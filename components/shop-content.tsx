@@ -41,7 +41,7 @@ const products = [
     id: 5,
     name: "Devanhaar Insulated Jacket",
     price: 500.00,
-    image: "https://images.unsplash.com/photo-1544923246-77307dd270b5?w=800&q=80&fit=crop",
+    image: "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800&q=80&fit=crop",
     category: "Clothing",
     badge: "Premium",
   },
