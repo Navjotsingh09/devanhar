@@ -64,7 +64,7 @@ export function PlatformSection() {
               {/* Background image overlay */}
               <div className="absolute inset-0">
                 <img
-                  src="https://images.unsplash.com/photo-1590091215524-f1dca0e6d498?w=800&q=80"
+                  src="https://api.dicebear.com/9.x/shapes/svg?seed=devanhaar-initiatives&backgroundColor=d1d4f9,ffd5dc,ffdfbf"
                   alt="Sikh community gathering"
                   className="absolute inset-0 w-full h-full object-cover opacity-20"
                 />

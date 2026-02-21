@@ -11,7 +11,7 @@ export default function KhalsaCatalystPage() {
     <InitiativePageLayout
       title="Khalsa Catalyst"
       tagline="Developing, empowering and preparing the next generation of Sikh Visionaries."
-      heroImage="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&q=80"
+      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=khalsa-catalyst&backgroundColor=d1d4f9,ffdfbf"
       ctaText="Visit Khalsa Catalyst"
       ctaHref="https://www.khalsacatalyst.com/"
       description={[
@@ -55,9 +55,9 @@ export default function KhalsaCatalystPage() {
         },
       ]}
       galleryImages={[
-        "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600&q=80",
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80",
-        "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&q=80",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=catalyst-gallery-1&backgroundColor=d1d4f9",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=catalyst-gallery-2&backgroundColor=ffdfbf",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=catalyst-gallery-3&backgroundColor=b6e3f4",
       ]}
     />
   )

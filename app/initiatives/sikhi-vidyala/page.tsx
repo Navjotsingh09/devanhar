@@ -11,7 +11,7 @@ export default function SikhiVidyalaPage() {
     <InitiativePageLayout
       title="Sikhi Vidyala"
       tagline="Develop your Sikhi and learn how to do parchaar."
-      heroImage="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80"
+      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=sikhi-vidyala&backgroundColor=c0aede,d1d4f9"
       ctaText="View Handbook"
       ctaHref="https://www.devanhaar.com/pages/sikhi-vidyala"
       description={[

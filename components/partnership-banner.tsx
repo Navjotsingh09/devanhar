@@ -30,7 +30,7 @@ export function PartnershipBanner() {
           {/* Right card - image with play button */}
           <div className="relative aspect-video lg:aspect-auto min-h-[320px] bg-muted">
             <img
-              src="https://images.unsplash.com/photo-1593113630400-ea4288922497?w=800&q=80"
+              src="https://api.dicebear.com/9.x/shapes/svg?seed=devanhaar-partnership&backgroundColor=c0aede,d1d4f9,ffdfbf"
               alt="Sikh community volunteers serving and building together"
               className="absolute inset-0 w-full h-full object-cover"
             />

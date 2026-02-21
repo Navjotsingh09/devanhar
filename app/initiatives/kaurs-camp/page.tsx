@@ -11,7 +11,7 @@ export default function KaursCampPage() {
     <InitiativePageLayout
       title="Kaurs Camp"
       tagline="Be part of an everlasting sisterhood, with the aim of connecting to Sikhi and the Guru's Sangat."
-      heroImage="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
+      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=kaurs-camp&backgroundColor=ffd5dc,c0aede"
       ctaText="Apply Now"
       ctaHref="https://www.devanhaar.com/pages/kaurs-camp"
       description={[
@@ -55,9 +55,9 @@ export default function KaursCampPage() {
         },
       ]}
       galleryImages={[
-        "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=600&q=80",
-        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80",
-        "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600&q=80",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=kaurs-gallery-1&backgroundColor=ffd5dc",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=kaurs-gallery-2&backgroundColor=c0aede",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=kaurs-gallery-3&backgroundColor=ffdfbf",
       ]}
     />
   )

@@ -11,7 +11,7 @@ export default function SinghsCampPage() {
     <InitiativePageLayout
       title="Singhs Camp"
       tagline="Be part of an everlasting brotherhood, with the aim of connecting to Sikhi and the Guru's Sangat."
-      heroImage="https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800&q=80"
+      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=singhs-camp&backgroundColor=b6e3f4,d1d4f9"
       ctaText="Apply Now"
       ctaHref="https://www.devanhaar.com/pages/singhs-camp"
       description={[
@@ -80,9 +80,9 @@ export default function SinghsCampPage() {
         },
       ]}
       galleryImages={[
-        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80",
-        "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600&q=80",
-        "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&q=80",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=singhs-gallery-1&backgroundColor=b6e3f4",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=singhs-gallery-2&backgroundColor=d1d4f9",
+        "https://api.dicebear.com/9.x/shapes/svg?seed=singhs-gallery-3&backgroundColor=c0aede",
       ]}
     />
   )

@@ -37,7 +37,7 @@ export function FoundationSection() {
           </div>
           <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
             <img
-              src="https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800&q=80"
+              src="https://api.dicebear.com/9.x/shapes/svg?seed=devanhaar-foundation&backgroundColor=b6e3f4,c0aede,d1d4f9"
               alt="Sikh youth learning and participating in educational programs"
               className="absolute inset-0 w-full h-full object-cover"
             />

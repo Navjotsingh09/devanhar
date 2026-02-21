@@ -15,32 +15,32 @@ const teamMembers = [
   {
     name: "Harjinder Singh",
     role: "Founder & Director",
-    img: "https://images.unsplash.com/photo-1612810436788-aa23a6900f2f?w=200&h=200&fit=crop&crop=face&q=80",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=HarjinderSingh&backgroundColor=b6e3f4",
   },
   {
     name: "Gurpreet Kaur",
     role: "Head of Education",
-    img: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&h=200&fit=crop&crop=face&q=80",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=GurpreetKaur&backgroundColor=c0aede",
   },
   {
     name: "Rajveer Singh",
     role: "Operations Lead",
-    img: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=200&h=200&fit=crop&crop=face&q=80",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=RajveerSingh&backgroundColor=d1d4f9",
   },
   {
     name: "Simran Kaur",
     role: "Outreach Director",
-    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face&q=80",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=SimranKaur&backgroundColor=ffd5dc",
   },
   {
     name: "Amrit Singh",
     role: "Programs Manager",
-    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face&q=80",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=AmritSingh&backgroundColor=ffdfbf",
   },
   {
     name: "Jasleen Kaur",
     role: "Youth Lead",
-    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face&q=80",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=JasleenKaur&backgroundColor=b6e3f4",
   },
 ]
 

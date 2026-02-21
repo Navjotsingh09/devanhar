@@ -66,7 +66,7 @@ export function HeroSection() {
           <div className="relative hidden lg:flex justify-end">
             <div className="relative w-full max-w-lg aspect-[3/4]">
               <img
-                src="https://images.unsplash.com/photo-1609947017136-9daf32a55257?w=800&q=80"
+                src="https://api.dicebear.com/9.x/shapes/svg?seed=devanhaar-hero-image&backgroundColor=1a1f36"
                 alt="Golden Temple Amritsar - Sikh heritage and community"
                 className="absolute inset-0 w-full h-full object-cover object-center"
               />
