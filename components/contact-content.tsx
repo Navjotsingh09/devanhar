@@ -25,8 +25,8 @@ export function ContactContent() {
     try {
       if (supabase) {
         const { error: dbError } = await supabase
-          .from("contact_submissions")
-          .insert([{ name, email, subject, message }])
+          .from("form_submissions")
+          .insert([{ full_name: name, email, message, form_data: { subject }, status: "new" }])
 
         if (dbError) throw dbError
       } else {

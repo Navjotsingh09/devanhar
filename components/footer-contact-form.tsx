@@ -24,8 +24,8 @@ export function FooterContactForm() {
     try {
       if (supabase) {
         const { error } = await supabase
-          .from("footer_contact_submissions")
-          .insert([{ first_name: firstName, last_name: lastName, email, message }])
+          .from("form_submissions")
+          .insert([{ full_name: `${firstName} ${lastName}`, email, message, form_data: { first_name: firstName, last_name: lastName }, status: "new" }])
 
         if (error) throw error
       } else {
