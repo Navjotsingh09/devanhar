@@ -102,7 +102,7 @@ function ProductCard({ product, featured = false }: { product: typeof products[0
         <div className={`absolute bottom-0 left-0 right-0 p-6 transition-all duration-500 ${isHovered ? "translate-y-0" : "translate-y-2"}`}>
           <h3 className="text-white font-bold text-lg mb-1">{product.name}</h3>
           <div className="flex items-center justify-between">
-            <span className="text-primary font-bold text-xl">${product.price.toFixed(2)}</span>
+            <span className="text-primary font-bold text-xl">£{product.price.toFixed(2)}</span>
             <button className={`flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm font-semibold transition-all duration-300 hover:bg-primary/90 ${isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"}`}>
               <ShoppingBag className="w-4 h-4" />
               Add to Cart
@@ -143,7 +143,7 @@ export function ShopContent() {
               </span>
               <h2 className="text-white text-4xl md:text-5xl font-bold mb-2">{products[3].name}</h2>
               <div className="flex items-center justify-between">
-                <span className="text-primary text-3xl font-bold">${products[3].price.toFixed(2)}</span>
+                <span className="text-primary text-3xl font-bold">£{products[3].price.toFixed(2)}</span>
                 <button className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-semibold hover:bg-primary/90 transition-all">
                   <ShoppingBag className="w-5 h-5" />
                   Shop Now
@@ -165,7 +165,7 @@ export function ShopContent() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <h3 className="text-white text-xl font-bold mb-1">{products[4].name}</h3>
-                <span className="text-primary font-bold text-lg">${products[4].price.toFixed(2)}</span>
+                <span className="text-primary font-bold text-lg">£{products[4].price.toFixed(2)}</span>
               </div>
             </div>
             <div className="relative flex-1 overflow-hidden rounded-3xl group cursor-pointer min-h-[200px]">
@@ -179,7 +179,7 @@ export function ShopContent() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <h3 className="text-white text-xl font-bold mb-1">{products[1].name}</h3>
-                <span className="text-primary font-bold text-lg">${products[1].price.toFixed(2)}</span>
+                <span className="text-primary font-bold text-lg">£{products[1].price.toFixed(2)}</span>
               </div>
             </div>
           </div>

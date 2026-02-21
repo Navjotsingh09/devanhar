@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
-import { Mail, Phone, MapPin } from "lucide-react"
+import { Mail, MapPin } from "lucide-react"
 import { FooterDonateLink } from "@/components/footer-donate-link"
 import { FooterContactForm } from "@/components/footer-contact-form"
 import { NewsletterForm } from "@/components/newsletter-form"
+import Image from "next/image"
+import Link from "next/link"
 
 export function FooterSection() {
   return (
@@ -19,8 +21,8 @@ export function FooterSection() {
                 Have a question or want to get involved?
               </h2>
               <p className="text-base text-muted-foreground leading-relaxed mb-10">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Whether you want to volunteer at our camps, attend a university
+                talk, or learn more about Sikhi Vidyala — we would love to hear from you.
               </p>
 
               <div className="space-y-6">
@@ -37,23 +39,12 @@ export function FooterSection() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Phone</p>
-                    <p className="text-sm font-medium text-foreground">
-                      +44 (0) 20 1234 5678
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
                     <MapPin className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Location</p>
                     <p className="text-sm font-medium text-foreground">
-                      London, United Kingdom
+                      Birmingham, United Kingdom
                     </p>
                   </div>
                 </div>
@@ -72,9 +63,12 @@ export function FooterSection() {
           {/* Top: newsletter + logo */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 pb-12 border-b border-white/[0.08]">
             <div>
-              <img
+              <Image
                 src="/logos/main-white-transparent.png"
-                alt="Devanhaar - Discover Sikhi"
+                alt="Devanhaar"
+                width={160}
+                height={40}
+                unoptimized
                 className="h-10 w-auto mb-6"
               />
               <p className="text-sm text-white/40 leading-relaxed max-w-sm">
@@ -103,29 +97,34 @@ export function FooterSection() {
                   { label: "Shop", href: "/shop" },
                 ].map((l) => (
                   <li key={l.label}>
-                    <a
+                    <Link
                       href={l.href}
                       className="text-white/50 hover:text-white transition-colors"
                     >
                       {l.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
             </div>
             <div>
               <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-5">
-                Insights
+                Initiatives
               </h4>
               <ul className="space-y-3 text-sm">
-                {["Education", "Community", "Leadership", "News"].map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
+                {[
+                  { label: "Camps", href: "/#projects" },
+                  { label: "University Talks", href: "/#projects" },
+                  { label: "Sikhi Vidyala", href: "/#projects" },
+                  { label: "Gurmat Academy", href: "/#projects" },
+                ].map((l) => (
+                  <li key={l.label}>
+                    <Link
+                      href={l.href}
                       className="text-white/50 hover:text-white transition-colors"
                     >
-                      {l}
-                    </a>
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -135,16 +134,16 @@ export function FooterSection() {
                 Get Involved
               </h4>
               <ul className="space-y-3 text-sm">
-                {["Volunteer", "Vacancies", "Contact"].map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
-                      className="text-white/50 hover:text-white transition-colors"
-                    >
-                      {l}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <Link href="/#contact" className="text-white/50 hover:text-white transition-colors">
+                    Volunteer
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-white/50 hover:text-white transition-colors">
+                    Contact
+                  </Link>
+                </li>
                 <li>
                   <FooterDonateLink />
                 </li>
@@ -155,16 +154,21 @@ export function FooterSection() {
                 Connect
               </h4>
               <ul className="space-y-3 text-sm">
-                {["Instagram", "Facebook", "Twitter", "LinkedIn"].map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
-                      className="text-white/50 hover:text-white transition-colors"
-                    >
-                      {l}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <a href="https://www.instagram.com/devanhaar" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.youtube.com/@singhscampuk" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
+                    YouTube
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.tiktok.com/@singhscampuk" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
+                    TikTok
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -179,16 +183,16 @@ export function FooterSection() {
           {/* Bottom bar */}
           <div className="pt-6 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-white/30">
-              © 2024 Devanhaar. A registered charity organisation. All rights
+              © 2025 Devanhaar. A registered charity organisation. All rights
               reserved.
             </p>
             <div className="flex items-center gap-6 text-[11px] text-white/30">
-              <a href="#" className="hover:text-white/60 transition-colors">
+              <Link href="/privacy" className="hover:text-white/60 transition-colors">
                 Privacy Policy
-              </a>
-              <a href="#" className="hover:text-white/60 transition-colors">
-                Terms of Use
-              </a>
+              </Link>
+              <Link href="/terms" className="hover:text-white/60 transition-colors">
+                Terms of Service
+              </Link>
             </div>
           </div>
         </div>
