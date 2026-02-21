@@ -1,4 +1,4 @@
-import { OurStoryNarrative } from "./our-story-narrative"
+import OurStoryNarrative from "./our-story-narrative"
 
 export function OurStorySection() {
   return <OurStoryNarrative />
