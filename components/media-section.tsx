@@ -48,8 +48,8 @@ export function MediaSection() {
   return (
     <section id="media" className="py-24 md:py-32 border-t border-border">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="mb-12">
-          <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-primary mb-4">
+        <div data-animate className="mb-12">
+          <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
             News
           </p>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
@@ -58,7 +58,7 @@ export function MediaSection() {
         </div>
 
         {/* Horizontal scroll row like Agridex */}
-        <div className="relative mb-16">
+        <div data-animate className="relative mb-16">
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
           <div
             className="flex gap-5 overflow-x-auto pb-4"

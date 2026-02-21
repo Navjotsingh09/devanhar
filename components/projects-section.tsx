@@ -65,11 +65,11 @@ export function ProjectsSection() {
       {/* Launch Partners - mirrors Agridex "Our Launch Partners" */}
       <section id="projects" className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-16">
+          <h2 data-animate className="text-3xl md:text-5xl font-bold text-foreground mb-16">
             Our Key Initiatives
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div data-animate-stagger className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {partners.map((p, i) => (
               <div
                 key={i}

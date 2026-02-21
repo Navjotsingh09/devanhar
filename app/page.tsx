@@ -1,3 +1,4 @@
+import { ScrollAnimations } from "@/components/scroll-animations"
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { MetricsTicker } from "@/components/metrics-ticker"
@@ -14,6 +15,7 @@ import { FooterSection } from "@/components/footer-section"
 export default function Page() {
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <ScrollAnimations />
       <Navbar />
       <HeroSection />
       <MetricsTicker />

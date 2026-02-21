@@ -83,6 +83,7 @@ export default function OurStoryNarrative() {
 
   return (
     <section className="w-full">
+      <h2 className="sr-only">Our Journey</h2>
       <div className="flex w-full bg-[#031625]" style={{ minHeight: "600px", height: "85vh" }}>
         {milestones.map((m, i) => {
           const isHovered = hoveredIndex === i;

@@ -5,9 +5,9 @@ export function FoundationSection() {
   return (
     <section id="foundation" className="py-24 md:py-32 border-t border-border">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div data-animate className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div>
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Devanhaar Foundation
             </p>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6 text-balance">
@@ -35,7 +35,7 @@ export function FoundationSection() {
               </a>
             </div>
           </div>
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden hover-zoom">
             <img
               src="https://api.dicebear.com/9.x/shapes/svg?seed=devanhaar-foundation&backgroundColor=b6e3f4,c0aede,d1d4f9"
               alt="Sikh youth learning and participating in educational programs"

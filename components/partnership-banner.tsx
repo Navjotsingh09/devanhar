@@ -4,7 +4,7 @@ export function PartnershipBanner() {
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden border border-border">
+        <div data-animate className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-3xl overflow-hidden border border-border">
           {/* Left card - dark panel */}
           <div className="bg-[#1a1f36] p-10 md:p-14 flex flex-col justify-between min-h-[320px]">
             <div>

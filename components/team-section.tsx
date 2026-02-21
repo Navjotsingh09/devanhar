@@ -48,7 +48,7 @@ export function TeamSection() {
   return (
     <section id="team" className="py-24 md:py-32 bg-[#1a1f36]">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="mb-4">
+        <div data-animate className="mb-4">
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-blue-300/60 mb-4">
             Our team
           </p>
@@ -57,7 +57,7 @@ export function TeamSection() {
             <br className="hidden md:block" />
             the Mission
           </h2>
-          <p className="text-base text-white/50 max-w-2xl leading-relaxed">
+          <p className="text-base text-white/70 max-w-2xl leading-relaxed">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Get to
             know the passionate volunteers who drive our impact.
           </p>
@@ -76,7 +76,7 @@ export function TeamSection() {
         </div>
 
         {/* Team member circles with real photos */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
+        <div data-animate-stagger className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
           {teamMembers.map((member, i) => (
             <div key={i} className="text-center">
               <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-white/[0.08] mx-auto mb-4">
@@ -89,7 +89,7 @@ export function TeamSection() {
               <p className="font-semibold text-white text-sm mb-0.5">
                 {member.name}
               </p>
-              <p className="text-xs text-white/40">{member.role}</p>
+              <p className="text-xs text-white/70">{member.role}</p>
             </div>
           ))}
         </div>

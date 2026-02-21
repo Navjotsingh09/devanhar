@@ -12,9 +12,9 @@ export function FooterSection() {
       {/* Contact CTA */}
       <section id="contact" className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          <div data-animate className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
             <div>
-              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-primary mb-4">
+              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
                 Get in touch
               </p>
               <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6 text-balance">
@@ -71,7 +71,7 @@ export function FooterSection() {
                 unoptimized
                 className="h-10 w-auto mb-6"
               />
-              <p className="text-sm text-white/40 leading-relaxed max-w-sm">
+              <p className="text-sm text-white/70 leading-relaxed max-w-sm">
                 Creating, developing, and empowering individuals through Sikh
                 values and community-led initiatives across the UK, Europe, and
                 beyond.
@@ -83,9 +83,9 @@ export function FooterSection() {
           </div>
 
           {/* Middle: navigation columns */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          <div data-animate-stagger className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
             <div>
-              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-5">
+              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-5">
                 Navigate
               </h4>
               <ul className="space-y-3 text-sm">
@@ -108,7 +108,7 @@ export function FooterSection() {
               </ul>
             </div>
             <div>
-              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-5">
+              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-5">
                 Initiatives
               </h4>
               <ul className="space-y-3 text-sm">
@@ -130,7 +130,7 @@ export function FooterSection() {
               </ul>
             </div>
             <div>
-              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-5">
+              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-5">
                 Get Involved
               </h4>
               <ul className="space-y-3 text-sm">
@@ -150,7 +150,7 @@ export function FooterSection() {
               </ul>
             </div>
             <div>
-              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-5">
+              <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-5">
                 Connect
               </h4>
               <ul className="space-y-3 text-sm">
@@ -175,22 +175,22 @@ export function FooterSection() {
 
           {/* Giant text like Agridex "agridex international" */}
           <div className="mb-10">
-            <p className="text-6xl md:text-8xl lg:text-[10rem] font-bold text-white/[0.03] leading-none tracking-tight select-none">
+            <p aria-hidden="true" className="text-6xl md:text-8xl lg:text-[10rem] font-bold text-white/[0.03] leading-none tracking-tight select-none">
               devanhaar
             </p>
           </div>
 
           {/* Bottom bar */}
           <div className="pt-6 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-white/30">
+            <p className="text-[11px] text-white/60">
               © 2025 Devanhaar. A registered charity organisation. All rights
               reserved.
             </p>
-            <div className="flex items-center gap-6 text-[11px] text-white/30">
-              <Link href="/privacy" className="hover:text-white/60 transition-colors">
+            <div className="flex items-center gap-6 text-[11px] text-white/60">
+              <Link href="/privacy" className="hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="hover:text-white/60 transition-colors">
+              <Link href="/terms" className="hover:text-white transition-colors">
                 Terms of Service
               </Link>
             </div>

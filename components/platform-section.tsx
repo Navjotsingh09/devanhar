@@ -57,7 +57,7 @@ export function PlatformSection() {
   return (
     <section id="initiatives" className="py-24 md:py-32 bg-background">
       <div className="container mx-auto px-6 lg:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+        <div data-animate className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           {/* Left: Dark card - STICKY */}
           <div className="lg:col-span-5 self-start lg:sticky lg:top-28">
             <div className="relative rounded-2xl overflow-hidden bg-[#1a1d2e] text-white min-h-[32rem] flex flex-col justify-between">
