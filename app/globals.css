@@ -164,3 +164,8 @@ body {
   }
   .hover-zoom:hover img, .hover-zoom:hover video { transform: none; }
 }
+
+@keyframes heroProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
