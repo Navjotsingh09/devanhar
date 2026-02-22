@@ -1,4 +1,15 @@
-"use client"
+import { Navbar } from "@/components/navbar"
+import { FooterSection } from "@/components/footer-section"
+import { TeamPageContent } from "@/components/team-page-content"
 
-export const dynamic = "force-dynamic"
-
+export default function TeamPage() {
+  return (
+    <div>
+      <Navbar />
+      <main>
+        <TeamPageContent />
+      </main>
+      <FooterSection />
+    </div>
+  )
+}
