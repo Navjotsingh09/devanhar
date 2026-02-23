@@ -2,24 +2,39 @@
 
 import { ArrowRight, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
 
 const slides = [
   {
-    image: "https://images.unsplash.com/photo-1609710228159-0fa9bd7c0827?w=1920&q=80",
+    gradient: "from-[#1a1a2e] via-[#16213e] to-[#0f3460]",
+    orbs: [
+      { color: "bg-amber-500/20", size: "w-[500px] h-[500px]", pos: "top-[-10%] left-[-5%]", blur: "blur-[120px]" },
+      { color: "bg-blue-600/15", size: "w-[600px] h-[600px]", pos: "bottom-[-20%] right-[-10%]", blur: "blur-[150px]" },
+      { color: "bg-amber-400/10", size: "w-[300px] h-[300px]", pos: "top-[40%] right-[20%]", blur: "blur-[100px]" },
+    ],
     subtitle: "Empowering Communities",
   },
   {
-    image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1920&q=80",
+    gradient: "from-[#0f0c29] via-[#302b63] to-[#24243e]",
+    orbs: [
+      { color: "bg-amber-400/25", size: "w-[550px] h-[550px]", pos: "top-[10%] right-[-5%]", blur: "blur-[130px]" },
+      { color: "bg-indigo-500/20", size: "w-[400px] h-[400px]", pos: "bottom-[10%] left-[-5%]", blur: "blur-[120px]" },
+      { color: "bg-orange-500/10", size: "w-[350px] h-[350px]", pos: "top-[60%] left-[30%]", blur: "blur-[100px]" },
+    ],
     subtitle: "Building Together",
   },
   {
-    image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=1920&q=80",
+    gradient: "from-[#141e30] via-[#1a1a3e] to-[#243b55]",
+    orbs: [
+      { color: "bg-yellow-500/20", size: "w-[450px] h-[450px]", pos: "bottom-[-10%] left-[10%]", blur: "blur-[140px]" },
+      { color: "bg-blue-500/20", size: "w-[500px] h-[500px]", pos: "top-[-5%] right-[5%]", blur: "blur-[120px]" },
+      { color: "bg-amber-300/15", size: "w-[300px] h-[300px]", pos: "top-[30%] left-[-10%]", blur: "blur-[110px]" },
+    ],
     subtitle: "Creating Change",
   },
 ]
+
 export function HeroSection() {
   const [current, setCurrent] = useState(0)
   const [loaded, setLoaded] = useState(false)
@@ -34,29 +49,40 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden bg-black">
+    <section ref={sectionRef} className="relative h-screen w-full overflow-hidden">
       {slides.map((slide, i) => (
         <div
           key={i}
-          className="absolute inset-0 transition-opacity duration-[1.5s] ease-in-out"
+          className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} transition-opacity duration-[2s] ease-in-out`}
           style={{ opacity: i === current ? 1 : 0 }}
         >
-          <Image
-            src={slide.image}
-            alt={slide.subtitle}
-            fill
-            className="object-cover scale-105"
-            style={{
-              transform: i === current ? "scale(1.05)" : "scale(1.12)",
-              transition: "transform 8s ease-out",
-            }}
-            unoptimized
-            priority={i === 0}
-          />
+          {slide.orbs.map((orb, j) => (
+            <div
+              key={j}
+              className={`absolute rounded-full ${orb.color} ${orb.size} ${orb.pos} ${orb.blur} transition-transform duration-[8s] ease-in-out`}
+              style={{
+                transform: i === current ? "scale(1) rotate(0deg)" : "scale(0.8) rotate(15deg)",
+                animation: i === current ? `heroFloat${j} ${12 + j * 4}s ease-in-out infinite` : "none",
+              }}
+            />
+          ))}
         </div>
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute top-[15%] left-[8%] w-64 h-64 rounded-3xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm rotate-12"
+          style={{ opacity: loaded ? 1 : 0, transition: "opacity 2s ease 0.5s", animation: "heroFloat0 20s ease-in-out infinite" }}
+        />
+        <div
+          className="absolute bottom-[20%] right-[10%] w-48 h-48 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm -rotate-6"
+          style={{ opacity: loaded ? 1 : 0, transition: "opacity 2s ease 1s", animation: "heroFloat1 16s ease-in-out infinite reverse" }}
+        />
+        <div
+          className="absolute top-[50%] right-[25%] w-32 h-32 rounded-xl border border-amber-400/[0.08] bg-amber-400/[0.02] backdrop-blur-sm rotate-45"
+          style={{ opacity: loaded ? 1 : 0, transition: "opacity 2s ease 1.5s", animation: "heroFloat2 24s ease-in-out infinite" }}
+        />
+      </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">
         <div
@@ -67,7 +93,8 @@ export function HeroSection() {
             transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s",
           }}
         >
-          <span className="inline-block text-[11px] sm:text-xs font-semibold tracking-[0.3em] uppercase text-white/70">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/[0.1] bg-white/[0.05] backdrop-blur-md text-[11px] sm:text-xs font-semibold tracking-[0.3em] uppercase text-white/70">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
             {slides[current].subtitle}
           </span>
         </div>
@@ -83,7 +110,7 @@ export function HeroSection() {
           >
             Create. Develop.
             <br />
-            <span className="text-primary">Empower.</span>
+            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">Empower.</span>
           </h1>
         </div>
 
@@ -108,13 +135,13 @@ export function HeroSection() {
           }}
         >
           <Link href="/#contact">
-            <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold shadow-2xl shadow-white/10">
+            <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold shadow-2xl shadow-white/10 backdrop-blur-sm">
               Get Involved
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
           <Link href="/about">
-            <Button variant="outline" className="rounded-full px-8 py-6 text-sm font-semibold border-white/20 text-white hover:bg-white/10 backdrop-blur-sm">
+            <Button variant="outline" className="rounded-full px-8 py-6 text-sm font-semibold border-white/[0.15] text-white hover:bg-white/[0.08] backdrop-blur-md">
               Learn More
             </Button>
           </Link>
@@ -122,10 +149,7 @@ export function HeroSection() {
 
         <div
           className="mt-16 flex items-center gap-3"
-          style={{
-            opacity: loaded ? 1 : 0,
-            transition: "opacity 0.8s ease 1.2s",
-          }}
+          style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.8s ease 1.2s" }}
         >
           {slides.map((_, i) => (
             <button
@@ -133,11 +157,12 @@ export function HeroSection() {
               onClick={() => setCurrent(i)}
               className="group relative h-[3px] transition-all duration-500"
               style={{ width: i === current ? 48 : 16 }}
+              aria-label={`Go to slide ${i + 1}`}
             >
               <div className="absolute inset-0 rounded-full bg-white/20" />
               {i === current && (
                 <div
-                  className="absolute inset-0 rounded-full bg-white origin-left"
+                  className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 origin-left"
                   style={{ animation: "heroProgress 6s linear forwards" }}
                 />
               )}
@@ -148,10 +173,7 @@ export function HeroSection() {
 
       <div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
-        style={{
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 1s ease 1.5s",
-        }}
+        style={{ opacity: loaded ? 1 : 0, transition: "opacity 1s ease 1.5s" }}
       >
         <span className="text-[10px] tracking-[0.2em] uppercase text-white/40 font-medium">Scroll</span>
         <ChevronDown className="w-4 h-4 text-white/40 animate-bounce" />
