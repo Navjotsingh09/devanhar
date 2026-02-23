@@ -1,28 +1,23 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Inbox, Phone, BriefcaseBusiness, HandCoins, AlertTriangle, Clock } from 'lucide-react'
+import { Inbox, Phone, BriefcaseBusiness, AlertTriangle, Clock } from 'lucide-react'
 import Link from 'next/link'
 
 async function getStats() {
   const supabase = await createClient()
-
-  const [submissions, emergencies, vacancies, donations, recentSubmissions, criticalEmergencies] = await Promise.all([
+  const [submissions, emergencies, vacancies, recentSubmissions, criticalEmergencies] = await Promise.all([
     supabase.from('form_submissions').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     supabase.from('emergency_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'acknowledged', 'in_progress']),
     supabase.from('vacancy_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('donations').select('amount'),
     supabase.from('form_submissions').select('id, full_name, email, status, created_at, initiatives(name)').order('created_at', { ascending: false }).limit(5),
     supabase.from('emergency_requests').select('*').in('status', ['new', 'acknowledged']).order('created_at', { ascending: false }).limit(5),
   ])
-
-  const totalDonations = donations.data?.reduce((sum, d) => sum + Number(d.amount), 0) ?? 0
 
   return {
     newSubmissions: submissions.count ?? 0,
     activeEmergencies: emergencies.count ?? 0,
     pendingApplications: vacancies.count ?? 0,
-    totalDonations,
     recentSubmissions: recentSubmissions.data ?? [],
     criticalEmergencies: criticalEmergencies.data ?? [],
   }
@@ -39,7 +34,7 @@ export default async function DashboardOverview() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Link href="/dashboard/submissions">
           <Card className="transition-shadow hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -75,21 +70,6 @@ export default async function DashboardOverview() {
             <CardContent>
               <div className="text-3xl font-bold text-foreground">{stats.pendingApplications}</div>
               <p className="text-xs text-muted-foreground mt-1">To be reviewed</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/donations">
-          <Card className="transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Donations</CardTitle>
-              <HandCoins className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">
-                {new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(stats.totalDonations)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">All time</p>
             </CardContent>
           </Card>
         </Link>

@@ -3,8 +3,12 @@ import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { Toaster } from '@/components/ui/sonner'
 
+
+// Routes that require admin role
+const adminOnlyRoutes = ['/dashboard/users', '/dashboard/settings']
 export default async function DashboardLayout({
   children,
 }: {
@@ -24,10 +28,20 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single()
 
+
+  const role = profile?.role || 'staff'
+  const isAdmin = role === 'admin' || role === 'super_admin'
+
+  // Protect admin-only routes
+  const headerList = await headers()
+  const pathname = headerList.get('x-pathname') || ''
+  if (!isAdmin && adminOnlyRoutes.some((r) => pathname.startsWith(r))) {
+    redirect('/dashboard')
+  }
   const userData = {
     email: user.email || '',
     fullName: profile?.full_name || user.email || 'Staff',
-    role: profile?.role || 'admin',
+    role,
   }
 
   return (

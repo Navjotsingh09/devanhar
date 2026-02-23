@@ -6,8 +6,13 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUP
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
-    request,
+    request: {
+      headers: new Headers(request.headers),
+    },
   })
+
+  // Pass pathname to layout for role-based route protection
+  supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
 
   const supabase = createServerClient(
     supabaseUrl!,

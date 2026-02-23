@@ -5,12 +5,13 @@ import {
   Inbox,
   Phone,
   BriefcaseBusiness,
-  HandCoins,
+  Users,
   Activity,
   Settings,
   LogOut,
   ChevronDown,
   Shield,
+  Lock,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -35,17 +36,24 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-const mainNav = [
+type NavItem = {
+  title: string
+  url: string
+  icon: React.ComponentType<{ className?: string }>
+  adminOnly?: boolean
+}
+
+const mainNav: NavItem[] = [
   { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
-  { title: 'Donations', url: '/dashboard/donations', icon: HandCoins },
+  { title: 'User Management', url: '/dashboard/users', icon: Users, adminOnly: true },
 ]
 
-const systemNav = [
+const systemNav: NavItem[] = [
   { title: 'Activity Log', url: '/dashboard/activity', icon: Activity },
-  { title: 'Settings', url: '/dashboard/settings', icon: Settings },
+  { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
 ]
 
 interface AppSidebarProps {
@@ -59,6 +67,10 @@ interface AppSidebarProps {
 export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const isAdmin = user.role === 'admin' || user.role === 'super_admin'
+
+  const filteredMainNav = mainNav.filter((item) => !item.adminOnly || isAdmin)
+  const filteredSystemNav = systemNav.filter((item) => !item.adminOnly || isAdmin)
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -98,12 +110,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNav.map((item) => (
+              {filteredMainNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(item.url))}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
+                      {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -116,12 +129,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {systemNav.map((item) => (
+              {filteredSystemNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
+                      {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
