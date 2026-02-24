@@ -1,84 +1,136 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
-import { useDonation } from "@/components/donation-provider"
 import Link from "next/link"
 import Image from "next/image"
+import { useEffect, useState } from "react"
+import { Menu, X } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { DonateButton } from "@/components/donate-button"
+
+const navLinks = [
+  { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
+  { label: "Team", href: "/team" },
+  { label: "Foundation", href: "/foundation" },
+  { label: "Media", href: "/media" },
+  { label: "Shop", href: "/shop" },
+]
 
 export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const { openDonation } = useDonation()
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const pathname = usePathname()
+  const isHome = pathname === "/"
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  const isTransparent = isHome && !scrolled && !mobileOpen
+  const bgClass = isTransparent
+    ? "bg-transparent"
+    : "bg-white/95 backdrop-blur-md shadow-sm border-b border-black/[0.06]"
+  const textClass = isTransparent ? "text-white" : "text-gray-800"
+  const textMutedClass = isTransparent
+    ? "text-white/70 hover:text-white"
+    : "text-gray-600 hover:text-gray-900"
+  const logoSrc = isTransparent
+    ? "/logos/main-white-transparent.png"
+    : "/logos/main-black-transparent.png"
 
   return (
-    <header className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-[1440px] px-4">
-      <div className="rounded-2xl border border-foreground/[0.08] bg-background/50 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logos/main-black-transparent.png"
-              alt="Devanhaar"
-              width={120}
-              height={40}
-              className="h-10 w-auto"
-              unoptimized
-              priority
-            />
-          </Link>
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${bgClass}`}
+      >
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+              <Image
+                src={logoSrc}
+                alt="Devanhaar"
+                width={140}
+                height={36}
+                unoptimized
+                className="h-8 md:h-9 w-auto"
+              />
+            </Link>
 
-          <nav className="hidden lg:flex items-center gap-10">
-            <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">About</Link>
-            <Link href="/#projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Projects</Link>
-            <Link href="/#team" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Team</Link>
-            <Link href="/#foundation" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Foundation</Link>
-            <Link href="/#media" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Media</Link>
-            <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Shop</Link>
-          </nav>
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                    pathname === link.href
+                      ? isTransparent
+                        ? "text-white bg-white/15"
+                        : "text-gray-900 bg-gray-100"
+                      : textMutedClass
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
 
-          <div className="hidden lg:flex items-center gap-4">
-            <Link href="/#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact Us</Link>
-            <Button
-              onClick={() => openDonation("navbar")}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6"
+            <div className="hidden md:flex items-center gap-3">
+              <DonateButton
+                source="navbar"
+                className={`rounded-full px-6 py-2 text-sm font-semibold ${
+                  isTransparent
+                    ? "bg-white text-black hover:bg-white/90"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                }`}
+              />
+            </div>
+
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={`md:hidden p-2 rounded-lg transition-colors ${textClass}`}
+              aria-label="Toggle menu"
             >
-              Donate
-            </Button>
+              {mobileOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
           </div>
-
-          <button
-            type="button"
-            className="lg:hidden text-foreground"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
         </div>
-      </div>
+      </nav>
 
-      {isOpen && (
-        <div className="lg:hidden border-t border-foreground/[0.08] bg-background/50 backdrop-blur-xl rounded-b-2xl">
-          <nav className="px-6 py-6 flex flex-col gap-4">
-            <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>About</Link>
-            <Link href="/#projects" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Projects</Link>
-            <Link href="/#team" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Team</Link>
-            <Link href="/#foundation" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Foundation</Link>
-            <Link href="/#media" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Media</Link>
-            <Link href="/shop" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Shop</Link>
-            <Link href="/#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2" onClick={() => setIsOpen(false)}>Contact Us</Link>
-            <Button
-              onClick={() => {
-                openDonation("navbar-mobile")
-                setIsOpen(false)
-              }}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-full mt-2"
-            >
-              Donate
-            </Button>
-          </nav>
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 bg-white pt-20 md:hidden">
+          <div className="container mx-auto px-6 py-8">
+            <div className="flex flex-col gap-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`px-4 py-3 text-lg font-medium rounded-xl transition-colors ${
+                    pathname === link.href
+                      ? "text-gray-900 bg-gray-100"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <DonateButton
+                source="navbar-mobile"
+                className="w-full rounded-full px-6 py-3 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+              />
+            </div>
+          </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
