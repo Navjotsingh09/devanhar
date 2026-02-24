@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { ArrowRight, BookOpen, Heart, Globe, Users } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 const pillars = [
   { icon: BookOpen, title: "Education", description: "Empowering communities through accessible learning programmes, scholarships, and skill development initiatives." },
@@ -25,18 +26,71 @@ const timeline = [
 export function FoundationPageContent() {
   return (
     <div className="pt-24 pb-20">
-      {/* Header */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
-          <div className="max-w-4xl">
-            <p className="text-sm uppercase tracking-widest text-muted-foreground mb-6">Who We Are</p>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-light text-foreground mb-8 tracking-tight">The Foundation</h1>
-            <div className="w-16 h-px bg-amber-400 mb-8" />
-            <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed max-w-2xl">Rooted in Sikh values of seva, equality, and compassion. Devanhaar exists to empower communities through education, service, and cultural preservation.</p>
+      {/* Hero Section */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
+                Who We Are
+              </p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
+                Building a Legacy of Seva & Empowerment
+              </h1>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
+                Rooted in Sikh values of seva, equality, and compassion. Devanhaar
+                exists to empower communities through education, service, and
+                cultural preservation.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
+                  <Link href="/donate">Support Our Mission</Link>
+                </Button>
+                <Button asChild variant="outline" className="bg-transparent rounded-full px-8 py-6 text-base border-foreground/20 hover:bg-foreground/5">
+                  <Link href="/about">Learn More</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
+                <div className="absolute inset-0 backdrop-blur-3xl" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Heart className="w-10 h-10 text-primary/40" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
+                <p className="text-3xl font-bold">2017</p>
+                <p className="text-sm text-primary-foreground/80">Year Founded</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Stats Section */}
+      <section className="py-16 bg-[#1a1f2e]">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { number: "2017", label: "Year Founded" },
+              { number: "10K+", label: "Lives Touched" },
+              { number: "7", label: "Active Programmes" },
+              { number: "50+", label: "Events Annually" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {stat.number}
+                </p>
+                <p className="text-sm text-white/60 uppercase tracking-wider">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* Mission */}
       <section className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

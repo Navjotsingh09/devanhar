@@ -1,8 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Users } from "lucide-react"
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 interface TeamMember {
   name: string
@@ -49,14 +50,67 @@ const values = [
 export function TeamPageContent() {
   return (
     <div className="pt-24 pb-20">
-      {/* Header */}
-      <section className="border-b border-border">
-        <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
-          <div className="max-w-4xl">
-            <p className="text-sm uppercase tracking-widest text-muted-foreground mb-6">Our People</p>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-light text-foreground mb-8 tracking-tight">The Team</h1>
-            <div className="w-16 h-px bg-amber-400 mb-8" />
-            <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed max-w-2xl">Dedicated individuals united by a shared commitment to service, education, and community.</p>
+      {/* Hero Section */}
+      <section className="py-20 md:py-28">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
+                Our People
+              </p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
+                The Sevadaars Behind Devanhaar
+              </h1>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
+                Dedicated individuals united by a shared commitment to service,
+                education, and community empowerment.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
+                  <Link href="/contact">Join Our Team</Link>
+                </Button>
+                <Button asChild variant="outline" className="bg-transparent rounded-full px-8 py-6 text-base border-foreground/20 hover:bg-foreground/5">
+                  <Link href="/projects">Our Projects</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
+                <div className="absolute inset-0 backdrop-blur-3xl" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="w-10 h-10 text-primary/40" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
+                <p className="text-3xl font-bold">50+</p>
+                <p className="text-sm text-primary-foreground/80">Active Sevadaars</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-[#1a1f2e]">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { number: "50+", label: "Active Sevadaars" },
+              { number: "7", label: "Core Projects" },
+              { number: "10+", label: "UK Cities" },
+              { number: "100%", label: "Volunteer Run" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {stat.number}
+                </p>
+                <p className="text-sm text-white/60 uppercase tracking-wider">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
