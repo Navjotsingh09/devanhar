@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
+import { FooterSection } from "@/components/footer-section"
 
 interface FAQ {
   question: string
@@ -216,16 +217,27 @@ export function InitiativePageLayout({
           <p className="text-background/70 max-w-xl mx-auto mb-8">
             {tagline}
           </p>
-          <Link href="/">
-            <Button
-              variant="outline"
-              className="rounded-full px-8 py-6 text-base border-background/30 text-background hover:bg-background/10 bg-transparent"
-            >
-              Back to Home
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {ctaText && ctaHref && (
+              <a href={ctaHref} target="_blank" rel="noopener noreferrer">
+                <Button className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
+                  {ctaText}
+                </Button>
+              </a>
+            )}
+            <Link href="/contact">
+              <Button
+                variant="outline"
+                className="rounded-full px-8 py-6 text-base border-background/30 text-background hover:bg-background/10 bg-transparent"
+              >
+                Contact Us
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
+
+      <FooterSection />
     </div>
   )
 }
