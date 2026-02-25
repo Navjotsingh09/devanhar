@@ -3,8 +3,9 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ShoppingBag, Heart, ArrowRight } from "lucide-react"
+import { ShoppingBag, Heart, ArrowRight, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useCart } from "@/components/cart-provider"
 
 const categories = [
   { id: "all", label: "All" },
@@ -16,64 +17,94 @@ const categories = [
 const products = [
   {
     id: 1,
+    slug: "devanhaar-classic-tee",
     name: "Devanhaar Classic Tee",
-    price: "£25.00",
+    price: 25.00,
     category: "clothing",
     image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
     description: "Premium cotton tee with embroidered Devanhaar logo. Every purchase supports Sikh education.",
     badge: "Best Seller",
+    inStock: true,
   },
   {
     id: 2,
-    name: "Seva Hoodie",
-    price: "£45.00",
+    slug: "khanda-hoodie",
+    name: "Khanda Hoodie",
+    price: 55.00,
     category: "clothing",
     image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
-    description: "Cosy heavyweight hoodie with subtle Khanda detailing. Perfect for camp nights and events.",
+    description: "Cosy hoodie with subtle Khanda design. Premium quality, ethically made.",
     badge: null,
+    inStock: true,
   },
   {
     id: 3,
-    name: "Chardi Kala Cap",
-    price: "£18.00",
+    slug: "seva-water-bottle",
+    name: "Seva Water Bottle",
+    price: 18.00,
     category: "accessories",
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c334e67a?w=600&q=80",
-    description: "Structured cap with ‘Chardi Kala’ embroidery. One size fits all.",
-    badge: "New",
+    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80",
+    description: "Stainless steel bottle with \"Seva\" engraving. Keeps drinks cold for 24hrs.",
+    badge: "Eco-Friendly",
+    inStock: true,
   },
   {
     id: 4,
-    name: "Khalsa Enamel Pin Set",
-    price: "£12.00",
-    category: "accessories",
-    image: "https://images.unsplash.com/photo-1608042314453-ae338d80c427?w=600&q=80",
-    description: "Set of three enamel pins featuring Khanda, Ik Onkar, and Devanhaar crest.",
+    slug: "japji-sahib-journal",
+    name: "Japji Sahib Journal",
+    price: 15.00,
+    category: "books",
+    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80",
+    description: "Beautiful hardcover journal with Japji Sahib verses. Perfect for reflection.",
     badge: null,
+    inStock: true,
   },
   {
     id: 5,
-    name: "Singhs Camp Journal",
-    price: "£15.00",
-    category: "books",
-    image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&q=80",
-    description: "Premium hardcover journal for reflection and Nitnem tracking. 200 lined pages.",
-    badge: null,
+    slug: "community-cap",
+    name: "Community Cap",
+    price: 22.00,
+    category: "accessories",
+    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80",
+    description: "Adjustable cap with Devanhaar community badge. One size fits all.",
+    badge: "New",
+    inStock: true,
   },
   {
     id: 6,
-    name: "Devanhaar Tote Bag",
-    price: "£14.00",
-    category: "accessories",
-    image: "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=600&q=80",
-    description: "Organic cotton tote with Devanhaar branding. Carry your Seva essentials in style.",
-    badge: null,
+    slug: "sikhi-colouring-book",
+    name: "Sikhi Colouring Book",
+    price: 12.00,
+    category: "books",
+    image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+    description: "Educational colouring book teaching Sikhi basics to children.",
+    badge: "For Kids",
+    inStock: false,
   },
 ]
 
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(price)
+}
+
 export function ShopContent() {
   const [activeCategory, setActiveCategory] = useState("all")
+  const { addToCart } = useCart()
 
   const filtered = activeCategory === "all" ? products : products.filter((p) => p.category === activeCategory)
+
+  const handleQuickAdd = async (product: typeof products[0]) => {
+    if (!product.inStock) return
+    await addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      variant: "Default",
+      quantity: 1,
+      slug: product.slug,
+    })
+  }
 
   return (
     <section className="pt-32 pb-24 bg-background">
@@ -113,7 +144,7 @@ export function ShopContent() {
               key={product.id}
               className="group bg-card border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300"
             >
-              <div className="relative aspect-square overflow-hidden bg-muted">
+              <Link href={`/shop/${product.slug}`} className="block relative aspect-square overflow-hidden bg-muted">
                 <Image
                   src={product.image}
                   alt={product.name}
@@ -125,15 +156,38 @@ export function ShopContent() {
                     {product.badge}
                   </span>
                 )}
-              </div>
+                {!product.inStock && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-semibold">Out of Stock</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
+                    <Eye className="w-4 h-4" /> View Details
+                  </span>
+                </div>
+              </Link>
               <div className="p-6">
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                <Link href={`/shop/${product.slug}`}>
+                  <h3 className="text-lg font-semibold hover:text-primary transition-colors">{product.name}</h3>
+                </Link>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-2">
                   {product.description}
                 </p>
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-lg font-bold text-primary">{product.price}</span>
-                  <span className="text-xs text-muted-foreground">Coming Soon</span>
+                  <span className="text-lg font-bold text-primary">{formatPrice(product.price)}</span>
+                  <button
+                    onClick={() => handleQuickAdd(product)}
+                    disabled={!product.inStock}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      product.inStock
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "bg-muted text-muted-foreground cursor-not-allowed"
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    {product.inStock ? "Add to Cart" : "Sold Out"}
+                  </button>
                 </div>
               </div>
             </div>
