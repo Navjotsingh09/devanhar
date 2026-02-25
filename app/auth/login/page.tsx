@@ -1,17 +1,17 @@
-'use client'
+"use client"
 
-import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Shield, Eye, EyeOff } from 'lucide-react'
+import { createClient } from "@/lib/supabase/client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { Eye, EyeOff, Lock } from "lucide-react"
+import Image from "next/image"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -24,100 +24,147 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (error) throw error
-      router.push('/dashboard')
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) th
+import { createClient } from "@/lib/supabase/client"
+import { Button } from   simport { Button } from "@/components/ui/button"
+impn import { Input } from "@/components/ui/inputLoadimport { Label } from "@/components/ui/labelasimport { useRouter } from "next/navigation"
+  import { useState } from "react"
+import { 20import { Eye, EyeOff, Lock } frolimport Image from "next/image"
 
-  return (
-    <div className="flex min-h-svh w-full items-center justify-center bg-primary p-6 md:p-10">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center gap-8">
-          {/* Brand Header */}
-          <div className="flex flex-col items-center gap-3 text-primary-foreground">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent">
-              <Shield className="h-7 w-7 text-accent-foreground" />
-            </div>
-            <div className="text-center">
-              <h1 className="text-2xl font-bold tracking-tight">Devanhaar</h1>
-              <p className="mt-1 text-sm opacity-80">Inspire. Empower. Transform.</p>
-            </div>
-          </div>
+export default h.
+export default function Logi2ae  const [email, setEmail] = useStatece  const [password, setPassword] = useStam  const [error, setError] = useState<string |0d  const [isLoading, setIsLoading] = useState(false)
+  coss  const [showPassword, setShowPassword] = useState5,  const router = useRouter()
 
-          {/* Login Card */}
-          <Card className="w-full border-0 shadow-xl">
-            <CardHeader className="text-center">
-              <CardTitle className="text-xl text-card-foreground">Staff Login</CardTitle>
-              <CardDescription>
-                Enter your credentials to access the dashboard
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin}>
-                <div className="flex flex-col gap-5">
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="email" className="text-card-foreground">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@devanhaar.org"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="password" className="text-card-foreground">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="h-11 pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  {error && (
-                    <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-                      {error}
-                    </div>
-                  )}
-                  <Button
-                    type="submit"
-                    className="h-11 w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          <p className="text-center text-xs text-primary-foreground/60">
-            Access restricted to authorised Devanhaar staff only.
-          </p>
-        </div>
+  const handleLogint(90deg,r
+  const handleLogin = asynran    e.preventDefaultze:64px_64px]" />
       </div>
+
+      const supabase = el    setIsLoading(true)
+    setErroy-    setError(null)
+
+ >
+
+    try {
+      ge       cogo      if (error) th
+import { createClient } from "@/lib/supabase/client"
+import { -1import { createClizeimport { Button } from   simport { Button } from "@  impn import { Input } from "@/components/ui/inputLoadimport { Label } fr/9  import { useState } from "react"
+import { 20import { Eye, EyeOff, Lock } frolimport Image from "next/image"
+
+export default h.
+export defauv className="mt-6 flex items-center g
+export default h.
+export default function Logi2ae  const [email, setEmair-4export default fre  coss  const [showPassword, sName="text-xs font-medium tracking-[0.2em] uppercase text-amber-400/70">Since 2015</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-6 text-xs t
+  const handleLogint(90deg,r
+  const handleLogin = asynran    e.preventDefaultze:64pl b  const handleLogin = asynrpa      </div>
+
+      const supabase = el    setIsLoading(true)
+   /2
+      cons       setErroy-    setError(null)
+
+ >
+
+    try {-1
+ >
+
+    try {
+      ge        />
+         gespimport { createClient } from "@/l</div>import { -1import { createClizeimport { Button } frw-import { 20import { Eye, EyeOff, Lock } frolimport Image from "next/image"
+
+export default h.
+export defauv className="mt-6 flex items-center g
+export default h.
+export default function Logi2="
+export default h.
+export defauv className="mt-6 flex items-center g
+expo} cexssName="h-9 w-auexport default h.
+export default function Logi2a2 export default fte          </div>
+        </div>
+        <div className="flex items-center gap-6 text-xs t
+  const handleLogint(90deg,r
+  const handleLogin = asynran    e.preventDefaultze:64pl b  const handleLote       er">
+             <div  c  const handleLogint(90deg,r
+  const handleLogin = asynrfy  const handleLogin = asynrer
+      const supabase = el    setIsLoading(true)
+   /2
+      cons       setErroy-    setError(null      /2
+      cons       setErroy-    setError(nwh    >S
+ >
+
+    try {-1
+ >
+
+    try {
+      ge  me="mt-1  >
+
+    trxt
+whi      geig         gespimpoe 
+export default h.
+export defauv className="mt-6 flex items-center g
+export default h.
+eace-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" clexport defauv cl texport default h.
+export default function Logi2=utexport default f="expol" placeholder="you@devanhaaexorg" required vaexpo} cexssName="h-9 w-auexport default h.
+eet.valexport default function Logi2a2 export dehi        </div>
+        <div className="flex items-center gap-6 te-4        <div in  const handleLogint(90deg,r
+  const handleLogin = asynriv  const handleLogin = asynr               <div  c  const handleLogint(90deg,r
+  const handleLogin = asynrfy  const >
+  const handleLogin = asynrfy  const handleLogi        const supabase = el    setIsLoading(true)
+   /2
+   xt   /2
+      cons       setErroy-    setError(nan    (e      cons       setErroy-    setError(nwh    >S
+ bo >
+
+    try {-1
+ >
+
+    try {
+      ge  me="mt-pl
+ceh >
+
+    tr-w
+ite/30 focus:
+    trxt
+whi      gfocwhi    -aexport default h.
+export defauv  export defauv clutexport default h.
+eace-y-5">
+              <div d)eace-y-5">
+     ol         -3                <Label htmlFor="email" chover:text-white/70 transition-colors" aria-label={showPassword ? "Hide passworeet.valexport default function Logi2a2 export dehi        </div>
+        <div className="flex items-center gap-6 te-4        <div in  const hbu        <div className="flex items-center gap-6 te-4        <di {  const handleLogin = asynriv  const handleLogin = asynr               <div  c  const handleLod-  const handleLogin = asynrfy  const >
+  const handleLogin = asynrfy  const handleLogi        const supab]   const handleLogin = asynrfy  coansiti   /2
+   xt   /2
+      cons       setErroy-    setError(nan    (e      cons       setErroy-    </   x>
+      con < bo >
+
+    try {-1
+ >
+
+    try {
+      ge  me="mt-pl
+ceh >
+
+    tr-w
+ite/30 focus:
+    trxt
+whiho
+   d D >
+
+    trta
+f o      ge
+ ceh >
+
+    tr-w
+it  
+   v>
+ite/30 <d    trxt
+whe="whi    -eexport defauv  export defauv left-0 h-pxeace-y-5">
+              <div d)eace-y-5">
+     oer         o-     oarent" />
+      <div className="pointer-events-none absolute right-1/2 top-0 h-full w-px bg-gradient-to-b from-transparent via-white/[0.05] to-transparent lg:block hidden" />
     </div>
   )
 }
