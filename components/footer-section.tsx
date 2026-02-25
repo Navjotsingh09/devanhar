@@ -92,8 +92,9 @@ export function FooterSection() {
                 {[
                   { label: "About", href: "/about" },
                   { label: "Projects", href: "/#projects" },
-                  { label: "Team", href: "/#team" },
-                  { label: "Foundation", href: "/#foundation" },
+                  { label: "Team", href: "/team" },
+                  { label: "Foundation", href: "/foundation" },
+                  { label: "Media", href: "/media" },
                   { label: "Shop", href: "/shop" },
                 ].map((l) => (
                   <li key={l.label}>

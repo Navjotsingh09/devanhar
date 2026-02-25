@@ -109,13 +109,13 @@ export default function OurStoryNarrative() {
                 className="absolute inset-0 bg-cover bg-center transition-[filter] duration-500"
                 style={{
                   backgroundImage: `url(${m.image})`,
-                  filter: isHovered ? "grayscale(0)" : "grayscale(100%)",
+                  filter: isHovered ? "grayscale(0)" : "grayscale(60%)",
                 }}
               />
 
               {/* Dark overlay */}
               <div
-                className="absolute inset-0 bg-[#031625]/85 transition-opacity duration-500"
+                className="absolute inset-0 bg-[#031625]/50 transition-opacity duration-500"
                 style={{ opacity: isHovered ? 0 : 1 }}
               />
 
