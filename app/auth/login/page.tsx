@@ -24,147 +24,152 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) th
+      const { error } = await supabase.auth.signInWithPassword({ email"use client"
+
 import { createClient } from "@/lib/supabase/client"
-import { Button } from   simport { Button } from "@/components/ui/button"
-impn import { Input } from "@/components/ui/inputLoadimport { Label } from "@/components/ui/labelasimport { useRouter } from "next/navigation"
-  import { useState } from "react"
-import { 20import { Eye, EyeOff, Lock } frolimport Image from "next/image"
+import { Button } from "@/comp
+    } catch (erimport { Button } from "@/components/ui/button"
+imp eimport { Input } from "@/components/ui/input"
+  import { Label } from "@/components/ui/label
+ import { useRouter } from "next/navigation"
+ {import { useState } from "react"
+import { asimport { Eye, EyeOff, Lock } frreimport Image from "next/image"
 
-export default h.
-export default function Logi2ae  const [email, setEmail] = useStatece  const [password, setPassword] = useStam  const [error, setError] = useState<string |0d  const [isLoading, setIsLoading] = useState(false)
-  coss  const [showPassword, setShowPassword] = useState5,  const router = useRouter()
+export default /*
+export default functi overlay *  const [email, setEmail] = useStatein  const [password, setPassword] = useStc=  const [error, setError] = useState<string |30  const [isLoading, setIsLoading] = useState(false)
+  coit  const [showPasswl
+            className="object-co  const router = useRouter()
 
-  const handleLogint(90deg,r
-  const handleLogin = asynran    e.preventDefaultze:64px_64px]" />
+  const handleLogin = asyn  
+  const handleLogin = asynins    e.preventDefault()
+    const supabase = createCl90    const supabase =       setIsLoading(true)
+    setErroCo    setError(null)
+
+ v 
+    try {
+      ve       cox 
+import { createClient } from "@/lib/supabase/client"
+import { Button } from "@/c <dimport { Button } from "@/comp
+    } catch (erimporap    } catch (erimport { Butto cimp eimport { Input } from "@/components/00 flex items-center j  import { Label } from "@/components/ui/label
+ ida import { useRouter } from "next/navigation"
+cl {import { useState } from "react"
+import {  import { asimport { Eye, EyeOff, xl
+export default /*
+export default ar</span>
+            </div>
+            
+export default fcl  coit  const [showPasswl
+            className="object-co  const router = useRouter()
+
+  const handleLogin = asyn  
+  const handleLogin = asynins    e.preventDefault()
+    const supabase = createCl90    con              className="owh
+  const handleLogin = asyn  
+  conaxed">
+              Access  const handleLogin = asyni m    const supabase = createCl90    const supabase it    setErroCo    setError(null)
+
+ v 
+    try {
+      ve       cox 
+import {/*
+ v 
+    try {
+      ve       ssN  e=      veemimport { createtext-import { Button } from "@/c <dimport { Button } fro</ pan>
+            <span className="w-1 h-1 rounded-full bg-wh ida import { useRouter } from "next/navigation"
+cl {import { useState } from "react"
+import {  import { asimport { Eye, EyeOff, xl
+export default /*
+export defaflcl {import { useState } from "react"
+import {  6 import {  import { asimport { Eye, ulexport default /*
+export default ar</span>
+   export default asN            </div>
+    x-            
+expombexport defa              className="object-co  const ro b
+  const handleLogin = asyn  
+  const handleLogin = asynins     const handleLogin = asyni"     const supabase = createCl90    con            in  const handleLogin = asyn  
+  conaxed">
+              Access  coon  conaxed">
+              Anh            
+ v 
+    try {
+      ve       cox 
+import {/*
+ v 
+    try {
+      ve       ssN  e=      veemimport { createtext-import { Button } f             veclimport {/*
+ v 
+   5  v 
+    tbl  -x      ve b            <span className="w-1 h-1 rounded-full bg-wh ida import { useRouter } from "next/navigation"
+cl {i hcl {import { useStg-amber-400/10 mx-auto mb-6">
+              <Lock className="w-5 h-5 text-amber-400" /import {  import { asimport { Eye,   export default /*
+export defaflcl {import { ldexport defaflcl -cimport {  6 import {  import { asimport { Eye, usNexport default ar</span>
+   export default asN            </div>
+ y   export default asN  ss    x-            
+expombexport defa    expombform onSubmit  const handleLogin = asyn  
+  const handleLogin = asynins    (
+  const handleLogin = asyniam  conaxed">
+              Access  coon  conaxed">
+              Anh            
+ vg">
+                  {error}
+                </div>
+              )}
+
+               Anh            
+ v 
+  -2 v 
+    try {
+      ve      ml  r=      veclimport {/*
+ v 
+   e/ v 
+    tm" Ema      vel> v 
+   5  v 
+    tbl  -x      ve b            <span className="w-1 h-1 rounded-full bg-wh ida imp     p    tbldecl {i hcl {import { useStg-amber-400/10 mx-auto mb-6">
+              <Lock className="w-5 h-5 text-amber-400" /import {  im                <Lock className="w-5 h-5 text-amber-400e/export defaflcl {import { ldexport defaflcl -cimport {  6 import {  import { asimport { Eye, usNexport defaul"
+   export default asN            </div>
+ y   export default asN  ss    x-            
+expombexport defa    expombform owo y   export default asN  ss    x-     Paexpombexport defa    expombform onSubmit  coe=  const handleLogin = asynins    (
+  const handleLogin = asyniam  crd  const handleLogin = asyniam  coas              Access  coon  conaxed">
+                 Anh            
+ vg">
+?vg">
+                  {err v    ={                </div>
+                 )}
+
+   se
+              get v 
+  -2 v 
+    try {
+      vre  ir    tr        ve   v 
+   e/ v 
+    tm" Ema      vel> v 
+ /1  te    tm"e    5  v 
+    tbl  -x   30    tblbo              <Lock className="w-5 h-5 text-amber-400" /import {  im                <Lock classNaton
+                    type="button"
+                      export default asN            </div>
+ y   export default asN  ss    x-            
+expombexport defa    expombform owo y   export default asN  ss    x-     Paexpombexport defa    expombform onSubmit  coe=  const handleLogin = asyniOf y   export default asN  ss    x-     amexpombexport defa    expombform owo y   expo    const handleLogin = asyniam  crd  const handleLogin = asyniam  coas              Access  coon  conaxed">
+                 Anh            
+ vg">
+?vg">
+am                 Anh            
+ vg">
+?vg">
+                  {err v    ={                </div>
+     n- vg">
+?vg">
+                   ?v{i      ng                 )}
+
+   se
+              get v 
+  -to
+   se
+           orm        -2 v 
+    try {
+       trcl      vr"t   e/ v 
+    tm" Ema      vel> v mt    tm"   /1     Access restricted    tbl  -x   30  anhaar                     type="button"
+     v>
       </div>
-
-      const supabase = el    setIsLoading(true)
-    setErroy-    setError(null)
-
- >
-
-    try {
-      ge       cogo      if (error) th
-import { createClient } from "@/lib/supabase/client"
-import { -1import { createClizeimport { Button } from   simport { Button } from "@  impn import { Input } from "@/components/ui/inputLoadimport { Label } fr/9  import { useState } from "react"
-import { 20import { Eye, EyeOff, Lock } frolimport Image from "next/image"
-
-export default h.
-export defauv className="mt-6 flex items-center g
-export default h.
-export default function Logi2ae  const [email, setEmair-4export default fre  coss  const [showPassword, sName="text-xs font-medium tracking-[0.2em] uppercase text-amber-400/70">Since 2015</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-6 text-xs t
-  const handleLogint(90deg,r
-  const handleLogin = asynran    e.preventDefaultze:64pl b  const handleLogin = asynrpa      </div>
-
-      const supabase = el    setIsLoading(true)
-   /2
-      cons       setErroy-    setError(null)
-
- >
-
-    try {-1
- >
-
-    try {
-      ge        />
-         gespimport { createClient } from "@/l</div>import { -1import { createClizeimport { Button } frw-import { 20import { Eye, EyeOff, Lock } frolimport Image from "next/image"
-
-export default h.
-export defauv className="mt-6 flex items-center g
-export default h.
-export default function Logi2="
-export default h.
-export defauv className="mt-6 flex items-center g
-expo} cexssName="h-9 w-auexport default h.
-export default function Logi2a2 export default fte          </div>
-        </div>
-        <div className="flex items-center gap-6 text-xs t
-  const handleLogint(90deg,r
-  const handleLogin = asynran    e.preventDefaultze:64pl b  const handleLote       er">
-             <div  c  const handleLogint(90deg,r
-  const handleLogin = asynrfy  const handleLogin = asynrer
-      const supabase = el    setIsLoading(true)
-   /2
-      cons       setErroy-    setError(null      /2
-      cons       setErroy-    setError(nwh    >S
- >
-
-    try {-1
- >
-
-    try {
-      ge  me="mt-1  >
-
-    trxt
-whi      geig         gespimpoe 
-export default h.
-export defauv className="mt-6 flex items-center g
-export default h.
-eace-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email" clexport defauv cl texport default h.
-export default function Logi2=utexport default f="expol" placeholder="you@devanhaaexorg" required vaexpo} cexssName="h-9 w-auexport default h.
-eet.valexport default function Logi2a2 export dehi        </div>
-        <div className="flex items-center gap-6 te-4        <div in  const handleLogint(90deg,r
-  const handleLogin = asynriv  const handleLogin = asynr               <div  c  const handleLogint(90deg,r
-  const handleLogin = asynrfy  const >
-  const handleLogin = asynrfy  const handleLogi        const supabase = el    setIsLoading(true)
-   /2
-   xt   /2
-      cons       setErroy-    setError(nan    (e      cons       setErroy-    setError(nwh    >S
- bo >
-
-    try {-1
- >
-
-    try {
-      ge  me="mt-pl
-ceh >
-
-    tr-w
-ite/30 focus:
-    trxt
-whi      gfocwhi    -aexport default h.
-export defauv  export defauv clutexport default h.
-eace-y-5">
-              <div d)eace-y-5">
-     ol         -3                <Label htmlFor="email" chover:text-white/70 transition-colors" aria-label={showPassword ? "Hide passworeet.valexport default function Logi2a2 export dehi        </div>
-        <div className="flex items-center gap-6 te-4        <div in  const hbu        <div className="flex items-center gap-6 te-4        <di {  const handleLogin = asynriv  const handleLogin = asynr               <div  c  const handleLod-  const handleLogin = asynrfy  const >
-  const handleLogin = asynrfy  const handleLogi        const supab]   const handleLogin = asynrfy  coansiti   /2
-   xt   /2
-      cons       setErroy-    setError(nan    (e      cons       setErroy-    </   x>
-      con < bo >
-
-    try {-1
- >
-
-    try {
-      ge  me="mt-pl
-ceh >
-
-    tr-w
-ite/30 focus:
-    trxt
-whiho
-   d D >
-
-    trta
-f o      ge
- ceh >
-
-    tr-w
-it  
-   v>
-ite/30 <d    trxt
-whe="whi    -eexport defauv  export defauv left-0 h-pxeace-y-5">
-              <div d)eace-y-5">
-     oer         o-     oarent" />
-      <div className="pointer-events-none absolute right-1/2 top-0 h-full w-px bg-gradient-to-b from-transparent via-white/[0.05] to-transparent lg:block hidden" />
     </div>
   )
 }
