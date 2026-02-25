@@ -3,8 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Navbar } from "@/components/navbar"
+import { SiteFooter } from "@/components/site-footer"
 import { Package, Truck, CheckCircle, Clock, MapPin, Search, ArrowRight, ExternalLink, MessageCircle } from "lucide-react"
 
 interface OrderItem {
@@ -122,7 +122,7 @@ export function OrdersContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0d1120] to-[#1a1f2e]">
-      <Header />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 border-b border-[#2a2f3e]">
@@ -376,7 +376,7 @@ export function OrdersContent() {
         </div>
       </section>
 
-      <Footer />
+      <SiteFooter />
     </div>
   )
 }

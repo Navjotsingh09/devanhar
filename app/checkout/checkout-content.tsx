@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ShoppingBag, Truck, CreditCard, Gift, CheckCircle, Lock, ArrowLeft, MapPin } from "lucide-react"
-import { useCart } from "@/hooks/use-cart"
+import { useCart } from "@/components/cart-provider"
 
 interface ShippingForm {
   fullName: string
