@@ -1,156 +1,360 @@
 "use client"
 
+import { useState, useCallback, useEffect } from "react"
 import Image from "next/image"
-import { ArrowRight } from "lucide-react"
-import Link from "next/link"
+import { X, Play, ChevronLeft, ChevronRight, Camera, Film, ArrowRight } from "lucide-react"
 
-interface Article {
+type GalleryCat = "all" | "camps" | "events" | "education" | "community"
+
+interface GalleryImage {
+  src: string
+  alt: string
+  category: Exclude<GalleryCat, "all">
+  caption: string
+}
+
+interface VideoItem {
+  id: string
   title: string
-  source: string
-  date: string
-  excerpt: string
-  image: string
-  href: string
+  duration: string
+  description: string
 }
 
-const featured: Article = {
-  title: "Devanhaar Foundation Launches AGRI Programme to Empower Rural Communities",
-  source: "SikhNet",
-  date: "March 2024",
-  excerpt: "The Devanhaar Foundation has announced its most ambitious initiative yet — the AGRI programme, designed to connect sustainable agriculture with community development across rural regions.",
-  image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&q=80",
-  href: "#",
+interface Playlist {
+  title: string
+  description: string
+  videos: VideoItem[]
 }
 
-const articles: Article[] = [
+const galleryImages: GalleryImage[] = [
+  { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80", alt: "Singhs Camp group", category: "camps", caption: "Singhs Camp 2024 \u2014 Brotherhood and Bonding" },
+  { src: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&q=80", alt: "Kaurs Camp workshop", category: "camps", caption: "Kaurs Camp \u2014 Empowering Young Sikh Women" },
+  { src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80", alt: "Kids learning", category: "education", caption: "Kids Camp \u2014 Learning Through Play" },
+  { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=80", alt: "Youth summit", category: "events", caption: "Youth Leadership Summit 2024" },
+  { src: "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800&q=80", alt: "Community gathering", category: "community", caption: "Community Gathering \u2014 United in Seva" },
+  { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&q=80", alt: "Workshop session", category: "events", caption: "Khalsa Catalyst Workshop" },
+  { src: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80", alt: "Education session", category: "education", caption: "Sikhi Vidyala \u2014 Weekly Classes" },
+  { src: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=600&q=80", alt: "Team seva", category: "community", caption: "Sevadaars Working Together" },
+  { src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80", alt: "Celebration", category: "events", caption: "Vaisakhi Celebrations" },
+  { src: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80", alt: "Study session", category: "education", caption: "Gurmat Academy \u2014 Deep Learning" },
+  { src: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80", alt: "Panel discussion", category: "events", caption: "University Talk \u2014 Interfaith Dialogue" },
+  { src: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80", alt: "Community kitchen", category: "community", caption: "Langar Seva \u2014 Feeding the Community" },
+  { src: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80", alt: "University campus", category: "education", caption: "University Projects \u2014 Campus Outreach" },
+  { src: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&q=80", alt: "Library study", category: "education", caption: "Gurmat Academy Sessions" },
+  { src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&q=80", alt: "School partnership", category: "community", caption: "Heritage Programme in Schools" },
+  { src: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80", alt: "AGRI programme", category: "community", caption: "AGRI \u2014 Sustainable Development" },
+]
+
+const playlists: Playlist[] = [
   {
-    title: "Youth Leadership Summit Brings Together 500 Young Sikhs",
-    source: "The Sikh Messenger",
-    date: "January 2024",
-    excerpt: "Devanhaar hosted its largest youth leadership summit, bringing together young Sikhs from across the UK.",
-    image: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=80",
-    href: "#",
+    title: "Camp Highlights",
+    description: "Relive the best moments from our residential camps across the UK.",
+    videos: [
+      { id: "dQw4w9WgXcQ", title: "Singhs Camp 2024 Highlights", duration: "8:42", description: "A look back at an incredible week of brotherhood, Sikhi, and seva." },
+      { id: "jNQXAC9IVRw", title: "Kaurs Camp \u2014 Stories of Empowerment", duration: "12:15", description: "Young Sikh women share their transformative camp experiences." },
+      { id: "9bZkp7q19f0", title: "Kids Camp Fun & Learning", duration: "5:30", description: "See how our youngest campers explore their heritage through play." },
+      { id: "kJQP7kiw5Fk", title: "Night of Kirtan \u2014 Camp 2024", duration: "15:20", description: "A beautiful evening of Kirtan and spiritual connection at camp." },
+    ],
   },
   {
-    title: "Education Programme Reaches 10,000 Learners Milestone",
-    source: "Sikh Press Association",
-    date: "November 2023",
-    excerpt: "A milestone achievement as our education initiatives collectively reach over 10,000 learners.",
-    image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&q=80",
-    href: "#",
-  },
-  {
-    title: "Community Kitchen Initiative Serves 50,000 Meals",
-    source: "Community Weekly",
-    date: "September 2023",
-    excerpt: "Our langar-inspired community kitchen programme has now served over 50,000 meals to those in need.",
-    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80",
-    href: "#",
-  },
-  {
-    title: "Partnership with Local Schools Expands Heritage Programme",
-    source: "SikhNet",
-    date: "July 2023",
-    excerpt: "New partnerships with schools in Birmingham and London will bring Sikh heritage education to thousands.",
-    image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&q=80",
-    href: "#",
+    title: "Talks & Discussions",
+    description: "Thought-provoking talks from Khalsa Catalyst and university events.",
+    videos: [
+      { id: "DLzxrzFCyOs", title: "What Does it Mean to be Khalsa Today?", duration: "22:10", description: "A Khalsa Catalyst panel exploring modern Sikh identity." },
+      { id: "fJ9rUzIMcZQ", title: "University Talk \u2014 Sikhi & Social Justice", duration: "18:45", description: "Exploring the intersection of Sikh values and contemporary activism." },
+      { id: "RgKAFK5djSk", title: "Gurmat Academy \u2014 Understanding Japji Sahib", duration: "35:00", description: "An in-depth exploration of the foundational Sikh prayer." },
+    ],
   },
 ]
 
-const gallery = [
-  { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&q=80", alt: "Community event" },
-  { src: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80", alt: "Education programme" },
-  { src: "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=600&q=80", alt: "Volunteer gathering" },
-  { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80", alt: "Youth workshop" },
-  { src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80", alt: "Cultural celebration" },
-  { src: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=600&q=80", alt: "Team building" },
+const categories: { label: string; value: GalleryCat }[] = [
+  { label: "All", value: "all" },
+  { label: "Camps", value: "camps" },
+  { label: "Events", value: "events" },
+  { label: "Education", value: "education" },
+  { label: "Community", value: "community" },
 ]
+
+function LightboxModal({ images, index, onClose, onPrev, onNext }: {
+  images: GalleryImage[]
+  index: number
+  onClose: () => void
+  onPrev: () => void
+  onNext: () => void
+}) {
+  const img = images[index]
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+      if (e.key === "ArrowLeft") onPrev()
+      if (e.key === "ArrowRight") onNext()
+    }
+    window.addEventListener("keydown", handler)
+    document.body.style.overflow = "hidden"
+    return () => {
+      window.removeEventListener("keydown", handler)
+      document.body.style.overflow = ""
+    }
+  }, [onClose, onPrev, onNext])
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/90 backdrop-blur-md" />
+      <button aria-label="Close lightbox" onClick={onClose} className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+        <X className="w-5 h-5" />
+      </button>
+      <button aria-label="Previous image" onClick={(e) => { e.stopPropagation(); onPrev() }} className="absolute left-4 md:left-8 z-50 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+        <ChevronLeft className="w-6 h-6" />
+      </button>
+      <button aria-label="Next image" onClick={(e) => { e.stopPropagation(); onNext() }} className="absolute right-4 md:right-8 z-50 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
+        <ChevronRight className="w-6 h-6" />
+      </button>
+      <div className="relative w-full max-w-5xl mx-4 md:mx-8" onClick={(e) => e.stopPropagation()}>
+        <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
+          <Image src={img.src} alt={img.alt} fill className="object-contain" unoptimized />
+        </div>
+        <div className="mt-4 text-center">
+          <p className="text-white text-sm md:text-base font-medium">{img.caption}</p>
+          <p className="text-white/50 text-xs mt-1">{index + 1} / {images.length}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function MediaPageContent() {
+  const [activeTab, setActiveTab] = useState<"gallery" | "videos">("gallery")
+  const [category, setCategory] = useState<GalleryCat>("all")
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [activePlaylist, setActivePlaylist] = useState(0)
+  const [activeVideo, setActiveVideo] = useState(0)
+
+  const filtered = category === "all" ? galleryImages : galleryImages.filter((i) => i.category === category)
+
+  const openLightbox = useCallback((idx: number) => setLightboxIndex(idx), [])
+  const closeLightbox = useCallback(() => setLightboxIndex(null), [])
+  const prevImage = useCallback(() => {
+    setLightboxIndex((i) => (i !== null ? (i - 1 + filtered.length) % filtered.length : null))
+  }, [filtered.length])
+  const nextImage = useCallback(() => {
+    setLightboxIndex((i) => (i !== null ? (i + 1) % filtered.length : null))
+  }, [filtered.length])
+
+  const currentPlaylist = playlists[activePlaylist]
+  const currentVideo = currentPlaylist.videos[activeVideo]
+
   return (
-    <div className="pt-24 pb-20">
-      {/* Header */}
+    <div className="pt-24 pb-0">
+      {/* Hero */}
       <section className="border-b border-border">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
-          <div className="max-w-4xl">
-            <p className="text-sm uppercase tracking-widest text-muted-foreground mb-6">Press & Stories</p>
+          <div className="max-w-4xl" data-animate>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-500 mb-4">Press &amp; Media</p>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-light text-foreground mb-8 tracking-tight">Media</h1>
             <div className="w-16 h-px bg-amber-400 mb-8" />
-            <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed max-w-2xl">Stories of impact, coverage of our work, and moments captured across our journey.</p>
+            <p className="text-xl md:text-2xl text-muted-foreground font-light leading-relaxed max-w-2xl">
+              Explore our gallery, watch video highlights, and discover the stories behind our work.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Featured */}
-      <section className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
-        <h2 className="text-3xl md:text-5xl font-light text-foreground mb-4 tracking-tight">Featured</h2>
-        <div className="w-12 h-px bg-amber-400 mb-16" />
-        <Link href={featured.href} className="group grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-            <Image src={featured.image} alt={featured.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+      {/* Tab Navigation */}
+      <div className="sticky top-[72px] z-30 bg-background/80 backdrop-blur-xl border-b border-border">
+        <div className="container mx-auto px-6 lg:px-12">
+          <div className="flex gap-0">
+            {([
+              { key: "gallery" as const, label: "Gallery", icon: Camera },
+              { key: "videos" as const, label: "Videos", icon: Film },
+            ]).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`relative flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+                {activeTab === tab.key && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400" />
+                )}
+              </button>
+            ))}
           </div>
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-500 mb-2">{featured.source} — {featured.date}</p>
-            <h3 className="text-2xl md:text-3xl font-light text-foreground mb-4 tracking-tight group-hover:text-amber-500 transition-colors">{featured.title}</h3>
-            <p className="text-muted-foreground leading-relaxed mb-6">{featured.excerpt}</p>
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground group-hover:gap-3 transition-all underline underline-offset-4 decoration-1">
-              Read More
-              <ArrowRight className="w-3.5 h-3.5" />
-            </span>
-          </div>
-        </Link>
-      </section>
+        </div>
+      </div>
 
-      {/* Articles */}
-      <section className="border-t border-border bg-muted/30">
-        <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
-          <h2 className="text-3xl md:text-5xl font-light text-foreground mb-4 tracking-tight">Latest Coverage</h2>
-          <div className="w-12 h-px bg-amber-400 mb-16" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
-            {articles.map((a) => (
-              <Link key={a.title} href={a.href} className="group">
-                <div className="relative aspect-[16/10] mb-6 overflow-hidden bg-muted">
-                  <Image src={a.image} alt={a.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+      {/* Gallery Tab */}
+      {activeTab === "gallery" && (
+        <>
+          {/* Category Filter */}
+          <div className="container mx-auto px-6 lg:px-12 py-8">
+            <div className="flex flex-wrap gap-2" data-animate>
+              {categories.map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => setCategory(cat.value)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    category === cat.value
+                      ? "bg-amber-400 text-black"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+              <span className="ml-auto text-sm text-muted-foreground self-center">
+                {filtered.length} {filtered.length === 1 ? "photo" : "photos"}
+              </span>
+            </div>
+          </div>
+
+          {/* Masonry Grid */}
+          <div className="container mx-auto px-6 lg:px-12 pb-20">
+            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+              {filtered.map((img, idx) => (
+                <div
+                  key={img.src}
+                  className="break-inside-avoid group cursor-pointer relative overflow-hidden rounded-lg bg-muted"
+                  onClick={() => openLightbox(idx)}
+                >
+                  <div className={`relative ${idx % 3 === 0 ? "aspect-[3/4]" : idx % 3 === 1 ? "aspect-square" : "aspect-[4/3]"}`}>
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                      <p className="text-white text-sm font-medium">{img.caption}</p>
+                      <p className="text-white/60 text-xs mt-1 capitalize">{img.category}</p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-500 mb-2">{a.source} — {a.date}</p>
-                <h3 className="text-xl font-medium text-foreground mb-3 group-hover:text-amber-500 transition-colors">{a.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{a.excerpt}</p>
-              </Link>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Videos Tab */}
+      {activeTab === "videos" && (
+        <div className="container mx-auto px-6 lg:px-12 py-12 md:py-20">
+          {/* Playlist Selector */}
+          <div className="flex gap-3 mb-10" data-animate>
+            {playlists.map((pl, idx) => (
+              <button
+                key={pl.title}
+                onClick={() => { setActivePlaylist(idx); setActiveVideo(0) }}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  activePlaylist === idx
+                    ? "bg-amber-400 text-black"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {pl.title}
+              </button>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Gallery */}
-      <section className="border-t border-border">
-        <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-light text-foreground mb-4 tracking-tight">Gallery</h2>
-            <div className="w-12 h-px bg-amber-400 mx-auto" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {gallery.map((img) => (
-              <div key={img.alt} className="relative aspect-square overflow-hidden bg-muted group">
-                <Image src={img.src} alt={img.alt} fill className="object-cover transition-transform duration-700 group-hover:scale-110" unoptimized />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" data-animate>
+            {/* Main Video Player */}
+            <div className="lg:col-span-2">
+              <div className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+                <iframe
+                  src={`https://www.youtube.com/embed/${currentVideo.id}?rel=0`}
+                  title={currentVideo.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
               </div>
-            ))}
+              <div className="mt-6">
+                <h3 className="text-xl md:text-2xl font-medium text-foreground mb-2">{currentVideo.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{currentVideo.description}</p>
+              </div>
+            </div>
+
+            {/* Video List */}
+            <div className="space-y-1">
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-foreground">{currentPlaylist.title}</h4>
+                <p className="text-xs text-muted-foreground mt-1">{currentPlaylist.description}</p>
+              </div>
+              <div className="space-y-2 max-h-[480px] overflow-y-auto pr-2">
+                {currentPlaylist.videos.map((video, idx) => (
+                  <button
+                    key={video.id}
+                    onClick={() => setActiveVideo(idx)}
+                    className={`w-full flex gap-3 p-3 rounded-xl text-left transition-all duration-200 ${
+                      activeVideo === idx
+                        ? "bg-amber-400/10 ring-1 ring-amber-400/30"
+                        : "hover:bg-muted"
+                    }`}
+                  >
+                    <div className="relative w-28 aspect-video rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                      <Image
+                        src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
+                        alt={video.title}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-full bg-black/60 flex items-center justify-center">
+                          <Play className="w-3 h-3 text-white ml-0.5" />
+                        </div>
+                      </div>
+                      <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
+                        {video.duration}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium line-clamp-2 ${activeVideo === idx ? "text-amber-600" : "text-foreground"}`}>
+                        {video.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{video.description}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
-      {/* CTA */}
+      {/* Press Enquiries */}
       <section className="border-t border-border bg-muted/30">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-28">
-          <div className="text-center max-w-2xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto" data-animate>
             <h2 className="text-3xl md:text-5xl font-light text-foreground mb-6 tracking-tight">Press Enquiries</h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed">For media enquiries, interview requests, or press materials, please reach out to our communications team.</p>
-            <Link href="/contact" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:gap-3 transition-all underline underline-offset-4 decoration-1">
+            <p className="text-muted-foreground mb-8 leading-relaxed">
+              For media enquiries, interview requests, or press materials, please reach out to our communications team.
+            </p>
+            <a href="/contact" className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:gap-3 transition-all underline underline-offset-4 decoration-1">
               Contact Us
               <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </a>
           </div>
         </div>
       </section>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && (
+        <LightboxModal
+          images={filtered}
+          index={lightboxIndex}
+          onClose={closeLightbox}
+          onPrev={prevImage}
+          onNext={nextImage}
+        />
+      )}
     </div>
   )
 }
