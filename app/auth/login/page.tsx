@@ -22,153 +22,91 @@ export default function LoginPage() {
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email"use client"
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      router.push("/dashboard")
+      router.refresh()
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Login failed")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/comp
-    } catch (erimport { Button } from "@/components/ui/button"
-imp eimport { Input } from "@/components/ui/input"
-  import { Label } from "@/components/ui/label
- import { useRouter } from "next/navigation"
- {import { useState } from "react"
-import { asimport { Eye, EyeOff, Lock } frreimport Image from "next/image"
-
-export default /*
-export default functi overlay *  const [email, setEmail] = useStatein  const [password, setPassword] = useStc=  const [error, setError] = useState<string |30  const [isLoading, setIsLoading] = useState(false)
-  coit  const [showPasswl
-            className="object-co  const router = useRouter()
-
-  const handleLogin = asyn  
-  const handleLogin = asynins    e.preventDefault()
-    const supabase = createCl90    const supabase =       setIsLoading(true)
-    setErroCo    setError(null)
-
- v 
-    try {
-      ve       cox 
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/c <dimport { Button } from "@/comp
-    } catch (erimporap    } catch (erimport { Butto cimp eimport { Input } from "@/components/00 flex items-center j  import { Label } from "@/components/ui/label
- ida import { useRouter } from "next/navigation"
-cl {import { useState } from "react"
-import {  import { asimport { Eye, EyeOff, xl
-export default /*
-export default ar</span>
+  return (
+    <div className="min-h-screen flex">
+      <div className="hidden lg:flex lg:w-1/2 relative bg-[#0d1120] overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1514820720301-4c4790309f46?w=1200&q=80"
+            alt="Sikh community"
+            fill
+            className="object-cover opacity-20"
+            priority
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0d1120] via-[#0d1120]/90 to-amber-900/20" />
+        </div>
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          <div>
+            <div className="flex items-center gap-3 mb-16">
+              <Image src="/logos/main-white-transparent.png" alt="Devanhaar" width={48} height={48} className="rounded-xl" />
+              <span className="text-2xl font-semibold text-white">Devanhaar</span>
             </div>
-            
-export default fcl  coit  const [showPasswl
-            className="object-co  const router = useRouter()
-
-  const handleLogin = asyn  
-  const handleLogin = asynins    e.preventDefault()
-    const supabase = createCl90    con              className="owh
-  const handleLogin = asyn  
-  conaxed">
-              Access  const handleLogin = asyni m    const supabase = createCl90    const supabase it    setErroCo    setError(null)
-
- v 
-    try {
-      ve       cox 
-import {/*
- v 
-    try {
-      ve       ssN  e=      veemimport { createtext-import { Button } from "@/c <dimport { Button } fro</ pan>
-            <span className="w-1 h-1 rounded-full bg-wh ida import { useRouter } from "next/navigation"
-cl {import { useState } from "react"
-import {  import { asimport { Eye, EyeOff, xl
-export default /*
-export defaflcl {import { useState } from "react"
-import {  6 import {  import { asimport { Eye, ulexport default /*
-export default ar</span>
-   export default asN            </div>
-    x-            
-expombexport defa              className="object-co  const ro b
-  const handleLogin = asyn  
-  const handleLogin = asynins     const handleLogin = asyni"     const supabase = createCl90    con            in  const handleLogin = asyn  
-  conaxed">
-              Access  coon  conaxed">
-              Anh            
- v 
-    try {
-      ve       cox 
-import {/*
- v 
-    try {
-      ve       ssN  e=      veemimport { createtext-import { Button } f             veclimport {/*
- v 
-   5  v 
-    tbl  -x      ve b            <span className="w-1 h-1 rounded-full bg-wh ida import { useRouter } from "next/navigation"
-cl {i hcl {import { useStg-amber-400/10 mx-auto mb-6">
-              <Lock className="w-5 h-5 text-amber-400" /import {  import { asimport { Eye,   export default /*
-export defaflcl {import { ldexport defaflcl -cimport {  6 import {  import { asimport { Eye, usNexport default ar</span>
-   export default asN            </div>
- y   export default asN  ss    x-            
-expombexport defa    expombform onSubmit  const handleLogin = asyn  
-  const handleLogin = asynins    (
-  const handleLogin = asyniam  conaxed">
-              Access  coon  conaxed">
-              Anh            
- vg">
-                  {error}
-                </div>
+            <h1 className="text-5xl font-light text-white mb-6 leading-tight">
+              Inspire.<br />
+              Empower.<br />
+              <span className="text-amber-400">Transform.</span>
+            </h1>
+            <p className="text-white/60 text-lg max-w-md leading-relaxed">
+              Access the Devanhaar dashboard to manage programmes, track impact, and empower communities across the UK.
+            </p>
+          </div>
+          <div className="flex items-center gap-6 text-white/40 text-sm">
+            <span>Birmingham, UK</span>
+            <span className="w-1 h-1 rounded-full bg-white/40" />
+            <span>Since 2015</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 flex items-center justify-center bg-[#0d1120] px-6 py-12">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden flex flex-col items-center mb-10">
+            <Image src="/logos/main-white-transparent.png" alt="Devanhaar" width={64} height={64} className="rounded-2xl mb-4" />
+            <h2 className="text-2xl font-semibold text-white">Devanhaar</h2>
+            <p className="text-white/50 text-sm mt-1">Inspire. Empower. Transform.</p>
+          </div>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-400/10 mx-auto mb-6">
+              <Lock className="w-5 h-5 text-amber-400" />
+            </div>
+            <h2 className="text-2xl font-semibold text-white text-center mb-2">Staff Login</h2>
+            <p className="text-white/50 text-center text-sm mb-8">Enter your credentials to access the dashboard</p>
+            <form onSubmit={handleLogin} className="space-y-5">
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg">{error}</div>
               )}
-
-               Anh            
- v 
-  -2 v 
-    try {
-      ve      ml  r=      veclimport {/*
- v 
-   e/ v 
-    tm" Ema      vel> v 
-   5  v 
-    tbl  -x      ve b            <span className="w-1 h-1 rounded-full bg-wh ida imp     p    tbldecl {i hcl {import { useStg-amber-400/10 mx-auto mb-6">
-              <Lock className="w-5 h-5 text-amber-400" /import {  im                <Lock className="w-5 h-5 text-amber-400e/export defaflcl {import { ldexport defaflcl -cimport {  6 import {  import { asimport { Eye, usNexport defaul"
-   export default asN            </div>
- y   export default asN  ss    x-            
-expombexport defa    expombform owo y   export default asN  ss    x-     Paexpombexport defa    expombform onSubmit  coe=  const handleLogin = asynins    (
-  const handleLogin = asyniam  crd  const handleLogin = asyniam  coas              Access  coon  conaxed">
-                 Anh            
- vg">
-?vg">
-                  {err v    ={                </div>
-                 )}
-
-   se
-              get v 
-  -2 v 
-    try {
-      vre  ir    tr        ve   v 
-   e/ v 
-    tm" Ema      vel> v 
- /1  te    tm"e    5  v 
-    tbl  -x   30    tblbo              <Lock className="w-5 h-5 text-amber-400" /import {  im                <Lock classNaton
-                    type="button"
-                      export default asN            </div>
- y   export default asN  ss    x-            
-expombexport defa    expombform owo y   export default asN  ss    x-     Paexpombexport defa    expombform onSubmit  coe=  const handleLogin = asyniOf y   export default asN  ss    x-     amexpombexport defa    expombform owo y   expo    const handleLogin = asyniam  crd  const handleLogin = asyniam  coas              Access  coon  conaxed">
-                 Anh            
- vg">
-?vg">
-am                 Anh            
- vg">
-?vg">
-                  {err v    ={                </div>
-     n- vg">
-?vg">
-                   ?v{i      ng                 )}
-
-   se
-              get v 
-  -to
-   se
-           orm        -2 v 
-    try {
-       trcl      vr"t   e/ v 
-    tm" Ema      vel> v mt    tm"   /1     Access restricted    tbl  -x   30  anhaar                     type="button"
-     v>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white/70 text-sm">Email</Label>
+                <Input id="email" type="email" placeholder="you@devanhaar.org" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white/70 text-sm">Password</Label>
+                <div className="relative">
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12 pr-12" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+              <Button type="submit" disabled={isLoading} className="w-full h-12 bg-amber-400 hover:bg-amber-500 text-black font-semibold rounded-xl transition-all duration-200">
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          </div>
+          <p className="text-center text-white/30 text-xs mt-8">Access restricted to authorised Devanhaar staff only.</p>
+        </div>
       </div>
     </div>
   )
