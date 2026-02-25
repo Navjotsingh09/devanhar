@@ -2,6 +2,8 @@ import React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { DonationProvider } from "@/components/donation-provider"
+import { CartProvider } from "@/components/cart-provider"
+import { CartDrawer } from "@/components/cart-drawer"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -24,7 +26,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
-        <DonationProvider>{children}</DonationProvider>
+        <DonationProvider>
+          <CartProvider>
+            {children}
+            <CartDrawer />
+          </CartProvider>
+        </DonationProvider>
       </body>
     </html>
   )

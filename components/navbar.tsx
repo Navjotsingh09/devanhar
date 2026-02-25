@@ -3,9 +3,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, ShoppingBag } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { DonateButton } from "@/components/donate-button"
+import { useCart } from "@/components/cart-provider"
 
 const navLinks = [
   { label: "About", href: "/about" },
@@ -21,6 +22,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const isHome = pathname === "/"
+  const { itemCount, openDrawer } = useCart()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -78,6 +80,22 @@ export function Navbar() {
             </div>
 
             <div className="hidden md:flex items-center gap-3">
+              <button
+                onClick={openDrawer}
+                className={`relative p-2 rounded-full transition-colors ${
+                  isTransparent
+                    ? "text-white hover:bg-white/10"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+                aria-label="Open cart"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center">
+                    {itemCount > 9 ? "9+" : itemCount}
+                  </span>
+                )}
+              </button>
               <DonateButton
                 source="navbar"
                 className={`rounded-full px-6 py-2 text-sm font-semibold ${
@@ -122,7 +140,17 @@ export function Navbar() {
                 </Link>
               ))}
             </div>
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setMobileOpen(false)
+                  openDrawer()
+                }}
+                className="w-full flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                Cart {itemCount > 0 && `(${itemCount})`}
+              </button>
               <DonateButton
                 source="navbar-mobile"
                 className="w-full rounded-full px-6 py-3 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
