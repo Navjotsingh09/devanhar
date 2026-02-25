@@ -4,6 +4,7 @@ import { Heart, Users, Sparkles, BookOpen, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
+import { ScrollAnimations } from "@/components/scroll-animations"
 import { DonateButton } from "@/components/donate-button"
 import { OurStorySection } from "@/components/our-story-section"
 
@@ -269,6 +270,7 @@ export default function AboutPage() {
         </section>
 
         <FooterSection />
+      <ScrollAnimations />
       </main>
     </>
   )
