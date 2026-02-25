@@ -304,28 +304,6 @@ export function FoundationPageContent() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-6 lg:px-12 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#1a1f2e] mb-4">Support Our Mission</h2>
-          <p className="text-lg text-gray-500 max-w-xl mx-auto mb-8">
-            Every contribution helps us serve communities through education, agriculture, and cultural preservation.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/donate">
-              <Button size="lg" className="bg-[#c49a6c] hover:bg-[#b38a5c] text-white px-8 rounded-full">
-                Donate Now
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button size="lg" variant="outline" className="border-[#1a1f2e] text-[#1a1f2e] hover:bg-[#1a1f2e] hover:text-white px-8 rounded-full">
-                Get In Touch
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Scrollbar-hide global style */}
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
