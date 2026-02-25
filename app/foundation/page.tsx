@@ -4,6 +4,7 @@ import { FooterSection } from "@/components/footer-section"
 import { FoundationPageContent } from "@/components/foundation-page-content"
 import { FAQSection } from "@/components/faq-section"
 import { CTABanner } from "@/components/cta-banner"
+import { ScrollAnimations } from "@/components/scroll-animations"
 
 export const metadata: Metadata = {
   title: "The Foundation | Devanhaar Sikh Charity UK",
@@ -65,6 +66,7 @@ export default function FoundationPage() {
   return (
     <div>
       <Navbar />
+      <ScrollAnimations />
       <main>
         <FoundationPageContent />
         <FAQSection

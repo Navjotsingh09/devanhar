@@ -4,6 +4,7 @@ import { FooterSection } from "@/components/footer-section"
 import { MediaPageContent } from "@/components/media-page-content"
 import { FAQSection } from "@/components/faq-section"
 import { CTABanner } from "@/components/cta-banner"
+import { ScrollAnimations } from "@/components/scroll-animations"
 
 export const metadata: Metadata = {
   title: "Media & Press | Devanhaar Sikh Charity",
@@ -60,6 +61,7 @@ export default function MediaPage() {
   return (
     <div>
       <Navbar />
+      <ScrollAnimations />
       <main>
         <MediaPageContent />
         <FAQSection

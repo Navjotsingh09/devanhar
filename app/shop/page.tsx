@@ -4,6 +4,7 @@ import { FooterSection } from "@/components/footer-section"
 import { ShopContent } from "@/components/shop-content"
 import { FAQSection } from "@/components/faq-section"
 import { CTABanner } from "@/components/cta-banner"
+import { ScrollAnimations } from "@/components/scroll-animations"
 
 export const metadata: Metadata = {
   title: "Shop | Devanhaar Sikh Merchandise & Apparel",
@@ -60,6 +61,7 @@ export default function ShopPage() {
   return (
     <>
       <Navbar />
+      <ScrollAnimations />
       <main>
         <ShopContent />
         <FAQSection

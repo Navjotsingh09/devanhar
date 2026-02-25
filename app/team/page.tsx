@@ -4,6 +4,7 @@ import { FooterSection } from "@/components/footer-section"
 import { TeamPageContent } from "@/components/team-page-content"
 import { FAQSection } from "@/components/faq-section"
 import { CTABanner } from "@/components/cta-banner"
+import { ScrollAnimations } from "@/components/scroll-animations"
 
 export const metadata: Metadata = {
   title: "Our Team & Sevadaars | Devanhaar Sikh Charity",
@@ -58,6 +59,7 @@ export default function TeamPage() {
   return (
     <div>
       <Navbar />
+      <ScrollAnimations />
       <main>
         <TeamPageContent />
         <FAQSection
