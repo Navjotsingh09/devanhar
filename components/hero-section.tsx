@@ -136,13 +136,13 @@ export function HeroSection() {
           }}
         >
           <Link href="/about">
-            <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold shadow-2xl shadow-white/10 backdrop-blur-sm">
+            <Button variant="ghost" className="bg-white text-black hover:bg-white/90 hover:text-black rounded-full px-8 py-6 text-sm font-semibold shadow-2xl shadow-white/10 backdrop-blur-sm">
               Learn More
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
           <Link href="/#contact">
-            <Button variant="outline" className="rounded-full px-8 py-6 text-sm font-semibold border-white/[0.15] text-white hover:bg-white/[0.08] backdrop-blur-md">
+            <Button variant="ghost" className="rounded-full px-8 py-6 text-sm font-semibold border border-white/[0.15] text-white hover:bg-white/[0.08] hover:text-white backdrop-blur-md">
               Get Involved
             </Button>
           </Link>
