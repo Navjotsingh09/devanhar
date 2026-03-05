@@ -10,11 +10,12 @@ import { useCart } from "@/components/cart-provider"
 
 const navLinks = [
   { label: "About", href: "/about" },
-  { label: "Projects", href: "/projects" },
+  { label: "Initiatives", href: "/projects" },
   { label: "Team", href: "/team" },
   { label: "Foundation", href: "/foundation" },
   { label: "Media", href: "/media" },
   { label: "Shop", href: "/shop" },
+  { label: "Contact", href: "/contact" },
 ]
 
 export function Navbar() {

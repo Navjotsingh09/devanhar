@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Users, Heart, Sparkles, BookOpen, Mic2, GraduationCap, School } from "lucide-react"
+import { ArrowRight, Users, Heart, Sparkles, BookOpen, Mic2, GraduationCap, School, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Project {
@@ -71,13 +71,21 @@ const projects: Project[] = [
     tag: "Advanced",
     icon: School,
   },
+  {
+    title: "Self Defence Academy",
+    description: "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
+    image: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80",
+    href: "/initiatives/self-defence-academy",
+    tag: "Martial Arts",
+    icon: Shield,
+  },
 ]
 
 const stats = [
-  { value: "500+", label: "Annual Campers" },
-  { value: "25+", label: "University Talks" },
-  { value: "7", label: "Core Initiatives" },
-  { value: "8+", label: "Years of Seva" },
+  { value: "1,000+", label: "Annual Campers" },
+  { value: "25+", label: "Yearly University Talks" },
+  { value: "8", label: "Live Initiatives" },
+  { value: "2019", label: "Est." },
 ]
 
 export function ProjectsPageContent() {
@@ -95,8 +103,8 @@ export function ProjectsPageContent() {
                 Projects That Create Lasting Impact
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
-                From residential camps to university outreach, every initiative is
-                rooted in seva, Sikhi, and empowering the next generation.
+                From residential retreats to academic programs and mentorship, every initiative is
+                rooted in empowering, elevating and connecting with the Sikh diaspora.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
@@ -117,8 +125,8 @@ export function ProjectsPageContent() {
                 </div>
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                <p className="text-3xl font-bold">7</p>
-                <p className="text-sm text-primary-foreground/80">Core Initiatives</p>
+                <p className="text-3xl font-bold">8</p>
+                <p className="text-sm text-primary-foreground/80">Live Initiatives</p>
               </div>
             </div>
           </div>

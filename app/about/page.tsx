@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Heart, Users, Sparkles, BookOpen, ArrowRight } from "lucide-react"
+import { Heart, Users, Sparkles, BookOpen, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -15,36 +15,36 @@ export const metadata: Metadata = {
 }
 
 const stats = [
-  { number: "500+", label: "Annual Campers" },
-  { number: "25+", label: "University Talks Delivered" },
-  { number: "50+", label: "Gurmat Academy Students" },
-  { number: "12", label: "Vidyala Students Trained" },
+  { number: "1,000+", label: "Annual Campers" },
+  { number: "25+", label: "Yearly University Talks" },
+  { number: "8", label: "Live Initiatives" },
+  { number: "2019", label: "Est." },
 ]
 
 const values = [
   {
-    icon: Heart,
-    title: "Seva",
+    icon: Lightbulb,
+    title: "Develop",
     description:
-      "Everything we do is rooted in Seva, trying our best to serve the Panth. Our sevadaars dedicate their time, skills and energy selflessly to ensure every initiative fulfils its purpose.",
+      "Develop skills, character, and foundations for generational success. We invest in structured programmes that nurture growth at every stage of life.",
   },
   {
-    icon: Users,
-    title: "Sangat",
+    icon: Flame,
+    title: "Empower",
     description:
-      "We encourage a family-like atmosphere where Sangat can uplift and support one another, building lifelong bonds that go far beyond any single event or camp.",
+      "Provide confidence rooted in identity, values, and self-belief. Our initiatives equip individuals with the tools to lead with conviction and purpose.",
   },
   {
-    icon: Sparkles,
-    title: "Inclusivity",
+    icon: TrendingUp,
+    title: "Elevate",
     description:
-      "We recognise that every Sikh is on their own journey, and we aim to create spaces where all feel welcome, regardless of background, experience or level of practice.",
+      "Raise ambition, standards, and impact in every area of life. We challenge our community to aim higher and achieve more through Sikhi-centred guidance.",
   },
   {
-    icon: BookOpen,
-    title: "Gurmat-Centered",
+    icon: Handshake,
+    title: "Connect",
     description:
-      "We strive to grow individually and collectively through Sikhi, ensuring that all our initiatives align with Guru Sahib's teachings and bring us closer to Waheguru.",
+      "Create lifelong relationships centred in community, mentorship, and shared growth. We build bonds that transcend any single event or programme.",
   },
 ]
 
@@ -93,7 +93,7 @@ export default function AboutPage() {
                   </div>
                 </div>
                 <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                  <p className="text-3xl font-bold">2015</p>
+                  <p className="text-3xl font-bold">2019</p>
                   <p className="text-sm text-primary-foreground/80">
                     Year Founded
                   </p>
