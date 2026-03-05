@@ -99,7 +99,7 @@ export function HeroSection() {
           </span>
         </div>
 
-        <div className="overflow-hidden">
+        <div className="overflow-hidden pb-2">
           <h1
             className="text-[clamp(2.5rem,8vw,8rem)] font-bold leading-[0.95] tracking-[-0.03em] text-white max-w-5xl"
             style={{
