@@ -108,9 +108,10 @@ export function HeroSection() {
               transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s",
             }}
           >
-            Create. Develop.
+            Develop. Empower.
             <br />
-            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">Empower.</span>
+            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">Elevate.</span>{" "}
+            Connect.
           </h1>
         </div>
 
@@ -122,7 +123,7 @@ export function HeroSection() {
             transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s",
           }}
         >
-          A Birmingham-based charity empowering generations through
+          A UK-based charity empowering generations through
           Sikh values, knowledge, and spiritual growth.
         </p>
 
@@ -134,15 +135,15 @@ export function HeroSection() {
             transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1s",
           }}
         >
-          <Link href="/#contact">
+          <Link href="/about">
             <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold shadow-2xl shadow-white/10 backdrop-blur-sm">
-              Get Involved
+              Learn More
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
-          <Link href="/about">
+          <Link href="/#contact">
             <Button variant="outline" className="rounded-full px-8 py-6 text-sm font-semibold border-white/[0.15] text-white hover:bg-white/[0.08] backdrop-blur-md">
-              Learn More
+              Get Involved
             </Button>
           </Link>
         </div>

@@ -3,9 +3,10 @@ import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { MetricsTicker } from "@/components/metrics-ticker"
 import { LogoTicker } from "@/components/logo-ticker"
+import { PillarsSection } from "@/components/pillars-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { PlatformSection } from "@/components/platform-section"
-import { PartnershipBanner } from "@/components/partnership-banner"
+// PartnershipBanner removed per content update
 import { ProjectsSection } from "@/components/projects-section"
 import { TeamSection } from "@/components/team-section"
 import { FoundationSection } from "@/components/foundation-section"
@@ -16,7 +17,7 @@ import { FAQSection } from "@/components/faq-section"
 const homeFAQs = [
   {
     question: "What is Devanhaar?",
-    answer: "Devanhaar is a UK-based Sikh charity that empowers young Sikhs through educational camps, university talks, Gurmat academies, and community-building initiatives. Our mission is to create, develop and empower."
+    answer: "Devanhaar is a UK-based Sikh charity that empowers young Sikhs through educational camps, university talks, Gurmat academies, and community-building initiatives. Our mission is to develop, empower, elevate and connect."
   },
   {
     question: "How can I get involved with Devanhaar?",
@@ -44,9 +45,10 @@ export default function Page() {
       <HeroSection />
       <MetricsTicker />
       <LogoTicker />
+      <PillarsSection />
       <TestimonialsSection />
       <PlatformSection />
-      <PartnershipBanner />
+      {/* Partnership banner removed per content update */}
       <ProjectsSection />
       <TeamSection />
       <FoundationSection />

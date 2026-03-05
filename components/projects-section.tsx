@@ -8,9 +8,9 @@ const partners = [
     badge: "Education Partner",
     name: "Gurmat Academy",
     location: "United Kingdom",
-    metric: "500+",
+    metric: "1,000+",
     metricLabel: "Students annually",
-    fee: "500+",
+    fee: "1,000+",
   },
   {
     badge: "Community Partner",

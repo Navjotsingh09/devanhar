@@ -1,25 +1,25 @@
 import Link from "next/link"
-import { Users, Heart, Globe, BookOpen, Star, GraduationCap, School } from "lucide-react"
+import { Users, Heart, Globe, BookOpen, Star, GraduationCap, School, Shield } from "lucide-react"
 
 const initiatives = [
   {
     title: "Singhs Camp",
     description:
-      "A brotherhood camp uniquely designed for every Sikh at any stage of their spiritual journey. Brotherhood, growth, and deeper connection with Maharaaj.",
+      "The UK's first retreat exclusively for Singhs, established in 2020, welcoming Sikhs at every stage of their spiritual journey.",
     icon: <Users className="w-5 h-5" />,
     href: "/initiatives/singhs-camp",
   },
   {
     title: "Kaurs Camp",
     description:
-      "An everlasting sisterhood with the aim of connecting to Sikhi and the Guru's Sangat. Spirituality, self-reflection and lifelong bonds.",
+      "An everlasting sisterhood, grounded in a yearly retreat, with the aim of connecting sangat to spiritual growth, shared learning, and a supportive community.",
     icon: <Heart className="w-5 h-5" />,
     href: "/initiatives/kaurs-camp",
   },
   {
     title: "Kids Camps",
     description:
-      "Instilling Sikhi values in the next generation through interactive sessions, arts, sports, Kirtan classes and Sikh history.",
+      "Bespoke camps around the UK that are tailored to engage with youth in an interactive, fun and rememberable way.",
     icon: <Globe className="w-5 h-5" />,
     href: "/initiatives/kids-camps",
   },
@@ -51,6 +51,13 @@ const initiatives = [
     icon: <School className="w-5 h-5" />,
     href: "/initiatives/gurmat-academy",
   },
+  {
+    title: "Self Defence Academy",
+    description:
+      "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
+    icon: <Shield className="w-5 h-5" />,
+    href: "/initiatives/self-defence-academy",
+  },
 ]
 
 export function PlatformSection() {
@@ -74,16 +81,17 @@ export function PlatformSection() {
               <div className="relative z-10 p-8 md:p-10 flex flex-col h-full justify-between">
                 <div>
                   <span className="inline-block text-[11px] font-bold tracking-[0.15em] text-primary/80 uppercase mb-4 border border-primary/30 rounded-full px-3 py-1">
-                    OUR APPROACH TO COMMUNITY BUILDING
+                    OUR APPROACH TO GROWTH
                   </span>
                   <h3 className="text-3xl md:text-4xl font-bold leading-[1.15] mb-4">
                     Devanhaar Initiatives
                   </h3>
                   <p className="text-white/60 text-[15px] leading-relaxed max-w-md">
-                    Devanhaar is dedicated to inspiring individuals and
-                    communities on their Sikhi journey. Through camps, education,
-                    and leadership programmes, we build lasting bonds and deeper
-                    spiritual connections.
+                    Devanhaar is dedicated to inspiring individuals on their
+                    spiritual journey. We take a holistic approach to engage
+                    members at every stage of life, offering guidance, learning
+                    opportunities, and community support to nurture personal
+                    growth, development, and connection to Sikh values.
                   </p>
                 </div>
 
