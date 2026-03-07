@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, ChevronDown } from "lucide-react"
+import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, ChevronDown, Loader2 } from "lucide-react"
 
 const presetAmounts = [10, 25, 50, 100, 250]
 
@@ -35,11 +35,13 @@ const faqs = [
 export function DonateContent() {
   const [amount, setAmount] = useState<number | null>(50)
   const [customAmount, setCustomAmount] = useState("")
-  const [frequency, setFrequency] = useState<"one-time" | "monthly">("one-time")
+  const [frequency, setFrequency] = useState<"one-time" | "monthly" | "quarterly" | "yearly">("one-time")
   const [giftAid, setGiftAid] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const effectiveAmount = customAmount ? parseFloat(customAmount) : amount
   const giftAidBonus = giftAid && effectiveAmount ? effectiveAmount * 0.25 : 0
@@ -55,9 +57,35 @@ export function DonateContent() {
     setAmount(null)
   }
 
-  const handleDonate = () => {
-    // TODO: Connect to Donation Manager
-    console.log({ amount: effectiveAmount, frequency, giftAid, name, email, totalWithGiftAid })
+  const frequencyMap: Record<string, string> = {
+    "one-time": "o",
+    monthly: "m",
+    quarterly: "q",
+    yearly: "y",
+  }
+
+  const handleDonate = async () => {
+    if (!effectiveAmount || effectiveAmount <= 0) return
+    setError("")
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        amount: String(effectiveAmount),
+        repeat: frequencyMap[frequency] || "o",
+        giftaid: String(giftAid),
+      })
+      const res = await fetch(`/api/donate?${params.toString()}`)
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setError(data.error || "Something went wrong. Please try again.")
+        setLoading(false)
+      }
+    } catch {
+      setError("Unable to connect to payment service. Please try again.")
+      setLoading(false)
+    }
   }
 
   return (
@@ -117,9 +145,21 @@ export function DonateContent() {
                       <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                       Monthly
                     </button>
+                    <button
+                      onClick={() => setFrequency("quarterly")}
+                      className={"px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 " + (frequency === "quarterly" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      Quarterly
+                    </button>
+                    <button
+                      onClick={() => setFrequency("yearly")}
+                      className={"px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 " + (frequency === "yearly" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                    >
+                      Yearly
+                    </button>
                   </div>
-                  {frequency === "monthly" && (
-                    <p className="mt-2 text-xs text-amber-600">Monthly giving provides sustained support for our programmes</p>
+                  {frequency !== "one-time" && (
+                    <p className="mt-2 text-xs text-amber-600">Regular giving provides sustained support for our programmes</p>
                   )}
                 </div>
 
@@ -216,23 +256,33 @@ export function DonateContent() {
                   </div>
                 </div>
 
+                {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
+
                 {/* Submit Button */}
                 <button
                   onClick={handleDonate}
-                  disabled={!effectiveAmount || effectiveAmount <= 0}
+                  disabled={!effectiveAmount || effectiveAmount <= 0 || loading}
                   className="w-full py-5 px-8 bg-amber-400 hover:bg-amber-500 disabled:bg-muted disabled:text-muted-foreground text-black font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 group"
                 >
-                  <CreditCard className="w-5 h-5" />
-                  <span>
-                    Donate £{effectiveAmount?.toFixed(2) || "0.00"}{frequency === "monthly" ? "/month" : ""}
-                  </span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      <span>
+                        Donate £{effectiveAmount?.toFixed(2) || "0.00"}{frequency !== "one-time" ? " " + frequency : ""}
+                      </span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </button>
-
                 {/* Security Note */}
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <Lock className="w-4 h-4" />
-                  <span className="text-xs">Secure payment powered by Stripe</span>
+                  <span className="text-xs">Secure payment powered by NowDonate™</span>
                 </div>
               </div>
 
