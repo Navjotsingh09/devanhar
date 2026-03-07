@@ -1,17 +1,12 @@
-"use client"
-
-import { useDonation } from "@/components/donation-provider"
+import Link from "next/link"
 
 export function FooterDonateLink() {
-  const { openDonation } = useDonation()
-
   return (
-    <button
-      type="button"
-      onClick={() => openDonation("footer")}
-      className="text-white/50 hover:text-white transition-colors text-sm text-left"
+    <Link
+      href="/donate"
+      className="text-white/50 hover:text-white transition-colors text-sm"
     >
       Donate
-    </button>
+    </Link>
   )
 }
