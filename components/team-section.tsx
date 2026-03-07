@@ -58,8 +58,7 @@ export function TeamSection() {
             the Mission
           </h2>
           <p className="text-base text-white/70 max-w-2xl leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Get to
-            know the passionate volunteers who drive our impact.
+            Passionate individuals committed to empowering and supporting the next generation.
           </p>
         </div>
 

@@ -79,12 +79,20 @@ const projects: Project[] = [
     tag: "Martial Arts",
     icon: Shield,
   },
+  {
+    title: "Sikh Professional Network",
+    description: "A platform connecting Sikh professionals across industries for mentorship, career development, and collaborative growth.",
+    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80",
+    href: "/initiatives/sikh-professional-network",
+    tag: "Professional",
+    icon: Users,
+  },
 ]
 
 const stats = [
   { value: "1,000+", label: "Annual Campers" },
   { value: "25+", label: "Yearly University Talks" },
-  { value: "8", label: "Live Initiatives" },
+  { value: "9", label: "Live Initiatives" },
   { value: "2019", label: "Est." },
 ]
 
@@ -100,7 +108,7 @@ export function ProjectsPageContent() {
                 Our Initiatives
               </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
-                Projects That Create Lasting Impact
+                Creating Lasting Impact
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
                 From residential retreats to academic programs and mentorship, every initiative is
@@ -125,7 +133,7 @@ export function ProjectsPageContent() {
                 </div>
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                <p className="text-3xl font-bold">8</p>
+                <p className="text-3xl font-bold">9</p>
                 <p className="text-sm text-primary-foreground/80">Live Initiatives</p>
               </div>
             </div>

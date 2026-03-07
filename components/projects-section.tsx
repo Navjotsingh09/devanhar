@@ -22,7 +22,7 @@ const partners = [
   },
 ]
 
-const tabs = ["All Insights", "Education", "Community", "Leadership"]
+const tabs = ["All Insights", "Develop", "Elevate", "Empower", "Connect"]
 
 const insights = [
   {

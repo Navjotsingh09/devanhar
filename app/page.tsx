@@ -2,7 +2,6 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { MetricsTicker } from "@/components/metrics-ticker"
-import { LogoTicker } from "@/components/logo-ticker"
 import { PillarsSection } from "@/components/pillars-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
 import { PlatformSection } from "@/components/platform-section"
@@ -44,7 +43,6 @@ export default function Page() {
       <Navbar />
       <HeroSection />
       <MetricsTicker />
-      <LogoTicker />
       <PillarsSection />
       <TestimonialsSection />
       <PlatformSection />

@@ -8,16 +8,16 @@ const pillars = [
     icon: <Lightbulb className="w-6 h-6" />,
   },
   {
-    title: "Empower",
-    description:
-      "Provide confidence rooted in identity, values, and self-belief.",
-    icon: <Flame className="w-6 h-6" />,
-  },
-  {
     title: "Elevate",
     description:
       "Raise ambition, standards, and impact in every area of life.",
     icon: <TrendingUp className="w-6 h-6" />,
+  },
+  {
+    title: "Empower",
+    description:
+      "Provide confidence rooted in identity, values, and self-belief.",
+    icon: <Flame className="w-6 h-6" />,
   },
   {
     title: "Connect",
@@ -36,7 +36,7 @@ export function PillarsSection() {
             Our Pillars
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground">
-            Develop. Empower. Elevate. Connect.
+            Develop. Elevate. Empower. Connect.
           </h2>
         </div>
 

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 const stats = [
   { number: "1,000+", label: "Annual Campers" },
   { number: "25+", label: "Yearly University Talks" },
-  { number: "8", label: "Live Initiatives" },
+  { number: "9", label: "Live Initiatives" },
   { number: "2019", label: "Est." },
 ]
 
@@ -29,16 +29,16 @@ const values = [
       "Develop skills, character, and foundations for generational success. We invest in structured programmes that nurture growth at every stage of life.",
   },
   {
-    icon: Flame,
-    title: "Empower",
-    description:
-      "Provide confidence rooted in identity, values, and self-belief. Our initiatives equip individuals with the tools to lead with conviction and purpose.",
-  },
-  {
     icon: TrendingUp,
     title: "Elevate",
     description:
       "Raise ambition, standards, and impact in every area of life. We challenge our community to aim higher and achieve more through Sikhi-centred guidance.",
+  },
+  {
+    icon: Flame,
+    title: "Empower",
+    description:
+      "Provide confidence rooted in identity, values, and self-belief. Our initiatives equip individuals with the tools to lead with conviction and purpose.",
   },
   {
     icon: Handshake,

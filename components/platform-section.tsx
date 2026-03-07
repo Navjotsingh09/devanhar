@@ -58,6 +58,13 @@ const initiatives = [
     icon: <Shield className="w-5 h-5" />,
     href: "/initiatives/self-defence-academy",
   },
+  {
+    title: "Sikh Professional Network",
+    description:
+      "A platform connecting Sikh professionals across industries for mentorship, career development, and collaborative growth.",
+    icon: <Users className="w-5 h-5" />,
+    href: "/initiatives/sikh-professional-network",
+  },
 ]
 
 export function PlatformSection() {

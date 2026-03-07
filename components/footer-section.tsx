@@ -91,10 +91,9 @@ export function FooterSection() {
               <ul className="space-y-3 text-sm">
                 {[
                   { label: "About", href: "/about" },
-                  { label: "Projects", href: "/#projects" },
+                  { label: "Initiatives", href: "/projects" },
                   { label: "Team", href: "/team" },
-                  { label: "Foundation", href: "/foundation" },
-                  { label: "Media", href: "/media" },
+                  { label: "Events", href: "/events" },
                   { label: "Shop", href: "/shop" },
                 ].map((l) => (
                   <li key={l.label}>
@@ -166,8 +165,8 @@ export function FooterSection() {
                   </a>
                 </li>
                 <li>
-                  <a href="https://www.tiktok.com/@singhscampuk" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
-                    TikTok
+                  <a href="https://www.linkedin.com/company/devanhaar" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
+                    LinkedIn
                   </a>
                 </li>
               </ul>

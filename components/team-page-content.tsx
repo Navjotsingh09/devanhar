@@ -42,9 +42,10 @@ const team: TeamMember[] = [
 ]
 
 const values = [
-  { title: "Seva", description: "Selfless service lies at the heart of everything we do." },
-  { title: "Sangat", description: "Strength through community, unity in purpose." },
-  { title: "Sikhi", description: "Guided by Sikh principles of equality, justice, and compassion." },
+  { title: "Develop", description: "Building skills, character, and foundations for generational success." },
+  { title: "Elevate", description: "Raising ambition, standards, and impact in every area of life." },
+  { title: "Empower", description: "Providing confidence rooted in identity, values, and self-belief." },
+  { title: "Connect", description: "Creating lifelong relationships centred in community, mentorship, and shared growth." },
 ]
 
 export function TeamPageContent() {
@@ -99,7 +100,7 @@ export function TeamPageContent() {
             {[
               { number: "50+", label: "Active Sevadaars" },
               { number: "7", label: "Core Projects" },
-              { number: "10+", label: "UK Cities" },
+              { number: "UK", label: "Based" },
               { number: "100%", label: "Volunteer Run" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
@@ -157,7 +158,7 @@ export function TeamPageContent() {
       <section className="border-t border-border">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-light text-foreground mb-4 tracking-tight">Our Values</h2>
+            <h2 className="text-3xl md:text-5xl font-light text-foreground mb-4 tracking-tight">Devanhaar Values</h2>
             <div className="w-12 h-px bg-amber-400 mx-auto" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-4xl mx-auto">

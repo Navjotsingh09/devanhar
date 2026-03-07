@@ -108,9 +108,9 @@ export function HeroSection() {
               transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s",
             }}
           >
-            Develop. Empower.
+            Develop. Elevate.
             <br />
-            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">Elevate.</span>{" "}
+            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">Empower.</span>{" "}
             Connect.
           </h1>
         </div>

@@ -33,16 +33,6 @@ const articles = [
   },
 ]
 
-const mediaBrands = [
-  "SikhNet",
-  "Sikh Press Association",
-  "Basics of Sikhi",
-  "Sikh2Inspire",
-  "Asian Image",
-  "The Sikh Messenger",
-  "Sikh Channel",
-  "Punjab2000",
-]
 
 export function MediaSection() {
   return (
@@ -89,19 +79,6 @@ export function MediaSection() {
           </div>
         </div>
 
-        {/* Media logos bar - Agridex bottom strip */}
-        <div className="border-t border-border pt-10">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-14">
-            {mediaBrands.map((brand, i) => (
-              <span
-                key={i}
-                className="text-sm md:text-base font-semibold text-muted-foreground/30"
-              >
-                {brand}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   )

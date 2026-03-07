@@ -12,10 +12,9 @@ const navLinks = [
   { label: "About", href: "/about" },
   { label: "Initiatives", href: "/projects" },
   { label: "Team", href: "/team" },
-  { label: "Foundation", href: "/foundation" },
-  { label: "Media", href: "/media" },
+  { label: "Events", href: "/events" },
   { label: "Shop", href: "/shop" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact", href: "/#contact" },
 ]
 
 export function Navbar() {

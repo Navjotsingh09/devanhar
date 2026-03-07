@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Our Projects & Initiatives | Devanhaar",
     description:
-      "Eight community-led Sikh initiatives creating lasting impact across the UK and beyond.",
+      "Nine community-led Sikh initiatives creating lasting impact across the UK and beyond.",
     url: "https://devanhaar.vercel.app/projects",
   },
   alternates: { canonical: "https://devanhaar.vercel.app/projects" },
