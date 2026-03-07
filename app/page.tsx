@@ -3,7 +3,6 @@ import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { MetricsTicker } from "@/components/metrics-ticker"
 import { PillarsSection } from "@/components/pillars-section"
-import { TestimonialsSection } from "@/components/testimonials-section"
 import { PlatformSection } from "@/components/platform-section"
 // PartnershipBanner removed per content update
 import { ProjectsSection } from "@/components/projects-section"
@@ -44,7 +43,6 @@ export default function Page() {
       <HeroSection />
       <MetricsTicker />
       <PillarsSection />
-      <TestimonialsSection />
       <PlatformSection />
       {/* Partnership banner removed per content update */}
       <ProjectsSection />

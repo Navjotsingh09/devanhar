@@ -5,20 +5,36 @@ import { ArrowRight, ExternalLink } from "lucide-react"
 
 const partners = [
   {
-    badge: "Education Partner",
-    name: "Gurmat Academy",
-    location: "United Kingdom",
+    badge: "Develop",
+    name: "Develop",
+    location: "UK Wide",
     metric: "1,000+",
-    metricLabel: "Students annually",
+    metricLabel: "Hours of workshops delivered",
     fee: "1,000+",
   },
   {
-    badge: "Community Partner",
-    name: "SinghsCamp",
-    location: "UK & Europe",
-    metric: "1,000+",
-    metricLabel: "Annual attendees",
-    fee: "1,000+",
+    badge: "Elevate",
+    name: "Elevate",
+    location: "UK Wide",
+    metric: "20,000+",
+    metricLabel: "Futures Supported",
+    fee: "20,000+",
+  },
+  {
+    badge: "Empower",
+    name: "Empower",
+    location: "UK Wide",
+    metric: "400+",
+    metricLabel: "Youth Empowered",
+    fee: "400+",
+  },
+  {
+    badge: "Connect",
+    name: "Connect",
+    location: "UK Wide",
+    metric: "50+",
+    metricLabel: "Events Annually",
+    fee: "50+",
   },
 ]
 
@@ -69,7 +85,7 @@ export function ProjectsSection() {
             Our Key Initiatives
           </h2>
 
-          <div data-animate-stagger className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div data-animate-stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {partners.map((p, i) => (
               <div
                 key={i}
