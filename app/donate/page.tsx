@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { DonateContent } from "@/components/donate-content"
+import { ScrollAnimations } from "@/components/scroll-animations"
 import { FAQSection } from "@/components/faq-section"
 
 export const metadata: Metadata = {
@@ -58,6 +59,7 @@ const donateFAQs = [
 export default function DonatePage() {
   return (
     <>
+      <ScrollAnimations />
       <Navbar />
       <DonateContent />
       <FAQSection
