@@ -75,7 +75,7 @@ export function ContactContent() {
   }
 
   return (
-    <main className="min-h-screen mt-20">
+    <main className="mt-20">
       {/* Hero */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto px-6 lg:px-12 text-center">
