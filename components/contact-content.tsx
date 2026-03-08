@@ -30,7 +30,7 @@ const contactInfo = [
     icon: Clock,
     title: "Response Time",
     detail: "Within 48 hours",
-    description: "Mon \u2013 Fri, 9am \u2013 6pm GMT",
+    description: "Mon – Fri, 9am – 6pm GMT",
   },
 ]
 
@@ -84,7 +84,7 @@ export function ContactContent() {
             We&apos;d Love to Hear From You
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Whether you have a question about our initiatives, want to volunteer, or are interested in partnering with us \u2014 our team is here to help.
+            Whether you have a question about our initiatives, want to volunteer, or are interested in partnering with us — our team is here to help.
           </p>
         </div>
       </section>

@@ -6,9 +6,10 @@ import { NewsletterForm } from "@/components/newsletter-form"
 import Image from "next/image"
 import Link from "next/link"
 
-export function FooterSection() {
+export function FooterSection({ hideContact = false }: { hideContact?: boolean }) {
   return (
     <>
+      {!hideContact && <>
       {/* Contact CTA */}
       <section id="contact" className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
@@ -57,6 +58,7 @@ export function FooterSection() {
         </div>
       </section>
 
+      </>}
       {/* Dark massive footer - like Agridex */}
       <footer className="bg-[#0d1120] pt-20 pb-10">
         <div className="container mx-auto px-6 lg:px-12">

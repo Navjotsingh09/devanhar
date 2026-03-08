@@ -57,7 +57,7 @@ export default function ContactPage() {
         subheading="Common questions about reaching out to Devanhaar."
         items={contactFAQs}
       />
-      <FooterSection />
+      <FooterSection hideContact />
     </>
   )
 }
