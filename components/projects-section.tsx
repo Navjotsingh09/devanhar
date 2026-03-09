@@ -5,40 +5,40 @@ import { ArrowRight, ExternalLink } from "lucide-react"
 
 const partners = [
   {
-    badge: "Sikhi Camps",
-    name: "Sikhi Camps",
+    badge: "Develop",
+    name: "Develop",
     location: "UK Wide",
-    metric: "500+",
-    metricLabel: "Annual Campers",
-    fee: "500+",
+    metric: "1,000+",
+    metricLabel: "Hours of workshops delivered",
+    fee: "1,000+",
   },
   {
-    badge: "University Projects",
-    name: "University Projects",
+    badge: "Elevate",
+    name: "Elevate",
     location: "UK Wide",
-    metric: "25+",
-    metricLabel: "University Talks Delivered",
-    fee: "25+",
+    metric: "20,000+",
+    metricLabel: "Futures Supported",
+    fee: "20,000+",
   },
   {
-    badge: "Sikhi Vidyala",
-    name: "Sikhi Vidyala",
+    badge: "Empower",
+    name: "Empower",
     location: "UK Wide",
-    metric: "12",
-    metricLabel: "Current & Past Students",
-    fee: "12",
+    metric: "400+",
+    metricLabel: "Youth Empowered",
+    fee: "400+",
   },
   {
-    badge: "Gurmat School",
-    name: "Gurmat School",
+    badge: "Connect",
+    name: "Connect",
     location: "UK Wide",
-    metric: "30+",
-    metricLabel: "Students Enrolled",
-    fee: "30+",
+    metric: "50+",
+    metricLabel: "Events Annually",
+    fee: "50+",
   },
 ]
 
-const tabs = ["All Insights", "Sikhi Camps", "University Projects", "Sikhi Vidyala", "Gurmat School"]
+const tabs = ["All Insights", "Develop", "Elevate", "Empower", "Connect"]
 
 const insights = [
   {
@@ -82,7 +82,7 @@ export function ProjectsSection() {
       <section id="projects" className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
           <h2 data-animate className="text-3xl md:text-5xl font-bold text-foreground mb-16">
-            Devanhaar in Numbers
+            Our Key Initiatives
           </h2>
 
           <div data-animate-stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
