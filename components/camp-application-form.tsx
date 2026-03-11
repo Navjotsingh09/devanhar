@@ -61,7 +61,7 @@ export function CampApplicationForm({
     dietary_requirements: "",
     medical_requirements: "",
     travel_method: "",
-    requires_payment_support: false,
+    requires_payment_support: "",
     room_preference: "",
     heard_about_camp: "",
     first_residential_camp: "",
@@ -145,15 +145,21 @@ export function CampApplicationForm({
         method: "POST",
         body: data,
       })
-      const json = await res.json()
+      let json = null
+      try {
+        json = await res.json()
+      } catch {
+        setIdUploadError("Upload failed (server returned " + res.status + "). Try again.")
+        return
+      }
 
       if (!res.ok) {
-        setIdUploadError(json.error || "Failed to upload file")
+        setIdUploadError(json?.error || "Failed to upload file")
       } else {
-        update("id_document_url", json.file_path)
+        update("id_document_url", json?.file_path ?? "")
       }
     } catch {
-      setIdUploadError("Failed to upload file. Please try again.")
+      setIdUploadError("Network error uploading file. Please try again.")
     } finally {
       setUploadingId(false)
     }
