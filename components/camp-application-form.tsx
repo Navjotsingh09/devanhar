@@ -35,8 +35,10 @@ export function CampApplicationForm({
 }: CampApplicationFormProps) {
   const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
+  const [uploadingId, setUploadingId] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState("")
+  const [idUploadError, setIdUploadError] = useState("")
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -67,9 +69,10 @@ export function CampApplicationForm({
     been_to_singhs_camp_before: "",
     sikhi_knowledge_level: "",
     takeaway_from_camp: "",
-    consent_email: false,
-    consent_phone: false,
-    consent_sms: false,
+    consent_email: "no",
+    consent_phone: "no",
+    consent_sms: "no",
+    id_document_url: "",
   })
 
   const update = (field: string, value: string | boolean) => {
@@ -115,12 +118,44 @@ export function CampApplicationForm({
       if (!res.ok) {
         setError(data.error || "Failed to submit. Please try again.")
       } else {
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url
+          return
+        }
         setSubmitted(true)
       }
     } catch {
       setError("Network error. Please check your connection and try again.")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleIdUpload = async (file: File | null) => {
+    if (!file) return
+    setIdUploadError("")
+    setUploadingId(true)
+
+    try {
+      const data = new FormData()
+      data.append("file", file)
+      data.append("initiative_slug", initiativeSlug)
+
+      const res = await fetch("/api/camp-applications/upload-id", {
+        method: "POST",
+        body: data,
+      })
+      const json = await res.json()
+
+      if (!res.ok) {
+        setIdUploadError(json.error || "Failed to upload file")
+      } else {
+        update("id_document_url", json.file_path)
+      }
+    } catch {
+      setIdUploadError("Failed to upload file. Please try again.")
+    } finally {
+      setUploadingId(false)
     }
   }
 
@@ -180,6 +215,15 @@ export function CampApplicationForm({
                   <li>Places are limited and allocated on a first-come basis.</li>
                   <li>Please ensure all details are accurate before submitting.</li>
                 </ul>
+              </div>
+
+              <div className="bg-muted/40 border rounded-lg p-4 space-y-2">
+                <h3 className="font-semibold">Camp Registration Steps</h3>
+                <ol className="text-sm text-muted-foreground list-decimal pl-4 space-y-2">
+                  <li>Complete this form to ensure your place at camp.</li>
+                  <li>We will email payment instructions and your registration link after review.</li>
+                  <li>Your place is confirmed only once payment is completed.</li>
+                </ol>
               </div>
             </div>
           )}
@@ -316,6 +360,24 @@ export function CampApplicationForm({
                 <Textarea id="medical_requirements" rows={3}
                   value={form.medical_requirements}
                   onChange={e => update("medical_requirements", e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor="id_document">Passport or Driving Licence (optional)</Label>
+                <Input
+                  id="id_document"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={e => handleIdUpload(e.target.files?.[0] || null)}
+                />
+                {uploadingId && (
+                  <p className="text-xs text-muted-foreground mt-2">Uploading document...</p>
+                )}
+                {!uploadingId && form.id_document_url && (
+                  <p className="text-xs text-green-700 mt-2">Document uploaded successfully.</p>
+                )}
+                {idUploadError && (
+                  <p className="text-xs text-red-700 mt-2">{idUploadError}</p>
+                )}
               </div>
             </div>
           )}
@@ -477,7 +539,7 @@ export function CampApplicationForm({
                 {submitting ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
                 ) : (
-                  "Submit Application"
+                  "Submit & Continue to Payment"
                 )}
               </Button>
             )}

@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+const campFeeGbp = Number(process.env.STRIPE_CAMP_FEE_GBP || '199')
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
@@ -10,6 +14,14 @@ function getSupabaseAdmin() {
   }
 
   return createClient(supabaseUrl, supabaseServiceKey)
+}
+
+function getStripeClient() {
+  if (!stripeSecretKey) {
+    throw new Error('Missing STRIPE_SECRET_KEY')
+  }
+
+  return new Stripe(stripeSecretKey)
 }
 
 export async function POST(request: NextRequest) {
@@ -78,6 +90,7 @@ export async function POST(request: NextRequest) {
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
+      status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
     }
 
     const { data, error } = await supabase
@@ -101,7 +114,36 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({ success: true, message: 'Application submitted successfully' }, { status: 201 })
+    // If payment support requested, skip Stripe
+    if (body.requires_payment_support === 'yes') {
+      return NextResponse.json({ success: true, message: 'Application submitted \u2014 payment support request noted.' }, { status: 201 })
+    }
+
+    // Create Stripe Checkout session
+    const stripe = getStripeClient()
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      customer_email: body.email.trim().toLowerCase(),
+      line_items: [
+        {
+          price_data: {
+            currency: 'gbp',
+            unit_amount: campFeeGbp * 100,
+            product_data: {
+              name: 'Singhs Camp Registration',
+              description: `Camp application for ${body.first_name} ${body.last_name}`,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: { camp_application_id: data.id },
+      success_url: `${siteUrl}/initiatives/singhs-camp?payment=success`,
+      cancel_url: `${siteUrl}/initiatives/singhs-camp?payment=cancelled`,
+    })
+
+    return NextResponse.json({ success: true, checkout_url: session.url }, { status: 201 })
   } catch (error) {
     console.error('[Camp Application] Error:', error)
     return NextResponse.json(
