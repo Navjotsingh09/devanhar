@@ -110,8 +110,6 @@ export function CampApplicationForm({
         body: JSON.stringify({
           ...form,
           initiative_slug: initiativeSlug,
-          first_residential_camp: form.first_residential_camp === "yes",
-          been_to_singhs_camp_before: form.been_to_singhs_camp_before === "yes",
         }),
       })
       const data = await res.json()

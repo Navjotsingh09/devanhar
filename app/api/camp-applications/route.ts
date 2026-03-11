@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
       id_document_url: body.id_document_url || null,
-      initiative_slug: body.initiative_slug || 'singhs-camp',
       status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
     }
 
