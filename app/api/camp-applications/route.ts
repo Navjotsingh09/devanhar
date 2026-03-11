@@ -58,7 +58,12 @@ export async function POST(request: NextRequest) {
       emergency_contact_name: body.emergency_contact_name.trim(),
       emergency_contact_relationship: body.emergency_contact_relationship.trim(),
       emergency_contact_phone: body.emergency_contact_phone.trim(),
-      under_18_consent: body.under_18_consent || null,
+      under_18_consent:
+        body.under_18_consent === 'yes'
+          ? true
+          : body.under_18_consent === 'no'
+            ? false
+            : null,
       dietary_requirements: body.dietary_requirements?.trim() || null,
       medical_requirements: body.medical_requirements?.trim() || null,
       travel_method: body.travel_method || null,
@@ -73,7 +78,6 @@ export async function POST(request: NextRequest) {
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
-      initiative_slug: body.initiative_slug || 'singhs-camp',
     }
 
     const { data, error } = await supabase
@@ -83,6 +87,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      console.error('[Camp Application] Supabase insert error:', error)
       return NextResponse.json({ error: 'Failed to submit application. Please try again.' }, { status: 500 })
     }
     await supabase.from('activity_log').insert({
