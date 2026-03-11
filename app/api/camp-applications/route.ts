@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
     })
 
     // If payment support requested, skip Stripe
+    console.log("[Camp Application] requires_payment_support value:", JSON.stringify(body.requires_payment_support))
     if (body.requires_payment_support === 'yes') {
       return NextResponse.json({ success: true, message: 'Application submitted \u2014 payment support request noted.' }, { status: 201 })
     }
