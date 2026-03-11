@@ -8,14 +8,13 @@ function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase service role credentials')
   }
+
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-
-    // Validate required fields
     const required = [
       'first_name', 'last_name', 'email', 'date_of_birth', 'phone',
       'address_line_1', 'city', 'postcode', 'country',
@@ -23,31 +22,24 @@ export async function POST(request: NextRequest) {
       'heard_about_camp', 'first_residential_camp', 'been_to_singhs_camp_before',
       'sikhi_knowledge_level', 'takeaway_from_camp',
     ]
-
     const missing = required.filter((field) => !body[field] && body[field] !== false)
     if (missing.length > 0) {
-      return NextResponse.json(
-        { error: `Missing required fields: ${missing.join(', ')}` },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(body.email)) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
     const supabase = getSupabaseAdmin()
-
-    // Look up the Singhs Camp initiative ID
     const { data: initiative } = await supabase
       .from('initiatives')
       .select('id')
       .eq('slug', body.initiative_slug || 'singhs-camp')
-      .single()
+      .maybeSingle()
 
-    const { data, error } = await supabase.from('camp_applications').insert({
+    const payload = {
       initiative_id: initiative?.id || null,
       first_name: body.first_name.trim(),
       last_name: body.last_name.trim(),
@@ -66,16 +58,33 @@ export async function POST(request: NextRequest) {
       emergency_contact_name: body.emergency_contact_name.trim(),
       emergency_contact_relationship: body.emergency_contact_relationship.trim(),
       emergency_contact_phone: body.emergency_contact_phone.trim(),
-
-    if (error) {
-      console.error('[Camp Application] Supabase error:', error)
-      return NextResponse.json(
-        { error: 'Failed to submit application. Please try again.' },
-        { status: 500 }
-      )
+      under_18_consent: body.under_18_consent || null,
+      dietary_requirements: body.dietary_requirements?.trim() || null,
+      medical_requirements: body.medical_requirements?.trim() || null,
+      travel_method: body.travel_method || null,
+      requires_payment_support: body.requires_payment_support === 'yes',
+      room_preference: body.room_preference?.trim() || null,
+      heard_about_camp: body.heard_about_camp,
+      first_residential_camp: body.first_residential_camp === 'yes',
+      previous_camps: body.previous_camps?.trim() || null,
+      been_to_singhs_camp_before: body.been_to_singhs_camp_before === 'yes',
+      sikhi_knowledge_level: body.sikhi_knowledge_level,
+      takeaway_from_camp: body.takeaway_from_camp.trim(),
+      consent_email: body.consent_email === 'yes',
+      consent_phone: body.consent_phone === 'yes',
+      consent_sms: body.consent_sms === 'yes',
+      initiative_slug: body.initiative_slug || 'singhs-camp',
     }
 
-    // Log the activity
+    const { data, error } = await supabase
+      .from('camp_applications')
+      .insert(payload)
+      .select('id')
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: 'Failed to submit application. Please try again.' }, { status: 500 })
+    }
     await supabase.from('activity_log').insert({
       action: 'New camp application submitted',
       entity_type: 'camp_application',
@@ -87,10 +96,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(
-      { success: true, message: 'Application submitted successfully' },
-      { status: 201 }
-    )
+    return NextResponse.json({ success: true, message: 'Application submitted successfully' }, { status: 201 })
   } catch (error) {
     console.error('[Camp Application] Error:', error)
     return NextResponse.json(
