@@ -1,9 +1,12 @@
-import React from "react"
+"use client"
+
+import React, { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
+import { CampApplicationForm } from "@/components/camp-application-form"
 
 interface FAQ {
   question: string
@@ -45,6 +48,10 @@ export function InitiativePageLayout({
   galleryImages,
   additionalSections,
 }: InitiativePageProps) {
+  const [showCampForm, setShowCampForm] = useState(false)
+  const isSinghsCamp = title.trim().toLowerCase() === "singhs camp"
+  const effectiveCtaClick = onCtaClick ?? (isSinghsCamp ? () => setShowCampForm(true) : undefined)
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
@@ -72,10 +79,10 @@ export function InitiativePageLayout({
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium">
                 {tagline}
               </p>
-              {ctaText && (onCtaClick || ctaHref) && (
+              {ctaText && (effectiveCtaClick || ctaHref) && (
                 <div className="mt-8">
-                  {onCtaClick ? (
-                    <Button onClick={onCtaClick} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
+                  {effectiveCtaClick ? (
+                    <Button onClick={effectiveCtaClick} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
                       {ctaText} <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                     </Button>
                   ) : (
@@ -226,9 +233,9 @@ export function InitiativePageLayout({
             {tagline}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {ctaText && (onCtaClick || ctaHref) && (
-              onCtaClick ? (
-                <Button onClick={onCtaClick} className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
+            {ctaText && (effectiveCtaClick || ctaHref) && (
+              effectiveCtaClick ? (
+                <Button onClick={effectiveCtaClick} className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
                   {ctaText}
                 </Button>
               ) : (
@@ -250,6 +257,13 @@ export function InitiativePageLayout({
           </div>
         </div>
       </section>
+
+      {isSinghsCamp && showCampForm && (
+        <CampApplicationForm
+          initiativeSlug="singhs-camp"
+          onClose={() => setShowCampForm(false)}
+        />
+      )}
 
       <FooterSection />
     </div>
