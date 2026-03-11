@@ -116,13 +116,11 @@ export async function POST(request: NextRequest) {
     })
 
     // If payment support requested, skip Stripe
-    console.log("[Camp Application] requires_payment_support value:", JSON.stringify(body.requires_payment_support))
     if (body.requires_payment_support === 'yes') {
       return NextResponse.json({ success: true, message: 'Application submitted \u2014 payment support request noted.' }, { status: 201 })
     }
 
     // Create Stripe Checkout session
-    console.log("[Camp Application] STRIPE_SECRET_KEY exists:", !!stripeSecretKey, "siteUrl:", siteUrl)
     const stripe = getStripeClient()
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
