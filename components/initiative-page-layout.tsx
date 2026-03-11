@@ -19,12 +19,17 @@ interface Testimonial {
   role: string
 }
 
+interface Highlight {
+  title: string
+  description: string
+}
+
 interface InitiativePageProps {
   title: string
   tagline: string
   heroImage: string
   description: string[]
-  highlights?: string[]
+  highlights?: Highlight[]
   faqs?: FAQ[]
   testimonials?: Testimonial[]
   ctaText?: string
@@ -135,7 +140,10 @@ export function InitiativePageLayout({
                   key={i}
                   className="bg-background rounded-xl p-6 border border-border/50"
                 >
-                  <p className="text-foreground leading-relaxed">{item}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
