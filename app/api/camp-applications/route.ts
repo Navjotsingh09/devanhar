@@ -122,6 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Stripe Checkout session
+    console.log("[Camp Application] STRIPE_SECRET_KEY exists:", !!stripeSecretKey, "siteUrl:", siteUrl)
     const stripe = getStripeClient()
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[Camp Application] Error:', error)
     return NextResponse.json(
-      { error: 'Something went wrong. Please try again later.' },
+      { error: error instanceof Error ? error.message : "Something went wrong. Please try again later." },
       { status: 500 }
     )
   }
