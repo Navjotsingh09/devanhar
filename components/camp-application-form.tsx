@@ -464,13 +464,13 @@ export function CampApplicationForm({
               variant="outline"
               onClick={() => setStep(s => s - 1)}
               disabled={step === 0}>
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back
+              <ArrowLeft className="h-4 w-4 mr-1" /> Back
             </Button>
             {step < STEPS.length - 1 ? (
               <Button
                 onClick={() => setStep(s => s + 1)}
                 disabled={!canAdvance()}>
-                Next <ChevronRight className="h-4 w-4 ml-1" />
+                Next <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             ) : (
               <Button onClick={handleSubmit} disabled={submitting || !canAdvance()}>
