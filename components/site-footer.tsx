@@ -41,7 +41,7 @@ export function SiteFooter() {
       links: [
         { label: "Instagram", href: "https://instagram.com/devanhaar", external: true },
         { label: "Twitter / X", href: "https://x.com/devanhaar", external: true },
-        { label: "LinkedIn", href: "https://linkedin.com/company/devanhaar", external: true },
+        { label: "LinkedIn", href: "https://www.linkedin.com/company/devanhaar/?originalSubdomain=uk", external: true },
         { label: "YouTube", href: "https://youtube.com/@devanhaar", external: true },
       ],
     },

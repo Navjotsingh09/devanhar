@@ -167,7 +167,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                   </a>
                 </li>
                 <li>
-                  <a href="https://www.linkedin.com/company/devanhaar" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
+                  <a href="https://www.linkedin.com/company/devanhaar/?originalSubdomain=uk" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
                     LinkedIn
                   </a>
                 </li>
