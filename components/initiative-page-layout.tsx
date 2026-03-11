@@ -25,6 +25,7 @@ interface InitiativePageProps {
   faqs?: FAQ[]
   testimonials?: Testimonial[]
   ctaText?: string
+  onCtaClick?: () => void
   ctaHref?: string
   galleryImages?: string[]
   additionalSections?: React.ReactNode
@@ -40,6 +41,7 @@ export function InitiativePageLayout({
   testimonials,
   ctaText,
   ctaHref,
+  onCtaClick,
   galleryImages,
   additionalSections,
 }: InitiativePageProps) {
@@ -70,13 +72,19 @@ export function InitiativePageLayout({
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium">
                 {tagline}
               </p>
-              {ctaText && ctaHref && (
+              {ctaText && (onCtaClick || ctaHref) && (
                 <div className="mt-8">
-                  <a href={ctaHref} target="_blank" rel="noopener noreferrer">
-                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
+                  {onCtaClick ? (
+                    <Button onClick={onCtaClick} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
                       {ctaText} <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                     </Button>
-                  </a>
+                  ) : (
+                    <a href={ctaHref} target="_blank" rel="noopener noreferrer">
+                      <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
+                        {ctaText} <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+                      </Button>
+                    </a>
+                  )}
                 </div>
               )}
             </div>
@@ -218,12 +226,18 @@ export function InitiativePageLayout({
             {tagline}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {ctaText && ctaHref && (
-              <a href={ctaHref} target="_blank" rel="noopener noreferrer">
-                <Button className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
+            {ctaText && (onCtaClick || ctaHref) && (
+              onCtaClick ? (
+                <Button onClick={onCtaClick} className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
                   {ctaText}
                 </Button>
-              </a>
+              ) : (
+                <a href={ctaHref} target="_blank" rel="noopener noreferrer">
+                  <Button className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
+                    {ctaText}
+                  </Button>
+                </a>
+              )
             )}
             <Link href="/contact">
               <Button
