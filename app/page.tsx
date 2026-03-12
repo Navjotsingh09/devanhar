@@ -7,7 +7,6 @@ import { PlatformSection } from "@/components/platform-section"
 // PartnershipBanner removed per content update
 import { ProjectsSection } from "@/components/projects-section"
 import { TeamSection } from "@/components/team-section"
-import { FoundationSection } from "@/components/foundation-section"
 import { MediaSection } from "@/components/media-section"
 import { FooterSection } from "@/components/footer-section"
 import { FAQSection } from "@/components/faq-section"
@@ -46,7 +45,6 @@ export default function Page() {
       <PlatformSection />
       {/* Partnership banner removed per content update */}
       <ProjectsSection />
-      <FoundationSection />
       <TeamSection />
       <MediaSection />
       <FAQSection items={homeFAQs} />
