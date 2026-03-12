@@ -124,7 +124,7 @@ export function TeamSection() {
         </div>
 
         {/* Background logos row */}
-        <div className="my-12 flex items-center gap-8 overflow-hidden">
+        <div aria-hidden="true" className="my-12 flex items-center gap-8 overflow-hidden">
           {backgrounds.map((bg, i) => (
             <span
               key={i}
@@ -151,7 +151,7 @@ export function TeamSection() {
               </p>
               <p className="text-xs text-white/70 mb-1">{member.role}</p>
               {member.linkedin && (
-                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center text-white/50 hover:text-white transition-colors">
+                <a href={member.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${member.name} LinkedIn`} className="inline-flex items-center justify-center text-white/50 hover:text-white transition-colors">
                   <Linkedin className="h-3.5 w-3.5" />
                 </a>
               )}

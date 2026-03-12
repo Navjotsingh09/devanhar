@@ -158,13 +158,13 @@ export function ProjectsSection() {
             </div>
             <div className="hidden md:flex items-center gap-2">
               <button
-                type="button"
+                type="button" aria-label="Previous"
                 className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
               >
                 <ArrowRight className="h-4 w-4 rotate-180" />
               </button>
               <button
-                type="button"
+                type="button" aria-label="Next"
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
               >
                 <ArrowRight className="h-4 w-4" />
@@ -235,7 +235,7 @@ export function ProjectsSection() {
           <div className="mt-8 text-center">
             <Link
               href="/insights"
-              className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary underline underline-offset-4 hover:underline"
             >
               View all insights
               <ArrowRight className="h-4 w-4" />
