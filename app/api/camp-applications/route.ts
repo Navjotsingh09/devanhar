@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
             currency: 'gbp',
             unit_amount: campFeeGbp * 100,
             product_data: {
-              name: 'Singhs Camp Registration',
+              name: 'Singhs Camp Donation',
               description: `Camp application for ${body.first_name} ${body.last_name}`,
             },
           },
