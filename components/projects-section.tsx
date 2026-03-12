@@ -2,115 +2,83 @@
 
 import { useState, useRef, useEffect } from "react"
 import { ArrowRight, ExternalLink } from "lucide-react"
+import NumberFlow from "@number-flow/react"
+import Link from "next/link"
+import { blogPosts, type Pillar } from "@/lib/blog"
 
 const partners = [
   {
     badge: "Develop",
     name: "Develop",
     location: "UK Wide",
-    metric: "1,000+",
     metricLabel: "Hours of workshops delivered",
-    fee: "1,000+",
+    numericValue: 1000,
   },
   {
     badge: "Elevate",
     name: "Elevate",
     location: "UK Wide",
-    metric: "20,000+",
     metricLabel: "Futures Supported",
-    fee: "20,000+",
+    numericValue: 20000,
   },
   {
     badge: "Empower",
     name: "Empower",
     location: "UK Wide",
-    metric: "400+",
     metricLabel: "Youth Empowered",
-    fee: "400+",
+    numericValue: 400,
   },
   {
     badge: "Connect",
     name: "Connect",
     location: "UK Wide",
-    metric: "50+",
     metricLabel: "Events Annually",
-    fee: "50+",
+    numericValue: 50,
   },
 ]
 
-const tabs = ["All Insights", "Develop", "Elevate", "Empower", "Connect"]
+const tabs: ("All Insights" | Pillar)[] = ["All Insights", "Develop", "Elevate", "Empower", "Connect"]
 
-const insights = [
-  {
-    source: "SikhNet",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    logo: "SikhNet",
-  },
-  {
-    source: "Sikh Press",
-    description:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    logo: "Sikh Press",
-  },
-  {
-    source: "Asian Image",
-    description:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-    logo: "Asian Image",
-  },
-  {
-    source: "Sikh Channel",
-    description:
-      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    logo: "Sikh Channel",
-  },
-  {
-    source: "Punjab2000",
-    description:
-      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores.",
-    logo: "Punjab2000",
-  },
-]
+const pillarColors: Record<Pillar, string> = {
+  Develop: "bg-blue-50 text-blue-700 border-blue-200",
+  Elevate: "bg-purple-50 text-purple-700 border-purple-200",
+  Empower: "bg-amber-50 text-amber-700 border-amber-200",
+  Connect: "bg-emerald-50 text-emerald-700 border-emerald-200",
+}
 
-
-function AnimatedNumber({ value }: { value: string }) {
+function RollingNumber({ value, suffix = "+" }: { value: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
-  const [displayed, setDisplayed] = useState("0")
-  const [hasAnimated, setHasAnimated] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true)
-          const numericStr = value.replace(/[^0-9]/g, "")
-          const target = parseInt(numericStr, 10)
-          if (isNaN(target)) { setDisplayed(value); return }
-          const suffix = value.replace(/[0-9,]/g, "")
-          const duration = 1500
-          const steps = 40
-          const stepTime = duration / steps
-          let current = 0
-          const timer = setInterval(() => {
-            current += Math.ceil(target / steps)
-            if (current >= target) {
-              current = target
-              clearInterval(timer)
-            }
-            setDisplayed(current.toLocaleString() + suffix)
-          }, stepTime)
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
         }
       },
       { threshold: 0.3 }
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [value, hasAnimated])
+  }, [])
 
-  return <span ref={ref}>{displayed}</span>
+  return (
+    <span ref={ref} style={{ fontVariantNumeric: "tabular-nums" }}>
+      <NumberFlow
+        value={visible ? value : 0}
+        suffix={suffix}
+        transformTiming={{ duration: 1200, easing: "ease-out" }}
+        spinTiming={{ duration: 1200, easing: "ease-out" }}
+        opacityTiming={{ duration: 350, easing: "ease-out" }}
+        trend={1}
+        willChange
+      />
+    </span>
+  )
 }
 
 export function ProjectsSection() {
@@ -118,7 +86,7 @@ export function ProjectsSection() {
 
   return (
     <>
-      {/* Launch Partners - mirrors Agridex "Our Launch Partners" */}
+      {/* Key Initiatives */}
       <section id="projects" className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
           <h2 data-animate className="text-3xl md:text-5xl font-bold text-foreground mb-16">
@@ -131,9 +99,8 @@ export function ProjectsSection() {
                 key={i}
                 className="rounded-2xl border border-border bg-card overflow-hidden"
               >
-                {/* Top - map/pattern area like Agridex */}
+                {/* Top pattern area */}
                 <div className="relative h-52 bg-muted/30 overflow-hidden border-b border-border">
-                  {/* Subtle cross-hatch pattern */}
                   <div
                     className="absolute inset-0 opacity-[0.04]"
                     style={{
@@ -155,7 +122,7 @@ export function ProjectsSection() {
                         {p.metricLabel}
                       </p>
                       <p className="text-sm font-semibold text-foreground">
-                        <AnimatedNumber value={p.metric} />
+                        <RollingNumber value={p.numericValue} />
                       </p>
                     </div>
                     <div>
@@ -169,7 +136,7 @@ export function ProjectsSection() {
                   </div>
                   <div className="pt-5 border-t border-border">
                     <p className="text-3xl md:text-4xl font-bold text-primary">
-                      <AnimatedNumber value={p.fee} />
+                      <RollingNumber value={p.numericValue} />
                     </p>
                   </div>
                 </div>
@@ -179,7 +146,7 @@ export function ProjectsSection() {
         </div>
       </section>
 
-      {/* Insights - tabbed carousel mirrors Agridex exactly */}
+      {/* Insights tabbed carousel */}
       <section className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="flex items-start justify-between mb-10">
@@ -233,17 +200,21 @@ export function ProjectsSection() {
               className="flex gap-5 overflow-x-auto pb-4"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              {insights.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-64 rounded-2xl border border-border bg-card p-6 flex flex-col justify-between min-h-[280px]"
+              {(activeTab === 0
+                ? blogPosts
+                : blogPosts.filter((p) => p.pillar === tabs[activeTab])
+              ).map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/insights/${post.slug}`}
+                  className="flex-shrink-0 w-64 rounded-2xl border border-border bg-card p-6 flex flex-col justify-between min-h-[280px] hover:border-primary/30 transition-colors group"
                 >
                   <div>
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/5 border border-primary/10 px-3 py-1 text-[10px] font-bold text-primary mb-5 uppercase tracking-wider">
-                      {item.logo}
+                    <div className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-bold mb-5 uppercase tracking-wider ${pillarColors[post.pillar]}`}>
+                      {post.pillar}
                     </div>
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {item.description}
+                    <p className="text-sm text-foreground leading-relaxed line-clamp-4">
+                      {post.description}
                     </p>
                   </div>
                   <div className="flex items-center justify-between pt-5 border-t border-border mt-6">
@@ -251,13 +222,24 @@ export function ProjectsSection() {
                       <ExternalLink className="h-3 w-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">Read article</span>
                     </div>
-                    <span className="text-sm font-bold text-foreground">
-                      {item.source}
+                    <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                      {post.readTime}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
+          </div>
+
+          {/* View all link */}
+          <div className="mt-8 text-center">
+            <Link
+              href="/insights"
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            >
+              View all insights
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
