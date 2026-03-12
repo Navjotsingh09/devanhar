@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ArrowRight, ExternalLink } from "lucide-react"
 
 const partners = [
@@ -73,6 +73,46 @@ const insights = [
   },
 ]
 
+
+function AnimatedNumber({ value }: { value: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [displayed, setDisplayed] = useState("0")
+  const [hasAnimated, setHasAnimated] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+          const numericStr = value.replace(/[^0-9]/g, "")
+          const target = parseInt(numericStr, 10)
+          if (isNaN(target)) { setDisplayed(value); return }
+          const suffix = value.replace(/[0-9,]/g, "")
+          const duration = 1500
+          const steps = 40
+          const stepTime = duration / steps
+          let current = 0
+          const timer = setInterval(() => {
+            current += Math.ceil(target / steps)
+            if (current >= target) {
+              current = target
+              clearInterval(timer)
+            }
+            setDisplayed(current.toLocaleString() + suffix)
+          }, stepTime)
+        }
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [value, hasAnimated])
+
+  return <span ref={ref}>{displayed}</span>
+}
+
 export function ProjectsSection() {
   const [activeTab, setActiveTab] = useState(0)
 
@@ -105,11 +145,6 @@ export function ProjectsSection() {
                       {p.badge}
                     </span>
                   </div>
-                  <div className="absolute bottom-6 left-6">
-                    <span className="text-3xl font-bold italic text-foreground/70 tracking-tight">
-                      {p.name}
-                    </span>
-                  </div>
                 </div>
 
                 {/* Bottom stats */}
@@ -120,7 +155,7 @@ export function ProjectsSection() {
                         {p.metricLabel}
                       </p>
                       <p className="text-sm font-semibold text-foreground">
-                        {p.metric}
+                        <AnimatedNumber value={p.metric} />
                       </p>
                     </div>
                     <div>
@@ -134,7 +169,7 @@ export function ProjectsSection() {
                   </div>
                   <div className="pt-5 border-t border-border">
                     <p className="text-3xl md:text-4xl font-bold text-primary">
-                      {p.fee}
+                      <AnimatedNumber value={p.fee} />
                     </p>
                   </div>
                 </div>

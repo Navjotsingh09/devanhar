@@ -24,6 +24,18 @@ const STEPS = [
   "Contact Consent",
 ]
 
+
+const ALLERGY_OPTIONS = [
+  "Gluten Intolerance",
+  "Nut Allergy",
+  "Dairy",
+  "Soy",
+  "Egg",
+  "Shellfish",
+  "Sesame",
+  "Other",
+]
+
 interface CampApplicationFormProps {
   initiativeSlug?: string
   onClose: () => void
@@ -69,14 +81,41 @@ export function CampApplicationForm({
     been_to_singhs_camp_before: "",
     sikhi_knowledge_level: "",
     takeaway_from_camp: "",
-    consent_email: "no",
-    consent_phone: "no",
-    consent_sms: "no",
+    consent_email: "yes",
+    consent_phone: "yes",
+    consent_sms: "yes",
     id_document_url: "",
+    consent_whatsapp: "yes",
+    payment_support_details: "",
+    own_transport_type: "",
+    allergies: [] as string[],
+    carries_epipen: "",
+    other_allergy: "",
   })
 
-  const update = (field: string, value: string | boolean) => {
+  const update = (field: string, value: string | boolean | string[]) => {
     setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+
+  const toggleAllergy = (allergy: string) => {
+    setForm((prev) => {
+      const current = prev.allergies
+      const updated = current.includes(allergy)
+        ? current.filter((a) => a !== allergy)
+        : [...current, allergy]
+      return { ...prev, allergies: updated }
+    })
+  }
+
+  const isOver18 = (): boolean => {
+    if (!form.date_of_birth) return false
+    const dob = new Date(form.date_of_birth)
+    const today = new Date()
+    let age = today.getFullYear() - dob.getFullYear()
+    const m = today.getMonth() - dob.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--
+    return age >= 18
   }
 
   const canAdvance = (): boolean => {
@@ -172,7 +211,7 @@ export function CampApplicationForm({
             <X className="h-5 w-5" />
           </button>
           <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Thank you for applying!</h2>
+          <h2 className="text-2xl font-bold mb-2">Thank you for your donation!</h2>
           <p className="text-muted-foreground mb-2">
             Your application for Singhs Camp has been submitted successfully.
           </p>
@@ -193,7 +232,7 @@ export function CampApplicationForm({
       <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
         <div className="sticky top-0 bg-background z-10 border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
-            <h2 className="text-lg font-bold">Singhs Camp Application</h2>
+            <h2 className="text-lg font-bold">Singhs Camp Donation</h2>
             <p className="text-xs text-muted-foreground">
               Step {step + 1} of {STEPS.length} &mdash; {STEPS[step]}
             </p>
@@ -343,21 +382,62 @@ export function CampApplicationForm({
               </div>
               <div>
                 <Label htmlFor="under_18_consent">Under 18 Parental Consent</Label>
-                <select id="under_18_consent"
-                  className="w-full border rounded-md px-3 py-2"
-                  value={form.under_18_consent}
-                  onChange={e => update("under_18_consent", e.target.value)}>
-                  <option value="">Select...</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                  <option value="na">N/A (18 or over)</option>
-                </select>
+                {isOver18() ? (
+                  <p className="text-sm text-muted-foreground mt-1">Not applicable (you are 18 or over)</p>
+                ) : (
+                  <select id="under_18_consent"
+                    className="w-full border rounded-md px-3 py-2"
+                    value={form.under_18_consent}
+                    onChange={e => update("under_18_consent", e.target.value)}>
+                    <option value="">Select...</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="na">N/A (18 or over)</option>
+                  </select>
+                )}
               </div>
               <div>
                 <Label htmlFor="dietary_requirements">Dietary Requirements</Label>
                 <Textarea id="dietary_requirements" rows={3}
                   value={form.dietary_requirements}
                   onChange={e => update("dietary_requirements", e.target.value)} />
+              </div>
+              <div>
+                <Label className="mb-2 block">Allergies</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {ALLERGY_OPTIONS.map((allergy) => (
+                    <label key={allergy} className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={form.allergies.includes(allergy)}
+                        onChange={() => toggleAllergy(allergy)}
+                      />
+                      {allergy}
+                    </label>
+                  ))}
+                </div>
+                {form.allergies.includes("Other") && (
+                  <div className="mt-2">
+                    <Input
+                      placeholder="Please specify other allergy"
+                      value={form.other_allergy}
+                      onChange={e => update("other_allergy", e.target.value)}
+                    />
+                  </div>
+                )}
+                {form.allergies.length > 0 && (
+                  <div className="mt-3">
+                    <Label htmlFor="carries_epipen">Will you carry an EpiPen?</Label>
+                    <select id="carries_epipen"
+                      className="w-full border rounded-md px-3 py-2"
+                      value={form.carries_epipen}
+                      onChange={e => update("carries_epipen", e.target.value)}>
+                      <option value="">Select...</option>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </div>
+                )}
               </div>
               <div>
                 <Label htmlFor="medical_requirements">Medical Requirements</Label>
@@ -387,6 +467,11 @@ export function CampApplicationForm({
           )}
           {step === 4 && (
             <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  Camp is held in <strong>Wales</strong>. Please select how you plan to travel.
+                </p>
+              </div>
               <div>
                 <Label htmlFor="travel_method">Travel Method</Label>
                 <select id="travel_method"
@@ -395,12 +480,29 @@ export function CampApplicationForm({
                   onChange={e => update("travel_method", e.target.value)}>
                   <option value="">Select...</option>
                   <option value="coach-birmingham">Coach from Birmingham</option>
-                  <option value="coach-london">Coach from London</option>
-                  <option value="coach-derby">Coach from Derby</option>
+                  <option value="coach-london">Coach from London (Southall)</option>
                   <option value="own-transport">Own Transport</option>
-                  <option value="other">Other</option>
                 </select>
               </div>
+              {form.travel_method === "own-transport" && (
+                <div>
+                  <Label>How will you be travelling?</Label>
+                  <div className="flex flex-wrap gap-4 mt-2">
+                    {["Taxi", "Train", "Car", "Plane"].map((type) => (
+                      <label key={type} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name="own_transport_type"
+                          value={type.toLowerCase()}
+                          checked={form.own_transport_type === type.toLowerCase()}
+                          onChange={e => update("own_transport_type", e.target.value)}
+                        />
+                        {type}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div>
                 <Label htmlFor="requires_payment_support">Do you require payment support?</Label>
                 <select id="requires_payment_support"
@@ -412,9 +514,19 @@ export function CampApplicationForm({
                   <option value="no">No</option>
                 </select>
               </div>
+              {form.requires_payment_support === "yes" && (
+                <div>
+                  <Label htmlFor="payment_support_details">Please explain your circumstances</Label>
+                  <Textarea id="payment_support_details" rows={3}
+                    placeholder="Tell us about your situation so we can help"
+                    value={form.payment_support_details}
+                    onChange={e => update("payment_support_details", e.target.value)} />
+                </div>
+              )}
               <div>
-                <Label htmlFor="room_preference">Room Preference</Label>
+                <Label htmlFor="room_preference">Are there any other campers you would like to room with?</Label>
                 <Textarea id="room_preference" rows={2}
+                  placeholder="Enter names of campers you'd like to share a room with"
                   value={form.room_preference}
                   onChange={e => update("room_preference", e.target.value)} />
               </div>
@@ -497,7 +609,7 @@ export function CampApplicationForm({
             <div className="space-y-4">
               <h3 className="font-semibold">Contact Consent</h3>
               <p className="text-sm text-muted-foreground">
-                How would you like us to contact you?
+                How would you like us to contact you? All options are selected by default &mdash; uncheck any you do not want.
               </p>
               <div className="space-y-3">
                 <label className="flex items-center gap-2">
@@ -514,6 +626,11 @@ export function CampApplicationForm({
                   <input type="checkbox" checked={form.consent_sms === "yes"}
                     onChange={e => update("consent_sms", e.target.checked ? "yes" : "no")} />
                   <span className="text-sm">SMS</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.consent_whatsapp === "yes"}
+                    onChange={e => update("consent_whatsapp", e.target.checked ? "yes" : "no")} />
+                  <span className="text-sm">WhatsApp</span>
                 </label>
               </div>
             </div>
@@ -543,7 +660,7 @@ export function CampApplicationForm({
                 {submitting ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
                 ) : (
-                  "Submit & Continue to Payment"
+                  "Submit & Continue to Donation"
                 )}
               </Button>
             )}

@@ -46,8 +46,8 @@ export default function Page() {
       <PlatformSection />
       {/* Partnership banner removed per content update */}
       <ProjectsSection />
-      <TeamSection />
       <FoundationSection />
+      <TeamSection />
       <MediaSection />
       <FAQSection items={homeFAQs} />
       <FooterSection />
