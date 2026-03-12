@@ -183,9 +183,12 @@ export function ProjectsSection() {
       <section className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="flex items-start justify-between mb-10">
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground">
-              Insights
-            </h2>
+            <div>
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground">
+                Insights
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">Charity Number: 1203393</p>
+            </div>
             <div className="hidden md:flex items-center gap-2">
               <button
                 type="button"
