@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { ArrowRight, Users } from "lucide-react"
+import { ArrowRight, Users, Linkedin } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -10,35 +10,45 @@ interface TeamMember {
   role: string
   bio: string
   image: string
+  linkedin?: string
 }
 
 const leadership: TeamMember[] = [
   {
-    name: "Harjinder Singh",
-    role: "Founder & Chairperson",
-    bio: "A visionary leader dedicated to community empowerment through education and service.",
-    image: "https://api.dicebear.com/9.x/notionists/svg?seed=Harjinder",
-  },
-  {
-    name: "Gurpreet Kaur",
-    role: "Director of Education",
-    bio: "With over a decade in educational programme design, Gurpreet leads our learning initiatives.",
-    image: "https://api.dicebear.com/9.x/notionists/svg?seed=Gurpreet",
-  },
-  {
-    name: "Rajveer Singh",
+    name: "Mandeep Narwal",
     role: "Head of Operations",
-    bio: "Rajveer ensures every project runs smoothly from conception to delivery.",
-    image: "https://api.dicebear.com/9.x/notionists/svg?seed=Rajveer",
+    bio: "Overseeing day-to-day operations and driving organisational growth across all initiatives.",
+    image: "https://api.dicebear.com/9.x/notionists/svg?seed=MandeepNarwal",
+    linkedin: "#",
+  },
+  {
+    name: "Baldev Singh",
+    role: "Head of Communication",
+    bio: "Leading communications strategy and external engagement.",
+    image: "https://api.dicebear.com/9.x/notionists/svg?seed=BaldevSingh",
+    linkedin: "#",
+  },
+  {
+    name: "Jitarun Singh, ACCA",
+    role: "Account Lead",
+    bio: "Managing financial operations with professional rigour and transparency.",
+    image: "https://api.dicebear.com/9.x/notionists/svg?seed=JitarunSingh",
+    linkedin: "#",
   },
 ]
 const team: TeamMember[] = [
-  { name: "Simran Kaur", role: "Community Outreach", bio: "Connecting communities through meaningful engagement.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Simran" },
-  { name: "Amrit Singh", role: "Programme Coordinator", bio: "Designing programmes that create measurable impact.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Amrit" },
-  { name: "Jasleen Kaur", role: "Youth Engagement", bio: "Inspiring the next generation through mentorship.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Jasleen" },
-  { name: "Manpreet Singh", role: "Digital & Media", bio: "Crafting our digital presence and amplifying stories.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Manpreet" },
-  { name: "Harpreet Kaur", role: "Events & Culture", bio: "Bringing communities together through cultural celebrations.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Harpreet" },
-  { name: "Paramjit Singh", role: "Volunteer Coordinator", bio: "Building our network of dedicated volunteers.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Paramjit" },
+  { name: "Daljit Kaur", role: "Project Manager", bio: "Coordinating project delivery and ensuring seamless execution.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=DaljitKaur", linkedin: "#" },
+  { name: "Mandeep Singh", role: "Joint Head of Finance", bio: "Co-leading financial planning and governance.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=MandeepSingh", linkedin: "#" },
+  { name: "Gugandeep Singh", role: "Joint Head of Finance", bio: "Co-leading financial planning and governance.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GugandeepSingh", linkedin: "#" },
+  { name: "Gurvinder Singh", role: "Head of HR & Governance", bio: "Building robust HR frameworks and governance processes.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GurvinderSingh", linkedin: "#" },
+  { name: "Inderjit Singh", role: "Head of Self Defence Academy", bio: "Leading self-defence programmes rooted in discipline and empowerment.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=InderjitSingh", linkedin: "#" },
+  { name: "Amrit Singh", role: "Creative Lead", bio: "Shaping visual identity and creative direction.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=AmritSingh", linkedin: "#" },
+  { name: "Gursimran Kaur", role: "Head of Kaurs Camp", bio: "Leading the Kaurs Camp initiative to empower young women.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GursimranKaur", linkedin: "#" },
+  { name: "Benita", role: "Head of Kaurs Spaces", bio: "Creating safe and empowering spaces for Kaurs.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=Benita", linkedin: "#" },
+  { name: "Gurpreet Rana", role: "Head of Media", bio: "Managing media output and storytelling across platforms.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GurpreetRana", linkedin: "#" },
+  { name: "Pritam Singh", role: "Head of Singhs Camp", bio: "Leading the Singhs Camp initiative to develop young men.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=PritamSingh", linkedin: "#" },
+  { name: "Dr Taran Singh", role: "Head of Operations", bio: "Supporting operational delivery and strategic planning.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=DrTaranSingh", linkedin: "#" },
+  { name: "Sat Singh", role: "Head of Partnerships", bio: "Building strategic partnerships to expand reach.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=SatSingh", linkedin: "#" },
 ]
 
 const values = [
@@ -99,7 +109,7 @@ export function TeamPageContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { number: "50+", label: "Active Sevadaars" },
-              { number: "7", label: "Core Projects" },
+              { number: "9", label: "Live Initiatives" },
               { number: "UK", label: "Based" },
               { number: "100%", label: "Volunteer Run" },
             ].map((stat) => (
@@ -129,6 +139,11 @@ export function TeamPageContent() {
               <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-500 mb-2">{m.role}</p>
               <h3 className="text-2xl font-medium text-foreground mb-3">{m.name}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
+              {m.linkedin && (
+                <a href={m.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  <Linkedin className="h-3.5 w-3.5" /> LinkedIn
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -148,6 +163,11 @@ export function TeamPageContent() {
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-500 mb-1">{m.role}</p>
                 <h3 className="text-lg font-medium text-foreground mb-2">{m.name}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">{m.bio}</p>
+                {m.linkedin && (
+                  <a href={m.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                    <Linkedin className="h-3 w-3" /> LinkedIn
+                  </a>
+                )}
               </div>
             ))}
           </div>

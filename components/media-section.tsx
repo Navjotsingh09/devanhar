@@ -1,38 +1,4 @@
-import { ArrowRight } from "lucide-react"
-
-const articles = [
-  {
-    source: "SikhNet",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    source: "The Sikh Messenger",
-    description:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  },
-  {
-    source: "Sikh Press Association",
-    description:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-  },
-  {
-    source: "Basics of Sikhi",
-    description:
-      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    source: "Sikh2Inspire",
-    description:
-      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni.",
-  },
-  {
-    source: "Asian Image",
-    description:
-      "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.",
-  },
-]
-
+import { Instagram } from "lucide-react"
 
 export function MediaSection() {
   return (
@@ -40,45 +6,36 @@ export function MediaSection() {
       <div className="container mx-auto px-6 lg:px-12">
         <div data-animate className="mb-12">
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
-            News
+            Follow Us
           </p>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Featured in Media
+            Latest from Instagram
           </h2>
+          <p className="text-base text-muted-foreground max-w-xl leading-relaxed">
+            Stay up to date with our latest events, camps, and community moments.
+          </p>
         </div>
 
-        {/* Horizontal scroll row like Agridex */}
-        <div data-animate className="relative mb-16">
-          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-          <div
-            className="flex gap-5 overflow-x-auto pb-4"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {articles.map((article, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-72 group rounded-2xl border border-border bg-card p-7 hover:border-primary/30 transition-all flex flex-col justify-between min-h-[240px]"
-              >
-                <div>
-                  <p className="text-[10px] font-semibold tracking-wider uppercase text-primary mb-4">
-                    featured on {article.source}
-                  </p>
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {article.description}
-                  </p>
-                </div>
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground group-hover:text-primary transition-colors mt-5 pt-4 border-t border-border"
-                >
-                  Read article{" "}
-                  <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                </a>
-              </div>
-            ))}
+        <div data-animate className="rounded-2xl border border-border bg-card p-8 md:p-12 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center">
+              <Instagram className="h-8 w-8 text-white" />
+            </div>
           </div>
+          <h3 className="text-xl font-semibold text-foreground mb-2">@devanhaar</h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Follow us on Instagram for the latest updates, event highlights, and behind-the-scenes content.
+          </p>
+          <a
+            href="https://www.instagram.com/devanhaar"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Instagram className="h-4 w-4" />
+            Follow on Instagram
+          </a>
         </div>
-
       </div>
     </section>
   )

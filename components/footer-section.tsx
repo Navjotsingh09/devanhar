@@ -45,7 +45,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                   <div>
                     <p className="text-xs text-muted-foreground">Location</p>
                     <p className="text-sm font-medium text-foreground">
-                      Birmingham, United Kingdom
+                      United Kingdom
                     </p>
                   </div>
                 </div>
