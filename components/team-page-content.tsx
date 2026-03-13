@@ -19,7 +19,7 @@ const leadership: TeamMember[] = [
     role: "Head of Operations",
     bio: "Overseeing day-to-day operations and driving organisational growth across all initiatives.",
     image: "https://api.dicebear.com/9.x/notionists/svg?seed=MandeepNarwal",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/mandeep-singh-narwal/",
   },
   {
     name: "Baldev Singh",
@@ -41,6 +41,7 @@ const team: TeamMember[] = [
   { name: "Mandeep Singh", role: "Joint Head of Finance", bio: "Co-leading financial planning and governance.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=MandeepSingh", linkedin: "#" },
   { name: "Gugandeep Singh", role: "Joint Head of Finance", bio: "Co-leading financial planning and governance.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GugandeepSingh", linkedin: "#" },
   { name: "Gurvinder Singh", role: "Head of HR & Governance", bio: "Building robust HR frameworks and governance processes.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GurvinderSingh", linkedin: "#" },
+  { name: "Bapinder Singh", role: "Tech Manager", bio: "Leading technology strategy and digital infrastructure.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=BapinderSingh", linkedin: "#" },
   { name: "Inderjit Singh", role: "Head of Self Defence Academy", bio: "Leading self-defence programmes rooted in discipline and empowerment.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=InderjitSingh", linkedin: "#" },
   { name: "Amrit Singh", role: "Creative Lead", bio: "Shaping visual identity and creative direction.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=AmritSingh", linkedin: "#" },
   { name: "Gursimran Kaur", role: "Head of Kaurs Camp", bio: "Leading the Kaurs Camp initiative to empower young women.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GursimranKaur", linkedin: "#" },

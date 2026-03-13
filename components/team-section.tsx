@@ -17,7 +17,7 @@ const teamMembers = [
     name: "Mandeep Narwal",
     role: "Head of Operations",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=MandeepNarwal&backgroundColor=b6e3f4",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/mandeep-singh-narwal/",
   },
   {
     name: "Baldev Singh",
@@ -53,6 +53,12 @@ const teamMembers = [
     name: "Gurvinder Singh",
     role: "Head of HR & Governance",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=GurvinderSingh&backgroundColor=c0aede",
+    linkedin: "#",
+  },
+  {
+    name: "Bapinder Singh",
+    role: "Tech Manager",
+    img: "https://api.dicebear.com/9.x/notionists/svg?seed=BapinderSingh&backgroundColor=d1d4f9",
     linkedin: "#",
   },
   {

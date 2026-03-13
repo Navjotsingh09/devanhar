@@ -14,6 +14,8 @@ export async function updateSession(request: NextRequest) {
   // Pass pathname to layout for role-based route protection
   supabaseResponse.headers.set('x-pathname', request.nextUrl.pathname)
 
+  if (!supabaseUrl || !supabaseKey) return supabaseResponse
+
   const supabase = createServerClient(
     supabaseUrl!,
     supabaseKey!,
