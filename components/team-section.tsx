@@ -29,13 +29,13 @@ const teamMembers = [
     name: "Jitarun Singh, ACCA",
     role: "Account Lead",
     img: "/team/jitarun-singh.jpg",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/jitarunjandu/",
   },
   {
     name: "Daljit Kaur",
     role: "Project Manager",
     img: "/team/daljit-kaur.jpg",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/daljitkaurstem/",
   },
   {
     name: "Mandeep Singh",
@@ -53,7 +53,7 @@ const teamMembers = [
     name: "Gurvinder Singh",
     role: "Head of HR & Governance",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=GurvinderSingh&backgroundColor=c0aede",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/guvinder-singh-b7870762/",
   },
   {
     name: "Bapinder Singh",
@@ -65,13 +65,13 @@ const teamMembers = [
     name: "Inderjit Singh",
     role: "Head of Self Defence Academy",
     img: "/team/inderjit-singh.jpg",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/inderjit-singh-963015273/",
   },
   {
     name: "Amrit Singh",
     role: "Creative Lead",
     img: "/team/amrit-singh.jpg",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/amritsinghpahal/",
   },
   {
     name: "Gursimran Kaur",
@@ -83,31 +83,31 @@ const teamMembers = [
     name: "Benita",
     role: "Head of Kaurs Spaces",
     img: "/team/benita.jpg",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/benitakaur/",
   },
   {
     name: "Gurpreet Rana",
     role: "Head of Media",
     img: "/team/gurpreet-rana.jpg",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/gurpreetkrana/",
   },
   {
     name: "Pritam Singh",
     role: "Head of Singhs Camp",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=PritamSingh&backgroundColor=ffd5dc",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/pritam-singh-mandair-346220201/",
   },
   {
     name: "Dr Taran Singh",
     role: "Head of Operations",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=DrTaranSingh&backgroundColor=ffdfbf",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/taran-dhillon-64a444254/",
   },
   {
     name: "Sat Singh",
     role: "Head of Partnerships",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=SatSingh&backgroundColor=b6e3f4",
-    linkedin: "#",
+    linkedin: "https://www.linkedin.com/in/sat-dhillon/",
   },
 ]
 
