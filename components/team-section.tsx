@@ -28,13 +28,13 @@ const teamMembers = [
   {
     name: "Jitarun Singh, ACCA",
     role: "Account Lead",
-    img: "https://api.dicebear.com/9.x/notionists/svg?seed=JitarunSingh&backgroundColor=d1d4f9",
+    img: "/team/jitarun-singh.jpg",
     linkedin: "#",
   },
   {
     name: "Daljit Kaur",
     role: "Project Manager",
-    img: "https://api.dicebear.com/9.x/notionists/svg?seed=DaljitKaur&backgroundColor=ffd5dc",
+    img: "/team/daljit-kaur.jpg",
     linkedin: "#",
   },
   {
@@ -64,13 +64,13 @@ const teamMembers = [
   {
     name: "Inderjit Singh",
     role: "Head of Self Defence Academy",
-    img: "https://api.dicebear.com/9.x/notionists/svg?seed=InderjitSingh&backgroundColor=ffd5dc",
+    img: "/team/inderjit-singh.jpg",
     linkedin: "#",
   },
   {
     name: "Amrit Singh",
     role: "Creative Lead",
-    img: "https://api.dicebear.com/9.x/notionists/svg?seed=AmritSingh&backgroundColor=ffdfbf",
+    img: "/team/amrit-singh.jpg",
     linkedin: "#",
   },
   {
@@ -82,13 +82,13 @@ const teamMembers = [
   {
     name: "Benita",
     role: "Head of Kaurs Spaces",
-    img: "https://api.dicebear.com/9.x/notionists/svg?seed=Benita&backgroundColor=c0aede",
+    img: "/team/benita.jpg",
     linkedin: "#",
   },
   {
     name: "Gurpreet Rana",
     role: "Head of Media",
-    img: "https://api.dicebear.com/9.x/notionists/svg?seed=GurpreetRana&backgroundColor=d1d4f9",
+    img: "/team/gurpreet-rana.jpg",
     linkedin: "#",
   },
   {
