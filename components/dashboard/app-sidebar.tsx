@@ -15,6 +15,7 @@ import {
   ShoppingBag,
   Package,
   ClipboardList,
+  ImageIcon,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -52,6 +53,7 @@ const mainNav: NavItem[] = [
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
   { title: 'User Management', url: '/dashboard/users', icon: Users, adminOnly: true },
+  { title: 'Site Images', url: '/dashboard/images', icon: ImageIcon },
 ]
 
 const shopNav: NavItem[] = [
