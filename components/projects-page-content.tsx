@@ -1,5 +1,6 @@
 "use client"
 
+import { useSiteImages } from "@/hooks/use-site-images"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Users, Heart, Sparkles, BookOpen, Mic2, GraduationCap, School, Shield } from "lucide-react"
@@ -97,6 +98,10 @@ const stats = [
 ]
 
 export function ProjectsPageContent() {
+  const { images: projectImages } = useSiteImages("projects")
+  const cmsImageMap = Object.fromEntries(projectImages.filter(img => img.category).map(img => [img.category!, img.url]))
+  const getProjectImage = (slug: string, fallback: string) => cmsImageMap[slug] || fallback
+
   return (
     <div className="pt-24 pb-0">
       {/* Hero Section */}
@@ -125,12 +130,18 @@ export function ProjectsPageContent() {
             </div>
             <div className="relative">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
-                <div className="absolute inset-0 backdrop-blur-3xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="w-10 h-10 text-primary/40" />
-                  </div>
-                </div>
+                {cmsImageMap["hero"] ? (
+                  <img src={cmsImageMap["hero"]} alt="Our Initiatives" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <div className="absolute inset-0 backdrop-blur-3xl" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Sparkles className="w-10 h-10 text-primary/40" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
                 <p className="text-3xl font-bold">9</p>
@@ -164,7 +175,7 @@ export function ProjectsPageContent() {
         <Link href={projects[0].href} className="group block">
           <div className="relative aspect-[21/9] overflow-hidden bg-muted rounded-sm">
             <Image
-              src={projects[0].image}
+              src={getProjectImage(projects[0].href.split("/").pop()!, projects[0].image)}
               alt={projects[0].title}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -197,7 +208,7 @@ export function ProjectsPageContent() {
             <Link key={project.title} href={project.href} className="group block">
               <div className="relative aspect-[16/10] overflow-hidden bg-muted rounded-sm">
                 <Image
-                  src={project.image}
+                  src={getProjectImage(project.href.split("/").pop()!, project.image)}
                   alt={project.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -230,7 +241,7 @@ export function ProjectsPageContent() {
               <Link key={project.title} href={project.href} className="group block">
                 <div className="relative aspect-[3/4] overflow-hidden bg-muted rounded-sm">
                   <Image
-                    src={project.image}
+                    src={getProjectImage(project.href.split("/").pop()!, project.image)}
                     alt={project.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"

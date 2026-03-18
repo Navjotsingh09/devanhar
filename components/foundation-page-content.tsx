@@ -5,6 +5,7 @@ import Image from "next/image"
 import { ArrowRight, BookOpen, Heart, Globe, Users, Sparkles, GraduationCap, Landmark, Wifi, Award, Sprout, TrendingUp, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useSiteImages } from "@/hooks/use-site-images"
 
 const pillars = [
   { icon: BookOpen, title: "Education", description: "Empowering communities through accessible learning programmes, scholarships, and skill development initiatives." },
@@ -91,6 +92,10 @@ const timeline: TimelineEvent[] = [
 
 export function FoundationPageContent() {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { images: timelineImages } = useSiteImages("foundation")
+  const cmsImageMap = Object.fromEntries(timelineImages.filter(img => img.category).map(img => [img.category!, img.url]))
+  const resolvedTimeline = timeline.map((event) => ({ ...event, image: cmsImageMap[event.year] || event.image }))
+
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return
@@ -130,12 +135,18 @@ export function FoundationPageContent() {
             </div>
             <div className="relative">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
-                <div className="absolute inset-0 backdrop-blur-3xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Heart className="w-10 h-10 text-primary/40" />
-                  </div>
-                </div>
+                {cmsImageMap["hero"] ? (
+                  <img src={cmsImageMap["hero"]} alt="Devanhaar Foundation" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <>
+                    <div className="absolute inset-0 backdrop-blur-3xl" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Heart className="w-10 h-10 text-primary/40" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
                 <p className="text-3xl font-bold">2017</p>
@@ -185,9 +196,13 @@ export function FoundationPageContent() {
               </p>
             </div>
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-[#1a1f2e] to-[#c49a6c]/30">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white/20 text-8xl font-bold">ੴ</span>
-              </div>
+              {cmsImageMap["mission"] ? (
+                <img src={cmsImageMap["mission"]} alt="Our Mission" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-white/20 text-8xl font-bold">ਧ
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -257,7 +272,7 @@ export function FoundationPageContent() {
               className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              {timeline.map((event, i) => {
+              {resolvedTimeline.map((event, i) => {
                 const Icon = event.icon;
                 return (
                   <div

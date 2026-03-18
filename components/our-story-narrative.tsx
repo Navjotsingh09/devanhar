@@ -1,4 +1,5 @@
 "use client";
+import { useSiteImages } from "@/hooks/use-site-images"
 
 import { useState } from "react";
 
@@ -80,6 +81,8 @@ const milestones: Milestone[] = [
 
 export default function OurStoryNarrative() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { images: storyImages } = useSiteImages("about")
+  const cmsImageMap = Object.fromEntries(storyImages.filter(img => img.category?.startsWith("story-")).map(img => [img.category!.replace("story-", ""), img.url]))
 
   return (
     <section className="w-full">
@@ -108,7 +111,7 @@ export default function OurStoryNarrative() {
               <div
                 className="absolute inset-0 bg-cover bg-center transition-[filter] duration-500"
                 style={{
-                  backgroundImage: `url(${m.image})`,
+                  backgroundImage: `url(${cmsImageMap[String(m.year)] || m.image})`,
                   filter: isHovered ? "grayscale(0)" : "grayscale(60%)",
                 }}
               />
