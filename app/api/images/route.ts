@@ -1,13 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
-import { createClient as createServiceClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
 
-function getServiceClient() {
-  return createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
+const MAX_FILE_SIZE = 4 * 1024 * 1024 // 4 MB
+
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -53,13 +48,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "file and section are required" }, { status: 400 })
   }
 
-  const ext = file.name.split(".").pop() || "jpg"
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json(
+      { error: "File too large. Maximum size is 4 MB." },
+      { status: 413 }
+    )
+  }
+
   const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_")
   const storagePath = section + "/" + (category ? category + "/" : "") + Date.now() + "-" + sanitizedName
 
-  const serviceClient = getServiceClient()
   const bytes = await file.arrayBuffer()
-  const { error: uploadError } = await serviceClient.storage
+  const { error: uploadError } = await supabase.storage
     .from("site-images")
     .upload(storagePath, bytes, {
       contentType: file.type,
@@ -67,10 +67,10 @@ export async function POST(request: NextRequest) {
     })
 
   if (uploadError) {
-    return NextResponse.json({ error: uploadError.message }, { status: 500 })
+    return NextResponse.json({ error: "Storage upload failed: " + uploadError.message }, { status: 500 })
   }
 
-  const { data: { publicUrl } } = serviceClient.storage
+  const { data: { publicUrl } } = supabase.storage
     .from("site-images")
     .getPublicUrl(storagePath)
 
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (dbError) {
-    return NextResponse.json({ error: dbError.message }, { status: 500 })
+    return NextResponse.json({ error: "Database insert failed: " + dbError.message }, { status: 500 })
   }
   return NextResponse.json({ image: record })
 }
@@ -113,8 +113,7 @@ export async function DELETE(request: NextRequest) {
     .single()
 
   if (image) {
-    const serviceClient = getServiceClient()
-    await serviceClient.storage
+    await supabase.storage
       .from("site-images")
       .remove([image.storage_path])
   }

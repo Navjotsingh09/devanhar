@@ -81,6 +81,10 @@ export default function SiteImagesPage() {
 
   const handleUpload = async () => {
     if (!file || !currentSection) return
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("File too large. Maximum size is 4 MB.")
+      return
+    }
     setUploading(true)
     try {
       const fd = new FormData()
@@ -129,6 +133,10 @@ export default function SiteImagesPage() {
     setDragOver(false)
     const droppedFile = e.dataTransfer.files[0]
     if (droppedFile && droppedFile.type.startsWith("image/")) {
+      if (droppedFile.size > 4 * 1024 * 1024) {
+        toast.error("File too large. Maximum size is 4 MB.")
+        return
+      }
       setFile(droppedFile)
     }
   }, [])
@@ -188,6 +196,7 @@ export default function SiteImagesPage() {
             <p className="text-sm text-muted-foreground">
               {file ? file.name : "Drag & drop an image or click to browse"}
             </p>
+            <p className="text-xs text-muted-foreground mt-1">Max file size: 4 MB • Accepted formats: JPG, PNG, WebP, SVG</p>
             <input id="file-input" type="file" accept="image/*" className="hidden"
               onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
