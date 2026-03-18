@@ -7,7 +7,7 @@ export async function getSiteImages(section: string, category?: string): Promise
     .from("site_images")
     .select("*")
     .eq("section", section)
-    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: false })
 
   if (category) {
     query = query.eq("category", category)

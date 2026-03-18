@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     .from("site_images")
     .select("*")
     .eq("section", section)
-    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: false })
 
   if (category) {
     query = query.eq("category", category)
