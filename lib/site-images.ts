@@ -59,7 +59,7 @@ export const SITE_PAGES: Record<string, SitePage> = {
     ],
   },
   foundation: {
-    label: "Foundation Page",
+    label: "Our Foundation",
     sections: [
       { value: "hero-foundation", label: "Hero Image", dbSection: "hero", dbCategory: "foundation", dimensions: "1600 × 1200px (4:3)", description: "Hero image on the foundation page header" },
       { value: "foundation-mission", label: "Mission Section Image", dbSection: "foundation", dbCategory: "mission", dimensions: "1600 × 1200px (4:3)", description: "Image for the mission / Ik Onkar section" },
