@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#0d1120] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1514820720301-4c4790309f46?w=1200&q=80"
+            src="https://placehold.co/1200x800/1a1a2e/e0e0e0.png?text=Login+Background"
             alt="Sikh community"
             fill
             className="object-cover opacity-20"

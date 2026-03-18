@@ -4,6 +4,7 @@ import { ArrowRight, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useState, useRef } from "react"
+import { useSiteImages } from "@/hooks/use-site-images"
 
 const slides = [
   {
@@ -39,6 +40,13 @@ export function HeroSection() {
   const [current, setCurrent] = useState(0)
   const [loaded, setLoaded] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
+  const { images: heroImages } = useSiteImages("hero")
+  const heroImage = heroImages.find(i => i.category === "home")?.url || ""
+  const cardImages = [
+    heroImages.find(i => i.category === "card-1")?.url || "https://placehold.co/400x400/1a1a2e/e0e0e0.png?text=Card+1",
+    heroImages.find(i => i.category === "card-2")?.url || "https://placehold.co/400x400/1a1a2e/e0e0e0.png?text=Card+2",
+    heroImages.find(i => i.category === "card-3")?.url || "https://placehold.co/400x400/1a1a2e/e0e0e0.png?text=Card+3",
+  ]
 
   useEffect(() => {
     setLoaded(true)
@@ -71,17 +79,23 @@ export function HeroSection() {
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute top-[15%] left-[8%] w-64 h-64 rounded-3xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm rotate-12"
+          className="absolute top-[15%] left-[8%] w-64 h-64 rounded-3xl overflow-hidden border border-white/[0.08] bg-white/[0.03] backdrop-blur-sm rotate-12"
           style={{ opacity: loaded ? 1 : 0, transition: "opacity 2s ease 0.5s", animation: "heroFloat0 20s ease-in-out infinite" }}
-        />
+        >
+            <img src={cardImages[0]} alt="Hero card 1" className="w-full h-full object-cover rounded-3xl" />
+          </div>
         <div
-          className="absolute bottom-[20%] right-[10%] w-48 h-48 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm -rotate-6"
+          className="absolute bottom-[20%] right-[10%] w-48 h-48 rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm -rotate-6"
           style={{ opacity: loaded ? 1 : 0, transition: "opacity 2s ease 1s", animation: "heroFloat1 16s ease-in-out infinite reverse" }}
-        />
+        >
+            <img src={cardImages[1]} alt="Hero card 2" className="w-full h-full object-cover rounded-2xl" />
+          </div>
         <div
-          className="absolute top-[50%] right-[25%] w-32 h-32 rounded-xl border border-amber-400/[0.08] bg-amber-400/[0.02] backdrop-blur-sm rotate-45"
+          className="absolute top-[50%] right-[25%] w-32 h-32 rounded-xl overflow-hidden border border-amber-400/[0.08] bg-amber-400/[0.02] backdrop-blur-sm rotate-45"
           style={{ opacity: loaded ? 1 : 0, transition: "opacity 2s ease 1.5s", animation: "heroFloat2 24s ease-in-out infinite" }}
-        />
+        >
+            <img src={cardImages[2]} alt="Hero card 3" className="w-full h-full object-cover rounded-xl" />
+          </div>
       </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-center">

@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ShoppingBag, Heart, ArrowRight, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
+import { useSiteImages } from "@/hooks/use-site-images"
 
 const categories = [
   { id: "all", label: "All" },
@@ -21,7 +22,7 @@ const products = [
     name: "Devanhaar Classic Tee",
     price: 25.00,
     category: "clothing",
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
+    image: "https://placehold.co/600x600/1a1a2e/e0e0e0.png?text=Devanhaar+Classic+Tee",
     description: "Premium cotton tee with embroidered Devanhaar logo. Every purchase supports Sikh education.",
     badge: "Best Seller",
     inStock: true,
@@ -32,7 +33,7 @@ const products = [
     name: "Khanda Hoodie",
     price: 55.00,
     category: "clothing",
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
+    image: "https://placehold.co/600x600/1a1a2e/e0e0e0.png?text=Khanda+Hoodie",
     description: "Cosy hoodie with subtle Khanda design. Premium quality, ethically made.",
     badge: null,
     inStock: true,
@@ -43,7 +44,7 @@ const products = [
     name: "Seva Water Bottle",
     price: 18.00,
     category: "accessories",
-    image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80",
+    image: "https://placehold.co/600x600/1a1a2e/e0e0e0.png?text=Seva+Water+Bottle",
     description: "Stainless steel bottle with \"Seva\" engraving. Keeps drinks cold for 24hrs.",
     badge: "Eco-Friendly",
     inStock: true,
@@ -54,7 +55,7 @@ const products = [
     name: "Japji Sahib Journal",
     price: 15.00,
     category: "books",
-    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80",
+    image: "https://placehold.co/600x600/1a1a2e/e0e0e0.png?text=Japji+Sahib+Journal",
     description: "Beautiful hardcover journal with Japji Sahib verses. Perfect for reflection.",
     badge: null,
     inStock: true,
@@ -65,7 +66,7 @@ const products = [
     name: "Community Cap",
     price: 22.00,
     category: "accessories",
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80",
+    image: "https://placehold.co/600x600/1a1a2e/e0e0e0.png?text=Community+Cap",
     description: "Adjustable cap with Devanhaar community badge. One size fits all.",
     badge: "New",
     inStock: true,
@@ -76,7 +77,7 @@ const products = [
     name: "Sikhi Colouring Book",
     price: 12.00,
     category: "books",
-    image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+    image: "https://placehold.co/600x600/1a1a2e/e0e0e0.png?text=Sikhi+Colouring+Book",
     description: "Educational colouring book teaching Sikhi basics to children.",
     badge: "For Kids",
     inStock: false,
@@ -90,6 +91,14 @@ function formatPrice(price: number) {
 export function ShopContent() {
   const [activeCategory, setActiveCategory] = useState("all")
   const { addToCart } = useCart()
+  const { images: shopImages } = useSiteImages("shop")
+
+  const cmsImageMap: Record<string, string> = {}
+  for (const img of shopImages) {
+    if (img.category) cmsImageMap[img.category] = img.url
+  }
+
+  const getProductImage = (slug: string, fallback: string) => cmsImageMap[slug] || fallback
 
   const filtered = activeCategory === "all" ? products : products.filter((p) => p.category === activeCategory)
 
@@ -99,7 +108,7 @@ export function ShopContent() {
       productId: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: getProductImage(product.slug, product.image),
       variant: "Default",
       quantity: 1,
       slug: product.slug,
@@ -146,7 +155,7 @@ export function ShopContent() {
             >
               <Link href={`/shop/${product.slug}`} className="block relative aspect-square overflow-hidden bg-muted">
                 <Image
-                  src={product.image}
+                  src={getProductImage(product.slug, product.image)}
                   alt={product.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"

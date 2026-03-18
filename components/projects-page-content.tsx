@@ -19,7 +19,7 @@ const projects: Project[] = [
   {
     title: "Singhs Camp",
     description: "An immersive residential camp bringing together young Sikh men for spiritual growth, physical discipline, and community bonding.",
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Singhs+Camp",
     href: "/initiatives/singhs-camp",
     tag: "Flagship",
     icon: Users,
@@ -27,7 +27,7 @@ const projects: Project[] = [
   {
     title: "Kaurs Camp",
     description: "A dedicated space for young Sikh women to explore their identity, build confidence, and deepen their connection to Sikhi.",
-    image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kaurs+Camp",
     href: "/initiatives/kaurs-camp",
     tag: "Community",
     icon: Heart,
@@ -35,7 +35,7 @@ const projects: Project[] = [
   {
     title: "Kids Camps",
     description: "Fun, engaging camps for younger Sikhs to learn about heritage through activities, storytelling, and age-appropriate Gurmat sessions.",
-    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kids+Camps",
     href: "/initiatives/kids-camps",
     tag: "Youth",
     icon: Sparkles,
@@ -43,7 +43,7 @@ const projects: Project[] = [
   {
     title: "Sikhi Vidyala",
     description: "A structured educational programme offering weekly classes in Gurbani, Sikh history, Gurmukhi, and Sikh philosophy for all ages.",
-    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Sikhi+Vidyala",
     href: "/initiatives/sikhi-vidyala",
     tag: "Education",
     icon: BookOpen,
@@ -51,7 +51,7 @@ const projects: Project[] = [
   {
     title: "Khalsa Catalyst",
     description: "A platform for thought-provoking discussions, panels, and presentations exploring contemporary issues facing the Sikh community.",
-    image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Khalsa+Catalyst",
     href: "/initiatives/khalsa-catalyst",
     tag: "Discourse",
     icon: Mic2,
@@ -59,7 +59,7 @@ const projects: Project[] = [
   {
     title: "University Projects",
     description: "Engaging talks and workshops at universities across the UK, introducing Sikhi and creating spaces for interfaith dialogue.",
-    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=University+Projects",
     href: "/initiatives/university-projects",
     tag: "Outreach",
     icon: GraduationCap,
@@ -67,7 +67,7 @@ const projects: Project[] = [
   {
     title: "Gurmat Academy",
     description: "Advanced learning programmes in Sikh theology, Gurbani vichar, and spiritual practice for deeper understanding.",
-    image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Gurmat+Academy",
     href: "/initiatives/gurmat-academy",
     tag: "Advanced",
     icon: School,
@@ -75,7 +75,7 @@ const projects: Project[] = [
   {
     title: "Self Defence Academy",
     description: "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
-    image: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Self+Defence+Academy",
     href: "/initiatives/self-defence-academy",
     tag: "Martial Arts",
     icon: Shield,
@@ -83,7 +83,7 @@ const projects: Project[] = [
   {
     title: "Sikh Professional Network",
     description: "A platform connecting Sikh professionals across industries for mentorship, career development, and collaborative growth.",
-    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80",
+    image: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Sikh+Professional+Network",
     href: "/initiatives/sikh-professional-network",
     tag: "Professional",
     icon: Users,

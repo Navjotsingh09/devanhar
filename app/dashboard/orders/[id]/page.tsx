@@ -78,7 +78,7 @@ const order: OrderDetail = {
       variant: "Navy / Large",
       quantity: 2,
       price: 24.99,
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100&h=100&fit=crop",
+      image: "https://placehold.co/100x100/1a1a2e/e0e0e0.png?text=Product",
     },
     {
       id: "item2",
@@ -86,7 +86,7 @@ const order: OrderDetail = {
       variant: "Black / Medium",
       quantity: 1,
       price: 39.99,
-      image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=100&h=100&fit=crop",
+      image: "https://placehold.co/100x100/1a1a2e/e0e0e0.png?text=Product",
     },
   ],
   subtotal: 89.97,

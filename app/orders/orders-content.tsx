@@ -46,21 +46,21 @@ const mockOrder: OrderDetails = {
     {
       id: "1",
       name: "Devanhaar Heritage Hoodie - Navy",
-      image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=200&h=200&fit=crop",
+      image: "https://placehold.co/200x200/1a1a2e/e0e0e0.png?text=Product",
       quantity: 1,
       price: 45.00
     },
     {
       id: "2",
       name: "Khalsa Pride T-Shirt - White",
-      image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&h=200&fit=crop",
+      image: "https://placehold.co/200x200/1a1a2e/e0e0e0.png?text=Product",
       quantity: 2,
       price: 25.00
     },
     {
       id: "3",
       name: "Sikhi Vidyala Workbook Set",
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200&h=200&fit=crop",
+      image: "https://placehold.co/200x200/1a1a2e/e0e0e0.png?text=Product",
       quantity: 1,
       price: 18.00
     }

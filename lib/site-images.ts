@@ -31,6 +31,9 @@ export const SITE_PAGES: Record<string, SitePage> = {
     label: "Home Page",
     sections: [
       { value: "hero-home", label: "Hero Banner", dbSection: "hero", dbCategory: "home", dimensions: "1920 × 1080px (16:9)", description: "Background image for the homepage hero area" },
+      { value: "hero-card-1", label: "Hero Card 1", dbSection: "hero", dbCategory: "card-1", dimensions: "400 x 400px (1:1)", description: "First floating card image on the homepage hero" },
+      { value: "hero-card-2", label: "Hero Card 2", dbSection: "hero", dbCategory: "card-2", dimensions: "400 x 400px (1:1)", description: "Second floating card image on the homepage hero" },
+      { value: "hero-card-3", label: "Hero Card 3", dbSection: "hero", dbCategory: "card-3", dimensions: "400 x 400px (1:1)", description: "Third floating card image on the homepage hero" },
     ],
   },
   about: {

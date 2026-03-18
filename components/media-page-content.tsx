@@ -27,22 +27,22 @@ interface Playlist {
 }
 
 const galleryImages: GalleryImage[] = [
-  { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80", alt: "Singhs Camp group", category: "camps", caption: "Singhs Camp 2024 \u2014 Brotherhood and Bonding" },
-  { src: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&q=80", alt: "Kaurs Camp workshop", category: "camps", caption: "Kaurs Camp \u2014 Empowering Young Sikh Women" },
-  { src: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80", alt: "Kids learning", category: "education", caption: "Kids Camp \u2014 Learning Through Play" },
-  { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=80", alt: "Youth summit", category: "events", caption: "Youth Leadership Summit 2024" },
-  { src: "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800&q=80", alt: "Community gathering", category: "community", caption: "Community Gathering \u2014 United in Seva" },
-  { src: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&q=80", alt: "Workshop session", category: "events", caption: "Khalsa Catalyst Workshop" },
-  { src: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80", alt: "Education session", category: "education", caption: "Sikhi Vidyala \u2014 Weekly Classes" },
-  { src: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=600&q=80", alt: "Team seva", category: "community", caption: "Sevadaars Working Together" },
-  { src: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&q=80", alt: "Celebration", category: "events", caption: "Vaisakhi Celebrations" },
-  { src: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80", alt: "Study session", category: "education", caption: "Gurmat Academy \u2014 Deep Learning" },
-  { src: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&q=80", alt: "Panel discussion", category: "events", caption: "University Talk \u2014 Interfaith Dialogue" },
-  { src: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80", alt: "Community kitchen", category: "community", caption: "Langar Seva \u2014 Feeding the Community" },
-  { src: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80", alt: "University campus", category: "education", caption: "University Projects \u2014 Campus Outreach" },
-  { src: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&q=80", alt: "Library study", category: "education", caption: "Gurmat Academy Sessions" },
-  { src: "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&q=80", alt: "School partnership", category: "community", caption: "Heritage Programme in Schools" },
-  { src: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80", alt: "AGRI programme", category: "community", caption: "AGRI \u2014 Sustainable Development" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Singhs+Camp", alt: "Singhs Camp group", category: "camps", caption: "Singhs Camp 2024 \u2014 Brotherhood and Bonding" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kaurs+Camp", alt: "Kaurs Camp workshop", category: "camps", caption: "Kaurs Camp \u2014 Empowering Young Sikh Women" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kids+Camps", alt: "Kids learning", category: "education", caption: "Kids Camp \u2014 Learning Through Play" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Youth+Summit", alt: "Youth summit", category: "events", caption: "Youth Leadership Summit 2024" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Community+Gathering", alt: "Community gathering", category: "community", caption: "Community Gathering \u2014 United in Seva" },
+  { src: "https://placehold.co/600x400/1a1a2e/e0e0e0.png?text=Workshop+Session", alt: "Workshop session", category: "events", caption: "Khalsa Catalyst Workshop" },
+  { src: "https://placehold.co/600x400/1a1a2e/e0e0e0.png?text=Education+Session", alt: "Education session", category: "education", caption: "Sikhi Vidyala \u2014 Weekly Classes" },
+  { src: "https://placehold.co/600x400/1a1a2e/e0e0e0.png?text=Team+Seva", alt: "Team seva", category: "community", caption: "Sevadaars Working Together" },
+  { src: "https://placehold.co/600x400/1a1a2e/e0e0e0.png?text=Celebration", alt: "Celebration", category: "events", caption: "Vaisakhi Celebrations" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Sikhi+Vidyala", alt: "Study session", category: "education", caption: "Gurmat Academy \u2014 Deep Learning" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Khalsa+Catalyst", alt: "Panel discussion", category: "events", caption: "University Talk \u2014 Interfaith Dialogue" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Community+Kitchen", alt: "Community kitchen", category: "community", caption: "Langar Seva \u2014 Feeding the Community" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=University+Projects", alt: "University campus", category: "education", caption: "University Projects \u2014 Campus Outreach" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Gurmat+Academy", alt: "Library study", category: "education", caption: "Gurmat Academy Sessions" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Heritage+Programme", alt: "School partnership", category: "community", caption: "Heritage Programme in Schools" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=AGRI+Programme", alt: "AGRI programme", category: "community", caption: "AGRI \u2014 Sustainable Development" },
 ]
 
 const playlists: Playlist[] = [
