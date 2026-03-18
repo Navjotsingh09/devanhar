@@ -9,6 +9,8 @@ import { DonateButton } from "@/components/donate-button"
 import { OurStorySection } from "@/components/our-story-section"
 import { getSiteImage } from "@/lib/site-images-server"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "About Us - Devanhaar",
   description:
