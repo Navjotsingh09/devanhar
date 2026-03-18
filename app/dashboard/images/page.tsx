@@ -171,6 +171,9 @@ export default function SiteImagesPage() {
               {currentSection?.description && (
                 <p className="text-xs text-muted-foreground">{currentSection.description}</p>
               )}
+              {currentSection?.dimensions && (
+                <p className="text-xs text-blue-600 font-medium mt-1">Recommended size: {currentSection.dimensions}</p>
+              )}
             </div>
           )}
 
