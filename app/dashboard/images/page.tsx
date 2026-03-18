@@ -133,7 +133,6 @@ export default function SiteImagesPage() {
     }
   }, [])
 
-  const pageKeys = Object.keys(SITE_PAGES)
 
   return (
     <div className="space-y-8">
