@@ -32,7 +32,6 @@ export function SiteFooter() {
       links: [
         { label: "Donate", href: "/donate" },
         { label: "Volunteer", href: "/contact" },
-        { label: "Our Foundation", href: "/foundation" },
         { label: "Our Team", href: "/team" },
       ],
     },
