@@ -34,6 +34,9 @@ export const SITE_PAGES: Record<string, SitePage> = {
       { value: "hero-card-1", label: "Hero Card 1", dbSection: "hero", dbCategory: "card-1", dimensions: "400 x 400px (1:1)", description: "First floating card image on the homepage hero" },
       { value: "hero-card-2", label: "Hero Card 2", dbSection: "hero", dbCategory: "card-2", dimensions: "400 x 400px (1:1)", description: "Second floating card image on the homepage hero" },
       { value: "hero-card-3", label: "Hero Card 3", dbSection: "hero", dbCategory: "card-3", dimensions: "400 x 400px (1:1)", description: "Third floating card image on the homepage hero" },
+      { value: "hero-slide-1", label: "Hero Slide 1", dbSection: "hero", dbCategory: "slide-1", dimensions: "1920 x 1080px (16:9)", description: "Background image for hero slide 1 - Empowering Communities" },
+      { value: "hero-slide-2", label: "Hero Slide 2", dbSection: "hero", dbCategory: "slide-2", dimensions: "1920 x 1080px (16:9)", description: "Background image for hero slide 2 - Building Together" },
+      { value: "hero-slide-3", label: "Hero Slide 3", dbSection: "hero", dbCategory: "slide-3", dimensions: "1920 x 1080px (16:9)", description: "Background image for hero slide 3 - Creating Change" },
     ],
   },
   about: {

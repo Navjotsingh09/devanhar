@@ -42,6 +42,11 @@ export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const { images: heroImages } = useSiteImages("hero")
   const heroImage = heroImages.find(i => i.category === "home")?.url || ""
+  const slideImages = [
+    heroImages.find(i => i.category === "slide-1")?.url || "https://placehold.co/1920x1080/1a1a2e/e0e0e0.png?text=Slide+1+-+Empowering+Communities",
+    heroImages.find(i => i.category === "slide-2")?.url || "https://placehold.co/1920x1080/0f0c29/e0e0e0.png?text=Slide+2+-+Building+Together",
+    heroImages.find(i => i.category === "slide-3")?.url || "https://placehold.co/1920x1080/141e30/e0e0e0.png?text=Slide+3+-+Creating+Change",
+  ]
   const cardImages = [
     heroImages.find(i => i.category === "card-1")?.url || "https://placehold.co/400x400/1a1a2e/e0e0e0.png?text=Card+1",
     heroImages.find(i => i.category === "card-2")?.url || "https://placehold.co/400x400/1a1a2e/e0e0e0.png?text=Card+2",
@@ -64,6 +69,8 @@ export function HeroSection() {
           className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} transition-opacity duration-[2s] ease-in-out`}
           style={{ opacity: i === current ? 1 : 0 }}
         >
+          <img src={slideImages[i]} alt={slide.subtitle} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60" />
           {slide.orbs.map((orb, j) => (
             <div
               key={j}
