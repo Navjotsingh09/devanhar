@@ -1,6 +1,6 @@
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { Navbar } from "@/components/navbar"
-import { HeroSection } from "@/components/hero-section"
+import { HeroOptionA } from "@/components/hero-option-a"
 import { MetricsTicker } from "@/components/metrics-ticker"
 import { PillarsSection } from "@/components/pillars-section"
 import { PlatformSection } from "@/components/platform-section"
@@ -39,7 +39,7 @@ export default function Page() {
     <main className="min-h-screen bg-background text-foreground">
       <ScrollAnimations />
       <Navbar />
-      <HeroSection />
+      <HeroOptionA />
       <MetricsTicker />
       <PillarsSection />
       <PlatformSection />
