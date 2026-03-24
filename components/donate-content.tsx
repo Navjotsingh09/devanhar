@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, ChevronDown, Loader2 } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, ChevronDown, Loader2, MessageCircle } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
 
 const presetAmounts = [10, 25, 50, 100, 250]
 
@@ -88,37 +90,170 @@ export function DonateContent() {
     }
   }
 
+
+  // CountUp animation hook
+  const useCountUp = (end: number, duration = 2000, suffix = "") => {
+    const [count, setCount] = useState(0)
+    const [hasStarted, setHasStarted] = useState(false)
+    const ref = useRef<HTMLSpanElement>(null)
+
+    useEffect(() => {
+      if (!ref.current) return
+      const observer = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting && !hasStarted) setHasStarted(true) },
+        { threshold: 0.3 }
+      )
+      observer.observe(ref.current)
+      return () => observer.disconnect()
+    }, [hasStarted])
+
+    useEffect(() => {
+      if (!hasStarted) return
+      let startTime: number
+      const step = (timestamp: number) => {
+        if (!startTime) startTime = timestamp
+        const progress = Math.min((timestamp - startTime) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setCount(Math.floor(eased * end))
+        if (progress < 1) requestAnimationFrame(step)
+      }
+      requestAnimationFrame(step)
+    }, [hasStarted, end, duration])
+
+    return { count: count + suffix, ref }
+  }
+
+  // Scroll-triggered card animations
+  const gridRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!gridRef.current) return
+    const cards = gridRef.current.querySelectorAll("[data-card]")
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              ;(entry.target as HTMLElement).style.opacity = "1"
+              ;(entry.target as HTMLElement).style.transform = "translateY(0) scale(1)"
+            }, i * 100)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    )
+    cards.forEach((card) => {
+      ;(card as HTMLElement).style.opacity = "0"
+      ;(card as HTMLElement).style.transform = "translateY(40px) scale(0.95)"
+      ;(card as HTMLElement).style.transition = "opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)"
+      observer.observe(card)
+    })
+    return () => observer.disconnect()
+  }, [])
+
+  const stat85 = useCountUp(85, 2000, "%")
+  const stat1000 = useCountUp(1000, 2500, "+")
+  const stat500 = useCountUp(500, 2000, "+")
+
   return (
     <main className="pt-24 pb-0">
-      {/* Hero with animated gradient */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0d1120] via-[#1a1f2e] to-[#0d1120]">
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-amber-500/5 to-transparent rounded-full" />
-        </div>
-        <div className="relative container mx-auto px-6 lg:px-12 py-20 md:py-32">
-          <div className="max-w-3xl mx-auto text-center" data-animate>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 mb-6">
-              <Heart className="w-4 h-4 text-amber-400" />
-              <span className="text-sm text-amber-400 font-medium">Support Our Mission</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-6 tracking-tight">
-              Make a <span className="text-amber-400">Difference</span>
+      {/* Bento Grid Hero */}
+      <section className="relative overflow-hidden bg-[#f8f8f8]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-20">
+          {/* Main Headline */}
+          <div className="max-w-3xl mx-auto text-center mb-10 md:mb-14">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1a1f2e] mb-5 leading-[1.1] tracking-tight">
+              Great futures are built with a small charity
             </h1>
-            <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
-              Your generosity empowers young Sikhs across the UK to discover their identity, build confidence, and serve their communities.
+            <p className="text-base md:text-lg text-gray-500 leading-relaxed max-w-xl mx-auto mb-8">
+              Empowering young Sikhs across the UK through education, camps, and community &mdash; your generosity makes it all possible.
             </p>
+            <div className="flex items-center justify-center gap-4">
+              <Link
+                href="#donate-form"
+                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1a1f2e] text-white rounded-full text-sm font-medium hover:bg-[#252a3a] transition-all duration-300 hover:shadow-lg hover:shadow-[#1a1f2e]/20 hover:-translate-y-0.5"
+              >
+                Donate now
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Main Donation Form */}
-      <section className="bg-background border-b border-border">
-        <div className="container mx-auto px-6 lg:px-12 py-16 md:py-24">
-          <div className="max-w-4xl mx-auto">
+          {/* Bento Grid */}
+          <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-3 md:gap-4 max-w-6xl mx-auto">
+            {/* Card 1: Stats */}
+            <Link href="#donate-form" data-card className="col-span-2 md:col-span-2 lg:col-span-3 row-span-2 bg-[#1a1f2e] rounded-3xl p-6 flex flex-col justify-between min-h-[320px] md:min-h-[400px] relative overflow-hidden group cursor-pointer hover:shadow-xl hover:shadow-[#1a1f2e]/20 transition-all duration-500">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-colors duration-500" />
+              <div>
+                <span ref={stat85.ref} className="text-5xl md:text-6xl font-bold text-[#F59E0B]">{stat85.count}</span>
+                <p className="text-white/80 text-sm mt-3 leading-relaxed">
+                  Of every pound goes directly to Sikh education, camps, and community initiatives across the UK.
+                </p>
+              </div>
+              <div className="flex items-center justify-between mt-6">
+                <span className="text-white text-sm font-medium">Donate now</span>
+                <div className="w-10 h-10 rounded-full bg-[#F59E0B] flex items-center justify-center group-hover:bg-[#FBBF24] transition-all duration-300 group-hover:translate-x-1">
+                  <ArrowRight className="w-4 h-4 text-[#1a1f2e]" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Card 2: Singhs Camp */}
+            <Link href="/initiatives/singhs-camp" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-3xl overflow-hidden relative min-h-[180px] group cursor-pointer hover:shadow-lg transition-all duration-500">
+              <Image src="/images/about-hero.jpg" alt="Singhs Camp" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">Camps</span>
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="text-white font-semibold text-sm leading-tight">Singhs Camp for <span ref={stat500.ref} className="tabular-nums">{stat500.count}</span> Youth across the UK</p>
+              </div>
+            </Link>
+
+            {/* Card 3: Join community */}
+            <Link href="#donate-form" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-[#F59E0B] rounded-3xl p-5 flex flex-col justify-between min-h-[180px] group cursor-pointer hover:bg-[#FBBF24] transition-all duration-500 hover:shadow-lg">
+              <p className="text-[#1a1f2e] text-2xl md:text-3xl font-bold leading-tight">Join <span ref={stat1000.ref} className="tabular-nums">{stat1000.count}</span><br />Donors</p>
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-[#1a1f2e]/70 text-sm font-medium">Join community</span>
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
+                  <ArrowRight className="w-4 h-4 text-[#1a1f2e]" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Card 4: About Us */}
+            <Link href="/about" data-card className="col-span-2 md:col-span-2 lg:col-span-3 row-span-2 rounded-3xl overflow-hidden relative min-h-[320px] md:min-h-[400px] group cursor-pointer hover:shadow-xl transition-all duration-500">
+              <Image src="/images/about-people.jpg" alt="Our Community" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">About Us</span>
+              <div className="absolute bottom-6 left-5 right-5 flex items-center justify-between">
+                <span className="text-white text-sm font-medium">Learn more</span>
+                <div className="w-10 h-10 rounded-full bg-[#F59E0B] flex items-center justify-center group-hover:bg-[#FBBF24] transition-all duration-300 group-hover:translate-x-1">
+                  <ArrowRight className="w-4 h-4 text-[#1a1f2e]" />
+                </div>
+              </div>
+            </Link>
+
+            {/* Card 5: Forums */}
+            <Link href="/initiatives/forums" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-[#F59E0B] rounded-3xl p-5 flex flex-col justify-center items-center min-h-[180px] group cursor-pointer hover:bg-[#FBBF24] transition-all duration-500 hover:shadow-lg">
+              <div className="w-12 h-12 rounded-full bg-white/80 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                <MessageCircle className="w-5 h-5 text-[#1a1f2e]" />
+              </div>
+              <p className="text-[#1a1f2e] font-bold text-lg text-center leading-tight">Let them<br />be heard</p>
+            </Link>
+
+            {/* Card 6: Sikhi Vidyala */}
+            <Link href="/initiatives/sikhi-vidyala" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-3xl overflow-hidden relative min-h-[180px] group cursor-pointer hover:shadow-lg transition-all duration-500">
+              <Image src="/images/about-purpose.jpg" alt="Sikhi Vidyala" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">Education</span>
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="text-white font-semibold text-sm leading-tight">Sponsor education for Sikh youth across the UK</p>
+              </div>
+            </Link>
+
+          </div>
+
+          {/* Donation Form */}
+          <div id="donate-form" className="max-w-6xl mx-auto mt-14 md:mt-20 bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-              {/* Left: Form */}
               <div className="lg:col-span-3 space-y-10" data-animate>
                 {/* Frequency Toggle */}
                 <div>
@@ -366,7 +501,7 @@ export function DonateContent() {
       </section>
 
       {/* Testimonial Section */}
-      <section className="bg-background border-b border-border">
+      <section id="donate-form" className="bg-background border-b border-border">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-28">
           <div className="max-w-4xl mx-auto text-center" data-animate>
             <div className="w-16 h-16 rounded-full bg-amber-400/10 flex items-center justify-center mx-auto mb-8">
