@@ -2,71 +2,54 @@ import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
-import { Calendar, MapPin, Users, ArrowRight } from "lucide-react"
+import { ArrowRight, CalendarDays } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+
+const eventsConfig = [
+  {
+    slug: "horse-riding",
+    title: "Horse Riding",
+    badge: "Life Skills",
+    dateLabel: "March onwards",
+    shortDescription:
+      "Build confidence and discipline through guided horse riding sessions with a seva-centered atmosphere.",
+    priceLabel: "Interested in paying X amount",
+  },
+  {
+    slug: "shooting",
+    title: "Shooting",
+    badge: "Skills",
+    dateLabel: "Weekly sessions",
+    shortDescription:
+      "Regular target shooting sessions designed to build focus, discipline, and consistency.",
+    priceLabel: "GBP 250 per year membership option",
+  },
+  {
+    slug: "wolf-run",
+    title: "Wolf Run",
+    badge: "Challenge",
+    dateLabel: "12 September 2026",
+    shortDescription:
+      "A high-energy obstacle challenge through mud, water, and woodland testing teamwork and resilience.",
+    priceLabel: "GBP 40 per person",
+  },
+  {
+    slug: "yorkshire-3-peaks",
+    title: "Yorkshire 3 Peaks",
+    badge: "Challenge",
+    dateLabel: "27 June 2026",
+    shortDescription:
+      "A full-day charity hike across Pen-y-ghent, Whernside, and Ingleborough with coach fee included.",
+    priceLabel: "GBP 20 per person (coach fee included)",
+  },
+]
 
 export const metadata: Metadata = {
   title: "Events | Devanhaar Sikh Charity",
   description:
-    "Join Devanhaar at upcoming events including charity challenges, outdoor adventures, and community gatherings across the UK.",
+    "Explore Devanhaar events including Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks with tailored registration forms.",
 }
-
-const engagementEvents = [
-  {
-    title: "Yorkshire 3 Peaks",
-    date: "27 June 2026",
-    description:
-      "A charity challenge taking on the iconic Yorkshire Three Peaks — Pen-y-ghent, Whernside, and Ingleborough — to raise funds and build community spirit.",
-    category: "Challenge",
-  },
-  {
-    title: "Wolf Run",
-    date: "12 September 2026",
-    description:
-      "An obstacle course adventure through mud, water, and woodland. A test of grit and teamwork for a great cause.",
-    category: "Challenge",
-  },
-  {
-    title: "Paintballing",
-    date: "30 January 2027",
-    description:
-      "A fun, high-energy team event bringing together the community for friendly competition and camaraderie.",
-    category: "Social",
-  },
-]
-
-const skillsEvents = [
-  {
-    title: "Shooting",
-    date: "Weekly sessions",
-    description:
-      "Regular target shooting sessions developing focus, discipline, and precision. Annual membership available.",
-    category: "Skills",
-    note: "\u00a3250/year membership",
-  },
-  {
-    title: "Bushcraft",
-    date: "May / June",
-    description:
-      "Learn essential outdoor survival skills including fire-making, shelter building, and navigation in the British countryside.",
-    category: "Life Skills",
-  },
-  {
-    title: "Wild Camping",
-    date: "May / June",
-    description:
-      "An immersive overnight outdoor experience connecting with nature and building resilience away from everyday comforts.",
-    category: "Life Skills",
-  },
-  {
-    title: "Horse Riding & Seva",
-    date: "March onwards",
-    description:
-      "Combining horsemanship with seva, participants learn riding skills while contributing to community service.",
-    category: "Life Skills",
-  },
-]
 
 export default function EventsPage() {
   return (
@@ -75,97 +58,84 @@ export default function EventsPage() {
       <ScrollAnimations />
       <main className="pt-28">
         {/* Hero */}
-        <section className="py-20 md:py-28">
+        <section className="relative overflow-hidden py-20 md:py-28">
+          <div className="absolute -top-24 -right-10 h-72 w-72 rounded-full bg-amber-200/30 blur-3xl" />
+          <div className="absolute -bottom-20 -left-8 h-64 w-64 rounded-full bg-cyan-100/40 blur-3xl" />
           <div className="container mx-auto px-6 lg:px-12">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#0f766e] mb-4">
                 Events
               </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
-                Upcoming Events & Activities
+                Event Pathways With Dedicated Registration
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl">
-                From charity challenges to outdoor adventures and life skills
-                workshops, get involved with Devanhaar beyond our core
-                initiatives.
+                Each event now has its own page and event-specific interest
+                form. Choose an event below to review details and submit your
+                registration inputs.
               </p>
-              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
-                <Link href="/#contact">Register Interest</Link>
+              <Button asChild className="bg-[#0f766e] text-white hover:bg-[#115e59] rounded-full px-8 py-6 text-base">
+                <Link href="#events-grid">Browse Events</Link>
               </Button>
             </div>
           </div>
         </section>
 
-        {/* Engagement Events */}
-        <section className="py-16 md:py-24 border-t border-border">
+        <section id="events-grid" className="py-16 md:py-24 border-t border-border">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Engagement Events
+              Active Event Pages
             </h2>
             <p className="text-muted-foreground mb-12 max-w-2xl">
-              Community challenges and social events that bring people together.
+              Events now follow an initiative-style flow with dedicated detail pages and tailored forms.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {engagementEvents.map((event) => (
-                <div
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+              {eventsConfig.map((event) => (
+                <article
                   key={event.title}
-                  className="rounded-2xl border border-border bg-card p-8 hover:border-primary/30 transition-colors"
+                  className="rounded-2xl border border-border bg-card p-7 hover:border-[#0f766e]/40 transition-colors"
                 >
-                  <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-primary mb-4 border border-primary/30 rounded-full px-3 py-1">
-                    {event.category}
+                  <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-[#0f766e] mb-4 border border-[#0f766e]/30 rounded-full px-3 py-1">
+                    {event.badge}
                   </span>
-                  <h3 className="text-xl font-bold text-foreground mb-2">
+                  <h3 className="text-xl font-bold text-foreground mb-3">
                     {event.title}
                   </h3>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                    <Calendar className="w-4 h-4" />
-                    {event.date}
+                    <CalendarDays className="w-4 h-4" />
+                    {event.dateLabel}
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {event.description}
+                    {event.shortDescription}
                   </p>
-                </div>
+                  <p className="mt-4 text-xs font-semibold text-[#92400e]">{event.priceLabel}</p>
+                  <Button asChild className="mt-5 w-full rounded-xl bg-[#111827] text-white hover:bg-[#0b1220]">
+                    <Link href={`/events/${event.slug}`}>
+                      View Event Page
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </article>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Skills & Life Events */}
-        <section className="py-16 md:py-24 bg-[#f8f8f8]">
+        <section className="py-16 md:py-24 bg-[#111827]">
           <div className="container mx-auto px-6 lg:px-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Skills & Life Events
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              What Changed
             </h2>
-            <p className="text-muted-foreground mb-12 max-w-2xl">
-              Hands-on experiences building practical skills, confidence, and
-              resilience.
+            <p className="text-white/70 mb-10 max-w-2xl">
+              Legacy items were retired and replaced by dedicated event pathways for Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {skillsEvents.map((event) => (
-                <div
-                  key={event.title}
-                  className="rounded-2xl border border-border bg-card p-7 hover:border-primary/30 transition-colors"
-                >
-                  <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-primary mb-3 border border-primary/30 rounded-full px-3 py-1">
-                    {event.category}
-                  </span>
-                  <h3 className="text-lg font-bold text-foreground mb-2">
-                    {event.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                    <Calendar className="w-4 h-4" />
-                    {event.date}
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {event.description}
-                  </p>
-                  {event.note && (
-                    <p className="text-xs text-primary font-medium mt-3">
-                      {event.note}
-                    </p>
-                  )}
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-white/15 bg-white/5 p-5 text-white/85 text-sm">
+                Events behave like initiatives with their own pages.
+              </div>
+              <div className="rounded-xl border border-white/15 bg-white/5 p-5 text-white/85 text-sm">
+                Each event has specific form inputs aligned to your requirements.
+              </div>
             </div>
           </div>
         </section>
@@ -181,7 +151,7 @@ export default function EventsPage() {
               upcoming activities.
             </p>
             <Button asChild className="bg-white text-[#1a1f2e] hover:bg-white/90 rounded-full px-8 py-6 text-base">
-              <Link href="/#contact">
+              <Link href="/events/horse-riding">
                 Contact Us
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
