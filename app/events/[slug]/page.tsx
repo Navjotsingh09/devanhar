@@ -52,17 +52,17 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       <main className="pt-28">
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#0f766e] mb-4">Event</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-foreground/60 mb-4">Event</p>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">{event.title}</h1>
             <p className="text-muted-foreground">{event.price}</p>
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-[#f8fafc]">
+        <section className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl font-bold text-foreground mb-6">Interest Form</h2>
             <form className="grid gap-4 rounded-2xl border border-border bg-card p-6 md:grid-cols-2" action="mailto:info@devanhaar.com" method="post" encType="text/plain">
-              <input name="event" defaultValue={event.title} className="hidden" />
+              <input aria-label="Event" name="event" defaultValue={event.title} className="hidden" />
               <input name="name" placeholder="Name" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
               <input name="age" placeholder="Age" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
               <input name="phone" placeholder="Phone No" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
@@ -83,7 +83,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
               {slug === "yorkshire-3-peaks" && <div className="md:col-span-2 rounded-xl border border-border p-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="terms" required /> Agree to T and Cs *</label><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="fee_20" required /> GBP 20 per person, coach included *</label><input name="hiked_before" placeholder="Hiked before?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" /><input name="hiking_level" placeholder="What level?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" /></div>}
 
               <label className="md:col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" required name="terms_global" /> Agree to T and Cs *</label>
-              <button type="submit" className="md:col-span-2 rounded-xl bg-[#111827] px-6 py-3 text-sm font-semibold text-white">Submit Interest</button>
+              <button type="submit" className="md:col-span-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90">Submit Interest</button>
             </form>
           </div>
         </section>

@@ -60,10 +60,10 @@ export default function EventsPage() {
         {/* Hero */}
         <section className="relative overflow-hidden py-20 md:py-28">
           <div className="absolute -top-24 -right-10 h-72 w-72 rounded-full bg-amber-200/30 blur-3xl" />
-          <div className="absolute -bottom-20 -left-8 h-64 w-64 rounded-full bg-cyan-100/40 blur-3xl" />
+          <div className="absolute -bottom-20 -left-8 h-64 w-64 rounded-full bg-orange-100/30 blur-3xl" />
           <div className="container mx-auto px-6 lg:px-12">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#0f766e] mb-4">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-foreground/60 mb-4">
                 Events
               </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
@@ -74,7 +74,7 @@ export default function EventsPage() {
                 form. Choose an event below to review details and submit your
                 registration inputs.
               </p>
-              <Button asChild className="bg-[#0f766e] text-white hover:bg-[#115e59] rounded-full px-8 py-6 text-base">
+              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-sm font-semibold">
                 <Link href="#events-grid">Browse Events</Link>
               </Button>
             </div>
@@ -93,9 +93,9 @@ export default function EventsPage() {
               {eventsConfig.map((event) => (
                 <article
                   key={event.title}
-                  className="rounded-2xl border border-border bg-card p-7 hover:border-[#0f766e]/40 transition-colors"
+                  className="rounded-2xl border border-border bg-card p-7 hover:border-primary/30 transition-colors"
                 >
-                  <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-[#0f766e] mb-4 border border-[#0f766e]/30 rounded-full px-3 py-1">
+                  <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-foreground/70 mb-4 border border-border rounded-full px-3 py-1">
                     {event.badge}
                   </span>
                   <h3 className="text-xl font-bold text-foreground mb-3">
@@ -108,8 +108,8 @@ export default function EventsPage() {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {event.shortDescription}
                   </p>
-                  <p className="mt-4 text-xs font-semibold text-[#92400e]">{event.priceLabel}</p>
-                  <Button asChild className="mt-5 w-full rounded-xl bg-[#111827] text-white hover:bg-[#0b1220]">
+                  <p className="mt-4 text-xs font-semibold text-foreground">{event.priceLabel}</p>
+                  <Button asChild className="mt-5 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold">
                     <Link href={`/events/${event.slug}`}>
                       View Event Page
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -121,19 +121,19 @@ export default function EventsPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-[#111827]">
+        <section className="py-16 md:py-24 bg-primary">
           <div className="container mx-auto px-6 lg:px-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
               What Changed
             </h2>
-            <p className="text-white/70 mb-10 max-w-2xl">
+            <p className="text-primary-foreground/70 mb-10 max-w-2xl">
               Legacy items were retired and replaced by dedicated event pathways for Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-white/15 bg-white/5 p-5 text-white/85 text-sm">
+              <div className="rounded-xl border border-primary-foreground/15 bg-primary-foreground/5 p-5 text-primary-foreground/85 text-sm">
                 Events behave like initiatives with their own pages.
               </div>
-              <div className="rounded-xl border border-white/15 bg-white/5 p-5 text-white/85 text-sm">
+              <div className="rounded-xl border border-primary-foreground/15 bg-primary-foreground/5 p-5 text-primary-foreground/85 text-sm">
                 Each event has specific form inputs aligned to your requirements.
               </div>
             </div>
@@ -141,16 +141,16 @@ export default function EventsPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 md:py-28 bg-[#1a1f2e]">
+        <section className="py-20 md:py-28 bg-primary">
           <div className="container mx-auto px-6 lg:px-12 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-balance">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4 text-balance">
               Want to Join an Event?
             </h2>
-            <p className="text-white/60 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-primary-foreground/60 text-lg mb-8 max-w-2xl mx-auto">
               Get in touch to register your interest or find out more about
               upcoming activities.
             </p>
-            <Button asChild className="bg-white text-[#1a1f2e] hover:bg-white/90 rounded-full px-8 py-6 text-base">
+            <Button asChild className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold">
               <Link href="/events/horse-riding">
                 Contact Us
                 <ArrowRight className="ml-2 h-4 w-4" />
