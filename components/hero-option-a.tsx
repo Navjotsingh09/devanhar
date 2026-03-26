@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -43,6 +43,23 @@ export function HeroOptionA() {
             {slides[cur].subtitle}
           </span>
         </div>
+        <div className="mt-6 flex flex-col sm:flex-row gap-3" style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(20px)", transition: "all 0.8s ease 0.8s" }}>
+          {[
+            { name: "Singhs Camp", href: "/initiatives/singhs-camp" },
+            { name: "Kaurs Camp", href: "/initiatives/kaurs-camp" },
+          ].map((camp) => (
+            <Link key={camp.name} href={camp.href} className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 transition-all hover:bg-white/10 hover:border-amber-400/30">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10">
+                <CalendarDays className="h-4 w-4 text-amber-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">{camp.name}</p>
+                <p className="text-[11px] text-white/50">Applications open Sunday 31st March</p>
+              </div>
+              <ArrowRight className="ml-auto h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-amber-400" />
+            </Link>
+          ))}
+        </div>
         <h2 className="mt-5 text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] tracking-tight text-white" style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(30px)", transition: "all 0.8s ease 0.5s" }}>
           Develop. Elevate.{" "}
           <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Empower.</span>{" "}
@@ -51,7 +68,7 @@ export function HeroOptionA() {
         <p className="mt-4 max-w-lg text-white/50 text-sm lg:text-base leading-relaxed" style={{ opacity: ready ? 1 : 0, transition: "opacity 0.8s ease 0.7s" }}>
           A UK-based charity empowering generations through Sikh values, knowledge, and spiritual growth.
         </p>
-        <div className="mt-8 flex flex-wrap items-center gap-4" style={{ opacity: ready ? 1 : 0, transition: "opacity 0.8s ease 0.9s" }}>
+        <div className="mt-6 flex flex-wrap items-center gap-4" style={{ opacity: ready ? 1 : 0, transition: "opacity 0.8s ease 1s" }}>
           <Link href="/about">
             <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold">
               Learn More <ArrowRight className="w-4 h-4 ml-2" />

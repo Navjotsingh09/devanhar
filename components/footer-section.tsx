@@ -85,7 +85,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
           </div>
 
           {/* Middle: navigation columns */}
-          <div data-animate-stagger className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
             <div>
               <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-5">
                 Navigate

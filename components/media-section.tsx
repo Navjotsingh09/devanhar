@@ -37,7 +37,7 @@ export function MediaSection() {
               className="w-full border-0"
               height="800"
               scrolling="no"
-              allowTransparency
+              allowtransparency
               title="Devanhaar Instagram Feed"
             />
           </div>
