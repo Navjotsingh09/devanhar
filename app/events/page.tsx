@@ -121,44 +121,6 @@ export default function EventsPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-primary">
-          <div className="container mx-auto px-6 lg:px-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-              What Changed
-            </h2>
-            <p className="text-primary-foreground/70 mb-10 max-w-2xl">
-              Legacy items were retired and replaced by dedicated event pathways for Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-primary-foreground/15 bg-primary-foreground/5 p-5 text-primary-foreground/85 text-sm">
-                Events behave like initiatives with their own pages.
-              </div>
-              <div className="rounded-xl border border-primary-foreground/15 bg-primary-foreground/5 p-5 text-primary-foreground/85 text-sm">
-                Each event has specific form inputs aligned to your requirements.
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-20 md:py-28 bg-primary">
-          <div className="container mx-auto px-6 lg:px-12 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4 text-balance">
-              Want to Join an Event?
-            </h2>
-            <p className="text-primary-foreground/60 text-lg mb-8 max-w-2xl mx-auto">
-              Get in touch to register your interest or find out more about
-              upcoming activities.
-            </p>
-            <Button asChild className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold">
-              <Link href="/events/horse-riding">
-                Contact Us
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </section>
-
         <FooterSection />
       </main>
     </div>
