@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { updateSubmissionStatus, updateSubmissionNotes } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote } from 'lucide-react'
+import { Eye, StickyNote, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 
@@ -24,6 +24,7 @@ interface Submission {
   internal_notes: string | null
   created_at: string
   initiatives: { name: string; slug: string } | null
+  source_table: 'form_submissions' | 'camp_applications'
 }
 
 const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -32,6 +33,12 @@ const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'ou
   replied: 'outline',
   resolved: 'outline',
   archived: 'secondary',
+  pending: 'default',
+  payment_pending: 'secondary',
+  payment_support_review: 'secondary',
+  paid: 'outline',
+  approved: 'outline',
+  declined: 'destructive',
 }
 
 export function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
@@ -40,10 +47,10 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [notes, setNotes] = useState('')
   const [isPending, startTransition] = useTransition()
 
-  const handleStatusChange = (id: string, status: string) => {
+  const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' = 'form_submissions') => {
     startTransition(async () => {
       try {
-        await updateSubmissionStatus(id, status)
+        await updateSubmissionStatus(id, status, sourceTable)
         toast.success('Status updated')
       } catch {
         toast.error('Failed to update status')
@@ -55,7 +62,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     if (!notesDialog) return
     startTransition(async () => {
       try {
-        await updateSubmissionNotes(notesDialog.id, notes)
+        await updateSubmissionNotes(notesDialog.id, notes, notesDialog.source_table)
         toast.success('Notes saved')
         setNotesDialog(null)
       } catch {
@@ -89,8 +96,13 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           </TableHeader>
           <TableBody>
             {submissions.map((sub) => (
-              <TableRow key={sub.id}>
-                <TableCell className="font-medium text-foreground">{sub.full_name}</TableCell>
+              <TableRow key={sub.id + sub.source_table}>
+                <TableCell className="font-medium text-foreground">
+                  {sub.full_name}
+                  {sub.source_table === 'camp_applications' && (
+                    <Badge variant="outline" className="ml-2 text-[10px] px-1 py-0">Camp</Badge>
+                  )}
+                </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Badge variant="outline" className="text-xs">{sub.initiatives?.name || 'General'}</Badge>
                 </TableCell>
@@ -98,18 +110,33 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 <TableCell>
                   <Select
                     value={sub.status}
-                    onValueChange={(v) => handleStatusChange(sub.id, v)}
+                    onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
                     disabled={isPending}
                   >
                     <SelectTrigger className="h-7 w-28 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="in_review">In Review</SelectItem>
-                      <SelectItem value="replied">Replied</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
+                      {sub.source_table === 'camp_applications' ? (
+                        <>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="in_review">In Review</SelectItem>
+                          <SelectItem value="payment_pending">Payment Pending</SelectItem>
+                          <SelectItem value="payment_support_review">Payment Support</SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
+                          <SelectItem value="approved">Approved</SelectItem>
+                          <SelectItem value="declined">Declined</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </>
+                      ) : (
+                        <>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="in_review">In Review</SelectItem>
+                          <SelectItem value="replied">Replied</SelectItem>
+                          <SelectItem value="resolved">Resolved</SelectItem>
+                          <SelectItem value="archived">Archived</SelectItem>
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </TableCell>
@@ -118,6 +145,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
+                  {sub.source_table === 'camp_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
+                    <>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleStatusChange(sub.id, 'approved', sub.source_table)} disabled={isPending} title="Approve">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="sr-only">Approve</span>
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleStatusChange(sub.id, 'declined', sub.source_table)} disabled={isPending} title="Decline">
+                        <XCircle className="h-4 w-4" />
+                        <span className="sr-only">Decline</span>
+                      </Button>
+                    </>
+                  )}
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedSubmission(sub)}>
@@ -125,7 +164,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                           <span className="sr-only">View details</span>
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-lg">
+                      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="text-foreground">Submission Details</DialogTitle>
                           <DialogDescription>
@@ -150,7 +189,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             </div>
                             <div>
                               <p className="text-muted-foreground">Status</p>
-                              <Badge variant={statusColors[sub.status] || 'default'}>{sub.status}</Badge>
+                              <Badge variant={statusColors[sub.status] || 'default'}>{sub.status.replace(/_/g, ' ')}</Badge>
                             </div>
                           </div>
                           {sub.message && (
@@ -163,10 +202,10 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             <div>
                               <p className="text-sm text-muted-foreground mb-1">Form Data</p>
                               <div className="bg-muted rounded-lg p-3 text-sm">
-                                {Object.entries(sub.form_data).map(([key, value]) => (
+                                {Object.entries(sub.form_data).filter(([, v]) => v != null && v !== '' && String(v) !== 'null').map(([key, value]) => (
                                   <div key={key} className="flex justify-between py-1 border-b border-border last:border-0">
                                     <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                                    <span className="text-foreground font-medium">{String(value)}</span>
+                                    <span className="text-foreground font-medium">{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}</span>
                                   </div>
                                 ))}
                               </div>
@@ -176,6 +215,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             <div>
                               <p className="text-sm text-muted-foreground mb-1">Internal Notes</p>
                               <p className="text-sm text-foreground bg-accent/20 rounded-lg p-3">{sub.internal_notes}</p>
+                            </div>
+                          )}
+                          {sub.source_table === 'camp_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
+                            <div className="flex gap-2 pt-2">
+                              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleStatusChange(sub.id, 'approved', sub.source_table)} disabled={isPending}>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Approve Application
+                              </Button>
+                              <Button variant="destructive" className="flex-1" onClick={() => handleStatusChange(sub.id, 'declined', sub.source_table)} disabled={isPending}>
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Decline Application
+                              </Button>
                             </div>
                           )}
                         </div>

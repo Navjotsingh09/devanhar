@@ -3,13 +3,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function updateSubmissionStatus(id: string, status: string) {
+type SourceTable = 'form_submissions' | 'camp_applications'
+
+export async function updateSubmissionStatus(id: string, status: string, sourceTable: SourceTable = 'form_submissions') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
   const { error } = await supabase
-    .from('form_submissions')
+    .from(sourceTable)
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', id)
 
@@ -18,21 +20,21 @@ export async function updateSubmissionStatus(id: string, status: string) {
   // Log activity
   await supabase.from('activity_log').insert({
     admin_id: user.id,
-    action: `Updated submission status to ${status}`,
-    entity_type: 'form_submission',
+    action: `Updated ${sourceTable === 'camp_applications' ? 'camp application' : 'submission'} status to ${status}`,
+    entity_type: sourceTable === 'camp_applications' ? 'camp_application' : 'form_submission',
     entity_id: id,
   })
 
   revalidatePath('/dashboard/submissions')
 }
 
-export async function updateSubmissionNotes(id: string, notes: string) {
+export async function updateSubmissionNotes(id: string, notes: string, sourceTable: SourceTable = 'form_submissions') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
   const { error } = await supabase
-    .from('form_submissions')
+    .from(sourceTable)
     .update({ internal_notes: notes, updated_at: new Date().toISOString() })
     .eq('id', id)
 
@@ -40,22 +42,29 @@ export async function updateSubmissionNotes(id: string, notes: string) {
   revalidatePath('/dashboard/submissions')
 }
 
-export async function assignSubmission(id: string, adminId: string | null) {
+export async function assignSubmission(id: string, adminId: string | null, sourceTable: SourceTable = 'form_submissions') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  if (sourceTable === 'form_submissions') {
+    updateData.assigned_to = adminId
+  } else {
+    updateData.reviewed_by = adminId
+  }
+
   const { error } = await supabase
-    .from('form_submissions')
-    .update({ assigned_to: adminId, updated_at: new Date().toISOString() })
+    .from(sourceTable)
+    .update(updateData)
     .eq('id', id)
 
   if (error) throw new Error(error.message)
 
   await supabase.from('activity_log').insert({
     admin_id: user.id,
-    action: `Assigned submission`,
-    entity_type: 'form_submission',
+    action: `Assigned ${sourceTable === 'camp_applications' ? 'camp application' : 'submission'}`,
+    entity_type: sourceTable === 'camp_applications' ? 'camp_application' : 'form_submission',
     entity_id: id,
   })
 
