@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Heart, Users, Sparkles, BookOpen, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
+import { Users, Sparkles, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -53,8 +53,6 @@ const values = [
 
 export default async function AboutPage() {
   const heroImg = await getSiteImage("hero", "about", "/images/about-hero.webp")
-  const purposeImg = await getSiteImage("about", "purpose", "/images/about-purpose.jpg")
-  const peopleImg = await getSiteImage("about", "people", "/images/about-people.jpg")
 
   return (
     <>
@@ -137,25 +135,10 @@ export default async function AboutPage() {
         {/* Our Story - Scroll-Driven Horizontal Narrative */}
         <OurStorySection />
 
-        {/* Purpose Section - Image Left, Text Right */}
+        {/* Purpose Section */}
         <section className="py-20 md:py-28 bg-[#f8f8f8]">
           <div className="container mx-auto px-6 lg:px-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-muted via-primary/5 to-primary/15">
-                {purposeImg ? (
-                  <img src={purposeImg} alt="Our Purpose" className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <>
-                <div className="absolute inset-0 backdrop-blur-3xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                    <BookOpen className="w-10 h-10 text-primary/40" />
-                  </div>
-                </div>
-                  </>
-                )}
-              </div>
-              <div>
+            <div className="max-w-3xl mx-auto">
                 <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
                   Our Purpose
                 </p>
@@ -183,16 +166,14 @@ export default async function AboutPage() {
                   community where Sikhs remain grounded in Sikhi and connected
                   to Guru Sahib.
                 </p>
-              </div>
             </div>
           </div>
         </section>
 
-        {/* Our People Section - Text Left, Image Right */}
+        {/* Our People Section */}
         <section className="py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div>
+            <div className="max-w-3xl mx-auto">
                 <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
                   Our People
                 </p>
@@ -213,21 +194,6 @@ export default async function AboutPage() {
                   This relatability helps us create meaningful spaces where
                   everyone feels supported on their Sikhi journey.
                 </p>
-              </div>
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/15 via-muted to-primary/5">
-                {peopleImg ? (
-                  <img src={peopleImg} alt="Our People" className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <>
-                <div className="absolute inset-0 backdrop-blur-3xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Heart className="w-10 h-10 text-primary/40" />
-                  </div>
-                </div>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         </section>
