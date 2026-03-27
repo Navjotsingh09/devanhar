@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { CampApplicationForm } from "@/components/camp-application-form"
+import { ScrollAnimations } from "@/components/scroll-animations"
 
 interface FAQ {
   question: string
@@ -60,6 +61,7 @@ export function InitiativePageLayout({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
+      <ScrollAnimations />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-0 overflow-hidden">
