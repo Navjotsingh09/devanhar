@@ -29,7 +29,7 @@ interface InitiativePageProps {
   tagline: string
   heroImage: string
   description: string[]
-  highlights?: Highlight[]
+  highlights?: (Highlight | string)[]
   faqs?: FAQ[]
   testimonials?: Testimonial[]
   ctaText?: string
@@ -135,17 +135,24 @@ export function InitiativePageLayout({
               Highlights
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {highlights.map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-background rounded-xl p-6 border border-border/50"
-                >
-                  <h3 className="text-lg font-semibold text-foreground mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              ))}
+              {highlights.map((item, i) => {
+                const isString = typeof item === "string"
+                return (
+                  <div
+                    key={i}
+                    className="bg-background rounded-xl p-6 border border-border/50"
+                  >
+                    {isString ? (
+                      <p className="text-muted-foreground leading-relaxed">{item}</p>
+                    ) : (
+                      <>
+                        <h3 className="text-lg font-semibold text-foreground mb-3">{item.title}</h3>
+                        <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                      </>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </section>
