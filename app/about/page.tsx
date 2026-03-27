@@ -52,9 +52,9 @@ const values = [
 ]
 
 export default async function AboutPage() {
-  const heroImg = await getSiteImage("hero", "about", "")
-  const purposeImg = await getSiteImage("about", "purpose", "")
-  const peopleImg = await getSiteImage("about", "people", "")
+  const heroImg = await getSiteImage("hero", "about", "/images/about-hero.jpg")
+  const purposeImg = await getSiteImage("about", "purpose", "/images/about-purpose.jpg")
+  const peopleImg = await getSiteImage("about", "people", "/images/about-people.jpg")
 
   return (
     <>
