@@ -12,7 +12,7 @@ export function SinghsCampContent() {
       <InitiativePageLayout
         title="Singhs Camp"
         tagline="A residential camp experience for young Singhs"
-        heroImage="/initiatives/singhs-camp.jpg"
+        heroImage="/initiatives/singhs-camp-top.jpg"
         ctaText="Apply Now"
         onCtaClick={() => setShowForm(true)}
         description={[

@@ -11,7 +11,7 @@ export default function GurmatAcademyPage() {
     <InitiativePageLayout
       title="Gurmat Academy"
       tagline="A space for young students to develop their Sikhi."
-      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=gurmat-academy&backgroundColor=b6e3f4,c0aede"
+      heroImage="/initiatives/gurmat-academy-top.jpg"
       ctaText="Contact DGA"
       ctaHref="mailto:dga@singhsabhagurdwara.co.uk"
       description={[
@@ -30,9 +30,9 @@ export default function GurmatAcademyPage() {
         "Interactive activities including self-defence, quizzes and cooking",
       ]}
       galleryImages={[
-        "https://api.dicebear.com/9.x/shapes/svg?seed=gurmat-gallery-1&backgroundColor=b6e3f4",
-        "https://api.dicebear.com/9.x/shapes/svg?seed=gurmat-gallery-2&backgroundColor=c0aede",
-        "https://api.dicebear.com/9.x/shapes/svg?seed=gurmat-gallery-3&backgroundColor=d1d4f9",
+        "/initiatives/gurmat-academy-1.jpg",
+        "/initiatives/gurmat-academy-2.jpg",
+        "/initiatives/gurmat-academy-3.jpg",
       ]}
     />
   )

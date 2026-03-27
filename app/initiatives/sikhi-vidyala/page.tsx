@@ -11,7 +11,7 @@ export default function SikhiVidyalaPage() {
     <InitiativePageLayout
       title="Sikhi Vidyala"
       tagline="Develop your Sikhi and learn how to do parchaar."
-      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=sikhi-vidyala&backgroundColor=c0aede,d1d4f9"
+      heroImage="/initiatives/sikhi-vidyala-top.jpg"
       ctaText="View Handbook"
       ctaHref="https://www.devanhaar.com/pages/sikhi-vidyala"
       description={[
@@ -44,6 +44,11 @@ export default function SikhiVidyalaPage() {
           name: "Luvpreet Singh",
           role: "Previous Student",
         },
+      ]}
+      galleryImages={[
+        "/initiatives/sikhi-vidyala-1.jpg",
+        "/initiatives/sikhi-vidyala-2.jpg",
+        "/initiatives/sikhi-vidyala-3.jpg",
       ]}
       additionalSections={
         <section className="py-16 lg:py-24 bg-[#f8f8f8]">

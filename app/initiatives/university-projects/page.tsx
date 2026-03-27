@@ -11,7 +11,7 @@ export default function UniversityProjectsPage() {
     <InitiativePageLayout
       title="University Projects"
       tagline="Delivering talks to universities across the country, hosting weekly Amrit Vela programs and more."
-      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=university-projects&backgroundColor=d1d4f9,b6e3f4"
+      heroImage="/initiatives/university-projects-top.jpg"
       ctaText="Learn More"
       ctaHref="https://www.devanhaar.com/pages/university-projects"
       description={[
@@ -53,9 +53,9 @@ export default function UniversityProjectsPage() {
         },
       ]}
       galleryImages={[
-        "https://api.dicebear.com/9.x/shapes/svg?seed=uni-gallery-1&backgroundColor=d1d4f9",
-        "https://api.dicebear.com/9.x/shapes/svg?seed=uni-gallery-2&backgroundColor=b6e3f4",
-        "https://api.dicebear.com/9.x/shapes/svg?seed=uni-gallery-3&backgroundColor=c0aede",
+        "/initiatives/university-projects-1.jpg",
+        "/initiatives/university-projects-2.jpg",
+        "/initiatives/university-projects-3.jpg",
       ]}
     />
   )

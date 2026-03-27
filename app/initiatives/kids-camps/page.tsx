@@ -11,7 +11,7 @@ export default function KidsCampsPage() {
     <InitiativePageLayout
       title="Kids Camps"
       tagline="Inspiring the next generation to embrace Sikhi through interactive learning, practical workshops, and fun activities."
-      heroImage="https://api.dicebear.com/9.x/shapes/svg?seed=kids-camps&backgroundColor=ffdfbf,ffd5dc"
+      heroImage="/initiatives/kids-camps-top.jpg"
       ctaText="Learn More"
       ctaHref="https://www.devanhaar.com/pages/kids-camps"
       description={[
@@ -28,9 +28,9 @@ export default function KidsCampsPage() {
         "Singhs and Kaurs specific workshops with talks on the Chaar Sahibzade",
       ]}
       galleryImages={[
-        "https://api.dicebear.com/9.x/shapes/svg?seed=kids-gallery-1&backgroundColor=ffdfbf",
-        "https://api.dicebear.com/9.x/shapes/svg?seed=kids-gallery-2&backgroundColor=ffd5dc",
-        "https://api.dicebear.com/9.x/shapes/svg?seed=kids-gallery-3&backgroundColor=b6e3f4",
+        "/initiatives/kids-camps-1.jpg",
+        "/initiatives/kids-camps-2.jpg",
+        "/initiatives/kids-camps-3.jpg",
       ]}
     />
   )
