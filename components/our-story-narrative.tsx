@@ -75,7 +75,7 @@ const milestones: Milestone[] = [
     headline: "A Future Without Limits",
     description: "Our vision for 2026 and beyond \u2014 a world where every individual has access to resources, education, and support they need to thrive.",
     accent: "indigo-500",
-    image: "https://placehold.co/1920x1080/1a1a2e/e0e0e0.png?text=Our+Story+2026",
+    image: "/images/about/story-2026.jpg",
   },
 ];
 
