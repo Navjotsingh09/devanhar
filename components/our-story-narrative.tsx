@@ -19,7 +19,7 @@ const milestones: Milestone[] = [
     headline: "The Seed Was Planted",
     description: "Devanhaar was born from a simple but powerful idea \u2014 that every person deserves the chance to build a better life through compassion, education, and opportunity.",
     accent: "emerald-500",
-    image: "https://placehold.co/1920x1080/1a1a2e/e0e0e0.png?text=Our+Story+2018",
+    image: "/images/about/story-2018.webp",
   },
   {
     year: 2019, theme: "Foundation", icon: "\u{1F4D6}",

@@ -52,7 +52,7 @@ const values = [
 ]
 
 export default async function AboutPage() {
-  const heroImg = await getSiteImage("hero", "about", "/images/about-hero.jpg")
+  const heroImg = await getSiteImage("hero", "about", "/images/about-hero.webp")
   const purposeImg = await getSiteImage("about", "purpose", "/images/about-purpose.jpg")
   const peopleImg = await getSiteImage("about", "people", "/images/about-people.jpg")
 
