@@ -27,6 +27,20 @@ export default function KaursCampPage() {
         "Kaurs Forum: monthly sessions in Derby, London and Birmingham",
         "Discussions on Sikh history, identity, and spiritual growth",
       ]}
+      videoTestimonials={[
+        {
+          videoUrl: "https://devanhaar.com/cdn/video/4c3d3d8a4cc8476d862c724d9ab409de/HD-1080p-2.5Mbps/video.mp4",
+          caption: "Collective Mindfulness Session"
+        },
+        {
+          videoUrl: "https://devanhaar.com/cdn/video/7d7ebc5362bf4a92828175d205b7bbfa/HD-1080p-2.5Mbps/video.mp4",
+          caption: "A Day in the Life at Kaurs Camp"
+        },
+        {
+          videoUrl: "https://devanhaar.com/cdn/video/5e164916db744a76b4667809c26bcb68/HD-1080p-2.5Mbps/video.mp4",
+          caption: "Testimonial from Camp"
+        }
+      ]}
       faqs={[
         {
           question: "Who can apply for camp?",

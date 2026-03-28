@@ -20,6 +20,11 @@ interface Testimonial {
   role: string
 }
 
+
+interface VideoTestimonial {
+  videoUrl: string
+  caption: string
+}
 interface Highlight {
   title: string
   description: string
@@ -33,6 +38,7 @@ interface InitiativePageProps {
   highlights?: (Highlight | string)[]
   faqs?: FAQ[]
   testimonials?: Testimonial[]
+  videoTestimonials?: VideoTestimonial[]
   ctaText?: string
   onCtaClick?: () => void
   ctaHref?: string
@@ -48,6 +54,7 @@ export function InitiativePageLayout({
   highlights,
   faqs,
   testimonials,
+  videoTestimonials,
   ctaText,
   ctaHref,
   onCtaClick,
@@ -212,34 +219,44 @@ export function InitiativePageLayout({
       )}
 
       {/* Testimonials */}
-      {testimonials && testimonials.length > 0 && (
+      {(videoTestimonials && videoTestimonials.length > 0) || (testimonials && testimonials.length > 0) ? (
         <section className="py-16 lg:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
               Testimonials
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {testimonials.map((t, i) => (
-                <div
-                  key={i}
-                  className="bg-[#f8f8f8] rounded-xl p-8 flex flex-col"
-                >
-                  <p className="text-foreground leading-relaxed italic mb-6 flex-1">
-                    {`"${t.quote}"`}
-                  </p>
-                  <div>
-                    <p className="font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs uppercase tracking-[0.1em] text-muted-foreground mt-1">
-                      {t.role}
+            {videoTestimonials && videoTestimonials.length > 0 && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {videoTestimonials.map((video, i) => (
+                  <div key={i} className="bg-[#f8f8f8] rounded-xl overflow-hidden border border-border/50">
+                    <video controls className="w-full aspect-video bg-black" preload="metadata">
+                      <source src={video.videoUrl} type="video/mp4" />
+                    </video>
+                    <p className="p-4 text-sm text-muted-foreground leading-relaxed">
+                      {video.caption}
                     </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+            {testimonials && testimonials.length > 0 && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {testimonials.map((t, i) => (
+                  <div key={i} className="bg-[#f8f8f8] rounded-xl p-8 flex flex-col">
+                    <p className="text-foreground leading-relaxed italic mb-6 flex-1">
+                      {`"${t.quote}"`}
+                    </p>
+                    <div>
+                      <p className="font-semibold text-foreground">{t.name}</p>
+                      <p className="text-xs uppercase tracking-[0.1em] text-muted-foreground mt-1">{t.role}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
-      )}
-
+      ) : null}
       {/* Bottom CTA */}
       <section className="py-16 lg:py-24 bg-foreground text-background">
         <div className="container mx-auto px-6 lg:px-12 text-center">
