@@ -1,61 +1,23 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { ShopContent } from "@/components/shop-content"
-import { FAQSection } from "@/components/faq-section"
-import { CTABanner } from "@/components/cta-banner"
 import { ScrollAnimations } from "@/components/scroll-animations"
+import { ShoppingBag, Bell, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: "Shop | Devanhaar Sikh Merchandise & Apparel",
+  title: "Shop Coming Soon | Devanhaar",
   description:
-    "Shop official Devanhaar merchandise. Every purchase supports Sikh education, camps, and community programmes across the UK. T-shirts, hoodies, books, pins and more.",
-  keywords: [
-    "Devanhaar shop",
-    "Sikh merchandise UK",
-    "Sikh clothing",
-    "Sikh t-shirts",
-    "Devanhaar merch",
-    "support Sikh charity",
-    "Sikh gifts",
-    "Khalsa apparel",
-  ],
+    "The Devanhaar shop is coming soon. Official Sikh merchandise to support education, camps, and community programmes across the UK.",
   openGraph: {
-    title: "Shop | Devanhaar Merchandise",
+    title: "Shop Coming Soon | Devanhaar",
     description:
-      "Official Devanhaar merchandise. Every purchase directly funds Sikh education, camps, and community programmes across the UK.",
+      "The Devanhaar shop is coming soon. Stay tuned for official merchandise that directly funds Sikh education and community programmes.",
     url: "https://devanhaar.vercel.app/shop",
   },
   alternates: { canonical: "https://devanhaar.vercel.app/shop" },
 }
-
-const shopFAQs = [
-  {
-    question: "Where do profits from the shop go?",
-    answer:
-      "100% of profits from our merchandise go directly towards funding Devanhaar's charitable initiatives — including Singhs Camp, Sikhi Vidyala, university talks, and community outreach programmes across the UK.",
-  },
-  {
-    question: "Do you ship internationally?",
-    answer:
-      "Currently we ship across the UK. International shipping may be available for select items. Please contact us for enquiries about delivery outside the UK.",
-  },
-  {
-    question: "What is your returns policy?",
-    answer:
-      "We accept returns within 14 days of delivery for unworn, unwashed items in their original packaging. Please contact our team to arrange a return or exchange.",
-  },
-  {
-    question: "How long does delivery take?",
-    answer:
-      "UK orders are typically delivered within 3–5 working days. You will receive a confirmation email with tracking details once your order has been dispatched.",
-  },
-  {
-    question: "Can I suggest new merchandise designs?",
-    answer:
-      "We love hearing from the Sangat! If you have ideas for new designs or products, reach out through our contact page or social media channels.",
-  },
-]
 
 export default function ShopPage() {
   return (
@@ -63,21 +25,40 @@ export default function ShopPage() {
       <Navbar />
       <ScrollAnimations />
       <main>
-        <ShopContent />
-        <FAQSection
-          heading="Shop FAQ"
-          subheading="Everything you need to know about ordering Devanhaar merchandise."
-          items={shopFAQs}
-        />
-        <CTABanner
-          heading="Prefer to Donate Directly?"
-          description="If you'd rather make a direct contribution, every donation helps fund our Sikh education camps, Sikhi Vidyala, and community programmes."
-          primaryLabel="Donate Now"
-          primaryHref="/donate"
-          secondaryLabel="Our Projects"
-          secondaryHref="/projects"
-          variant="dark"
-        />
+        <section className="min-h-[80vh] flex items-center justify-center bg-background">
+          <div className="max-w-3xl mx-auto px-6 py-32 text-center">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-8">
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Official Merchandise
+            </span>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+              Shop <span className="text-primary">Coming Soon</span>
+            </h1>
+
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              We&apos;re working on something special. The Devanhaar shop will feature exclusive
+              merchandise &mdash; with 100% of profits funding Sikh education, camps, and community
+              programmes across the UK.
+            </p>
+
+            <div className="mt-10 flex items-center justify-center gap-2 text-muted-foreground">
+              <Bell className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium">Stay tuned for the launch</span>
+            </div>
+
+            <div className="mt-12 flex justify-center gap-4 flex-wrap">
+              <Button asChild>
+                <Link href="/donate">
+                  Donate Directly <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/projects">Explore Our Projects</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </main>
       <FooterSection />
     </>
