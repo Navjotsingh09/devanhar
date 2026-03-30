@@ -58,6 +58,9 @@ CREATE TABLE IF NOT EXISTS camp_applications (
   consent_phone BOOLEAN DEFAULT false,
   consent_sms BOOLEAN DEFAULT false,
 
+  -- Stripe
+  stripe_payment_intent_id TEXT,
+
   -- Status
   status TEXT NOT NULL DEFAULT 'pending',
   internal_notes TEXT,

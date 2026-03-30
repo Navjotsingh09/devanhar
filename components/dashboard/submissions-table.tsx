@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { updateSubmissionStatus, updateSubmissionNotes } from '@/app/dashboard/submissions/actions'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment } from '@/app/dashboard/submissions/actions'
 import { Eye, StickyNote, CheckCircle, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
@@ -35,6 +35,7 @@ const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'ou
   archived: 'secondary',
   pending: 'default',
   payment_pending: 'secondary',
+  payment_authorized: 'secondary',
   payment_support_review: 'secondary',
   paid: 'outline',
   approved: 'outline',
@@ -55,6 +56,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
       } catch {
         toast.error('Failed to update status')
       }
+    })
+  }
+
+  const handleApprove = (id: string) => {
+    startTransition(async () => {
+      try { await captureApplicationPayment(id); toast.success('Approved - payment captured') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
+    })
+  }
+
+  const handleDecline = (id: string) => {
+    startTransition(async () => {
+      try { await cancelApplicationPayment(id); toast.success('Declined - funds released') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
     })
   }
 
@@ -122,6 +135,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                           <SelectItem value="pending">Pending</SelectItem>
                           <SelectItem value="in_review">In Review</SelectItem>
                           <SelectItem value="payment_pending">Payment Pending</SelectItem>
+                          <SelectItem value="payment_authorized">Payment Authorized</SelectItem>
                           <SelectItem value="payment_support_review">Payment Support</SelectItem>
                           <SelectItem value="paid">Paid</SelectItem>
                           <SelectItem value="approved">Approved</SelectItem>
@@ -147,11 +161,11 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                   <div className="flex items-center justify-end gap-1">
                   {sub.source_table === 'camp_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
                     <>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleStatusChange(sub.id, 'approved', sub.source_table)} disabled={isPending} title="Approve">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleApprove(sub.id)} disabled={isPending} title="Approve - capture payment">
                         <CheckCircle className="h-4 w-4" />
                         <span className="sr-only">Approve</span>
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleStatusChange(sub.id, 'declined', sub.source_table)} disabled={isPending} title="Decline">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDecline(sub.id)} disabled={isPending} title="Decline - release funds">
                         <XCircle className="h-4 w-4" />
                         <span className="sr-only">Decline</span>
                       </Button>
@@ -219,13 +233,13 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                           )}
                           {sub.source_table === 'camp_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
                             <div className="flex gap-2 pt-2">
-                              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleStatusChange(sub.id, 'approved', sub.source_table)} disabled={isPending}>
+                              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleApprove(sub.id)} disabled={isPending}>
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                Approve Application
+                                Approve & Capture Payment
                               </Button>
-                              <Button variant="destructive" className="flex-1" onClick={() => handleStatusChange(sub.id, 'declined', sub.source_table)} disabled={isPending}>
+                              <Button variant="destructive" className="flex-1" onClick={() => handleDecline(sub.id)} disabled={isPending}>
                                 <XCircle className="h-4 w-4 mr-2" />
-                                Decline Application
+                                Decline & Release Funds
                               </Button>
                             </div>
                           )}

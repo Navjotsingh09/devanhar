@@ -45,13 +45,14 @@ export async function POST(request: NextRequest) {
         await supabase
           .from("camp_applications")
           .update({
-            status: "paid",
+            status: "payment_authorized",
+            stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", campApplicationId)
 
         await supabase.from("activity_log").insert({
-          action: "Camp application payment completed via Stripe",
+          action: "Camp application payment authorized (on hold) via Stripe",
           entity_type: "camp_application",
           entity_id: campApplicationId,
           metadata: {
@@ -79,7 +80,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ received: true, event: event.type })
+    if (event.type === "payment_intent.succeeded") {
+      const pi = event.data.object as Stripe.PaymentIntent
+      const cid = pi.metadata?.camp_application_id
+      if (cid) {
+        await supabase.from("camp_applications").update({ status: "approved", updated_at: new Date().toISOString() }).eq("id", cid)
+        await supabase.from("activity_log").insert({ action: "Payment captured - application approved", entity_type: "camp_application", entity_id: cid, metadata: { stripe_pi: pi.id, amount: pi.amount_received } })
+      }
+    }
+
+    if (event.type === "payment_intent.canceled") {
+      const pi = event.data.object as Stripe.PaymentIntent
+      const cid = pi.metadata?.camp_application_id
+      if (cid) {
+        await supabase.from("camp_applications").update({ status: "declined", updated_at: new Date().toISOString() }).eq("id", cid)
+        await supabase.from("activity_log").insert({ action: "Payment released - application declined", entity_type: "camp_application", entity_id: cid, metadata: { stripe_pi: pi.id } })
+      }
+    }
+
+        return NextResponse.json({ received: true, event: event.type })
   } catch (error) {
     console.error("[Stripe Webhook] Error:", error)
     return NextResponse.json({ error: "Webhook processing failed" }, { status: 400 })
