@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { sendToClickUp } from '@/lib/clickup'
+import { sendToMailchimp } from '@/lib/mailchimp'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -119,6 +120,25 @@ export async function POST(request: NextRequest) {
         email: body.email,
         initiative: body.initiative_slug || 'singhs-camp',
       },
+    })
+
+    // Send to Mailchimp (fire-and-forget)
+    sendToMailchimp({
+      first_name: body.first_name,
+      last_name: body.last_name,
+      email: body.email,
+      phone: body.phone,
+      date_of_birth: body.date_of_birth,
+      age_at_camp: body.age_at_camp ? Number(body.age_at_camp) : null,
+      university: body.university || null,
+      occupation: body.occupation || null,
+      city: body.city,
+      postcode: body.postcode,
+      country: body.country,
+      initiative_slug: body.initiative_slug || 'singhs-camp',
+      status: payload.status,
+    }).catch((err) => {
+      console.error('[Mailchimp] Failed to upsert contact (non-blocking):', err)
     })
 
     // Send to ClickUp (fire-and-forget)
