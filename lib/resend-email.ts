@@ -31,7 +31,7 @@ export async function sendApprovalEmail(to: string, firstName: string) {
           <li>If you have any questions, reply to this email</li>
         </ul>
       </div>
-      <p style="color:#374151;font-size:16px;line-height:1.6;">We look forward to seeing you at Sings Camp!</p>
+      <p style="color:#374151;font-size:16px;line-height:1.6;">We look forward to seeing you at Singhs Camp!</p>
       <p style="color:#374151;font-size:16px;line-height:1.6;">Warm regards,<br><strong>The Devanhaar Team</strong></p>
     </div>
     <p style="text-align:center;color:#9ca3af;font-size:12px;margin-top:20px;">Devanhaar. All rights reserved.</p>
