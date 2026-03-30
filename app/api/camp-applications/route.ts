@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import { sendToClickUp } from '@/lib/clickup'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -118,6 +119,58 @@ export async function POST(request: NextRequest) {
         email: body.email,
         initiative: body.initiative_slug || 'singhs-camp',
       },
+    })
+
+    // Send to ClickUp (fire-and-forget)
+    const clickUpPaymentMode = body.requires_payment_support === 'yes'
+      ? 'support_review'
+      : isStripePaymentModeEnabled() ? 'stripe' : 'deferred'
+
+    sendToClickUp({
+      id: data.id,
+      initiative_slug: body.initiative_slug || 'singhs-camp',
+      first_name: body.first_name,
+      last_name: body.last_name,
+      email: body.email,
+      date_of_birth: body.date_of_birth,
+      age_at_camp: body.age_at_camp ? Number(body.age_at_camp) : null,
+      phone: body.phone,
+      university: body.university || null,
+      occupation: body.occupation || null,
+      address_line_1: body.address_line_1,
+      address_line_2: body.address_line_2 || null,
+      address_line_3: body.address_line_3 || null,
+      city: body.city,
+      postcode: body.postcode,
+      country: body.country,
+      emergency_contact_name: body.emergency_contact_name,
+      emergency_contact_relationship: body.emergency_contact_relationship,
+      emergency_contact_phone: body.emergency_contact_phone,
+      under_18_consent: body.under_18_consent || null,
+      dietary_requirements: body.dietary_requirements || null,
+      medical_requirements: body.medical_requirements || null,
+      allergies: body.allergies || null,
+      carries_epipen: body.carries_epipen || null,
+      travel_method: body.travel_method || null,
+      own_transport_type: body.own_transport_type || null,
+      requires_payment_support: body.requires_payment_support || null,
+      payment_support_details: body.payment_support_details || null,
+      room_preference: body.room_preference || null,
+      heard_about_camp: body.heard_about_camp,
+      first_residential_camp: body.first_residential_camp,
+      been_to_singhs_camp_before: body.been_to_singhs_camp_before,
+      previous_camps: body.previous_camps || null,
+      sikhi_knowledge_level: body.sikhi_knowledge_level,
+      takeaway_from_camp: body.takeaway_from_camp,
+      consent_email: body.consent_email || null,
+      consent_phone: body.consent_phone || null,
+      consent_sms: body.consent_sms || null,
+      consent_whatsapp: body.consent_whatsapp || null,
+      id_document_url: body.id_document_url || null,
+      status: payload.status,
+      payment_mode: clickUpPaymentMode,
+    }).catch((err) => {
+      console.error('[ClickUp] Failed to create task (non-blocking):', err)
     })
 
     // If payment support requested, skip Stripe
