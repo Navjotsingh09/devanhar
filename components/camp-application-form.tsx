@@ -49,6 +49,13 @@ export function CampApplicationForm({
   const [submitting, setSubmitting] = useState(false)
   const [uploadingId, setUploadingId] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [successTitle, setSuccessTitle] = useState("Application submitted")
+  const [successMessage, setSuccessMessage] = useState(
+    "Your application for Singhs Camp has been submitted successfully."
+  )
+  const [successDetails, setSuccessDetails] = useState(
+    "All applications will be considered by the admin team and you will hear back within 6 weeks."
+  )
   const [error, setError] = useState("")
   const [idUploadError, setIdUploadError] = useState("")
   const [form, setForm] = useState({
@@ -159,6 +166,16 @@ export function CampApplicationForm({
           window.location.href = data.checkout_url
           return
         }
+
+        setSuccessTitle(data.title || "Application submitted")
+        setSuccessMessage(
+          data.message || "Your application for Singhs Camp has been submitted successfully."
+        )
+        setSuccessDetails(
+          data.payment_mode === "deferred"
+            ? "Your place is reserved pending payment follow-up from the team."
+            : "All applications will be considered by the admin team and you will hear back within 6 weeks."
+        )
         setSubmitted(true)
       }
     } catch {
@@ -211,14 +228,9 @@ export function CampApplicationForm({
             <X className="h-5 w-5" />
           </button>
           <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Thank you for your donation!</h2>
-          <p className="text-muted-foreground mb-2">
-            Your application for Singhs Camp has been submitted successfully.
-          </p>
-          <p className="text-sm text-muted-foreground mb-6">
-            All applications will be considered by the admin team and you will
-            hear back within 6 weeks.
-          </p>
+          <h2 className="text-2xl font-bold mb-2">{successTitle}</h2>
+          <p className="text-muted-foreground mb-2">{successMessage}</p>
+          <p className="text-sm text-muted-foreground mb-6">{successDetails}</p>
           <Button onClick={onClose} className="rounded-full px-8">
             Close
           </Button>
@@ -232,7 +244,7 @@ export function CampApplicationForm({
       <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
         <div className="sticky top-0 bg-background z-10 border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
-            <h2 className="text-lg font-bold">Singhs Camp Donation</h2>
+            <h2 className="text-lg font-bold">Singhs Camp Application</h2>
             <p className="text-xs text-muted-foreground">
               Step {step + 1} of {STEPS.length} &mdash; {STEPS[step]}
             </p>
@@ -254,7 +266,7 @@ export function CampApplicationForm({
                 <h3 className="font-semibold text-amber-800 mb-2">Important Information</h3>
                 <ul className="text-sm text-amber-700 space-y-1 list-disc pl-4">
                   <li>You must be aged 16 or over to attend.</li>
-                  <li>Full payment is required to secure your place.</li>
+                  <li>Payment is normally taken online after submission; if online checkout is unavailable, the team will contact you directly.</li>
                   <li>Places are limited and allocated on a first-come basis.</li>
                   <li>Please ensure all details are accurate before submitting.</li>
                 </ul>
@@ -263,9 +275,9 @@ export function CampApplicationForm({
               <div className="bg-muted/40 border rounded-lg p-4 space-y-2">
                 <h3 className="font-semibold">Camp Registration Steps</h3>
                 <ol className="text-sm text-muted-foreground list-decimal pl-4 space-y-2">
-                  <li>Complete this form to ensure your place at camp.</li>
-                  <li>We will email payment instructions and your registration link after review.</li>
-                  <li>Your place is confirmed only once payment is completed.</li>
+                  <li>Complete this form to register your application for camp.</li>
+                  <li>If online payment is available, you will be redirected to checkout immediately.</li>
+                  <li>If checkout is unavailable, the team will follow up with payment instructions.</li>
                 </ol>
               </div>
             </div>
@@ -660,7 +672,7 @@ export function CampApplicationForm({
                 {submitting ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
                 ) : (
-                  "Submit & Continue to Donation"
+                  "Submit Application"
                 )}
               </Button>
             )}

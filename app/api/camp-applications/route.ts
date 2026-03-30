@@ -7,6 +7,11 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 const campFeeGbp = Number(process.env.STRIPE_CAMP_FEE_GBP || '199')
+const paymentMode = (process.env.CAMP_PAYMENT_MODE || 'stripe').trim().toLowerCase()
+
+function isStripePaymentModeEnabled() {
+  return paymentMode === 'stripe'
+}
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
@@ -117,34 +122,88 @@ export async function POST(request: NextRequest) {
 
     // If payment support requested, skip Stripe
     if (body.requires_payment_support === 'yes') {
-      return NextResponse.json({ success: true, message: 'Application submitted \u2014 payment support request noted.' }, { status: 201 })
+      return NextResponse.json(
+        {
+          success: true,
+          payment_mode: 'support_review',
+          title: 'Application submitted',
+          message: 'Application submitted - payment support request noted. The team will contact you with next steps.',
+        },
+        { status: 201 }
+      )
+    }
+
+    if (!isStripePaymentModeEnabled()) {
+      await supabase.from('activity_log').insert({
+        action: 'Camp application captured without immediate payment',
+        entity_type: 'camp_application',
+        entity_id: data.id,
+        metadata: {
+          reason: 'CAMP_PAYMENT_MODE is not stripe',
+          payment_mode: paymentMode,
+        },
+      })
+
+      return NextResponse.json(
+        {
+          success: true,
+          payment_mode: 'deferred',
+          title: 'Application submitted',
+          message: 'Application submitted successfully. Payment is temporarily handled offline and the team will contact you with payment instructions.',
+        },
+        { status: 201 }
+      )
     }
 
     // Create Stripe Checkout session
-    const stripe = getStripeClient()
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      customer_email: body.email.trim().toLowerCase(),
-      line_items: [
-        {
-          price_data: {
-            currency: 'gbp',
-            unit_amount: campFeeGbp * 100,
-            product_data: {
-              name: 'Singhs Camp Donation',
-              description: `Camp application for ${body.first_name} ${body.last_name}`,
+    try {
+      const stripe = getStripeClient()
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        payment_method_types: ['card'],
+        customer_email: body.email.trim().toLowerCase(),
+        line_items: [
+          {
+            price_data: {
+              currency: 'gbp',
+              unit_amount: campFeeGbp * 100,
+              product_data: {
+                name: 'Singhs Camp Donation',
+                description: `Camp application for ${body.first_name} ${body.last_name}`,
+              },
             },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      metadata: { camp_application_id: data.id },
-      success_url: `${siteUrl}/initiatives/singhs-camp?payment=success`,
-      cancel_url: `${siteUrl}/initiatives/singhs-camp?payment=cancelled`,
-    })
+        ],
+        metadata: { camp_application_id: data.id },
+        success_url: `${siteUrl}/initiatives/singhs-camp?payment=success`,
+        cancel_url: `${siteUrl}/initiatives/singhs-camp?payment=cancelled`,
+      })
 
-    return NextResponse.json({ success: true, checkout_url: session.url }, { status: 201 })
+      return NextResponse.json({ success: true, payment_mode: 'stripe', checkout_url: session.url }, { status: 201 })
+    } catch (stripeError) {
+      console.error('[Camp Application] Stripe checkout creation failed, falling back to deferred payment:', stripeError)
+
+      await supabase.from('activity_log').insert({
+        action: 'Camp application captured after Stripe checkout failure',
+        entity_type: 'camp_application',
+        entity_id: data.id,
+        metadata: {
+          reason: stripeError instanceof Error ? stripeError.message : 'Unknown Stripe checkout error',
+          payment_mode: 'deferred',
+        },
+      })
+
+      return NextResponse.json(
+        {
+          success: true,
+          payment_mode: 'deferred',
+          title: 'Application submitted',
+          message: 'Application submitted successfully. We could not open online payment right now, so the team will contact you with payment instructions.',
+        },
+        { status: 201 }
+      )
+    }
   } catch (error) {
     console.error('[Camp Application] Error:', error)
     return NextResponse.json(
