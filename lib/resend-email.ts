@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 
 function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
-const FROM_EMAIL = 'Devanhaar <noreply@devanhaar.org>'
+const FROM_EMAIL = 'Devanhaar <noreply@devanhaar.com>'
 
 export async function sendApprovalEmail(to: string, firstName: string) {
   if (!process.env.RESEND_API_KEY) return
