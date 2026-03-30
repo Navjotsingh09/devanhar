@@ -95,7 +95,7 @@ export async function cancelApplicationPayment(applicationId: string) {
   const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'declined') throw new Error('Already declined')
-  if (app.stripe_payment_intent_id) { const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); await stripe.paymentIntents.cancel(app.stripe_payment_intent_id) }
+  if (app.stripe_payment_intent_id) { const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); try { await stripe.paymentIntents.cancel(app.stripe_payment_intent_id) } catch { await stripe.refunds.create({ payment_intent: app.stripe_payment_intent_id }) } }
   await supabase.from('camp_applications').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   sendDeclineEmail(app.email, app.first_name).catch(() => {})

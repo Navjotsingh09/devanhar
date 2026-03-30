@@ -1,13 +1,13 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 const FROM_EMAIL = 'Devanhaar <noreply@devanhaar.org>'
 
 export async function sendApprovalEmail(to: string, firstName: string) {
   if (!process.env.RESEND_API_KEY) return
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to,
       subject: 'Your Singhs Camp Application Has Been Approved!',
@@ -47,7 +47,7 @@ export async function sendApprovalEmail(to: string, firstName: string) {
 export async function sendDeclineEmail(to: string, firstName: string) {
   if (!process.env.RESEND_API_KEY) return
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to,
       subject: 'Update on Your Singhs Camp Application',
