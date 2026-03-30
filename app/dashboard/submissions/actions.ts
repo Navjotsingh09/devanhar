@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import Stripe from 'stripe'
 import { revalidatePath } from 'next/cache'
 
 type SourceTable = 'form_submissions' | 'camp_applications'
@@ -77,14 +76,11 @@ export async function captureApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('status, first_name, last_name').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
-  if (!app.stripe_payment_intent_id) throw new Error('No payment on hold for this application')
   if (app.status === 'approved') throw new Error('Already approved')
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-  await stripe.paymentIntents.capture(app.stripe_payment_intent_id)
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
-  await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved - payment captured from ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId, metadata: { stripe_payment_intent_id: app.stripe_payment_intent_id } })
+  await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   revalidatePath('/dashboard/submissions')
 }
 
@@ -92,13 +88,10 @@ export async function cancelApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('status, first_name, last_name').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
-  if (!app.stripe_payment_intent_id) throw new Error('No payment on hold for this application')
   if (app.status === 'declined') throw new Error('Already declined')
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-  await stripe.paymentIntents.cancel(app.stripe_payment_intent_id)
   await supabase.from('camp_applications').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', applicationId)
-  await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined - payment released for ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId, metadata: { stripe_payment_intent_id: app.stripe_payment_intent_id } })
+  await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   revalidatePath('/dashboard/submissions')
 }
