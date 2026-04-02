@@ -12,6 +12,8 @@ export default function KaursCampPage() {
       title="Kaurs Camp"
       tagline="Be part of an everlasting sisterhood, with the aim of connecting to Sikhi and the Guru's Sangat."
       heroImage="/initiatives/kaurs-camp-top.jpg"
+      ctaText="Apply Now"
+      ctaHref="#"
       description={[
         "If you're seeking spiritual growth, meaningful conversations and an escape from your 9-5 or whatever it is that's occupying your time -- take that leap of faith and apply for Kaurs Camp.",
         "Camp is open to all females aged 16 and above. It doesn't matter where you are on your Sikhi journey, it's open to everyone from any walk of life. We've even had campers travel from around the world.",
