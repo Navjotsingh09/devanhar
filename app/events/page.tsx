@@ -26,7 +26,7 @@ const eventsConfig = [
     priceLabel: "GBP 250 per year membership option",
   },
   {
-    slug: "wolf-run",
+    slug: "wolfrun",
     title: "Wolf Run",
     badge: "Challenge",
     dateLabel: "12 September 2026",

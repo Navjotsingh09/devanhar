@@ -13,10 +13,6 @@ const events = {
     title: "Shooting",
     price: "GBP 250 per year",
   },
-  "wolf-run": {
-    title: "Wolf Run",
-    price: "GBP 40 per person",
-  },
   "yorkshire-3-peaks": {
     title: "Yorkshire 3 Peaks",
     price: "GBP 20 per person, coach included",
@@ -72,7 +68,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
 
               {slug === "shooting" && <div className="md:col-span-2 rounded-xl border border-border p-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="membership_12_week" /> Interested in a 12 week membership?</label><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="pay_250" /> Interested in paying GBP 250 a year?</label><input name="weekly_commitment" placeholder="Weekly commitment" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" /><label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" name="commitment_policy" /> If not committed, can be removed from course.</label></div>}
 
-              {slug === "wolf-run" && <div className="md:col-span-2 rounded-xl border border-border p-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="terms" required /> Agree to T and Cs *</label><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="fee_40" required /> GBP 40 per person *</label><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="family" /> Coming with family?</label><input name="family_count" placeholder="How many?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" /></div>}
 
               {slug === "yorkshire-3-peaks" && <div className="md:col-span-2 rounded-xl border border-border p-4"><label className="flex items-center gap-2 text-sm"><input type="checkbox" name="terms" required /> Agree to T and Cs *</label><label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="fee_20" required /> GBP 20 per person, coach included *</label><input name="hiked_before" placeholder="Hiked before?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" /><input name="hiking_level" placeholder="What level?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" /></div>}
 
