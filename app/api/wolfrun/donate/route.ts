@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
       amount: String(donationAmount),
       repeat: 'o',
       giftaid: gift_aid ? 'true' : 'false',
+      comment: `Wolf Run 5K - Sponsoring ${fundraiser.first_name} ${fundraiser.last_name} - from ${donor_name.trim()}`,
     })
 
     const dmUrl = 'https://www.donationmanager.co.uk/services/api/checkout/?' + params.toString()
