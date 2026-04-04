@@ -16,6 +16,7 @@ import {
   Package,
   ClipboardList,
   ImageIcon,
+  Trophy,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -61,6 +62,10 @@ const shopNav: NavItem[] = [
   { title: 'Products', url: '/dashboard/products', icon: Package },
 ]
 
+
+const eventsNav: NavItem[] = [
+  { title: 'Wolf Run', url: '/dashboard/wolfrun', icon: Trophy },
+]
 const systemNav: NavItem[] = [
   { title: 'Activity Log', url: '/dashboard/activity', icon: Activity },
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -143,6 +148,27 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {shopNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                    <Link href={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <Trophy className="h-3 w-3 mr-1" />
+            Events
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {eventsNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
