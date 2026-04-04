@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button"
 const eventsConfig = [
   {
     slug: "horse-riding",
+    image: "/images/events/wolfrun-spring.jpg",
     title: "Horse Riding",
     badge: "Life Skills",
     dateLabel: "March onwards",
@@ -18,6 +20,7 @@ const eventsConfig = [
   },
   {
     slug: "shooting",
+    image: "/images/events/wolfrun-mud.jpg",
     title: "Shooting",
     badge: "Skills",
     dateLabel: "Weekly sessions",
@@ -27,6 +30,7 @@ const eventsConfig = [
   },
   {
     slug: "wolfrun",
+    image: "/images/events/wolfrun-hero.jpg",
     title: "Wolf Run",
     badge: "Challenge",
     dateLabel: "12 September 2026",
@@ -36,6 +40,7 @@ const eventsConfig = [
   },
   {
     slug: "yorkshire-3-peaks",
+    image: "/images/events/wolfrun-pack.jpg",
     title: "Yorkshire 3 Peaks",
     badge: "Challenge",
     dateLabel: "27 June 2026",
@@ -93,8 +98,17 @@ export default function EventsPage() {
               {eventsConfig.map((event) => (
                 <article
                   key={event.title}
-                  className="rounded-2xl border border-border bg-card p-7 hover:border-primary/30 transition-colors"
-                >
+                    className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors"
+                  >
+                    <div className="relative h-48 w-full overflow-hidden">
+                      <Image
+                        src={event.image}
+                        alt={event.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-7">
                   <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-foreground/70 mb-4 border border-border rounded-full px-3 py-1">
                     {event.badge}
                   </span>
@@ -115,7 +129,8 @@ export default function EventsPage() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                </article>
+                    </div>
+                  </article>
               ))}
             </div>
           </div>
