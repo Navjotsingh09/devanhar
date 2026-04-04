@@ -40,8 +40,6 @@ export async function POST(request: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session
       const campApplicationId = session.metadata?.camp_application_id
-      const wolfrunDonationId = session.metadata?.wolfrun_donation_id
-      const wolfrunFundraiserId = session.metadata?.wolfrun_fundraiser_id
       if (campApplicationId) {
         await supabase
           .from("camp_applications")
@@ -64,52 +62,10 @@ export async function POST(request: NextRequest) {
           },
         })
       }
-      // Wolf Run donation completed
-      if (wolfrunDonationId && wolfrunFundraiserId) {
-        const donationAmount = session.amount_total || 0
-
-        await supabase
-          .from("wolfrun_donations")
-          .update({
-            status: "completed",
-            stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
-          })
-          .eq("id", wolfrunDonationId)
-
-        const { data: currentFundraiser } = await supabase
-          .from("wolfrun_fundraisers")
-          .select("total_raised")
-          .eq("id", wolfrunFundraiserId)
-          .single()
-
-        if (currentFundraiser) {
-          await supabase
-            .from("wolfrun_fundraisers")
-            .update({
-              total_raised: (currentFundraiser.total_raised || 0) + donationAmount,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", wolfrunFundraiserId)
-        }
-
-        await supabase.from("activity_log").insert({
-          action: "Wolf Run donation completed",
-          entity_type: "wolfrun_donation",
-          entity_id: wolfrunDonationId,
-          metadata: {
-            fundraiser_id: wolfrunFundraiserId,
-            stripe_session_id: session.id,
-            amount: donationAmount,
-            gift_aid: session.metadata?.gift_aid,
-            donor_name: session.metadata?.donor_name,
-          },
-        })
-      }
     }
     if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session
       const campApplicationId = session.metadata?.camp_application_id
-      const wolfrunDonationId = session.metadata?.wolfrun_donation_id
 
       if (campApplicationId) {
         await supabase
@@ -119,13 +75,6 @@ export async function POST(request: NextRequest) {
             updated_at: new Date().toISOString(),
           })
           .eq("id", campApplicationId)
-      }
-
-      if (wolfrunDonationId) {
-        await supabase
-          .from("wolfrun_donations")
-          .update({ status: "failed" })
-          .eq("id", wolfrunDonationId)
       }
     }
     if (event.type === "payment_intent.succeeded") {

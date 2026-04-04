@@ -1,24 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Stripe from 'stripe'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase service role credentials')
   }
   return createClient(supabaseUrl, supabaseServiceKey)
-}
-
-function getStripeClient() {
-  if (!stripeSecretKey) {
-    throw new Error('Missing STRIPE_SECRET_KEY')
-  }
-  return new Stripe(stripeSecretKey)
 }
 
 export async function POST(request: NextRequest) {
@@ -38,6 +28,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Donation amount must be between £5 and £10,000' },
         { status: 400 }
+      )
+    }
+
+    const apiKey = process.env.NOWDONATE_API_KEY
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: 'Payment configuration error' },
+        { status: 500 }
       )
     }
 
@@ -75,43 +73,54 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create donation. Please try again.' }, { status: 500 })
     }
 
-    // Create Stripe Checkout session
-    const stripe = getStripeClient()
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'gbp',
-            product_data: {
-              name: `Sponsor ${fundraiser.first_name} ${fundraiser.last_name} — Wolf Run for Devanhaar`,
-              description: `Sponsoring ${fundraiser.first_name} in the Wolf Run to raise funds for Devanhaar`,
-            },
-            unit_amount: Math.round(donationAmount * 100), // Stripe expects pence
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        wolfrun_donation_id: donation.id,
-        wolfrun_fundraiser_id: fundraiser.id,
-        gift_aid: String(!!gift_aid),
-        donor_name: donor_name.trim(),
-      },
-      success_url: `${siteUrl}/events/wolfrun/fundraiser/${fundraiser.slug}?donated=true`,
-      cancel_url: `${siteUrl}/events/wolfrun/fundraiser/${fundraiser.slug}?cancelled=true`,
+    // Create DonationManager checkout URL
+    const params = new URLSearchParams({
+      key: apiKey,
+      currency: 'GBP',
+      amount: String(donationAmount),
+      repeat: 'o',
+      giftaid: gift_aid ? 'true' : 'false',
     })
 
-    // Update donation with stripe session id
+    const dmUrl = 'https://www.donationmanager.co.uk/services/api/checkout/?' + params.toString()
+    const dmRes = await fetch(dmUrl)
+    const dmData = await dmRes.json()
+
+    if (dmData.status !== 'success' || !dmData.url) {
+      // Mark donation as failed if DonationManager rejects
+      await supabase
+        .from('wolfrun_donations')
+        .update({ status: 'failed' })
+        .eq('id', donation.id)
+      return NextResponse.json(
+        { error: 'Unable to create checkout session' },
+        { status: 502 }
+      )
+    }
+
+    // Update donation with DonationManager reference
     await supabase
       .from('wolfrun_donations')
-      .update({ stripe_checkout_session_id: session.id })
+      .update({ status: 'redirected' })
       .eq('id', donation.id)
+
+    // Log activity
+    await supabase.from('activity_log').insert({
+      action: 'Wolf Run donation redirected to DonationManager',
+      entity_type: 'wolfrun_donation',
+      entity_id: donation.id,
+      metadata: {
+        fundraiser_id: fundraiser.id,
+        fundraiser_name: `${fundraiser.first_name} ${fundraiser.last_name}`,
+        donor_name: donor_name.trim(),
+        amount: donationAmount,
+        gift_aid: !!gift_aid,
+      },
+    })
 
     return NextResponse.json({
       success: true,
-      checkout_url: session.url,
+      checkout_url: dmData.url,
     })
   } catch (error) {
     console.error('[Wolf Run Donate] Error:', error)
