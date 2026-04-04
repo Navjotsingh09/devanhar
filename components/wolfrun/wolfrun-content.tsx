@@ -11,7 +11,7 @@ const presetAmounts = [10, 20, 50, 100]
 const faqs = [
   {
     q: "What is the Wolf Run?",
-    a: "The Wolf Run is one of the UK's most popular wild running events — a 10K or 5K obstacle course through mud, woodland, lakes and trails in the Warwickshire countryside. It's not a race — it's a shared adventure."
+    a: "The Wolf Run is one of the UK's most popular wild running events — a 5K obstacle course through mud, woodland, lakes and trails in the Warwickshire countryside. It's not a race — it's a shared adventure."
   },
   {
     q: "Do I have to run to be a fundraiser?",
@@ -324,7 +324,7 @@ export function WolfRunContent() {
               <p>
                 The Wolf Run is one of the UK&apos;s most iconic wild running events. Set in the 
                 stunning Warwickshire countryside at Offchurch Bury near Leamington Spa, runners 
-                take on a 10K or 5K course through mud, woodland, lakes, streams, and natural 
+                take on a 5K course through mud, woodland, lakes, streams, and natural 
                 obstacles.
               </p>
               <p>
@@ -346,7 +346,7 @@ export function WolfRunContent() {
               </div>
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <Trophy className="w-8 h-8 mx-auto mb-3 text-amber-500" />
-                <div className="font-bold text-lg">10K &amp; 5K</div>
+                <div className="font-bold text-lg">5K</div>
                 <div className="text-sm text-muted-foreground">Choose your distance</div>
               </div>
             </div>
@@ -497,20 +497,8 @@ export function WolfRunContent() {
                   <h3 className="font-bold text-lg mb-4">Entry Prices</h3>
                   <ul className="space-y-2 text-muted-foreground text-sm">
                     <li className="flex justify-between">
-                      <span>Wolf 10K</span>
-                      <span className="font-semibold text-foreground">£80</span>
-                    </li>
-                    <li className="flex justify-between">
                       <span>Wolf 5K</span>
                       <span className="font-semibold text-foreground">£45</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Trail 10K</span>
-                      <span className="font-semibold text-foreground">£35</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Trail 5K</span>
-                      <span className="font-semibold text-foreground">£25</span>
                     </li>
                   </ul>
                 </div>

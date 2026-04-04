@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -36,7 +35,7 @@ const eventsConfig = [
     dateLabel: "12 September 2026",
     shortDescription:
       "A high-energy obstacle challenge through mud, water, and woodland testing teamwork and resilience.",
-    priceLabel: "GBP 40 per person",
+    priceLabel: "GBP 45 per person",
   },
   {
     slug: "yorkshire-3-peaks",
@@ -101,12 +100,7 @@ export default function EventsPage() {
                     className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors"
                   >
                     <div className="relative h-48 w-full overflow-hidden">
-                      <Image
-                        src={event.image}
-                        alt={event.title}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
+                      <img src={event.image} alt={event.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     </div>
                     <div className="p-7">
                   <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-foreground/70 mb-4 border border-border rounded-full px-3 py-1">
