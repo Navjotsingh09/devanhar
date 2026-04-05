@@ -202,12 +202,7 @@ export default async function AboutPage() {
                 </p>
               </div>
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/15 via-muted to-primary/5">
-                <div className="absolute inset-0 backdrop-blur-3xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Heart className="w-10 h-10 text-primary/40" />
-                  </div>
-                </div>
+                <img src="/images/about-hero-empowering.jpg" alt="Our People" className="absolute inset-0 w-full h-full object-cover" />
               </div>
             </div>
           </div>
