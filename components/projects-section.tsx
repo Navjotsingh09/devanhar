@@ -13,6 +13,7 @@ const partners = [
     location: "UK Wide",
     metricLabel: "Hours of workshops delivered",
     numericValue: 1000,
+    image: "/images/pillars/develop.jpg",
   },
   {
     badge: "Elevate",
@@ -20,6 +21,7 @@ const partners = [
     location: "UK Wide",
     metricLabel: "Futures Supported",
     numericValue: 20000,
+    image: "/images/pillars/elevate.png",
   },
   {
     badge: "Empower",
@@ -27,6 +29,7 @@ const partners = [
     location: "UK Wide",
     metricLabel: "Youth Empowered",
     numericValue: 400,
+    image: "/images/pillars/empower.jpg",
   },
   {
     badge: "Connect",
@@ -34,6 +37,7 @@ const partners = [
     location: "UK Wide",
     metricLabel: "Events Annually",
     numericValue: 50,
+    image: "/images/pillars/connect.jpg",
   },
 ]
 
@@ -99,14 +103,9 @@ export function ProjectsSection() {
                 key={i}
                 className="rounded-2xl border border-border bg-card overflow-hidden"
               >
-                {/* Top pattern area */}
+                {/* Top image area */}
                 <div className="relative h-52 bg-muted/30 overflow-hidden border-b border-border">
-                  <div
-                    className="absolute inset-0 opacity-[0.04]"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000' fillOpacity='1' fillRule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`,
-                    }}
-                  />
+                  <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute top-4 left-5">
                     <span className="inline-flex items-center rounded-full bg-background/80 backdrop-blur-sm border border-border/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {p.badge}
