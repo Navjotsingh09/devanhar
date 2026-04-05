@@ -201,8 +201,16 @@ export default async function AboutPage() {
                   everyone feels supported on their Sikhi journey.
                 </p>
               </div>
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/15 via-muted to-primary/5">
-                <img src="/images/about-hero-empowering.jpg" alt="Our People" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="relative aspect-[9/16] md:aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/15 via-muted to-primary/5">
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                >
+                  <source src="/images/sevadaar-summit.mp4" type="video/mp4" />
+                </video>
               </div>
             </div>
           </div>
