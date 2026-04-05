@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Heart, Users, Sparkles, BookOpen, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
+import { Heart, Users, Sparkles, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -140,12 +140,7 @@ export default async function AboutPage() {
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-muted via-primary/5 to-primary/15">
-                <div className="absolute inset-0 backdrop-blur-3xl" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                    <BookOpen className="w-10 h-10 text-primary/40" />
-                  </div>
-                </div>
+                <img src="/images/about-purpose.jpg" alt="Creating Meaningful Spaces" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div>
                 <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">

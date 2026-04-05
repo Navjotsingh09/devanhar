@@ -130,18 +130,7 @@ export function ProjectsPageContent() {
             </div>
             <div className="relative">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
-                {cmsImageMap["hero"] ? (
-                  <img src={cmsImageMap["hero"]} alt="Our Initiatives" className="absolute inset-0 w-full h-full object-cover" />
-                ) : (
-                  <>
-                    <div className="absolute inset-0 backdrop-blur-3xl" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Sparkles className="w-10 h-10 text-primary/40" />
-                      </div>
-                    </div>
-                  </>
-                )}
+                <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Initiatives" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
                 <p className="text-3xl font-bold">9</p>

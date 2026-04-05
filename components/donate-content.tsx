@@ -199,7 +199,7 @@ export function DonateContent() {
 
             {/* Card 2: Singhs Camp */}
             <Link href="/initiatives/singhs-camp" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-3xl overflow-hidden relative min-h-[180px] group cursor-pointer hover:shadow-lg transition-all duration-500">
-              <Image src="/images/about-hero.jpg" alt="Singhs Camp" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Image src="/images/donate-singhscamp.jpg" alt="Singhs Camp" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">Camps</span>
               <div className="absolute bottom-4 left-4 right-4">
@@ -241,7 +241,7 @@ export function DonateContent() {
 
             {/* Card 6: Sikhi Vidyala */}
             <Link href="/initiatives/sikhi-vidyala" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-3xl overflow-hidden relative min-h-[180px] group cursor-pointer hover:shadow-lg transition-all duration-500">
-              <Image src="/images/about-purpose.jpg" alt="Sikhi Vidyala" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Image src="/images/donate-sikhi-vidyala.jpg" alt="Sikhi Vidyala" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">Education</span>
               <div className="absolute bottom-4 left-4 right-4">
