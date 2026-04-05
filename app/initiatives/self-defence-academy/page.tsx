@@ -11,7 +11,7 @@ export default function SelfDefenceAcademyPage() {
     <InitiativePageLayout
       title="Self Defence Academy"
       tagline="Strength, discipline, and confidence rooted in Sikh values."
-      heroImage="https://placehold.co/1200x800/1a1a2e/e0e0e0.png?text=Self+Defence+Hero"
+      heroImage="/initiatives/self-defence-top.png"
       ctaText="Get Involved"
       ctaHref="/contact"
       slug="self-defence-academy"
@@ -44,9 +44,9 @@ export default function SelfDefenceAcademyPage() {
         },
       ]}
       galleryImages={[
-        "https://placehold.co/900x600/1a1a2e/e0e0e0.png?text=Self+Defence+1",
-        "https://placehold.co/900x600/1a1a2e/e0e0e0.png?text=Self+Defence+2",
-        "https://placehold.co/900x600/1a1a2e/e0e0e0.png?text=Self+Defence+3",
+        "/initiatives/self-defence-1.png",
+        "/initiatives/self-defence-2.png",
+        "/initiatives/self-defence-3.png",
       ]}
     />
   )
