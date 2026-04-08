@@ -70,14 +70,14 @@ function FeaturedVideo({ url }: { url: string }) {
   }, [])
 
   const separator = url.includes("?") ? "&" : "?"
-  const src = inView ? `${url}${separator}autoplay=1&mute=1` : url
+  const src = inView ? `${url}${separator}autoplay=1&mute=1&rel=0&modestbranding=1` : `${url}${separator}rel=0&modestbranding=1`
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-8 lg:py-12">
       <div className="container mx-auto px-6 lg:px-12">
         <div
           ref={ref}
-          className="relative w-full max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black aspect-video"
+          className="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-black aspect-video"
         >
           <iframe
             src={src}
@@ -188,7 +188,7 @@ export function InitiativePageLayout({
       </section>
 
       {/* Description Section */}
-      <section className="py-20 lg:py-28">
+      <section className="pt-20 pb-8 lg:pt-28 lg:pb-12">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-3xl">
             {description.map((paragraph, i) => (
