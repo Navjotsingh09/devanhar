@@ -81,6 +81,7 @@ const milestones: Milestone[] = [
 
 export default function OurStoryNarrative() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tappedIndex, setTappedIndex] = useState<number | null>(null);
   const { images: storyImages } = useSiteImages("about")
   const cmsImageMap = Object.fromEntries(storyImages.filter(img => img.category?.startsWith("story-")).map(img => [img.category!.replace("story-", ""), img.url]))
 
@@ -160,25 +161,76 @@ export default function OurStoryNarrative() {
         })}
       </div>
 
-      {/* Mobile: vertical stacked cards */}
-      <div className="md:hidden bg-[#031625]">
-        {milestones.map((m) => (
-          <div key={m.year} className="relative overflow-hidden text-white" style={{ height: "280px" }}>
+      {/* Mobile: vertical accordion cards */}
+      <div className="md:hidden flex flex-col w-full bg-[#031625]" style={{ minHeight: "100vh" }}>
+        {milestones.map((m, i) => {
+          const isActive = tappedIndex === i;
+          return (
             <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${cmsImageMap[String(m.year)] || m.image})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 z-[2] p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl font-bold">{m.year}</span>
-                <span className="text-xs uppercase tracking-[0.2em] text-white/50">{m.theme}</span>
+              key={m.year}
+              className="relative overflow-hidden text-white cursor-pointer"
+              style={{
+                flex: isActive ? 4 : 1,
+                transition: "flex 0.5s ease",
+                minHeight: isActive ? "280px" : "60px",
+              }}
+              onClick={() => setTappedIndex(isActive ? null : i)}
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-[filter] duration-500"
+                style={{
+                  backgroundImage: `url(${cmsImageMap[String(m.year)] || m.image})`,
+                  filter: isActive ? "grayscale(0)" : "grayscale(60%)",
+                }}
+              />
+              <div
+                className="absolute inset-0 transition-opacity duration-500"
+                style={{
+                  backgroundColor: "rgba(3,22,37,0.5)",
+                  opacity: isActive ? 0 : 1,
+                }}
+              />
+              <div
+                className="absolute inset-0 z-[1]"
+                style={{
+                  background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.95) 75%)",
+                  opacity: isActive ? 1 : 0,
+                  transition: "opacity 0.5s ease",
+                }}
+              />
+              {/* Year label - always visible */}
+              <div
+                className="absolute z-[2] flex items-center gap-3 transition-all duration-500"
+                style={{
+                  top: isActive ? "auto" : "50%",
+                  bottom: isActive ? "auto" : "auto",
+                  left: "50%",
+                  transform: isActive ? "translate(-50%, 0)" : "translate(-50%, -50%)",
+                  ...(isActive ? { top: "30%" } : {}),
+                }}
+              >
+                <div className="border-t border-b border-white/60 py-2 px-4">
+                  <p className="text-2xl font-bold tracking-wider">{m.year}</p>
+                </div>
+                <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">{m.theme}</p>
               </div>
-              <h3 className="text-base font-bold text-[#F59E0B] mb-1">{m.headline}</h3>
-              <p className="text-sm text-white/70 leading-relaxed line-clamp-3">{m.description}</p>
+              {/* Content - revealed on tap */}
+              <div
+                className="absolute bottom-0 left-0 right-0 z-[2] p-6"
+                style={{
+                  opacity: isActive ? 1 : 0,
+                  transform: isActive ? "translateY(0)" : "translateY(25px)",
+                  transition: isActive ? "all 0.5s ease 0.3s" : "all 0.3s ease",
+                }}
+              >
+                <h3 className="text-base font-bold uppercase tracking-wider text-[#F59E0B] mb-1">
+                  {m.headline}
+                </h3>
+                <p className="text-sm text-white/80 leading-relaxed">{m.description}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
