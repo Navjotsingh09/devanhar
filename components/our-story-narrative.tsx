@@ -87,7 +87,9 @@ export default function OurStoryNarrative() {
   return (
     <section className="w-full">
       <h2 className="sr-only">Our Journey</h2>
-      <div className="flex w-full bg-[#031625]" style={{ minHeight: "600px", height: "85vh" }}>
+
+      {/* Desktop: horizontal hover-expandable columns */}
+      <div className="hidden md:flex w-full bg-[#031625]" style={{ minHeight: "600px", height: "85vh" }}>
         {milestones.map((m, i) => {
           const isHovered = hoveredIndex === i;
           const hasHover = hoveredIndex !== null;
@@ -107,7 +109,6 @@ export default function OurStoryNarrative() {
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              {/* Background image */}
               <div
                 className="absolute inset-0 bg-cover bg-center transition-[filter] duration-500"
                 style={{
@@ -115,14 +116,10 @@ export default function OurStoryNarrative() {
                   filter: isHovered ? "grayscale(0)" : "grayscale(60%)",
                 }}
               />
-
-              {/* Dark overlay */}
               <div
                 className="absolute inset-0 bg-[#031625]/50 transition-opacity duration-500"
                 style={{ opacity: isHovered ? 0 : 1 }}
               />
-
-              {/* Bottom gradient */}
               <div
                 className="absolute inset-0 z-[1]"
                 style={{
@@ -134,16 +131,12 @@ export default function OurStoryNarrative() {
                     : "opacity 0.5s ease, transform 0.5s ease",
                 }}
               />
-
-              {/* Year label */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[2] text-center">
                 <div className="border-t border-b border-white/60 py-3 px-6">
                   <p className="text-3xl md:text-4xl font-bold tracking-wider">{m.year}</p>
                 </div>
                 <p className="text-xs uppercase tracking-[0.3em] mt-2 text-white/60">{m.theme}</p>
               </div>
-
-              {/* Content - revealed on hover */}
               <div
                 className="absolute z-[2] text-center px-6"
                 style={{
@@ -165,6 +158,27 @@ export default function OurStoryNarrative() {
             </div>
           );
         })}
+      </div>
+
+      {/* Mobile: vertical stacked cards */}
+      <div className="md:hidden bg-[#031625]">
+        {milestones.map((m) => (
+          <div key={m.year} className="relative overflow-hidden text-white" style={{ height: "280px" }}>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${cmsImageMap[String(m.year)] || m.image})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 z-[2] p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl font-bold">{m.year}</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-white/50">{m.theme}</span>
+              </div>
+              <h3 className="text-base font-bold text-[#F59E0B] mb-1">{m.headline}</h3>
+              <p className="text-sm text-white/70 leading-relaxed line-clamp-3">{m.description}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
