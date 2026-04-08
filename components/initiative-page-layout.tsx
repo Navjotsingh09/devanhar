@@ -217,20 +217,22 @@ export function InitiativePageLayout({
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {highlights.map((item, i) => {
-                const isString = typeof item === "string"
+                const normalizedItem =
+                  typeof item === "string"
+                    ? { title: `Highlight ${i + 1}`, description: item }
+                    : item
+                const description = normalizedItem.description.trim()
+                const descriptionWithPunctuation = /[.!?]$/.test(description)
+                  ? description
+                  : `${description}.`
+
                 return (
                   <div
                     key={i}
                     className="bg-background rounded-xl p-6 border border-border/50"
                   >
-                    {isString ? (
-                      <p className="text-muted-foreground leading-relaxed">{item}</p>
-                    ) : (
-                      <>
-                        <h3 className="text-lg font-semibold text-foreground mb-3">{item.title}</h3>
-                        <p className="text-muted-foreground leading-relaxed">{item.description}</p>
-                      </>
-                    )}
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{normalizedItem.title}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{descriptionWithPunctuation}</p>
                   </div>
                 )
               })}
