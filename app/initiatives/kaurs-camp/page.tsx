@@ -20,12 +20,30 @@ export default function KaursCampPage() {
         "A typical day starts with Amrit Vela (early hours of the morning) and is filled with a variety of activities, talks and experiences. Every day is different and an opportunity for self-reflection and to connect with Waheguru.",
       ]}
       highlights={[
-        "Open to all females aged 16 and above from any walk of life",
-        "Campers have travelled from around the world to attend",
-        "Daily Amrit Vela followed by activities, talks and experiences",
-        "Sisterhood, self-reflection and deeper connection with Waheguru",
-        "Kaurs Forum: monthly sessions in Derby, London and Birmingham",
-        "Discussions on Sikh history, identity, and spiritual growth",
+        {
+          title: "Open to All",
+          description: "Open to all females aged 16 and above from any walk of life.",
+        },
+        {
+          title: "Global Community",
+          description: "Campers have travelled from around the world to attend.",
+        },
+        {
+          title: "Daily Programme",
+          description: "Daily Amrit Vela followed by activities, talks and experiences.",
+        },
+        {
+          title: "Spiritual Growth",
+          description: "Sisterhood, self-reflection and deeper connection with Waheguru.",
+        },
+        {
+          title: "Kaurs Forum",
+          description: "Monthly sessions in Derby, London and Birmingham.",
+        },
+        {
+          title: "Identity & Heritage",
+          description: "Discussions on Sikh history, identity, and spiritual growth.",
+        },
       ]}
       videoTestimonials={[
         {
