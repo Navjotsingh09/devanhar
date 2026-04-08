@@ -119,6 +119,7 @@ export function InitiativePageLayout({
 }: InitiativePageProps) {
   const [showCampForm, setShowCampForm] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [showPaymentSuccessPopup, setShowPaymentSuccessPopup] = useState(false)
   // Keyboard navigation for lightbox
   const handleLightboxKey = useCallback((e: KeyboardEvent) => {
     if (lightboxIndex === null || !galleryImages) return
@@ -138,6 +139,24 @@ export function InitiativePageLayout({
     }
   }, [lightboxIndex, handleLightboxKey])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("payment") === "success") {
+      setShowPaymentSuccessPopup(true)
+    }
+  }, [])
+
+  const closePaymentSuccessPopup = useCallback(() => {
+    setShowPaymentSuccessPopup(false)
+    if (typeof window === "undefined") return
+
+    const url = new URL(window.location.href)
+    url.searchParams.delete("payment")
+    window.history.replaceState({}, "", url.toString())
+  }, [])
+
   const isSinghsCamp = title.trim().toLowerCase() === "singhs camp"
   const effectiveCtaClick = onCtaClick ?? (isSinghsCamp ? () => setShowCampForm(true) : undefined)
 
@@ -145,6 +164,42 @@ export function InitiativePageLayout({
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <ScrollAnimations />
+
+      {showPaymentSuccessPopup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-lg rounded-2xl bg-background p-8 shadow-2xl">
+            <button
+              onClick={closePaymentSuccessPopup}
+              className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+              aria-label="Close payment success message"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Payment Received
+            </p>
+            <h2 className="mb-4 text-2xl font-bold text-foreground">
+              Your application has been submitted successfully.
+            </h2>
+            <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+              Your payment has been authorised and your application is now with the Devanhaar team for review.
+            </p>
+            <div className="mb-6 rounded-xl border border-border bg-muted/30 p-4">
+              <p className="mb-2 text-sm font-semibold text-foreground">What happens next</p>
+              <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground">
+                <li>Your application will be reviewed by the admin team.</li>
+                <li>If approved, your payment will be captured and your place will be confirmed by email.</li>
+                <li>If your application is not approved, the payment hold will be released and you will not be charged.</li>
+              </ul>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={closePaymentSuccessPopup} className="rounded-full px-6">
+                Understood
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-0 overflow-hidden">
