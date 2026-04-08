@@ -29,7 +29,7 @@ const pillars = [
 
 export function PillarsSection() {
   return (
-    <section className="py-24 md:py-32 bg-background border-t border-border/50">
+    <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-background border-t border-border/50">
       <div className="container mx-auto px-6 lg:px-12">
         <div data-animate className="text-center mb-16">
           <span className="inline-block text-[11px] font-bold tracking-[0.15em] text-primary/80 uppercase mb-4 border border-primary/30 rounded-full px-3 py-1">

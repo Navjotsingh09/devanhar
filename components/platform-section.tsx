@@ -69,7 +69,7 @@ const initiatives = [
 
 export function PlatformSection() {
   return (
-    <section id="initiatives" className="py-24 md:py-32 bg-background">
+    <section id="initiatives" className="pt-0 pb-24 md:pt-0 md:pb-32 bg-background">
       <div className="container mx-auto px-6 lg:px-12">
         <div data-animate className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
           {/* Left: Dark card - STICKY */}
