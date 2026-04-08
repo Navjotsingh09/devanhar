@@ -73,7 +73,7 @@ function FeaturedVideo({ url }: { url: string }) {
   const nocookieUrl = url.replace("www.youtube.com", "www.youtube-nocookie.com")
   const videoId = url.split("/embed/")[1]?.split("?")[0] || ""
   const baseParams = `rel=0&modestbranding=1&loop=1&playlist=${videoId}`
-  const src = inView ? `${nocookieUrl}${separator}autoplay=1&mute=1&${baseParams}` : `${nocookieUrl}${separator}${baseParams}`
+  const src = `${nocookieUrl}${separator}autoplay=1&mute=1&${baseParams}`
 
   return (
     <section className="py-8 lg:py-12">
@@ -82,13 +82,19 @@ function FeaturedVideo({ url }: { url: string }) {
           ref={ref}
           className="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-black aspect-video"
         >
-          <iframe
-            src={src}
-            title="Featured Video"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 w-full h-full"
-          />
+          {inView ? (
+            <iframe
+              src={src}
+              title="Featured Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            </div>
+          )}
         </div>
       </div>
     </section>
