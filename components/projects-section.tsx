@@ -87,6 +87,16 @@ function RollingNumber({ value, suffix = "+" }: { value: number; suffix?: string
 
 export function ProjectsSection() {
   const [activeTab, setActiveTab] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const scroll = (dir: "left" | "right") => {
+    if (!scrollRef.current) return
+    const amount = 280
+    scrollRef.current.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    })
+  }
 
   return (
     <>
@@ -158,12 +168,14 @@ export function ProjectsSection() {
             <div className="hidden md:flex items-center gap-2">
               <button
                 type="button" aria-label="Previous"
+                onClick={() => scroll("left")}
                 className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
               >
                 <ArrowRight className="h-4 w-4 rotate-180" />
               </button>
               <button
                 type="button" aria-label="Next"
+                onClick={() => scroll("right")}
                 className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
               >
                 <ArrowRight className="h-4 w-4" />
@@ -196,6 +208,7 @@ export function ProjectsSection() {
           <div className="relative">
             <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             <div
+              ref={scrollRef}
               className="flex gap-5 overflow-x-auto pb-4"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
