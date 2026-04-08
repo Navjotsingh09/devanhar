@@ -33,7 +33,7 @@ export function Navbar() {
 
   const isTransparent = isHome && !scrolled && !mobileOpen
   const bgClass = isTransparent
-    ? "bg-transparent"
+    ? "bg-gradient-to-b from-black/50 to-transparent"
     : "bg-white/95 backdrop-blur-md shadow-sm border-b border-black/[0.06]"
   const textClass = isTransparent ? "text-white" : "text-gray-800"
   const textMutedClass = isTransparent
