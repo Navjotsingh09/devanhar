@@ -36,6 +36,10 @@ const ALLERGY_OPTIONS = [
   "Other",
 ]
 
+const ALLOWED_ID_EXTENSIONS = ["jpg", "jpeg", "png", "pdf"]
+const MAX_ID_UPLOAD_BYTES = 4 * 1024 * 1024
+const MAX_ID_UPLOAD_MB = 4
+
 interface CampApplicationFormProps {
   initiativeSlug?: string
   onClose: () => void
@@ -188,6 +192,18 @@ export function CampApplicationForm({
   const handleIdUpload = async (file: File | null) => {
     if (!file) return
     setIdUploadError("")
+
+    const fileExt = file.name.split(".").pop()?.toLowerCase() || ""
+    if (!ALLOWED_ID_EXTENSIONS.includes(fileExt)) {
+      setIdUploadError("Unsupported file type. Allowed formats: JPG, JPEG, PNG, PDF.")
+      return
+    }
+
+    if (file.size > MAX_ID_UPLOAD_BYTES) {
+      setIdUploadError(`File is too large. Maximum allowed size is ${MAX_ID_UPLOAD_MB}MB.`)
+      return
+    }
+
     setUploadingId(true)
 
     try {
@@ -199,6 +215,12 @@ export function CampApplicationForm({
         method: "POST",
         body: data,
       })
+
+      if (res.status === 413) {
+        setIdUploadError(`File is too large. Maximum allowed size is ${MAX_ID_UPLOAD_MB}MB. Allowed formats: JPG, JPEG, PNG, PDF.`)
+        return
+      }
+
       let json = null
       try {
         json = await res.json()
@@ -465,6 +487,9 @@ export function CampApplicationForm({
                   accept=".jpg,.jpeg,.png,.pdf"
                   onChange={e => handleIdUpload(e.target.files?.[0] || null)}
                 />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Allowed formats: JPG, JPEG, PNG, PDF. Maximum file size: {MAX_ID_UPLOAD_MB}MB.
+                </p>
                 {uploadingId && (
                   <p className="text-xs text-muted-foreground mt-2">Uploading document...</p>
                 )}
