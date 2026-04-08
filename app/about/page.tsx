@@ -74,15 +74,15 @@ export default async function AboutPage() {
                   experiences and confidence to grow academically, professionally
                   and spiritually.
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <DonateButton
                     source="about-hero"
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base w-full sm:w-auto"
                   />
                   <Button
                     asChild
                     variant="outline"
-                    className="bg-transparent rounded-full px-8 py-6 text-base border-foreground/20 hover:bg-foreground/5"
+                    className="bg-transparent rounded-full px-8 py-6 text-base border-foreground/20 hover:bg-foreground/5 w-full sm:w-auto"
                   >
                     <Link href="/#about">Our Initiatives</Link>
                   </Button>
@@ -259,15 +259,15 @@ export default async function AboutPage() {
               support our work through donations, there are many ways to get
               involved with Devanhaar.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-sm sm:max-w-none mx-auto">
               <DonateButton
                 source="about-cta-banner"
-                className="bg-white text-[#1a1f2e] hover:bg-white/90 rounded-full px-8 py-6 text-base"
+                className="bg-white text-[#1a1f2e] hover:bg-white/90 rounded-full px-8 py-6 text-base w-full sm:w-auto"
               />
               <Button
                 asChild
                 variant="outline"
-                className="bg-transparent border-white/20 text-white hover:bg-white/10 rounded-full px-8 py-6 text-base"
+                className="bg-transparent border-white/20 text-white hover:bg-white/10 rounded-full px-8 py-6 text-base w-full sm:w-auto"
               >
                 <Link href="/#contact">
                   Get in Touch
