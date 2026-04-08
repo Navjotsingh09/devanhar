@@ -79,10 +79,10 @@ export function Navbar() {
               ))}
             </div>
 
-            <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <button
                 onClick={openDrawer}
-                className={`relative p-2 rounded-full transition-colors ${
+                className={`hidden md:block relative p-2 rounded-full transition-colors ${
                   isTransparent
                     ? "text-white hover:bg-white/10"
                     : "text-gray-600 hover:bg-gray-100"
@@ -98,7 +98,7 @@ export function Navbar() {
               </button>
               <DonateButton
                 source="navbar"
-                className={`rounded-full px-6 py-2 text-sm font-semibold ${
+                className={`rounded-full px-4 py-1.5 md:px-6 md:py-2 text-xs md:text-sm font-semibold ${
                   isTransparent
                     ? "bg-white text-black hover:bg-white/90"
                     : "bg-primary text-primary-foreground hover:bg-primary/90"

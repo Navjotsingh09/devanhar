@@ -38,7 +38,7 @@ export function CTABanner({
         >
           {description}
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full max-w-sm sm:max-w-none mx-auto">
           <Button
             asChild
             size="lg"
