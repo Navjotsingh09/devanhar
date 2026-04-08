@@ -149,15 +149,6 @@ export function InitiativePageLayout({
       {/* Hero Section */}
       <section className="relative pt-32 pb-0 overflow-hidden">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="mb-8">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
-          </div>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">
