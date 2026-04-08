@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Expand, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -62,6 +62,26 @@ export function InitiativePageLayout({
   additionalSections,
 }: InitiativePageProps) {
   const [showCampForm, setShowCampForm] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  // Keyboard navigation for lightbox
+  const handleLightboxKey = useCallback((e: KeyboardEvent) => {
+    if (lightboxIndex === null || !galleryImages) return
+    if (e.key === 'Escape') setLightboxIndex(null)
+    if (e.key === 'ArrowLeft') setLightboxIndex((prev) => prev !== null && galleryImages ? (prev - 1 + galleryImages.length) % galleryImages.length : null)
+    if (e.key === 'ArrowRight') setLightboxIndex((prev) => prev !== null && galleryImages ? (prev + 1) % galleryImages.length : null)
+  }, [lightboxIndex, galleryImages])
+
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.addEventListener('keydown', handleLightboxKey)
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.removeEventListener('keydown', handleLightboxKey)
+        document.body.style.overflow = ''
+      }
+    }
+  }, [lightboxIndex, handleLightboxKey])
+
   const isSinghsCamp = title.trim().toLowerCase() === "singhs camp"
   const effectiveCtaClick = onCtaClick ?? (isSinghsCamp ? () => setShowCampForm(true) : undefined)
 
@@ -178,18 +198,71 @@ export function InitiativePageLayout({
               {galleryImages.map((img, i) => (
                 <div
                   key={i}
-                  className="relative aspect-[4/3] rounded-xl overflow-hidden"
+                  className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer"
+                  onClick={() => setLightboxIndex(i)}
                 >
                   <img
                     src={img || "/placeholder.svg"}
                     alt={`${title} gallery ${i + 1}`}
-                    className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                    <Expand className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
+      )}
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && galleryImages && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white transition-colors z-10"
+            aria-label="Close lightbox"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          {galleryImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxIndex((lightboxIndex - 1 + galleryImages.length) % galleryImages.length)
+                }}
+                className="absolute left-4 p-2 text-white/80 hover:text-white transition-colors z-10"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxIndex((lightboxIndex + 1) % galleryImages.length)
+                }}
+                className="absolute right-4 p-2 text-white/80 hover:text-white transition-colors z-10"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-8 h-8" />
+              </button>
+            </>
+          )}
+          <img
+            src={galleryImages[lightboxIndex]}
+            alt={`${title} gallery ${lightboxIndex + 1}`}
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <div className="absolute bottom-4 text-white/60 text-sm">
+            {lightboxIndex + 1} / {galleryImages.length}
+          </div>
+        </div>
       )}
 
       {/* Additional Sections (custom per page) */}
