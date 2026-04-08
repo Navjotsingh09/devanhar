@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
       'heard_about_camp', 'first_residential_camp', 'been_to_singhs_camp_before',
       'sikhi_knowledge_level', 'takeaway_from_camp',
     ]
-    const missing = required.filter((field) => !body[field] && body[field] !== false)
+    const missing = required.filter((field) => {
+      const value = body[field]
+      if (typeof value === 'string') return value.trim().length === 0
+      return !value && value !== false
+    })
     if (missing.length > 0) {
       return NextResponse.json({ error: `Missing required fields: ${missing.join(', ')}` }, { status: 400 })
     }

@@ -131,27 +131,28 @@ export function CampApplicationForm({
   }
 
   const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email.trim())
+  const hasValue = (value: string): boolean => value.trim().length > 0
 
   const hasRequiredSubmissionFields = (): boolean => {
     return !!(
-      form.first_name &&
-      form.last_name &&
-      form.email &&
+      hasValue(form.first_name) &&
+      hasValue(form.last_name) &&
+      hasValue(form.email) &&
       isValidEmail(form.email) &&
-      form.date_of_birth &&
-      form.phone &&
-      form.address_line_1 &&
-      form.city &&
-      form.postcode &&
-      form.country &&
-      form.emergency_contact_name &&
-      form.emergency_contact_relationship &&
-      form.emergency_contact_phone &&
-      form.heard_about_camp &&
-      form.first_residential_camp &&
-      form.been_to_singhs_camp_before &&
-      form.sikhi_knowledge_level &&
-      form.takeaway_from_camp
+      hasValue(form.date_of_birth) &&
+      hasValue(form.phone) &&
+      hasValue(form.address_line_1) &&
+      hasValue(form.city) &&
+      hasValue(form.postcode) &&
+      hasValue(form.country) &&
+      hasValue(form.emergency_contact_name) &&
+      hasValue(form.emergency_contact_relationship) &&
+      hasValue(form.emergency_contact_phone) &&
+      hasValue(form.heard_about_camp) &&
+      hasValue(form.first_residential_camp) &&
+      hasValue(form.been_to_singhs_camp_before) &&
+      hasValue(form.sikhi_knowledge_level) &&
+      hasValue(form.takeaway_from_camp)
     )
   }
 
