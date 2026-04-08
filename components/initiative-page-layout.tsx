@@ -8,6 +8,7 @@ import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { CampApplicationForm } from "@/components/camp-application-form"
 import { ScrollAnimations } from "@/components/scroll-animations"
+import { FAQSection } from "@/components/faq-section"
 
 interface FAQ {
   question: string
@@ -321,25 +322,7 @@ export function InitiativePageLayout({
 
       {/* FAQs */}
       {faqs && faqs.length > 0 && (
-        <section className="py-16 lg:py-24 bg-[#f8f8f8]">
-          <div className="container mx-auto px-6 lg:px-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
-              Frequently Asked Questions
-            </h2>
-            <div className="max-w-3xl flex flex-col gap-8">
-              {faqs.map((faq, i) => (
-                <div key={i}>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">
-                    {faq.question}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <FAQSection items={faqs} />
       )}
 
       {/* Testimonials */}

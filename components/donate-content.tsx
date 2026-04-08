@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, ChevronDown, Loader2, MessageCircle } from "lucide-react"
+import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, Loader2, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { FAQSection } from "@/components/faq-section"
 
 const presetAmounts = [10, 25, 50, 100, 250]
 
@@ -41,7 +42,6 @@ export function DonateContent() {
   const [giftAid, setGiftAid] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -519,44 +519,7 @@ export function DonateContent() {
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-muted/30">
-        <div className="container mx-auto px-6 lg:px-12 py-20 md:py-28">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12" data-animate>
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-500 mb-4">Questions</p>
-              <h2 className="text-3xl md:text-4xl font-light text-foreground tracking-tight">Frequently Asked Questions</h2>
-            </div>
-
-            <div className="space-y-3" data-animate>
-              {faqs.map((faq, idx) => (
-                <div
-                  key={idx}
-                  className="bg-background rounded-xl border border-border overflow-hidden"
-                >
-                  <button
-                    onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left"
-                  >
-                    <span className="font-medium text-foreground pr-4">{faq.q}</span>
-                    <ChevronDown
-                      className={`w-5 h-5 text-muted-foreground transition-transform duration-300 flex-shrink-0 ${
-                        expandedFaq === idx ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      expandedFaq === idx ? "max-h-48" : "max-h-0"
-                    }`}
-                  >
-                    <p className="px-6 pb-5 text-muted-foreground leading-relaxed">{faq.a}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <FAQSection items={faqs} />
 
       {/* Trust Strip */}
       <section className="bg-[#0d1120] text-white">
