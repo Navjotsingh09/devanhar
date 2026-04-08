@@ -235,6 +235,8 @@ export async function POST(request: NextRequest) {
     // Create Stripe Checkout session
     try {
       const stripe = getStripeClient()
+      const initiativePath = `/initiatives/${body.initiative_slug || 'singhs-camp'}`
+      const returnTo = encodeURIComponent(initiativePath)
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
         payment_method_types: ['card'],
@@ -256,8 +258,8 @@ export async function POST(request: NextRequest) {
           },
         ],
         metadata: { camp_application_id: data.id },
-        success_url: `${siteUrl}/initiatives/singhs-camp?payment=success`,
-        cancel_url: `${siteUrl}/initiatives/singhs-camp?payment=cancelled`,
+        success_url: `${siteUrl}${initiativePath}?payment=success`,
+        cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}`,
       })
 
       return NextResponse.json({ success: true, payment_mode: 'stripe', checkout_url: session.url }, { status: 201 })
