@@ -69,12 +69,12 @@ const initiatives = [
 
 export function PlatformSection() {
   return (
-    <section id="initiatives" className="pt-0 pb-24 md:pt-0 md:pb-32 bg-background">
+    <section id="initiatives" className="pt-0 pb-16 md:pt-0 md:pb-32 bg-background">
       <div className="container mx-auto px-6 lg:px-12">
-        <div data-animate className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+        <div data-animate className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-start">
           {/* Left: Dark card - STICKY */}
           <div className="lg:col-span-5 self-start lg:sticky lg:top-28">
-            <div className="relative rounded-2xl overflow-hidden bg-[#1a1d2e] text-white min-h-[32rem] flex flex-col justify-between">
+            <div className="relative rounded-2xl overflow-hidden bg-[#1a1d2e] text-white min-h-[24rem] md:min-h-[32rem] flex flex-col justify-between">
               {/* Background image overlay */}
               <div className="absolute inset-0">
                 <img
@@ -125,7 +125,7 @@ export function PlatformSection() {
                 <Link
                   key={item.title}
                   href={item.href}
-                  className="group flex items-start gap-5 py-10 first:pt-0 last:pb-0 hover:opacity-80 transition-opacity"
+                  className="group flex items-start gap-4 md:gap-5 py-6 md:py-10 first:pt-0 last:pb-0 hover:opacity-80 transition-opacity"
                 >
                   <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mt-1">
                     {item.icon}
