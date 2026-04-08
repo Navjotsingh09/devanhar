@@ -200,19 +200,14 @@ export default function OurStoryNarrative() {
               />
               {/* Year label - always visible */}
               <div
-                className="absolute z-[2] flex items-center gap-3 transition-all duration-500"
+                className="absolute z-[2] flex items-center gap-3 transition-all duration-500 left-6"
                 style={{
-                  top: isActive ? "auto" : "50%",
-                  bottom: isActive ? "auto" : "auto",
-                  left: "50%",
-                  transform: isActive ? "translate(-50%, 0)" : "translate(-50%, -50%)",
-                  ...(isActive ? { top: "30%" } : {}),
+                  top: "50%",
+                  transform: "translateY(-50%)",
                 }}
               >
-                <div className="border-t border-b border-white/60 py-2 px-4">
-                  <p className="text-2xl font-bold tracking-wider">{m.year}</p>
-                </div>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">{m.theme}</p>
+                <p className="text-2xl font-bold tracking-wider">{m.year}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-white/50">{m.theme}</p>
               </div>
               {/* Content - revealed on tap */}
               <div
