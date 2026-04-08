@@ -13,6 +13,7 @@ export function SinghsCampContent() {
         title="Singhs Camp"
         tagline="A residential camp experience for young Singhs"
         heroImage="/initiatives/singhs-camp-top.jpg"
+        featuredVideoUrl="https://www.youtube.com/embed/SJLmqSh-L8I"
         ctaText="Apply Now"
         onCtaClick={() => setShowForm(true)}
         description={[

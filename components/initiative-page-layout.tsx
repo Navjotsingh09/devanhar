@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { ArrowLeft, Expand, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowLeft, Expand, X, ChevronLeft, ChevronRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -43,6 +43,7 @@ interface InitiativePageProps {
   onCtaClick?: () => void
   ctaHref?: string
   galleryImages?: string[]
+  featuredVideoUrl?: string
   additionalSections?: React.ReactNode
 }
 
@@ -59,6 +60,7 @@ export function InitiativePageLayout({
   ctaHref,
   onCtaClick,
   galleryImages,
+  featuredVideoUrl,
   additionalSections,
 }: InitiativePageProps) {
   const [showCampForm, setShowCampForm] = useState(false)
@@ -155,6 +157,23 @@ export function InitiativePageLayout({
           </div>
         </div>
       </section>
+
+      {/* Featured Video */}
+      {featuredVideoUrl && (
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="relative w-full max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black aspect-video">
+              <iframe
+                src={featuredVideoUrl}
+                title="Featured Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Highlights */}
       {highlights && highlights.length > 0 && (
