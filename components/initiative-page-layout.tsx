@@ -70,7 +70,10 @@ function FeaturedVideo({ url }: { url: string }) {
   }, [])
 
   const separator = url.includes("?") ? "&" : "?"
-  const src = inView ? `${url}${separator}autoplay=1&mute=1&rel=0&modestbranding=1` : `${url}${separator}rel=0&modestbranding=1`
+  const nocookieUrl = url.replace("www.youtube.com", "www.youtube-nocookie.com")
+  const videoId = url.split("/embed/")[1]?.split("?")[0] || ""
+  const baseParams = `rel=0&modestbranding=1&loop=1&playlist=${videoId}`
+  const src = inView ? `${nocookieUrl}${separator}autoplay=1&mute=1&${baseParams}` : `${nocookieUrl}${separator}${baseParams}`
 
   return (
     <section className="py-8 lg:py-12">
