@@ -334,6 +334,7 @@ export function CampApplicationForm({
                 <ul className="text-sm text-amber-700 space-y-1 list-disc pl-4">
                   <li>You must be aged 16 or over to attend.</li>
                   <li>Payment is normally taken online after submission; if online checkout is unavailable, the team will contact you directly.</li>
+                  <li>Payment authorisation does not confirm your seat. Your application is reviewed first, and your place is only confirmed after approval.</li>
                   <li>Places are limited and allocated on a first-come basis.</li>
                   <li>Please ensure all details are accurate before submitting.</li>
                 </ul>
