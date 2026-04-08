@@ -130,9 +130,6 @@ export function ProjectsSection() {
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                         {p.metricLabel}
                       </p>
-                      <p className="text-sm font-semibold text-foreground">
-                        <RollingNumber value={p.numericValue} />
-                      </p>
                     </div>
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
