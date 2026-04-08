@@ -120,14 +120,26 @@ export function CampApplicationForm({
     })
   }
 
-  const isOver18 = (): boolean => {
-    if (!form.date_of_birth) return false
-    const dob = new Date(form.date_of_birth)
+  const calculateAgeFromDob = (dobString: string): number | null => {
+    if (!dobString) return null
+    const dob = new Date(dobString)
+    if (Number.isNaN(dob.getTime())) return null
+
     const today = new Date()
     let age = today.getFullYear() - dob.getFullYear()
-    const m = today.getMonth() - dob.getMonth()
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--
-    return age >= 18
+    const monthDiff = today.getMonth() - dob.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--
+    return age
+  }
+
+  const isOver18 = (): boolean => {
+    const age = calculateAgeFromDob(form.date_of_birth)
+    return age !== null && age >= 18
+  }
+
+  const isAtLeast16 = (): boolean => {
+    const age = calculateAgeFromDob(form.date_of_birth)
+    return age !== null && age >= 16
   }
 
   const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email.trim())
@@ -167,7 +179,8 @@ export function CampApplicationForm({
           form.email &&
           isValidEmail(form.email) &&
           form.date_of_birth &&
-          form.phone
+          form.phone &&
+          isAtLeast16()
         )
       case 2:
         return !!(form.address_line_1 && form.city && form.postcode && form.country)
@@ -194,6 +207,12 @@ export function CampApplicationForm({
         return
       }
       setError("Please complete all required fields before submitting.")
+      return
+    }
+
+    if (!isAtLeast16()) {
+      setStep(1)
+      setError("You must be at least 16 years old to apply.")
       return
     }
 
@@ -377,13 +396,25 @@ export function CampApplicationForm({
                   <Label htmlFor="date_of_birth">Date of Birth *</Label>
                   <Input id="date_of_birth" type="date"
                     value={form.date_of_birth}
-                    onChange={e => update("date_of_birth", e.target.value)} />
+                    onChange={e => {
+                      const dob = e.target.value
+                      const age = calculateAgeFromDob(dob)
+                      setForm((prev) => ({
+                        ...prev,
+                        date_of_birth: dob,
+                        age_at_camp: age !== null ? String(age) : "",
+                      }))
+                    }} />
+                  {form.date_of_birth && !isAtLeast16() && (
+                    <p className="text-xs text-red-700 mt-2">You must be at least 16 years old to apply.</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="age_at_camp">Age at Camp</Label>
                   <Input id="age_at_camp" type="number" min={16}
                     value={form.age_at_camp}
-                    onChange={e => update("age_at_camp", e.target.value)} />
+                    readOnly
+                    className="bg-muted/50" />
                 </div>
               </div>
               <div>

@@ -55,6 +55,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
+    const dob = new Date(body.date_of_birth)
+    if (Number.isNaN(dob.getTime())) {
+      return NextResponse.json({ error: 'Invalid date of birth' }, { status: 400 })
+    }
+
+    const today = new Date()
+    let age = today.getFullYear() - dob.getFullYear()
+    const monthDiff = today.getMonth() - dob.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age--
+    if (age < 16) {
+      return NextResponse.json({ error: 'You must be at least 16 years old to apply' }, { status: 400 })
+    }
+
     const supabase = getSupabaseAdmin()
     const { data: initiative } = await supabase
       .from('initiatives')
