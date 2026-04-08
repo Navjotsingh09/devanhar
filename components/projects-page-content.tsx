@@ -175,7 +175,7 @@ export function ProjectsPageContent() {
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     unoptimized
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent group-hover:from-black/80 group-hover:via-black/40 transition-all duration-500" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Icon className="w-3.5 h-3.5 text-amber-400" />
@@ -186,13 +186,15 @@ export function ProjectsPageContent() {
                     <h3 className="text-xl md:text-2xl font-light text-white mb-2 tracking-tight">
                       {project.title}
                     </h3>
-                    <p className="text-white/60 text-sm leading-relaxed line-clamp-2">
-                      {project.description}
-                    </p>
-                    <span className="inline-flex items-center gap-1.5 text-white/80 text-xs font-medium mt-3 group-hover:gap-2.5 transition-all">
-                      Explore Initiative
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
+                    <div className="max-h-0 opacity-0 group-hover:max-h-40 group-hover:opacity-100 transition-all duration-500 overflow-hidden">
+                      <p className="text-white/70 text-sm leading-relaxed line-clamp-2">
+                        {project.description}
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 text-white/90 text-xs font-medium mt-3 group-hover:gap-2.5 transition-all">
+                        Explore Initiative
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Link>
