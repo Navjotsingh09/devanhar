@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { ArrowLeft, Expand, X, ChevronLeft, ChevronRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -45,6 +45,50 @@ interface InitiativePageProps {
   galleryImages?: string[]
   featuredVideoUrl?: string
   additionalSections?: React.ReactNode
+}
+
+
+function FeaturedVideo({ url }: { url: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.4 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const separator = url.includes("?") ? "&" : "?"
+  const src = inView ? `${url}${separator}autoplay=1&mute=1` : url
+
+  return (
+    <section className="py-16 lg:py-24">
+      <div className="container mx-auto px-6 lg:px-12">
+        <div
+          ref={ref}
+          className="relative w-full max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black aspect-video"
+        >
+          <iframe
+            src={src}
+            title="Featured Video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 w-full h-full"
+          />
+        </div>
+      </div>
+    </section>
+  )
 }
 
 export function InitiativePageLayout({
@@ -160,19 +204,7 @@ export function InitiativePageLayout({
 
       {/* Featured Video */}
       {featuredVideoUrl && (
-        <section className="py-16 lg:py-24">
-          <div className="container mx-auto px-6 lg:px-12">
-            <div className="relative w-full max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-2xl bg-black aspect-video">
-              <iframe
-                src={featuredVideoUrl}
-                title="Featured Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              />
-            </div>
-          </div>
-        </section>
+        <FeaturedVideo url={featuredVideoUrl} />
       )}
 
       {/* Highlights */}
