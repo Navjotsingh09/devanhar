@@ -33,9 +33,9 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Email</p>
-                    <p className="text-sm font-medium text-foreground">
+                    <a href="mailto:info@devanhaar.com" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                       info@devanhaar.com
-                    </p>
+                    </a>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
