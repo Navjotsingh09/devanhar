@@ -1,5 +1,4 @@
 import { Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
-import Image from "next/image"
 
 const pillars = [
   {
@@ -7,28 +6,24 @@ const pillars = [
     description:
       "Develop skills, character, and foundations for generational success.",
     icon: <Lightbulb className="w-6 h-6" />,
-    image: "/images/pillars/develop.jpg",
   },
   {
     title: "Elevate",
     description:
       "Raise ambition, standards, and impact in every area of life.",
     icon: <TrendingUp className="w-6 h-6" />,
-    image: "/images/pillars/elevate.png",
   },
   {
     title: "Empower",
     description:
       "Provide confidence rooted in identity, values, and self-belief.",
     icon: <Flame className="w-6 h-6" />,
-    image: "/images/pillars/empower.jpg",
   },
   {
     title: "Connect",
     description:
       "Create lifelong relationships centered in community, mentorship, and shared growth.",
     icon: <Handshake className="w-6 h-6" />,
-    image: "/images/pillars/connect.jpg",
   },
 ]
 
@@ -49,26 +44,17 @@ export function PillarsSection() {
           {pillars.map((pillar) => (
             <div
               key={pillar.title}
-              className="group relative rounded-2xl overflow-hidden min-h-[320px] flex flex-col justify-end"
+              className="group relative rounded-2xl border border-border bg-card p-8 hover:border-primary/30 transition-all duration-300"
             >
-              <Image
-                src={pillar.image}
-                alt={pillar.title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              <div className="relative z-10 p-8">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm text-white flex items-center justify-center mb-5">
-                  {pillar.icon}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">
-                  {pillar.title}
-                </h3>
-                <p className="text-white/70 text-[15px] leading-relaxed">
-                  {pillar.description}
-                </p>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
+                {pillar.icon}
               </div>
+              <h3 className="text-xl font-bold text-foreground mb-3">
+                {pillar.title}
+              </h3>
+              <p className="text-foreground/55 text-[15px] leading-relaxed">
+                {pillar.description}
+              </p>
             </div>
           ))}
         </div>
