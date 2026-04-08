@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { Menu, X, ShoppingBag } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { DonateButton } from "@/components/donate-button"
 import { useCart } from "@/components/cart-provider"
 
@@ -21,8 +21,9 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   const isHome = pathname === "/"
-  const { itemCount, openDrawer } = useCart()
+  const { itemCount } = useCart()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -81,13 +82,13 @@ export function Navbar() {
 
             <div className="hidden md:flex items-center gap-3">
               <button
-                onClick={openDrawer}
+                onClick={() => router.push("/shop")}
                 className={`relative p-2 rounded-full transition-colors ${
                   isTransparent
                     ? "text-white hover:bg-white/10"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
-                aria-label="Open cart"
+                aria-label="Go to shop"
               >
                 <ShoppingBag className="w-5 h-5" />
                 {itemCount > 0 && (
@@ -144,7 +145,7 @@ export function Navbar() {
               <button
                 onClick={() => {
                   setMobileOpen(false)
-                  openDrawer()
+                  router.push("/shop")
                 }}
                 className="w-full flex items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
