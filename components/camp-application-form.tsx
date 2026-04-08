@@ -39,6 +39,7 @@ const ALLERGY_OPTIONS = [
 const ALLOWED_ID_EXTENSIONS = ["jpg", "jpeg", "png", "pdf"]
 const MAX_ID_UPLOAD_BYTES = 4 * 1024 * 1024
 const MAX_ID_UPLOAD_MB = 4
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 interface CampApplicationFormProps {
   initiativeSlug?: string
@@ -129,12 +130,44 @@ export function CampApplicationForm({
     return age >= 18
   }
 
+  const isValidEmail = (email: string): boolean => EMAIL_REGEX.test(email.trim())
+
+  const hasRequiredSubmissionFields = (): boolean => {
+    return !!(
+      form.first_name &&
+      form.last_name &&
+      form.email &&
+      isValidEmail(form.email) &&
+      form.date_of_birth &&
+      form.phone &&
+      form.address_line_1 &&
+      form.city &&
+      form.postcode &&
+      form.country &&
+      form.emergency_contact_name &&
+      form.emergency_contact_relationship &&
+      form.emergency_contact_phone &&
+      form.heard_about_camp &&
+      form.first_residential_camp &&
+      form.been_to_singhs_camp_before &&
+      form.sikhi_knowledge_level &&
+      form.takeaway_from_camp
+    )
+  }
+
   const canAdvance = (): boolean => {
     switch (step) {
       case 0:
         return true // Info page, just read
       case 1:
-        return !!(form.first_name && form.last_name && form.email && form.date_of_birth && form.phone)
+        return !!(
+          form.first_name &&
+          form.last_name &&
+          form.email &&
+          isValidEmail(form.email) &&
+          form.date_of_birth &&
+          form.phone
+        )
       case 2:
         return !!(form.address_line_1 && form.city && form.postcode && form.country)
       case 3:
@@ -152,6 +185,17 @@ export function CampApplicationForm({
 
   const handleSubmit = async () => {
     setError("")
+
+    if (!hasRequiredSubmissionFields()) {
+      if (!isValidEmail(form.email)) {
+        setStep(1)
+        setError("Invalid email address")
+        return
+      }
+      setError("Please complete all required fields before submitting.")
+      return
+    }
+
     setSubmitting(true)
     try {
       const res = await fetch("/api/camp-applications", {
@@ -322,6 +366,9 @@ export function CampApplicationForm({
                 <Label htmlFor="email">Email *</Label>
                 <Input id="email" type="email" value={form.email}
                   onChange={e => update("email", e.target.value)} />
+                {form.email.trim() && !isValidEmail(form.email) && (
+                  <p className="text-xs text-red-700 mt-2">Invalid email address</p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -693,7 +740,7 @@ export function CampApplicationForm({
                 Next <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={submitting || !canAdvance()}>
+              <Button onClick={handleSubmit} disabled={submitting || !hasRequiredSubmissionFields()}>
                 {submitting ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
                 ) : (
