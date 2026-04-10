@@ -220,7 +220,7 @@ export function DonateContent() {
 
             {/* Card 4: About Us */}
             <Link href="/about" data-card className="col-span-2 md:col-span-2 lg:col-span-3 row-span-2 rounded-3xl overflow-hidden relative min-h-[320px] md:min-h-[400px] group cursor-pointer hover:shadow-xl transition-all duration-500">
-              <Image src="/community-event.jpg" alt="Our Community" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Image src="/images/about-empowering-grow.jpg" alt="Our Community" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">About Us</span>
               <div className="absolute bottom-6 left-5 right-5 flex items-center justify-between">
