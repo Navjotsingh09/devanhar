@@ -108,14 +108,7 @@ export function DonateContent() {
             <p className="text-base md:text-lg text-gray-500 leading-relaxed max-w-xl mx-auto mb-8">
               Empowering young Sikhs across the UK through education, camps, and community &mdash; your generosity makes it all possible.
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <Link
-                href="#donate-form"
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1a1f2e] text-white rounded-full text-sm font-medium hover:bg-[#252a3a] transition-all duration-300 hover:shadow-lg hover:shadow-[#1a1f2e]/20 hover:-translate-y-0.5"
-              >
-                Donate now
-              </Link>
-            </div>
+
           </div>
 
           {/* Donation Form */}
