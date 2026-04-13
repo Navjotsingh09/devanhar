@@ -11,7 +11,7 @@ export default function SikhProfessionalNetworkPage() {
     <InitiativePageLayout
       title="Sikh Professional Network"
       tagline="Connecting Sikh professionals through mentorship, opportunity, and shared growth."
-      heroImage="https://placehold.co/1200x800/1a1a2e/e0e0e0.png?text=SPN+Hero"
+      heroImage="/initiatives/spn-1.png"
       ctaText="Connect With Us"
       ctaHref="/contact"
       slug="sikh-professional-network"
@@ -44,9 +44,9 @@ export default function SikhProfessionalNetworkPage() {
         },
       ]}
       galleryImages={[
-        "https://placehold.co/900x600/1a1a2e/e0e0e0.png?text=SPN+Networking",
-        "https://placehold.co/900x600/1a1a2e/e0e0e0.png?text=SPN+Workshop",
-        "https://placehold.co/900x600/1a1a2e/e0e0e0.png?text=SPN+Collaboration",
+        "/initiatives/spn-1.png",
+        "/initiatives/spn-2.jpeg",
+        "/initiatives/spn-3.png",
       ]}
     />
   )
