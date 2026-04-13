@@ -44,6 +44,7 @@ interface CampApplicationData {
   consent_sms?: string | null
   consent_whatsapp?: string | null
   id_document_url?: string | null
+  id_document_type?: string | null
   status: string
   payment_mode: string
 }

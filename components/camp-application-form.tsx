@@ -14,6 +14,20 @@ import {
 } from "@/components/ui/select"
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, X } from "lucide-react"
 
+const ID_DOCUMENT_TYPES_ADULT = [
+  { value: "passport", label: "Passport" },
+  { value: "driving-licence", label: "Driving Licence" },
+]
+
+const ID_DOCUMENT_TYPES_MINOR = [
+  { value: "passport", label: "Passport" },
+  { value: "driving-licence", label: "Driving Licence" },
+  { value: "provisional", label: "Young Persons Provisional Licence" },
+  { value: "school-id", label: "School / College ID Card" },
+  { value: "birth-certificate", label: "Birth Certificate" },
+  { value: "parent-guardian-id", label: "Parent/Guardian ID + Consent Letter" },
+]
+
 const STEPS = [
   "Important Information",
   "Your Details",
@@ -101,6 +115,7 @@ export function CampApplicationForm({
     consent_phone: "yes",
     consent_sms: "yes",
     id_document_url: "",
+    id_document_type: "",
     consent_whatsapp: "yes",
     payment_support_details: "",
     own_transport_type: "",
@@ -166,6 +181,8 @@ export function CampApplicationForm({
       hasValue(form.emergency_contact_name) &&
       hasValue(form.emergency_contact_relationship) &&
       hasValue(form.emergency_contact_phone) &&
+      hasValue(form.id_document_url) &&
+      hasValue(form.id_document_type) &&
       hasValue(form.heard_about_camp) &&
       hasValue(form.first_residential_camp) &&
       hasValue(form.been_to_singhs_camp_before) &&
@@ -209,7 +226,9 @@ export function CampApplicationForm({
           isValidName(form.emergency_contact_name) &&
           hasMinLength(form.emergency_contact_relationship, 2) &&
           form.emergency_contact_phone &&
-          isValidPhone(form.emergency_contact_phone)
+          isValidPhone(form.emergency_contact_phone) &&
+          hasValue(form.id_document_type) &&
+          hasValue(form.id_document_url)
         )
       case 4:
         return true
@@ -605,26 +624,66 @@ export function CampApplicationForm({
                   onChange={e => update("medical_requirements", e.target.value)} />
               </div>
               <div>
-                <Label htmlFor="id_document">Passport or Driving Licence (optional)</Label>
-                <Input
-                  id="id_document"
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={e => handleIdUpload(e.target.files?.[0] || null)}
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Allowed formats: JPG, JPEG, PNG, PDF. Maximum file size: {MAX_ID_UPLOAD_MB}MB.
-                </p>
-                {uploadingId && (
-                  <p className="text-xs text-muted-foreground mt-2">Uploading document...</p>
+                <Label htmlFor="id_document_type">Photo ID Document Type *</Label>
+                <select
+                  id="id_document_type"
+                  className="w-full border rounded-md px-3 py-2"
+                  value={form.id_document_type}
+                  onChange={e => {
+                    update("id_document_type", e.target.value)
+                    // Reset upload if document type changes after upload
+                    if (form.id_document_url) {
+                      update("id_document_url", "")
+                    }
+                  }}>
+                  <option value="">Select document type...</option>
+                  {(isOver18() ? ID_DOCUMENT_TYPES_ADULT : ID_DOCUMENT_TYPES_MINOR).map((dt) => (
+                    <option key={dt.value} value={dt.value}>{dt.label}</option>
+                  ))}
+                </select>
+                {form.id_document_type === "parent-guardian-id" && (
+                  <p className="text-xs text-blue-700 mt-1">
+                    Please upload your parent or guardian's ID document. A consent letter must also be provided.
+                  </p>
                 )}
-                {!uploadingId && form.id_document_url && (
-                  <p className="text-xs text-green-700 mt-2">Document uploaded successfully.</p>
-                )}
-                {idUploadError && (
-                  <p className="text-xs text-red-700 mt-2">{idUploadError}</p>
+                {form.id_document_type === "birth-certificate" && (
+                  <p className="text-xs text-blue-700 mt-1">
+                    Please upload a clear photo or scan of your birth certificate.
+                  </p>
                 )}
               </div>
+              {form.id_document_type && (
+                <div>
+                  <Label htmlFor="id_document">Upload Document *</Label>
+                  <Input
+                    id="id_document"
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    onChange={e => handleIdUpload(e.target.files?.[0] || null)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Allowed formats: JPG, JPEG, PNG, PDF. Maximum file size: {MAX_ID_UPLOAD_MB}MB.
+                  </p>
+                  {uploadingId && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">Uploading document...</p>
+                    </div>
+                  )}
+                  {!uploadingId && form.id_document_url && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <p className="text-xs text-green-700">Document uploaded successfully. It will be reviewed by the team.</p>
+                    </div>
+                  )}
+                  {idUploadError && (
+                    <p className="text-xs text-red-700 mt-2">{idUploadError}</p>
+                  )}
+                  {!form.id_document_url && !uploadingId && !idUploadError && (
+                    <p className="text-xs text-red-700 mt-2">A valid ID document is required to proceed.</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {step === 4 && (

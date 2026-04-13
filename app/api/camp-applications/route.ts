@@ -31,6 +31,10 @@ function getStripeClient() {
   return new Stripe(stripeSecretKey)
 }
 
+function normalizePhone(phone: string): string {
+  return phone.replace(/[^0-9+]/g, '')
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -40,6 +44,7 @@ export async function POST(request: NextRequest) {
       'emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_phone',
       'heard_about_camp', 'first_residential_camp', 'been_to_singhs_camp_before',
       'sikhi_knowledge_level', 'takeaway_from_camp',
+      'id_document_url', 'id_document_type',
     ]
     const missing = required.filter((field) => {
       const value = body[field]
@@ -74,6 +79,26 @@ export async function POST(request: NextRequest) {
       .select('id')
       .eq('slug', body.initiative_slug || 'singhs-camp')
       .maybeSingle()
+
+    // Duplicate phone check (scoped to same initiative)
+    const phoneNormalized = normalizePhone(body.phone)
+    if (phoneNormalized.length >= 7) {
+      const dupeQuery = supabase
+        .from('camp_applications')
+        .select('id')
+        .eq('phone_normalized', phoneNormalized)
+        .not('status', 'in', '("rejected","cancelled")')
+      if (initiative?.id) {
+        dupeQuery.eq('initiative_id', initiative.id)
+      }
+      const { data: existingApp } = await dupeQuery.maybeSingle()
+      if (existingApp) {
+        return NextResponse.json(
+          { error: 'This phone number has already been used for a Singhs Camp application. If you believe this is an error, please contact the team.' },
+          { status: 409 }
+        )
+      }
+    }
 
     const payload = {
       initiative_id: initiative?.id || null,
@@ -116,7 +141,14 @@ export async function POST(request: NextRequest) {
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
+      consent_whatsapp: body.consent_whatsapp === 'yes',
       id_document_url: body.id_document_url || null,
+      id_document_type: body.id_document_type || null,
+      phone_normalized: phoneNormalized,
+      allergies: Array.isArray(body.allergies) ? body.allergies.join(', ') : (body.allergies || null),
+      carries_epipen: body.carries_epipen === 'yes' ? true : body.carries_epipen === 'no' ? false : null,
+      own_transport_type: body.own_transport_type || null,
+      payment_support_details: body.payment_support_details?.trim() || null,
       status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
     }
 
@@ -128,6 +160,13 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[Camp Application] Supabase insert error:', error)
+      // Handle unique constraint violation on phone_normalized + initiative_id
+      if (error.code === '23505' && error.message?.includes('phone')) {
+        return NextResponse.json(
+          { error: 'This phone number has already been used for a Singhs Camp application. If you believe this is an error, please contact the team.' },
+          { status: 409 }
+        )
+      }
       return NextResponse.json({ error: 'Failed to submit application. Please try again.' }, { status: 500 })
     }
     await supabase.from('activity_log').insert({
@@ -208,6 +247,7 @@ export async function POST(request: NextRequest) {
       consent_sms: body.consent_sms || null,
       consent_whatsapp: body.consent_whatsapp || null,
       id_document_url: body.id_document_url || null,
+      id_document_type: body.id_document_type || null,
       status: payload.status,
       payment_mode: clickUpPaymentMode,
     }).catch((err) => {
