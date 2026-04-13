@@ -1,29 +1,29 @@
-import { Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
+import Image from "next/image"
 
 const pillars = [
   {
     title: "Develop",
     description:
       "Develop skills, character, and foundations for generational success.",
-    icon: <Lightbulb className="w-6 h-6" />,
+    image: "/images/pillars/develop.jpg",
   },
   {
     title: "Elevate",
     description:
       "Raise ambition, standards, and impact in every area of life.",
-    icon: <TrendingUp className="w-6 h-6" />,
+    image: "/images/pillars/elevate.png",
   },
   {
     title: "Empower",
     description:
       "Provide confidence rooted in identity, values, and self-belief.",
-    icon: <Flame className="w-6 h-6" />,
+    image: "/images/pillars/empower.jpg",
   },
   {
     title: "Connect",
     description:
       "Create lifelong relationships centered in community, mentorship, and shared growth.",
-    icon: <Handshake className="w-6 h-6" />,
+    image: "/images/pillars/connect.jpg",
   },
 ]
 
@@ -46,8 +46,14 @@ export function PillarsSection() {
               key={pillar.title}
               className="group relative rounded-2xl border border-border bg-card p-5 md:p-8 hover:border-primary/30 transition-all duration-300"
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-3 md:mb-5 group-hover:bg-primary/20 transition-colors">
-                {pillar.icon}
+              <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden bg-primary/10 mb-3 md:mb-5 ring-1 ring-primary/10 group-hover:ring-primary/20 transition-colors">
+                <Image
+                  src={pillar.image}
+                  alt={`${pillar.title} pillar`}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
               </div>
               <h3 className="text-base md:text-xl font-bold text-foreground mb-2 md:mb-3">
                 {pillar.title}
