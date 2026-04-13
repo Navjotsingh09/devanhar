@@ -20,6 +20,7 @@ const STEPS = [
   "Your Address",
   "Further Details",
   "Travel & Payment",
+  "BJJ / Wrestling",
   "Additional Questions",
   "Contact Consent",
 ]
@@ -40,6 +41,9 @@ const ALLOWED_ID_EXTENSIONS = ["jpg", "jpeg", "png", "pdf"]
 const MAX_ID_UPLOAD_BYTES = 4 * 1024 * 1024
 const MAX_ID_UPLOAD_MB = 4
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const NAME_REGEX = /^[a-zA-Z\s'\-]{2,50}$/
+const PHONE_REGEX = /^[\d\s\+\-()]{7,20}$/
+const POSTCODE_REGEX = /^[a-zA-Z0-9\s]{3,10}$/
 
 interface CampApplicationFormProps {
   initiativeSlug?: string
@@ -100,6 +104,8 @@ export function CampApplicationForm({
     consent_whatsapp: "yes",
     payment_support_details: "",
     own_transport_type: "",
+    bjj_interest: "",
+    bjj_fought_professionally: "",
     allergies: [] as string[],
     carries_epipen: "",
     other_allergy: "",
@@ -168,29 +174,59 @@ export function CampApplicationForm({
     )
   }
 
+  const isValidName = (name: string): boolean => NAME_REGEX.test(name.trim())
+  const isValidPhone = (phone: string): boolean => PHONE_REGEX.test(phone.trim())
+  const isValidPostcode = (postcode: string): boolean => POSTCODE_REGEX.test(postcode.trim())
+  const hasMinLength = (value: string, min: number): boolean => value.trim().length >= min
+
   const canAdvance = (): boolean => {
     switch (step) {
       case 0:
-        return true // Info page, just read
+        return true
       case 1:
         return !!(
-          form.first_name &&
-          form.last_name &&
+          form.first_name.trim().length >= 2 &&
+          isValidName(form.first_name) &&
+          form.last_name.trim().length >= 2 &&
+          isValidName(form.last_name) &&
           form.email &&
           isValidEmail(form.email) &&
           form.date_of_birth &&
           form.phone &&
+          isValidPhone(form.phone) &&
           isAtLeast16()
         )
       case 2:
-        return !!(form.address_line_1 && form.city && form.postcode && form.country)
+        return !!(
+          hasMinLength(form.address_line_1, 3) &&
+          hasMinLength(form.city, 2) &&
+          form.postcode && isValidPostcode(form.postcode) &&
+          hasMinLength(form.country, 2)
+        )
       case 3:
-        return !!(form.emergency_contact_name && form.emergency_contact_relationship && form.emergency_contact_phone)
+        return !!(
+          hasMinLength(form.emergency_contact_name, 2) &&
+          isValidName(form.emergency_contact_name) &&
+          hasMinLength(form.emergency_contact_relationship, 2) &&
+          form.emergency_contact_phone &&
+          isValidPhone(form.emergency_contact_phone)
+        )
       case 4:
         return true
       case 5:
-        return !!(form.heard_about_camp && form.first_residential_camp && form.been_to_singhs_camp_before && form.sikhi_knowledge_level && form.takeaway_from_camp)
+        return !!(
+          form.bjj_interest &&
+          (form.bjj_interest === "no" || form.bjj_fought_professionally)
+        )
       case 6:
+        return !!(
+          form.heard_about_camp &&
+          form.first_residential_camp &&
+          form.been_to_singhs_camp_before &&
+          form.sikhi_knowledge_level &&
+          hasMinLength(form.takeaway_from_camp, 10)
+        )
+      case 7:
         return true
       default:
         return false
@@ -371,16 +407,22 @@ export function CampApplicationForm({
           )}
           {step === 1 && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="first_name">First Name *</Label>
                   <Input id="first_name" value={form.first_name}
                     onChange={e => update("first_name", e.target.value)} />
+                  {form.first_name.trim().length > 0 && !isValidName(form.first_name) && (
+                    <p className="text-xs text-red-700 mt-1">Letters, spaces, hyphens, and apostrophes only</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="last_name">Last Name *</Label>
                   <Input id="last_name" value={form.last_name}
                     onChange={e => update("last_name", e.target.value)} />
+                  {form.last_name.trim().length > 0 && !isValidName(form.last_name) && (
+                    <p className="text-xs text-red-700 mt-1">Letters, spaces, hyphens, and apostrophes only</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -391,7 +433,7 @@ export function CampApplicationForm({
                   <p className="text-xs text-red-700 mt-2">Invalid email address</p>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date_of_birth">Date of Birth *</Label>
                   <Input id="date_of_birth" type="date"
@@ -421,8 +463,11 @@ export function CampApplicationForm({
                 <Label htmlFor="phone">Phone *</Label>
                 <Input id="phone" type="tel" value={form.phone}
                   onChange={e => update("phone", e.target.value)} />
+                {form.phone.trim().length > 0 && !isValidPhone(form.phone) && (
+                  <p className="text-xs text-red-700 mt-1">Enter a valid phone number</p>
+                )}
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="university">University</Label>
                   <Input id="university" value={form.university}
@@ -453,7 +498,7 @@ export function CampApplicationForm({
                 <Input id="address_line_3" value={form.address_line_3}
                   onChange={e => update("address_line_3", e.target.value)} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="city">City *</Label>
                   <Input id="city" value={form.city}
@@ -480,7 +525,7 @@ export function CampApplicationForm({
                   value={form.emergency_contact_name}
                   onChange={e => update("emergency_contact_name", e.target.value)} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="emergency_contact_relationship">Relationship *</Label>
                   <Input id="emergency_contact_relationship"
@@ -651,6 +696,43 @@ export function CampApplicationForm({
           )}
           {step === 5 && (
             <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  We will be hosting a <strong>BJJ/wrestling competition</strong> during camp, where the final will be taking place in front of the entire camp.
+                </p>
+              </div>
+              <div>
+                <Label>Would you be interested in participating? *</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  If you answer yes, you will be allocated a ranking match during camp.
+                </p>
+                <select
+                  className="w-full border rounded-md px-3 py-2"
+                  value={form.bjj_interest}
+                  onChange={e => update("bjj_interest", e.target.value)}>
+                  <option value="">Select...</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+              {form.bjj_interest === "yes" && (
+                <div>
+                  <Label>Have you ever fought professionally? *</Label>
+                  <select
+                    className="w-full border rounded-md px-3 py-2"
+                    value={form.bjj_fought_professionally}
+                    onChange={e => update("bjj_fought_professionally", e.target.value)}>
+                    <option value="">Select...</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
+
+          {step === 6 && (
+            <div className="space-y-4">
               <div>
                 <Label>How did you hear about camp? *</Label>
                   <select
@@ -669,7 +751,7 @@ export function CampApplicationForm({
                     <option value="other">Other</option>
                   </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>First residential camp? *</Label>
                   <select
@@ -718,11 +800,14 @@ export function CampApplicationForm({
                 <Label>What do you hope to take away from camp? *</Label>
                 <Textarea rows={4} value={form.takeaway_from_camp}
                   onChange={e => update("takeaway_from_camp", e.target.value)} />
+                {form.takeaway_from_camp.trim().length > 0 && form.takeaway_from_camp.trim().length < 10 && (
+                  <p className="text-xs text-red-700 mt-1">Please write at least 10 characters</p>
+                )}
               </div>
             </div>
           )}
 
-          {step === 6 && (
+          {step === 7 && (
             <div className="space-y-4">
               <h3 className="font-semibold">Contact Consent</h3>
               <p className="text-sm text-muted-foreground">

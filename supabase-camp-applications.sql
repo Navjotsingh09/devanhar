@@ -53,6 +53,10 @@ CREATE TABLE IF NOT EXISTS camp_applications (
   sikhi_knowledge_level TEXT,
   takeaway_from_camp TEXT,
 
+  -- BJJ / Wrestling
+  bjj_interest BOOLEAN DEFAULT false,
+  bjj_fought_professionally BOOLEAN DEFAULT false,
+
   -- Contact consent
   consent_email BOOLEAN DEFAULT false,
   consent_phone BOOLEAN DEFAULT false,

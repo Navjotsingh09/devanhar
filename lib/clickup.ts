@@ -37,6 +37,8 @@ interface CampApplicationData {
   previous_camps?: string | null
   sikhi_knowledge_level: string
   takeaway_from_camp: string
+  bjj_interest?: string | null
+  bjj_fought_professionally?: string | null
   consent_email?: string | null
   consent_phone?: string | null
   consent_sms?: string | null
@@ -109,6 +111,11 @@ function buildTaskDescription(app: CampApplicationData): string {
   } else {
     lines.push('- **Requires Payment Support:** No')
   }
+  lines.push('')
+
+  lines.push('### BJJ / Wrestling')
+  lines.push('- **Interested:** ' + (app.bjj_interest || 'not specified'))
+  if (app.bjj_interest === 'yes' && app.bjj_fought_professionally) lines.push('- **Fought Professionally:** ' + app.bjj_fought_professionally)
   lines.push('')
 
   lines.push('### Sikhi & Camp')
