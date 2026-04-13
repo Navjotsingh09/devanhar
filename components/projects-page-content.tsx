@@ -83,7 +83,7 @@ const projects: Project[] = [
   {
     title: "Sikh Professional Network",
     description: "A platform connecting Sikh professionals across industries for mentorship, career development, and collaborative growth.",
-    image: "/initiatives/singhs-camp-top.jpg",
+    image: "/initiatives/spn-1.png",
     href: "/initiatives/sikh-professional-network",
     tag: "Professional",
     icon: Users,
