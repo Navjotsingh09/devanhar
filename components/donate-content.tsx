@@ -103,7 +103,7 @@ export function DonateContent() {
           {/* Main Headline */}
           <div className="max-w-3xl mx-auto text-center mb-10 md:mb-14">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1a1f2e] mb-5 leading-[1.1] tracking-tight">
-              Great futures are built with a small charity
+              Great futures are built with a small donation
             </h1>
             <p className="text-base md:text-lg text-gray-500 leading-relaxed max-w-xl mx-auto mb-8">
               Empowering young Sikhs across the UK through education, camps, and community &mdash; your generosity makes it all possible.
