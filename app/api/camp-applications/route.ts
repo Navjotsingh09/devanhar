@@ -81,22 +81,27 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     // Duplicate phone check (scoped to same initiative)
+    // Wrapped in try/catch — phone_normalized column may not exist until migration is run
     const phoneNormalized = normalizePhone(body.phone)
     if (phoneNormalized.length >= 7) {
-      const dupeQuery = supabase
-        .from('camp_applications')
-        .select('id')
-        .eq('phone_normalized', phoneNormalized)
-        .not('status', 'in', '("rejected","cancelled")')
-      if (initiative?.id) {
-        dupeQuery.eq('initiative_id', initiative.id)
-      }
-      const { data: existingApp } = await dupeQuery.maybeSingle()
-      if (existingApp) {
-        return NextResponse.json(
-          { error: 'This phone number has already been used for a Singhs Camp application. If you believe this is an error, please contact the team.' },
-          { status: 409 }
-        )
+      try {
+        const dupeQuery = supabase
+          .from('camp_applications')
+          .select('id')
+          .eq('phone_normalized', phoneNormalized)
+          .not('status', 'in', '("rejected","cancelled")')
+        if (initiative?.id) {
+          dupeQuery.eq('initiative_id', initiative.id)
+        }
+        const { data: existingApp } = await dupeQuery.maybeSingle()
+        if (existingApp) {
+          return NextResponse.json(
+            { error: 'This phone number has already been used for a Singhs Camp application. If you believe this is an error, please contact the team.' },
+            { status: 409 }
+          )
+        }
+      } catch {
+        // phone_normalized column may not exist yet — skip duplicate check
       }
     }
 
@@ -141,22 +146,38 @@ export async function POST(request: NextRequest) {
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
-      consent_whatsapp: body.consent_whatsapp === 'yes',
       id_document_url: body.id_document_url || null,
+      status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
+    }
+
+    // Extra columns that require the camp-id-verification migration to have been run
+    const migrationColumns = {
+      consent_whatsapp: body.consent_whatsapp === 'yes',
       id_document_type: body.id_document_type || null,
       phone_normalized: phoneNormalized,
       allergies: Array.isArray(body.allergies) ? body.allergies.join(', ') : (body.allergies || null),
       carries_epipen: body.carries_epipen === 'yes' ? true : body.carries_epipen === 'no' ? false : null,
       own_transport_type: body.own_transport_type || null,
       payment_support_details: body.payment_support_details?.trim() || null,
-      status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
     }
 
-    const { data, error } = await supabase
+    // Try with all columns; if migration hasn't run yet, retry with base columns only
+    let insertResult = await supabase
       .from('camp_applications')
-      .insert(payload)
+      .insert({ ...payload, ...migrationColumns })
       .select('id')
       .single()
+
+    if (insertResult.error && insertResult.error.message?.includes('column')) {
+      console.warn('[Camp Application] Migration columns not found, retrying with base columns:', insertResult.error.message)
+      insertResult = await supabase
+        .from('camp_applications')
+        .insert(payload)
+        .select('id')
+        .single()
+    }
+
+    const { data, error } = insertResult
 
     if (error) {
       console.error('[Camp Application] Supabase insert error:', error)
