@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, Loader2, MessageCircle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, Loader2 } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
 const presetAmounts = [10, 25, 50, 100, 250]
 
 const impactItems = [
@@ -23,6 +22,7 @@ export function DonateContent() {
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [paymentStatus, setPaymentStatus] = useState<{ stripeConnected: boolean; nowDonateConnected: boolean } | null>(null)
 
   const effectiveAmount = customAmount ? parseFloat(customAmount) : amount
   const giftAidBonus = giftAid && effectiveAmount ? effectiveAmount * 0.25 : 0
@@ -69,74 +69,35 @@ export function DonateContent() {
     }
   }
 
-
-  // CountUp animation hook
-  const useCountUp = (end: number, duration = 2000, suffix = "") => {
-    const [count, setCount] = useState(0)
-    const [hasStarted, setHasStarted] = useState(false)
-    const ref = useRef<HTMLSpanElement>(null)
-
-    useEffect(() => {
-      if (!ref.current) return
-      const observer = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting && !hasStarted) setHasStarted(true) },
-        { threshold: 0.3 }
-      )
-      observer.observe(ref.current)
-      return () => observer.disconnect()
-    }, [hasStarted])
-
-    useEffect(() => {
-      if (!hasStarted) return
-      let startTime: number
-      const step = (timestamp: number) => {
-        if (!startTime) startTime = timestamp
-        const progress = Math.min((timestamp - startTime) / duration, 1)
-        const eased = 1 - Math.pow(1 - progress, 3)
-        setCount(Math.floor(eased * end))
-        if (progress < 1) requestAnimationFrame(step)
-      }
-      requestAnimationFrame(step)
-    }, [hasStarted, end, duration])
-
-    return { count: count + suffix, ref }
-  }
-
-  // Scroll-triggered card animations
-  const gridRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (!gridRef.current) return
-    const cards = gridRef.current.querySelectorAll("[data-card]")
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry, i) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              ;(entry.target as HTMLElement).style.opacity = "1"
-              ;(entry.target as HTMLElement).style.transform = "translateY(0) scale(1)"
-            }, i * 100)
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    )
-    cards.forEach((card) => {
-      ;(card as HTMLElement).style.opacity = "0"
-      ;(card as HTMLElement).style.transform = "translateY(40px) scale(0.95)"
-      ;(card as HTMLElement).style.transition = "opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)"
-      observer.observe(card)
-    })
-    return () => observer.disconnect()
+    let isMounted = true
+    const loadPaymentStatus = async () => {
+      try {
+        const res = await fetch("/api/payment-status", { cache: "no-store" })
+        if (!res.ok) return
+        const data = await res.json()
+        if (isMounted) {
+          setPaymentStatus({
+            stripeConnected: Boolean(data?.stripeConnected),
+            nowDonateConnected: Boolean(data?.nowDonateConnected),
+          })
+        }
+      } catch {
+        // Keep UI resilient if status endpoint is unavailable.
+      }
+    }
+    loadPaymentStatus()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
-  const stat85 = useCountUp(85, 2000, "%")
-  const stat1000 = useCountUp(1000, 2500, "+")
-  const stat500 = useCountUp(500, 2000, "+")
+
+
 
   return (
     <main className="pt-24 pb-0">
-      {/* Bento Grid Hero */}
+      {/* Hero */}
       <section className="relative overflow-hidden bg-[#f8f8f8]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-20">
           {/* Main Headline */}
@@ -155,79 +116,6 @@ export function DonateContent() {
                 Donate now
               </Link>
             </div>
-          </div>
-
-          {/* Bento Grid */}
-          <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-3 md:gap-4 max-w-6xl mx-auto">
-            {/* Card 1: Stats */}
-            <Link href="#donate-form" data-card className="col-span-2 md:col-span-2 lg:col-span-3 row-span-2 bg-[#1a1f2e] rounded-3xl p-6 flex flex-col justify-between min-h-[320px] md:min-h-[400px] relative overflow-hidden group cursor-pointer hover:shadow-xl hover:shadow-[#1a1f2e]/20 transition-all duration-500">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-colors duration-500" />
-              <div>
-                <span ref={stat85.ref} className="text-5xl md:text-6xl font-bold text-[#F59E0B]">{stat85.count}</span>
-                <p className="text-white/80 text-sm mt-3 leading-relaxed">
-                  Of every pound goes directly to Sikh education, camps, and community initiatives across the UK.
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-6">
-                <span className="text-white text-sm font-medium">Donate now</span>
-                <div className="w-10 h-10 rounded-full bg-[#F59E0B] flex items-center justify-center group-hover:bg-[#FBBF24] transition-all duration-300 group-hover:translate-x-1">
-                  <ArrowRight className="w-4 h-4 text-[#1a1f2e]" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Card 2: Singhs Camp */}
-            <Link href="/initiatives/singhs-camp" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-3xl overflow-hidden relative min-h-[180px] group cursor-pointer hover:shadow-lg transition-all duration-500">
-              <Image src="/images/donate-singhscamp.jpg" alt="Singhs Camp" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">Camps</span>
-              <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-semibold text-sm leading-tight">Singhs Camp for <span ref={stat500.ref} className="tabular-nums">{stat500.count}</span> Youth across the UK</p>
-              </div>
-            </Link>
-
-            {/* Card 3: Join community */}
-            <Link href="#donate-form" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-[#F59E0B] rounded-3xl p-5 flex flex-col justify-between min-h-[180px] group cursor-pointer hover:bg-[#FBBF24] transition-all duration-500 hover:shadow-lg">
-              <p className="text-[#1a1f2e] text-2xl md:text-3xl font-bold leading-tight">Join <span ref={stat1000.ref} className="tabular-nums">{stat1000.count}</span><br />Donors</p>
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-[#1a1f2e]/70 text-sm font-medium">Join community</span>
-                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center group-hover:translate-x-1 transition-transform duration-300">
-                  <ArrowRight className="w-4 h-4 text-[#1a1f2e]" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Card 4: About Us */}
-            <Link href="/about" data-card className="col-span-2 md:col-span-2 lg:col-span-3 row-span-2 rounded-3xl overflow-hidden relative min-h-[320px] md:min-h-[400px] group cursor-pointer hover:shadow-xl transition-all duration-500">
-              <Image src="/images/about-empowering-grow.jpg" alt="Our Community" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">About Us</span>
-              <div className="absolute bottom-6 left-5 right-5 flex items-center justify-between">
-                <span className="text-white text-sm font-medium">Learn more</span>
-                <div className="w-10 h-10 rounded-full bg-[#F59E0B] flex items-center justify-center group-hover:bg-[#FBBF24] transition-all duration-300 group-hover:translate-x-1">
-                  <ArrowRight className="w-4 h-4 text-[#1a1f2e]" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Card 5: Forums */}
-            <Link href="/initiatives/forums" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-[#F59E0B] rounded-3xl p-5 flex flex-col justify-center items-center min-h-[180px] group cursor-pointer hover:bg-[#FBBF24] transition-all duration-500 hover:shadow-lg">
-              <div className="w-12 h-12 rounded-full bg-white/80 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                <MessageCircle className="w-5 h-5 text-[#1a1f2e]" />
-              </div>
-              <p className="text-[#1a1f2e] font-bold text-lg text-center leading-tight">Let them<br />be heard</p>
-            </Link>
-
-            {/* Card 6: Sikhi Vidyala */}
-            <Link href="/initiatives/sikhi-vidyala" data-card className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-3xl overflow-hidden relative min-h-[180px] group cursor-pointer hover:shadow-lg transition-all duration-500">
-              <Image src="/images/donate-sikhi-vidyala.jpg" alt="Sikhi Vidyala" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <span className="absolute top-4 left-4 text-xs font-medium text-white/90 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">Education</span>
-              <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-semibold text-sm leading-tight">Sponsor education for Sikh youth across the UK</p>
-              </div>
-            </Link>
-
           </div>
 
           {/* Donation Form */}
@@ -398,6 +286,19 @@ export function DonateContent() {
                   <Lock className="w-4 h-4" />
                   <span className="text-xs">Secure payment powered by NowDonate™</span>
                 </div>
+                {paymentStatus && (
+                  <div className="flex items-center justify-center">
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                        paymentStatus.stripeConnected
+                          ? "bg-green-100 text-green-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      Stripe connection: {paymentStatus.stripeConnected ? "Connected" : "Not configured"}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Right: Summary */}
