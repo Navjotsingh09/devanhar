@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from "react"
 import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, Loader2, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { FAQSection } from "@/components/faq-section"
-
 const presetAmounts = [10, 25, 50, 100, 250]
 
 const impactItems = [
@@ -14,25 +12,6 @@ const impactItems = [
   { amount: 50, icon: Tent, description: "Supports one young person's camp registration", color: "bg-amber-500" },
   { amount: 100, icon: GraduationCap, description: "Covers travel costs for university outreach talks", color: "bg-purple-500" },
   { amount: 250, icon: Heart, description: "Sponsors an entire family's camp experience", color: "bg-rose-500" },
-]
-
-const faqs = [
-  {
-    q: "How is my donation used?",
-    a: "100% of your donation goes directly to our programmes. We operate with minimal overhead, and all administrative costs are covered separately by our trustees."
-  },
-  {
-    q: "What is Gift Aid?",
-    a: "Gift Aid allows us to claim an extra 25p for every £1 you donate at no extra cost to you. You must be a UK taxpayer and pay Income Tax and/or Capital Gains Tax at least equal to the tax we reclaim."
-  },
-  {
-    q: "Can I set up a regular donation?",
-    a: "Yes! Monthly donations help us plan long-term and sustain our programmes throughout the year. You can cancel anytime."
-  },
-  {
-    q: "Is my donation secure?",
-    a: "Absolutely. All payments are processed through secure, encrypted payment systems. We never store your card details."
-  },
 ]
 
 export function DonateContent() {
@@ -517,9 +496,6 @@ export function DonateContent() {
           </div>
         </div>
       </section>
-
-      {/* FAQ Section */}
-      <FAQSection items={faqs} />
 
       {/* Trust Strip */}
       <section className="bg-[#0d1120] text-white">
