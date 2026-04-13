@@ -106,7 +106,7 @@ export function DonateContent() {
               Great futures are built with a small donation
             </h1>
             <p className="text-base md:text-lg text-gray-500 leading-relaxed max-w-xl mx-auto mb-8">
-              Empowering community initiatives &mdash; your generosity makes it all possible.
+              Empowering community initiatives through education, workshops and mentorship.
             </p>
 
           </div>
