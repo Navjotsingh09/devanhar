@@ -141,8 +141,6 @@ export async function POST(request: NextRequest) {
       been_to_singhs_camp_before: body.been_to_singhs_camp_before === 'yes',
       sikhi_knowledge_level: body.sikhi_knowledge_level,
       takeaway_from_camp: body.takeaway_from_camp.trim(),
-      bjj_interest: body.bjj_interest === 'yes',
-      bjj_fought_professionally: body.bjj_interest === 'yes' && body.bjj_fought_professionally === 'yes',
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
@@ -152,6 +150,8 @@ export async function POST(request: NextRequest) {
 
     // Extra columns that require the camp-id-verification migration to have been run
     const migrationColumns = {
+      bjj_interest: body.bjj_interest === 'yes',
+      bjj_fought_professionally: body.bjj_interest === 'yes' && body.bjj_fought_professionally === 'yes',
       consent_whatsapp: body.consent_whatsapp === 'yes',
       id_document_type: body.id_document_type || null,
       phone_normalized: phoneNormalized,
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single()
 
-    if (insertResult.error && insertResult.error.message?.includes('column')) {
+    if (insertResult.error && (insertResult.error.message?.includes('column') || insertResult.error.message?.includes('schema cache') || insertResult.error.code === 'PGRST204')) {
       console.warn('[Camp Application] Migration columns not found, retrying with base columns:', insertResult.error.message)
       insertResult = await supabase
         .from('camp_applications')

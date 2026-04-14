@@ -12,7 +12,11 @@ ALTER TABLE camp_applications ADD COLUMN IF NOT EXISTS allergies TEXT;
 ALTER TABLE camp_applications ADD COLUMN IF NOT EXISTS carries_epipen BOOLEAN;
 ALTER TABLE camp_applications ADD COLUMN IF NOT EXISTS other_allergy TEXT;
 
--- 5. Add own_transport_type if missing
+-- 5. Add BJJ columns if missing (may not exist if base schema was partially applied)
+ALTER TABLE camp_applications ADD COLUMN IF NOT EXISTS bjj_interest BOOLEAN DEFAULT false;
+ALTER TABLE camp_applications ADD COLUMN IF NOT EXISTS bjj_fought_professionally BOOLEAN DEFAULT false;
+
+-- 6. Add own_transport_type if missing
 ALTER TABLE camp_applications ADD COLUMN IF NOT EXISTS own_transport_type TEXT;
 
 -- 6. Add payment_support_details if missing
