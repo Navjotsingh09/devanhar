@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { sendToClickUp } from '@/lib/clickup'
 import { sendToMailchimp } from '@/lib/mailchimp'
+import { sendCampApplicationOwnerNotification } from '@/lib/camp-application-notifier'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -190,6 +191,23 @@ export async function POST(request: NextRequest) {
       }
       return NextResponse.json({ error: 'Failed to submit application. Please try again.' }, { status: 500 })
     }
+
+    const fullSubmissionPayload: Record<string, unknown> = {
+      ...body,
+      submission_id: data.id,
+      submitted_at: new Date().toISOString(),
+      payment_mode: body.requires_payment_support === 'yes'
+        ? 'support_review'
+        : isStripePaymentModeEnabled() ? 'stripe' : 'deferred',
+    }
+
+    sendCampApplicationOwnerNotification({
+      submissionId: String(data.id),
+      payload: fullSubmissionPayload,
+    }).catch((notifyErr) => {
+      console.error('[Camp Notification] Failed to send owner email (non-blocking):', notifyErr)
+    })
+
     await supabase.from('activity_log').insert({
       action: 'New camp application submitted',
       entity_type: 'camp_application',

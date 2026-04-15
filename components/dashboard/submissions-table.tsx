@@ -27,6 +27,14 @@ interface Submission {
   source_table: 'form_submissions' | 'camp_applications'
 }
 
+function formatFieldValue(value: unknown): string {
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (Array.isArray(value)) return value.join(', ')
+  if (value && typeof value === 'object') return JSON.stringify(value)
+  return String(value)
+}
+
+
 const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   new: 'default',
   in_review: 'secondary',
@@ -217,9 +225,20 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                               <p className="text-sm text-muted-foreground mb-1">Form Data</p>
                               <div className="bg-muted rounded-lg p-3 text-sm">
                                 {Object.entries(sub.form_data).filter(([, v]) => v != null && v !== '' && String(v) !== 'null').map(([key, value]) => (
-                                  <div key={key} className="flex justify-between py-1 border-b border-border last:border-0">
+                                  <div key={key} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3 py-1 border-b border-border last:border-0">
                                     <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                                    <span className="text-foreground font-medium">{typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}</span>
+                                    {key === 'id_document_url' && typeof value === 'string' && /^https?:\/\//i.test(value) ? (
+                                      <a
+                                        href={value}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-foreground font-medium underline break-all sm:text-right"
+                                      >
+                                        {value}
+                                      </a>
+                                    ) : (
+                                      <span className="text-foreground font-medium break-words sm:text-right">{formatFieldValue(value)}</span>
+                                    )}
                                   </div>
                                 ))}
                               </div>

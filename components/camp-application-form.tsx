@@ -51,9 +51,9 @@ const ALLERGY_OPTIONS = [
   "Other",
 ]
 
-const ALLOWED_ID_EXTENSIONS = ["jpg", "jpeg", "png", "pdf"]
-const MAX_ID_UPLOAD_BYTES = 4 * 1024 * 1024
-const MAX_ID_UPLOAD_MB = 4
+const ALLOWED_ID_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "heic", "heif", "pdf"]
+const MAX_ID_UPLOAD_BYTES = 10 * 1024 * 1024
+const MAX_ID_UPLOAD_MB = 10
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const NAME_REGEX = /^[a-zA-Z\s'\-]{2,50}$/
 const PHONE_REGEX = /^[\d\s\+\-()]{7,20}$/
@@ -314,7 +314,7 @@ export function CampApplicationForm({
 
     const fileExt = file.name.split(".").pop()?.toLowerCase() || ""
     if (!ALLOWED_ID_EXTENSIONS.includes(fileExt)) {
-      setIdUploadError("Unsupported file type. Allowed formats: JPG, JPEG, PNG, PDF.")
+      setIdUploadError("Unsupported file type. Allowed formats: JPG, JPEG, PNG, WEBP, HEIC, HEIF, PDF.")
       return
     }
 
@@ -336,7 +336,7 @@ export function CampApplicationForm({
       })
 
       if (res.status === 413) {
-        setIdUploadError(`File is too large. Maximum allowed size is ${MAX_ID_UPLOAD_MB}MB. Allowed formats: JPG, JPEG, PNG, PDF.`)
+        setIdUploadError(`File is too large. Maximum allowed size is ${MAX_ID_UPLOAD_MB}MB. Allowed formats: JPG, JPEG, PNG, WEBP, HEIC, HEIF, PDF.`)
         return
       }
 
@@ -362,8 +362,8 @@ export function CampApplicationForm({
 
   if (submitted) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="bg-background rounded-2xl w-full max-w-lg p-8 text-center relative">
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 sm:p-4">
+        <div className="bg-background rounded-2xl w-full max-w-lg p-8 text-center relative mx-auto my-3 sm:my-6">
           <button onClick={onClose} aria-label="Close"
             className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
@@ -381,8 +381,8 @@ export function CampApplicationForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 sm:p-4">
+      <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto relative mx-auto my-0 sm:my-6">
         <div className="sticky top-0 bg-background z-10 border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
             <h2 className="text-lg font-bold">Singhs Camp Application</h2>
@@ -658,11 +658,11 @@ export function CampApplicationForm({
                   <Input
                     id="id_document"
                     type="file"
-                    accept=".jpg,.jpeg,.png,.pdf"
+                    accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.pdf,image/*"
                     onChange={e => handleIdUpload(e.target.files?.[0] || null)}
                   />
                   <p className="text-xs text-muted-foreground mt-2">
-                    Allowed formats: JPG, JPEG, PNG, PDF. Maximum file size: {MAX_ID_UPLOAD_MB}MB.
+                    Allowed formats: JPG, JPEG, PNG, WEBP, HEIC, HEIF, PDF. Maximum file size: {MAX_ID_UPLOAD_MB}MB.
                   </p>
                   {uploadingId && (
                     <div className="flex items-center gap-2 mt-2">

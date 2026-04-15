@@ -22,6 +22,87 @@ type DashboardSubmission = {
   source_table: 'form_submissions' | 'camp_applications'
 }
 
+function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> {
+  const excludedKeys = new Set([
+    'id',
+    'initiative_id',
+    'created_at',
+    'updated_at',
+    'status',
+    'internal_notes',
+    'initiatives',
+  ])
+
+  const orderedKeys = [
+    'first_name',
+    'last_name',
+    'email',
+    'phone',
+    'date_of_birth',
+    'age_at_camp',
+    'university',
+    'occupation',
+    'address_line_1',
+    'address_line_2',
+    'address_line_3',
+    'city',
+    'postcode',
+    'country',
+    'emergency_contact_name',
+    'emergency_contact_relationship',
+    'emergency_contact_phone',
+    'under_18_consent',
+    'dietary_requirements',
+    'medical_requirements',
+    'allergies',
+    'other_allergy',
+    'carries_epipen',
+    'id_document_type',
+    'id_document_url',
+    'travel_method',
+    'own_transport_type',
+    'requires_payment_support',
+    'payment_support_details',
+    'room_preference',
+    'heard_about_camp',
+    'first_residential_camp',
+    'been_to_singhs_camp_before',
+    'previous_camps',
+    'sikhi_knowledge_level',
+    'takeaway_from_camp',
+    'bjj_interest',
+    'bjj_fought_professionally',
+    'consent_email',
+    'consent_phone',
+    'consent_sms',
+    'consent_whatsapp',
+    'phone_normalized',
+  ]
+
+  const normalizedEntries = Object.entries(c).filter(([key, value]) => {
+    if (excludedKeys.has(key)) return false
+    if (value == null) return false
+    if (typeof value === 'string' && value.trim() === '') return false
+    return true
+  })
+
+  const byKey = new Map(normalizedEntries)
+  const ordered: [string, unknown][] = []
+
+  for (const key of orderedKeys) {
+    if (byKey.has(key)) {
+      ordered.push([key, byKey.get(key)])
+      byKey.delete(key)
+    }
+  }
+
+  for (const entry of byKey.entries()) {
+    ordered.push(entry)
+  }
+
+  return Object.fromEntries(ordered)
+}
+
 async function getSubmissions() {
   const supabase = await createClient()
 
@@ -68,19 +149,7 @@ async function getSubmissions() {
         email: String(c.email ?? ''),
         phone: (c.phone as string | null) ?? null,
         message: `Camp application submitted${c.takeaway_from_camp ? `: ${String(c.takeaway_from_camp)}` : ''}`,
-        form_data: {
-          date_of_birth: c.date_of_birth,
-          age_at_camp: c.age_at_camp,
-          university: c.university,
-          occupation: c.occupation,
-          city: c.city,
-          postcode: c.postcode,
-          country: c.country,
-          travel_method: c.travel_method,
-          requires_payment_support: c.requires_payment_support,
-          heard_about_camp: c.heard_about_camp,
-          sikhi_knowledge_level: c.sikhi_knowledge_level,
-        },
+        form_data: buildCampFormData(c),
         status: String(c.status ?? 'pending'),
         internal_notes: (c.internal_notes as string | null) ?? null,
         created_at: String(c.created_at ?? new Date().toISOString()),
