@@ -9,8 +9,8 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email Us",
-    detail: "info@devanhaar.com",
-    href: "mailto:info@devanhaar.com",
+    detail: "admin@devanhaar.com",
+    href: "mailto:admin@devanhaar.com",
     description: "We aim to respond within 48 hours",
   },
   {
@@ -59,7 +59,7 @@ export function ContactContent() {
 
         if (dbError) throw dbError
       } else {
-        window.location.href = `mailto:info@devanhaar.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
+        window.location.href = `mailto:admin@devanhaar.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
         return
       }
 
@@ -68,7 +68,7 @@ export function ContactContent() {
       setTimeout(() => setSubmitted(false), 5000)
     } catch (err) {
       console.error("Error:", err)
-      window.location.href = `mailto:info@devanhaar.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
+      window.location.href = `mailto:admin@devanhaar.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
     } finally {
       setLoading(false)
     }
