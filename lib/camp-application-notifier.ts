@@ -1,4 +1,4 @@
-const OWNER_NOTIFICATION_EMAIL = process.env.CAMP_OWNER_NOTIFICATION_EMAIL || 'taran.dhillon@devanhaar.com'
+const OWNER_NOTIFICATION_EMAIL = process.env.CAMP_OWNER_NOTIFICATION_EMAIL || 'admin@devanhaar.com'
 
 function formatLabel(key: string): string {
   return key

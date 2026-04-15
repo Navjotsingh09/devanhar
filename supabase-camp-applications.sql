@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS camp_applications (
 
   -- ID upload path (stored in Supabase Storage)
   id_document_url TEXT,
+  id_document_type TEXT,
 
   -- Travel
   travel_method TEXT,
@@ -61,6 +62,10 @@ CREATE TABLE IF NOT EXISTS camp_applications (
   consent_email BOOLEAN DEFAULT false,
   consent_phone BOOLEAN DEFAULT false,
   consent_sms BOOLEAN DEFAULT false,
+  consent_whatsapp BOOLEAN DEFAULT false,
+
+  -- Gift Aid
+  gift_aid BOOLEAN DEFAULT false,
 
   -- Stripe
   stripe_payment_intent_id TEXT,

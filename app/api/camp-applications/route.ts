@@ -146,6 +146,7 @@ export async function POST(request: NextRequest) {
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
       id_document_url: body.id_document_url || null,
+      id_document_type: body.id_document_type || null,
       status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
     }
 
@@ -154,12 +155,12 @@ export async function POST(request: NextRequest) {
       bjj_interest: body.bjj_interest === 'yes',
       bjj_fought_professionally: body.bjj_interest === 'yes' && body.bjj_fought_professionally === 'yes',
       consent_whatsapp: body.consent_whatsapp === 'yes',
-      id_document_type: body.id_document_type || null,
       phone_normalized: phoneNormalized,
       allergies: Array.isArray(body.allergies) ? body.allergies.join(', ') : (body.allergies || null),
       carries_epipen: body.carries_epipen === 'yes' ? true : body.carries_epipen === 'no' ? false : null,
       own_transport_type: body.own_transport_type || null,
       payment_support_details: body.payment_support_details?.trim() || null,
+      gift_aid: body.gift_aid === 'yes',
     }
 
     // Try with all columns; if migration hasn't run yet, retry with base columns only
@@ -285,6 +286,7 @@ export async function POST(request: NextRequest) {
       consent_phone: body.consent_phone || null,
       consent_sms: body.consent_sms || null,
       consent_whatsapp: body.consent_whatsapp || null,
+      gift_aid: body.gift_aid || null,
       id_document_url: body.id_document_url || null,
       id_document_type: body.id_document_type || null,
       status: payload.status,
@@ -338,6 +340,9 @@ export async function POST(request: NextRequest) {
         payment_method_types: ['card'],
         payment_intent_data: {
           capture_method: 'manual',
+          metadata: {
+            camp_application_id: data.id,
+          },
         },
         customer_email: body.email.trim().toLowerCase(),
         line_items: [
@@ -353,7 +358,38 @@ export async function POST(request: NextRequest) {
             quantity: 1,
           },
         ],
-        metadata: { camp_application_id: data.id },
+        custom_fields: [
+          {
+            key: 'gift_aid',
+            label: {
+              type: 'custom',
+              custom: 'Gift Aid declaration',
+            },
+            type: 'dropdown',
+            optional: false,
+            dropdown: {
+              options: [
+                {
+                  label: 'Yes - I am a UK taxpayer and want Devanhaar to claim Gift Aid',
+                  value: 'yes',
+                },
+                {
+                  label: 'No - do not claim Gift Aid on this payment',
+                  value: 'no',
+                },
+              ],
+            },
+          },
+        ],
+        custom_text: {
+          submit: {
+            message: 'If you choose Gift Aid, you confirm you are a UK taxpayer and have paid enough Income Tax or Capital Gains Tax to cover the amount Devanhaar will reclaim.',
+          },
+        },
+        metadata: {
+          camp_application_id: data.id,
+          gift_aid: body.gift_aid === 'yes' ? 'true' : 'false',
+        },
         success_url: `${siteUrl}${initiativePath}?payment=success`,
         cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}`,
       })

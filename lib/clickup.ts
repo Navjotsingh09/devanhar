@@ -43,6 +43,7 @@ interface CampApplicationData {
   consent_phone?: string | null
   consent_sms?: string | null
   consent_whatsapp?: string | null
+  gift_aid?: string | null
   id_document_url?: string | null
   id_document_type?: string | null
   status: string
@@ -133,8 +134,9 @@ function buildTaskDescription(app: CampApplicationData): string {
   lines.push('- Phone: ' + (app.consent_phone || 'not specified'))
   lines.push('- SMS: ' + (app.consent_sms || 'not specified'))
   lines.push('- WhatsApp: ' + (app.consent_whatsapp || 'not specified'))
+  if (app.gift_aid) lines.push('- Gift Aid: ' + app.gift_aid)
 
-  if (app.id_document_url) {
+  if (app.id_document_type || app.id_document_url) {
     lines.push('')
     lines.push('### ID Document')
     lines.push('[View uploaded document](' + app.id_document_url + ')')

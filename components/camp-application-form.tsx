@@ -124,6 +124,7 @@ export function CampApplicationForm({
     allergies: [] as string[],
     carries_epipen: "",
     other_allergy: "",
+    gift_aid: "",
   })
 
   const update = (field: string, value: string | boolean | string[]) => {
@@ -893,6 +894,16 @@ export function CampApplicationForm({
                     onChange={e => update("consent_whatsapp", e.target.checked ? "yes" : "no")} />
                   <span className="text-sm">WhatsApp</span>
                 </label>
+              </div>
+              <div className="mt-6 pt-6 border-t">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.gift_aid === "yes"}
+                    onChange={e => update("gift_aid", e.target.checked ? "yes" : "no")} />
+                  <span className="text-sm">Gift Aid Declaration - I want this camp to reclaim tax on my donation</span>
+                </label>
+                <p className="text-xs text-muted-foreground mt-2">
+                  By ticking this box, I confirm I am a UK taxpayer and pay Income Tax or Capital Gains Tax equal to or greater than the tax that Devanhaar will reclaim.
+                </p>
               </div>
             </div>
           )}

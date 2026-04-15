@@ -21,6 +21,24 @@ function getStripeClient() {
   return new Stripe(stripeSecretKey)
 }
 
+function getGiftAidSelection(session: Stripe.Checkout.Session): boolean | null {
+  const giftAidField = session.custom_fields?.find((field) => field.key === 'gift_aid')
+
+  if (giftAidField?.type === 'dropdown') {
+    return giftAidField.dropdown?.value === 'yes'
+  }
+
+  if (session.metadata?.gift_aid === 'true') {
+    return true
+  }
+
+  if (session.metadata?.gift_aid === 'false') {
+    return false
+  }
+
+  return null
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!stripeWebhookSecret) {
@@ -40,12 +58,14 @@ export async function POST(request: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session
       const campApplicationId = session.metadata?.camp_application_id
+      const giftAid = getGiftAidSelection(session)
       if (campApplicationId) {
         await supabase
           .from("camp_applications")
           .update({
             status: "payment_authorized",
             stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
+            ...(giftAid === null ? {} : { gift_aid: giftAid }),
             updated_at: new Date().toISOString(),
           })
           .eq("id", campApplicationId)
@@ -59,6 +79,7 @@ export async function POST(request: NextRequest) {
             stripe_payment_intent: session.payment_intent,
             amount_total: session.amount_total,
             currency: session.currency,
+            gift_aid: giftAid,
           },
         })
       }
