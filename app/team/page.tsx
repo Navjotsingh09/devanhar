@@ -1,83 +1,66 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { TeamPageContent } from "@/components/team-page-content"
-import { FAQSection } from "@/components/faq-section"
-import { CTABanner } from "@/components/cta-banner"
 import { ScrollAnimations } from "@/components/scroll-animations"
+import { Users, Bell, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
-  title: "Our Team & Sevadaars | Devanhaar Sikh Charity",
+  title: "Team Coming Soon | Devanhaar",
   description:
-    "Meet the dedicated sevadaars behind Devanhaar. Our team of passionate Sikh volunteers lead camps, university talks, Sikhi Vidyala, and community programmes across the UK.",
-  keywords: [
-    "Devanhaar team",
-    "Sikh volunteers UK",
-    "Sikh sevadaars",
-    "Devanhaar leadership",
-    "Sikh charity volunteers",
-    "seva UK",
-  ],
+    "The Devanhaar team page is coming soon. Stay tuned to learn more about the sevadaars serving camps, education, and community initiatives across the UK.",
   openGraph: {
-    title: "Our Team & Sevadaars | Devanhaar",
+    title: "Team Coming Soon | Devanhaar",
     description:
-      "Meet the sevadaars powering Devanhaar Sikh education, camps, and community initiatives across the UK.",
+      "The Devanhaar team page is coming soon. Stay tuned for more about the sevadaars behind our work.",
     url: "https://devanhaar.vercel.app/team",
   },
   alternates: { canonical: "https://devanhaar.vercel.app/team" },
 }
 
-const teamFAQs = [
-  {
-    question: "Who runs Devanhaar?",
-    answer:
-      "Devanhaar is run by a dedicated team of Sikh sevadaars from across the UK, with a strong presence in Birmingham. Our team includes professionals from diverse backgrounds who volunteer their time, skills, and energy to serve the Panth.",
-  },
-  {
-    question: "How can I join the Devanhaar team?",
-    answer:
-      "We are always looking for passionate individuals. Whether you can help with camp logistics, content creation, education delivery, or admin — reach out through our contact page to express your interest in becoming a sevadaar.",
-  },
-  {
-    question: "Are Devanhaar sevadaars paid?",
-    answer:
-      "No. All our team members are volunteers who give their time selflessly as seva. This is a core principle of how Devanhaar operates — everything is done with the spirit of serving the Sangat and the Guru.",
-  },
-  {
-    question: "What skills do I need to volunteer?",
-    answer:
-      "We welcome people with all kinds of skills — from event management and teaching to graphic design, social media, cooking, and logistics. The most important quality is a genuine desire to serve the Sikh community.",
-  },
-  {
-    question: "What makes the Devanhaar team unique?",
-    answer:
-      "Many of our sevadaars originally came from non-Amritdhari backgrounds, giving us a deep understanding of the challenges faced by the wider Sangat. This relatability helps us create meaningful spaces where everyone feels supported on their Sikhi journey.",
-  },
-]
-
 export default function TeamPage() {
   return (
-    <div>
+    <>
       <Navbar />
       <ScrollAnimations />
       <main>
-        <TeamPageContent />
-        <FAQSection
-          heading="Team & Volunteering FAQ"
-          subheading="Learn about our sevadaars and how you can serve the community."
-          items={teamFAQs}
-        />
-        <CTABanner
-          heading="Join Our Sevadaar Family"
-          description="We are always looking for passionate Sikhs who want to serve their community. Volunteer your skills and make a real difference with Devanhaar."
-          primaryLabel="Get Involved"
-          primaryHref="/contact"
-          secondaryLabel="Our Projects"
-          secondaryHref="/projects"
-          variant="dark"
-        />
+        <section className="min-h-[80vh] flex items-center justify-center bg-background">
+          <div className="max-w-3xl mx-auto px-6 py-32 text-center">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-8">
+              <Users className="w-3.5 h-3.5" />
+              Sevadaars
+            </span>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
+              Team <span className="text-primary">Coming Soon</span>
+            </h1>
+
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              We&apos;re preparing a dedicated page to introduce the sevadaars behind Devanhaar.
+              It will be live soon with more about the people serving our camps, education, and
+              community projects.
+            </p>
+
+            <div className="mt-10 flex items-center justify-center gap-2 text-muted-foreground">
+              <Bell className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium">Full team profiles will be added soon</span>
+            </div>
+
+            <div className="mt-12 flex justify-center gap-4 flex-wrap">
+              <Button asChild>
+                <Link href="/contact">
+                  Get Involved <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/projects">Explore Our Projects</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </main>
       <FooterSection />
-    </div>
+    </>
   )
 }

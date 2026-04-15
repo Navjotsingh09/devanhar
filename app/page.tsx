@@ -6,7 +6,6 @@ import { PillarsSection } from "@/components/pillars-section"
 import { PlatformSection } from "@/components/platform-section"
 // PartnershipBanner removed per content update
 import { ProjectsSection } from "@/components/projects-section"
-import { TeamSection } from "@/components/team-section"
 import { MediaSection } from "@/components/media-section"
 import { FooterSection } from "@/components/footer-section"
 import { FAQSection } from "@/components/faq-section"

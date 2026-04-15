@@ -11,7 +11,7 @@ import { useCart } from "@/components/cart-provider"
 const navLinks = [
   { label: "About", href: "/about" },
   { label: "Initiatives", href: "/projects" },
-  { label: "Team", href: "/team", disabled: true },
+  { label: "Team", href: "/team" },
   { label: "Events", href: "/events" },
   { label: "Shop", href: "/shop" },
   { label: "Contact", href: "/contact" },
@@ -63,32 +63,21 @@ export function Navbar() {
             </Link>
 
             <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => 
-                link.disabled ? (
-                  <span
-                    key={link.href}
-                    className={`px-4 py-2 text-sm font-medium rounded-full cursor-default ${
-                      isTransparent ? "text-white/40" : "text-gray-400"
-                    }`}
-                  >
-                    {link.label}
-                  </span>
-                ) : (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
-                      pathname === link.href
-                        ? isTransparent
-                          ? "text-white bg-white/15"
-                          : "text-gray-900 bg-gray-100"
-                        : textMutedClass
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                )
-              )}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-4 py-2 text-sm font-medium rounded-full transition-colors ${
+                    pathname === link.href
+                      ? isTransparent
+                        ? "text-white bg-white/15"
+                        : "text-gray-900 bg-gray-100"
+                      : textMutedClass
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
 
             <div className="hidden md:flex items-center gap-3">
@@ -137,29 +126,20 @@ export function Navbar() {
         <div className="fixed inset-0 z-40 bg-white pt-20 md:hidden">
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-col gap-2">
-              {navLinks.map((link) => 
-                link.disabled ? (
-                  <span
-                    key={link.href}
-                    className="px-4 py-3 text-lg font-medium rounded-xl text-gray-400 cursor-default"
-                  >
-                    {link.label}
-                  </span>
-                ) : (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`px-4 py-3 text-lg font-medium rounded-xl transition-colors ${
-                      pathname === link.href
-                        ? "text-gray-900 bg-gray-100"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                )
-              )}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`px-4 py-3 text-lg font-medium rounded-xl transition-colors ${
+                    pathname === link.href
+                      ? "text-gray-900 bg-gray-100"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
             <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col gap-3">
               <button
