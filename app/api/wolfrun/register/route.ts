@@ -25,13 +25,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { first_name, last_name, email, phone, pack, fundraising_goal, profile_message } = body
+    const { first_name, last_name, email, phone, age, city, agree_whatsapp_group, agree_terms, opt_in_email, monthly_donation } = body
 
-    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !pack) {
+    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !age || !city?.trim()) {
       return NextResponse.json(
-        { error: 'Missing required fields: first_name, last_name, email, pack' },
+        { error: 'Missing required fields: first_name, last_name, email, phone, age, city' },
         { status: 400 }
       )
+    }
+
+    if (!agree_terms) {
+      return NextResponse.json({ error: 'You must agree to the Terms & Conditions' }, { status: 400 })
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -39,11 +43,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
-    if (!['singhs', 'kaurs'].includes(pack)) {
-      return NextResponse.json({ error: 'Pack must be "singhs" or "kaurs"' }, { status: 400 })
+    const ageNum = Number(age)
+    if (isNaN(ageNum) || ageNum < 16 || ageNum > 99) {
+      return NextResponse.json({ error: 'Age must be between 16 and 99' }, { status: 400 })
     }
-
-    const goal = fundraising_goal ? Math.max(1, Math.min(100000, Number(fundraising_goal))) : 100
 
     const supabase = getSupabaseAdmin()
 
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json({
-        error: 'You have already registered as a fundraiser',
+        error: 'You have already registered for the Wolf Run',
         slug: existing.slug,
         link: `${siteUrl}/events/wolfrun/fundraiser/${existing.slug}`,
       }, { status: 409 })
@@ -70,11 +73,14 @@ export async function POST(request: NextRequest) {
         first_name: first_name.trim(),
         last_name: last_name.trim(),
         email: email.trim().toLowerCase(),
-        phone: phone?.trim() || null,
-        pack,
+        phone: phone.trim(),
+        age: ageNum,
+        city: city.trim(),
+        agree_whatsapp_group: Boolean(agree_whatsapp_group),
+        agree_terms: Boolean(agree_terms),
+        opt_in_email: Boolean(opt_in_email),
+        monthly_donation: Boolean(monthly_donation),
         slug,
-        fundraising_goal: goal,
-        profile_message: profile_message?.trim() || null,
       })
       .select('id, slug')
       .single()
@@ -88,13 +94,15 @@ export async function POST(request: NextRequest) {
 
     // Log activity
     await supabase.from('activity_log').insert({
-      action: 'Wolf Run fundraiser registered',
+      action: 'Wolf Run participant registered',
       entity_type: 'wolfrun_fundraiser',
       entity_id: data.id,
       metadata: {
         name: `${first_name.trim()} ${last_name.trim()}`,
-        pack,
-        goal,
+        city: city.trim(),
+        age: ageNum,
+        opt_in_email: Boolean(opt_in_email),
+        monthly_donation: Boolean(monthly_donation),
         link: fundraiserLink,
       },
     }).then(() => {}).catch(() => {})
@@ -104,11 +112,8 @@ export async function POST(request: NextRequest) {
       slug: data.slug,
       link: fundraiserLink,
     })
-  } catch (error) {
-    console.error('[Wolf Run Register] Error:', error)
-    return NextResponse.json(
-      { error: 'Something went wrong. Please try again.' },
-      { status: 500 }
-    )
+  } catch (err) {
+    console.error('[Wolf Run Register] Error:', err)
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
 }

@@ -50,9 +50,12 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
     last_name: "",
     email: "",
     phone: "",
-    pack: "",
-    fundraising_goal: "100",
-    profile_message: "",
+    age: "",
+    city: "",
+    agree_whatsapp_group: false,
+    agree_terms: false,
+    opt_in_email: false,
+    monthly_donation: false,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,7 +147,7 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="text-xl font-bold">Become a Fundraiser</h3>
+      <h3 className="text-xl font-bold">Join Devanhaar in the Wolf Run</h3>
       <p className="text-sm text-muted-foreground">Sign up to get your unique fundraising link</p>
 
       {error && (
@@ -282,7 +285,7 @@ export function WolfRunContent() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-sm mb-8">
               <Calendar className="w-4 h-4" />
-              Spring Wolf — 25th &amp; 26th April 2026
+              12th September 2026 — Warwickshire
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
               Run Wild.<br />
@@ -300,7 +303,7 @@ export function WolfRunContent() {
                 onClick={() => setShowRegistration(true)}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-bold text-lg hover:bg-amber-400 transition shadow-lg shadow-amber-500/25"
               >
-                Become a Fundraiser
+                Join Devanhaar in the Wolf Run
                 <ArrowRight className="w-5 h-5" />
               </button>
               <Link
@@ -336,18 +339,18 @@ export function WolfRunContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <Calendar className="w-8 h-8 mx-auto mb-3 text-amber-500" />
-                <div className="font-bold text-lg">25–26 April 2026</div>
-                <div className="text-sm text-muted-foreground">Spring Wolf Weekend</div>
+                <div className="font-bold text-lg">12th September 2026</div>
+                <div className="text-sm text-muted-foreground">The Wolf Run</div>
               </div>
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <MapPin className="w-8 h-8 mx-auto mb-3 text-amber-500" />
                 <div className="font-bold text-lg">Warwickshire</div>
-                <div className="text-sm text-muted-foreground">Offchurch Bury, CV33 9AW</div>
+                <div className="text-sm text-muted-foreground">The Offchurch Bury, Offchurch, Leamington Spa, CV33 9AW</div>
               </div>
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <Trophy className="w-8 h-8 mx-auto mb-3 text-amber-500" />
-                <div className="font-bold text-lg">5K</div>
-                <div className="text-sm text-muted-foreground">Choose your distance</div>
+                <div className="font-bold text-lg">60 Spaces</div>
+                <div className="text-sm text-muted-foreground">£540 total cost</div>
               </div>
             </div>
           </div>
@@ -568,7 +571,7 @@ export function WolfRunContent() {
                 onClick={() => setShowRegistration(true)}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-bold text-lg hover:bg-amber-400 transition"
               >
-                Become a Fundraiser
+                Join Devanhaar in the Wolf Run
                 <ArrowRight className="w-5 h-5" />
               </button>
               <Link
