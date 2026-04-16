@@ -35,34 +35,33 @@ function formatFieldValue(value: unknown): string {
 }
 
 
-const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  new: 'default',
-  in_review: 'secondary',
-  replied: 'outline',
-  resolved: 'outline',
-  archived: 'secondary',
-  pending: 'default',
-  payment_pending: 'secondary',
-  payment_authorized: 'secondary',
-  payment_support_review: 'secondary',
-  paid: 'outline',
-  approved: 'outline',
-  declined: 'destructive',
+const statusConfig: Record<string, { label: string; dot: string; bg: string; text: string; badge: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  new:                     { label: 'New',              dot: 'bg-blue-500',    bg: 'bg-blue-50 dark:bg-blue-950',       text: 'text-blue-700 dark:text-blue-300',    badge: 'default' },
+  in_review:               { label: 'In Review',       dot: 'bg-amber-500',   bg: 'bg-amber-50 dark:bg-amber-950',     text: 'text-amber-700 dark:text-amber-300',  badge: 'secondary' },
+  replied:                 { label: 'Replied',          dot: 'bg-sky-500',     bg: 'bg-sky-50 dark:bg-sky-950',         text: 'text-sky-700 dark:text-sky-300',      badge: 'outline' },
+  resolved:                { label: 'Resolved',         dot: 'bg-gray-400',    bg: 'bg-gray-50 dark:bg-gray-900',       text: 'text-gray-600 dark:text-gray-400',    badge: 'outline' },
+  archived:                { label: 'Archived',         dot: 'bg-gray-400',    bg: 'bg-gray-50 dark:bg-gray-900',       text: 'text-gray-500 dark:text-gray-500',    badge: 'secondary' },
+  pending:                 { label: 'Pending',          dot: 'bg-yellow-500',  bg: 'bg-yellow-50 dark:bg-yellow-950',   text: 'text-yellow-700 dark:text-yellow-300', badge: 'default' },
+  payment_pending:         { label: 'Awaiting Payment', dot: 'bg-orange-500',  bg: 'bg-orange-50 dark:bg-orange-950',   text: 'text-orange-700 dark:text-orange-300', badge: 'secondary' },
+  payment_authorized:      { label: 'Payment Auth',    dot: 'bg-indigo-500',  bg: 'bg-indigo-50 dark:bg-indigo-950',   text: 'text-indigo-700 dark:text-indigo-300', badge: 'secondary' },
+  payment_support_review:  { label: 'Payment Support',  dot: 'bg-purple-500',  bg: 'bg-purple-50 dark:bg-purple-950',   text: 'text-purple-700 dark:text-purple-300', badge: 'secondary' },
+  paid:                    { label: 'Paid',             dot: 'bg-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950', text: 'text-emerald-700 dark:text-emerald-300', badge: 'outline' },
+  approved:                { label: 'Approved',         dot: 'bg-green-500',   bg: 'bg-green-50 dark:bg-green-950',     text: 'text-green-700 dark:text-green-300',  badge: 'outline' },
+  declined:                { label: 'Declined',         dot: 'bg-red-500',     bg: 'bg-red-50 dark:bg-red-950',         text: 'text-red-700 dark:text-red-300',      badge: 'destructive' },
 }
 
-const statusLabels: Record<string, string> = {
-  new: 'New',
-  in_review: 'In Review',
-  replied: 'Replied',
-  resolved: 'Resolved',
-  archived: 'Archived',
-  pending: 'Pending',
-  payment_pending: 'Awaiting Payment',
-  payment_authorized: 'Payment Auth',
-  payment_support_review: 'Payment Support',
-  paid: 'Paid',
-  approved: 'Approved',
-  declined: 'Declined',
+function getStatus(status: string) {
+  return statusConfig[status] || { label: status, dot: 'bg-gray-400', bg: 'bg-gray-50', text: 'text-gray-600', badge: 'default' as const }
+}
+
+function StatusPill({ status }: { status: string }) {
+  const s = getStatus(status)
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${s.bg} ${s.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+      {s.label}
+    </span>
+  )
 }
 
 export function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
@@ -149,29 +148,29 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                     onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
                     disabled={isPending}
                   >
-                    <SelectTrigger className="h-7 w-[140px] text-xs">
-                      <SelectValue>{statusLabels[sub.status] || sub.status}</SelectValue>
+                    <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:ml-1 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:opacity-50">
+                      <StatusPill status={sub.status} />
                     </SelectTrigger>
                     <SelectContent>
                       {sub.source_table === 'camp_applications' ? (
                         <>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="in_review">In Review</SelectItem>
-                          <SelectItem value="payment_pending">Payment Pending</SelectItem>
-                          <SelectItem value="payment_authorized">Payment Authorized</SelectItem>
-                          <SelectItem value="payment_support_review">Payment Support</SelectItem>
-                          <SelectItem value="paid">Paid</SelectItem>
-                          <SelectItem value="approved">Approved</SelectItem>
-                          <SelectItem value="declined">Declined</SelectItem>
-                          <SelectItem value="archived">Archived</SelectItem>
+                          <SelectItem value="pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500" />Pending</span></SelectItem>
+                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
+                          <SelectItem value="payment_pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-orange-500" />Awaiting Payment</span></SelectItem>
+                          <SelectItem value="payment_authorized"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-indigo-500" />Payment Authorized</span></SelectItem>
+                          <SelectItem value="payment_support_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-purple-500" />Payment Support</span></SelectItem>
+                          <SelectItem value="paid"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" />Paid</span></SelectItem>
+                          <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
+                          <SelectItem value="declined"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Declined</span></SelectItem>
+                          <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
                         </>
                       ) : (
                         <>
-                          <SelectItem value="new">New</SelectItem>
-                          <SelectItem value="in_review">In Review</SelectItem>
-                          <SelectItem value="replied">Replied</SelectItem>
-                          <SelectItem value="resolved">Resolved</SelectItem>
-                          <SelectItem value="archived">Archived</SelectItem>
+                          <SelectItem value="new"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-blue-500" />New</span></SelectItem>
+                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
+                          <SelectItem value="replied"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-500" />Replied</span></SelectItem>
+                          <SelectItem value="resolved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Resolved</span></SelectItem>
+                          <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
                         </>
                       )}
                     </SelectContent>
@@ -226,7 +225,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             </div>
                             <div>
                               <p className="text-muted-foreground">Status</p>
-                              <Badge variant={statusColors[sub.status] || 'default'}>{statusLabels[sub.status] || sub.status}</Badge>
+                              <StatusPill status={sub.status} />
                             </div>
                           </div>
                           {sub.message && (
