@@ -962,27 +962,79 @@ export function CampApplicationForm({
               )}
               {form.requires_payment_support !== "yes" && (
                 <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-semibold mb-2">Donation Amount</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    The standard camp donation is £199. You can increase your donation below if you wish.
-                  </p>
-                  <div>
-                    <Label htmlFor="donation_amount" className="mb-1.5 block">Donation amount (£) *</Label>
-                    <Input
-                      id="donation_amount"
-                      type="number"
-                      min="199"
-                      step="1"
-                      value={form.donation_amount}
-                      onChange={e => {
-                        const val = e.target.value
-                        update("donation_amount", val)
-                      }}
-                    />
-                    {Number(form.donation_amount) < 199 && form.donation_amount.length > 0 && (
-                      <p className="text-xs text-red-700 mt-1">Minimum donation is £199</p>
-                    )}
+                  <div className="text-center mb-4">
+                    <h4 className="text-lg font-bold">Support Singhs Camp</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      The standard camp contribution is <strong>£199</strong>. If you are able to give more, your generosity directly funds activities, meals and facilities for all campers.
+                    </p>
                   </div>
+
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {[199, 250, 350].map(amt => (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => update("donation_amount", String(amt))}
+                        className={`relative rounded-xl border-2 p-3 text-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/50 ${form.donation_amount === String(amt) ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/30" : "border-muted hover:border-primary/40 hover:shadow-sm"}`}
+                      >
+                        {amt === 199 && (
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">Standard</span>
+                        )}
+                        {amt === 250 && (
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">Popular</span>
+                        )}
+                        {amt === 350 && (
+                          <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">Generous</span>
+                        )}
+                        <span className="text-xl font-bold">£{amt}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (["199", "250", "350"].includes(form.donation_amount)) {
+                        update("donation_amount", "")
+                      }
+                      setTimeout(() => {
+                        const el = document.getElementById("donation_amount") as HTMLInputElement
+                        if (el) { el.focus() }
+                      }, 50)
+                    }}
+                    className={`w-full rounded-xl border-2 p-3 text-center transition-all duration-150 focus:outline-none ${!["199", "250", "350"].includes(form.donation_amount) ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/30" : "border-muted hover:border-primary/40 hover:shadow-sm"}`}
+                  >
+                    <span className="text-sm font-medium text-muted-foreground">Custom amount</span>
+                  </button>
+
+                  {!["199", "250", "350"].includes(form.donation_amount) && (
+                    <div className="mt-3">
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">£</span>
+                        <Input
+                          id="donation_amount"
+                          type="number"
+                          min="199"
+                          step="1"
+                          className="pl-7 text-center text-lg font-semibold"
+                          value={form.donation_amount}
+                          onChange={e => update("donation_amount", e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+                      {Number(form.donation_amount) < 199 && form.donation_amount.length > 0 && (
+                        <p className="text-xs text-red-600 mt-1 text-center">Minimum contribution is £199</p>
+                      )}
+                    </div>
+                  )}
+
+                  {Number(form.donation_amount) > 199 && (
+                    <div className="mt-3 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+                      <p className="text-sm text-emerald-800">
+                        <span className="font-semibold">Thank you!</span> Your extra £{Number(form.donation_amount) - 199} helps fund camp activities and support those who need financial assistance.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
