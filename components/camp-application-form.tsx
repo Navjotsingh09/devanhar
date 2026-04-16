@@ -1014,7 +1014,7 @@ export function CampApplicationForm({
                         <Input
                           id="donation_amount"
                           type="number"
-                          min="199"
+                          min="1"
                           step="1"
                           className="pl-7 text-center text-lg font-semibold"
                           value={form.donation_amount}
@@ -1022,9 +1022,6 @@ export function CampApplicationForm({
                           autoFocus
                         />
                       </div>
-                      {Number(form.donation_amount) < 199 && form.donation_amount.length > 0 && (
-                        <p className="text-xs text-red-600 mt-1 text-center">Minimum contribution is £199</p>
-                      )}
                     </div>
                   )}
 
