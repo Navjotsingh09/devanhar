@@ -52,23 +52,32 @@ export function ContactContent() {
     const message = data.get("message") as string
 
     try {
+      // Save to Supabase if available
       if (supabase) {
-        const { error: dbError } = await supabase
+        await supabase
           .from("contact_submissions")
           .insert([{ full_name: name, email, message, form_data: { subject }, status: "new" }])
-
-        if (dbError) throw dbError
-      } else {
-        window.location.href = `mailto:admin@devanhaar.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
-        return
       }
+
+      // Send email notification via API
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message,
+          source_page: "Contact Page",
+        }),
+      })
 
       setSubmitted(true)
       form.reset()
       setTimeout(() => setSubmitted(false), 5000)
     } catch (err) {
       console.error("Error:", err)
-      window.location.href = `mailto:admin@devanhaar.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
+      setError("Something went wrong. Please try again.")
     } finally {
       setLoading(false)
     }

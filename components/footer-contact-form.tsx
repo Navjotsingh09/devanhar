@@ -22,16 +22,25 @@ export function FooterContactForm() {
     const message = fd.get("message") as string
 
     try {
+      // Save to Supabase if available
       if (supabase) {
-        const { error } = await supabase
+        await supabase
           .from("form_submissions")
           .insert([{ full_name: `${firstName} ${lastName}`, email, message, form_data: { first_name: firstName, last_name: lastName }, status: "new" }])
-
-        if (error) throw error
-      } else {
-        window.location.href = `mailto:admin@devanhaar.com?subject=Contact from ${firstName} ${lastName}&body=${encodeURIComponent(message)}`
-        return
       }
+
+      // Send email notification via API
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${firstName} ${lastName}`,
+          email,
+          subject: `Contact from ${firstName} ${lastName}`,
+          message,
+          source_page: "Footer — " + window.location.pathname,
+        }),
+      })
 
       setStatus("success")
       form.reset()
