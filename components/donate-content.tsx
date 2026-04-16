@@ -279,19 +279,7 @@ export function DonateContent() {
                   <Lock className="w-4 h-4" />
                   <span className="text-xs">Secure payment powered by NowDonate™</span>
                 </div>
-                {paymentStatus && (
-                  <div className="flex items-center justify-center">
-                    <span
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
-                        paymentStatus.stripeConnected
-                          ? "bg-green-100 text-green-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      Stripe connection: {paymentStatus.stripeConnected ? "Connected" : "Not configured"}
-                    </span>
-                  </div>
-                )}
+
               </div>
 
               {/* Right: Summary */}
