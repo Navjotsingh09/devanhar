@@ -78,15 +78,20 @@ export async function captureApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email, requires_payment_support, donation_amount, monthly_donation_opted, monthly_donation_amount').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('*').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'approved') throw new Error('Already approved')
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-  if (app.stripe_payment_intent_id) { await stripe.paymentIntents.capture(app.stripe_payment_intent_id) }
+  if (app.stripe_payment_intent_id) {
+    try { await stripe.paymentIntents.capture(app.stripe_payment_intent_id) } catch (captureErr: any) {
+      if (captureErr?.code !== 'payment_intent_unexpected_state') throw captureErr
+      console.warn('[Capture] Payment intent already captured or in unexpected state')
+    }
+  }
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   // Create monthly subscription if opted in
-  if (app.monthly_donation_opted && app.monthly_donation_amount > 0 && app.stripe_payment_intent_id) {
+  if (app.monthly_donation_opted && Number(app.monthly_donation_amount) > 0 && app.stripe_payment_intent_id) {
     try {
       const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id, { expand: ['customer', 'payment_method'] })
       if (pi.customer && pi.payment_method) {
