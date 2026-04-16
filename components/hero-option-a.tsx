@@ -44,21 +44,16 @@ export function HeroOptionA() {
           </span>
         </div>
         <div className="mt-6 flex flex-col sm:flex-row gap-3" style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(20px)", transition: "all 0.8s ease 0.8s" }}>
-          {[
-            { name: "Singhs Camp", href: "/initiatives/singhs-camp" },
-            { name: "Kaurs Camp", href: "/initiatives/kaurs-camp" },
-          ].map((camp) => (
-            <Link key={camp.name} href={camp.href} className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 transition-all hover:bg-white/10 hover:border-amber-400/30">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10">
-                <CalendarDays className="h-4 w-4 text-amber-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">{camp.name}</p>
-                <p className="text-[11px] text-white/50">Applications open Sunday 31st March</p>
-              </div>
-              <ArrowRight className="ml-auto h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-amber-400" />
-            </Link>
-          ))}
+          <Link href="/initiatives/singhs-camp" className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 transition-all hover:bg-white/10 hover:border-amber-400/30">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10">
+              <CalendarDays className="h-4 w-4 text-amber-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white">Singhs Camp</p>
+              <p className="text-[11px] text-white/50">Applications open Monday 20th April</p>
+            </div>
+            <ArrowRight className="ml-auto h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-amber-400" />
+          </Link>
         </div>
         <h2 className="mt-5 text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] tracking-tight text-white" style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(30px)", transition: "all 0.8s ease 0.5s" }}>
           Develop. Elevate.{" "}
