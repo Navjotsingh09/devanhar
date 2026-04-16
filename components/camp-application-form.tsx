@@ -128,7 +128,6 @@ export function CampApplicationForm({
     other_allergy: "",
     gift_aid: "",
     donation_amount: "199",
-    donation_type: "one-off",
   })
 
   // Lock body scroll when modal is open to prevent iOS blank screen issues
@@ -982,36 +981,6 @@ export function CampApplicationForm({
                     />
                     {Number(form.donation_amount) < 199 && form.donation_amount.length > 0 && (
                       <p className="text-xs text-red-700 mt-1">Minimum donation is £199</p>
-                    )}
-                  </div>
-                  <div className="mt-4">
-                    <Label className="mb-1.5 block">Payment type *</Label>
-                    <div className="flex flex-wrap gap-4 mt-2">
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="radio"
-                          name="donation_type"
-                          value="one-off"
-                          checked={form.donation_type === "one-off"}
-                          onChange={e => update("donation_type", e.target.value)}
-                        />
-                        One-off payment
-                      </label>
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="radio"
-                          name="donation_type"
-                          value="recurring"
-                          checked={form.donation_type === "recurring"}
-                          onChange={e => update("donation_type", e.target.value)}
-                        />
-                        Recurring monthly donation
-                      </label>
-                    </div>
-                    {form.donation_type === "recurring" && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        A monthly Direct Debit will be set up for £{form.donation_amount || "199"} per month. You can cancel at any time.
-                      </p>
                     )}
                   </div>
                 </div>
