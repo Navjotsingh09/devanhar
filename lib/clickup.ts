@@ -140,12 +140,10 @@ function buildTaskDescription(app: CampApplicationData): string {
     lines.push('')
     lines.push('### ID Document')
     if (app.id_document_type) lines.push('- **Type:** ' + app.id_document_type)
-    const docUrl = app.id_document_url && /^https?:\/\//i.test(app.id_document_url)
-      ? app.id_document_url
-      : app.id_document_url
-        ? (process.env.NEXT_PUBLIC_SUPABASE_URL || '') + '/storage/v1/object/public/camp-applications/' + app.id_document_url
-        : ''
-    if (docUrl) lines.push('[View uploaded document](' + docUrl + ')')
+    if (app.id_document_url) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://devanhaar.vercel.app'
+      lines.push('[View uploaded document](' + siteUrl + '/api/camp-applications/view-id?path=' + encodeURIComponent(app.id_document_url) + ')')
+    }
   }
 
   return lines.join('\n')

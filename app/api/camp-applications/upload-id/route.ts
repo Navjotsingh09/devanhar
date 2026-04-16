@@ -57,9 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to upload: " + error.message }, { status: 500 })
     }
 
-    // Build the full public URL for the uploaded file
-    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`
-    return NextResponse.json({ success: true, file_path: filePath, public_url: publicUrl }, { status: 201 })
+    return NextResponse.json({ success: true, file_path: filePath }, { status: 201 })
   } catch (error) {
     console.error("[Camp ID Upload] Error:", error)
     return NextResponse.json({ error: "Upload failed" }, { status: 500 })

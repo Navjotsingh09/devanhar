@@ -229,7 +229,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                                     <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
                                     {key === 'id_document_url' && typeof value === 'string' && value.length > 0 ? (
                                       <a
-                                        href={/^https?:\/\//i.test(value) ? value : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/camp-applications/${value}`}
+                                        href={`/api/camp-applications/view-id?path=${encodeURIComponent(String(value))}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-foreground font-medium underline break-all sm:text-right"
