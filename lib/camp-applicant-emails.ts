@@ -88,27 +88,29 @@ export async function sendApplicationApprovedEmail(params: {
 
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
-      <h2 style="margin:0 0 16px;">Congratulations, ${escapedName}!</h2>
-      <p>We are pleased to let you know that your Singhs Camp UK application has been <strong>accepted</strong>.</p>
-      <p>Your payment has now been captured. You will receive further details about the camp closer to the date, including location, schedule, and what to bring.</p>
+      <h2 style="margin:0 0 16px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</h2>
+      <p>Dear ${escapedName},</p>
+      <p>We are delighted to let you know that your Singhs Camp UK application has been <strong>approved</strong>.</p>
+      <p>Your donation has been confirmed and your place is now secured. You will receive further details about the camp closer to the date.</p>
+      <p style="text-align:center;margin:24px 0;"><a href="https://devanhaar.com/projects" style="display:inline-block;background:#059669;color:white;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;margin:6px;">View Our Projects</a> <a href="https://devanhaar.com/donate" style="display:inline-block;background:#7c3aed;color:white;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;margin:6px;">Set Up a Donation</a></p>
       <p>If you have any questions, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
-      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
-      <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
+      <p style="margin-top:24px;">Warm regards,<br/><strong>The Devanhaar Team</strong></p>
     </div>
   `
 
-  const text = `Congratulations, ${params.firstName}!
+  const text = `Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
 
-We are pleased to let you know that your Singhs Camp UK application has been accepted.
+Dear ${params.firstName},
 
-Your payment has now been captured. You will receive further details about the camp closer to the date, including location, schedule, and what to bring.
+We are delighted to let you know that your Singhs Camp UK application has been approved.
 
-If you have any questions, please contact us at singhscampuk@devanhaar.com.
+Your donation has been confirmed and your place is now secured.
 
-Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
+View Our Projects: https://devanhaar.com/projects
+Set Up a Donation: https://devanhaar.com/donate
 
-Singhs Camp UK Team
-Devanhaar`
+Warm regards,
+The Devanhaar Team`
 
   try {
     await resend.emails.send({
@@ -142,30 +144,30 @@ export async function sendApplicationDeclinedEmail(params: {
 
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
-      <h2 style="margin:0 0 16px;">Update on your Singhs Camp UK Application</h2>
+      <h2 style="margin:0 0 16px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</h2>
       <p>Dear ${escapedName},</p>
-      <p>Thank you for applying to Singhs Camp UK. After careful review, we regret to inform you that your application has <strong>not been accepted</strong> on this occasion.</p>
+      <p>Thank you for applying to Singhs Camp UK. After careful review, we would like to let you know that you have been <strong>placed on the waiting list</strong> for this camp.</p>
       <p>Your payment hold has been <strong>fully released</strong> and no charge has been made. The refund should appear in your account within 5-10 business days.</p>
-      <p>We encourage you to apply again in the future. If you have any questions, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
-      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
-      <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
+      <p>If a place becomes available, we will contact you. In the meantime, we encourage you to stay connected with Devanhaar.</p>
+      <p style="text-align:center;margin:24px 0;"><a href="https://devanhaar.com/projects" style="display:inline-block;background:#059669;color:white;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;margin:6px;">View Our Projects</a> <a href="https://devanhaar.com/donate" style="display:inline-block;background:#7c3aed;color:white;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;margin:6px;">Set Up a Donation</a></p>
+      <p>If you have any questions, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
+      <p style="margin-top:24px;">Warm regards,<br/><strong>The Devanhaar Team</strong></p>
     </div>
   `
 
-  const text = `Update on your Singhs Camp UK Application
+  const text = `Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
 
 Dear ${params.firstName},
 
-Thank you for applying to Singhs Camp UK. After careful review, we regret to inform you that your application has not been accepted on this occasion.
+Thank you for applying to Singhs Camp UK. After careful review, you have been placed on the waiting list for this camp.
 
-Your payment hold has been fully released and no charge has been made. The refund should appear in your account within 5-10 business days.
+Your payment hold has been fully released and no charge has been made.
 
-We encourage you to apply again in the future. If you have any questions, please contact us at singhscampuk@devanhaar.com.
+View Our Projects: https://devanhaar.com/projects
+Set Up a Donation: https://devanhaar.com/donate
 
-Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
-
-Singhs Camp UK Team
-Devanhaar`
+Warm regards,
+The Devanhaar Team`
 
   try {
     await resend.emails.send({

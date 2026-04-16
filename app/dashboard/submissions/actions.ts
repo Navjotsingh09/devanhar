@@ -78,7 +78,7 @@ export async function captureApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email, requires_payment_support, monthly_donation_opted, monthly_donation_amount').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email, requires_payment_support, donation_amount, monthly_donation_opted, monthly_donation_amount').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'approved') throw new Error('Already approved')
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -95,7 +95,7 @@ export async function captureApplicationPayment(applicationId: string) {
         await stripe.customers.update(customerId, { invoice_settings: { default_payment_method: pmId } })
         const subscription = await stripe.subscriptions.create({
           customer: customerId,
-          items: [{ price_data: { currency: 'gbp', unit_amount: Math.round(app.monthly_donation_amount * 100), product_data: { name: 'Devanhaar Monthly Donation' }, recurring: { interval: 'month' } } }],
+          items: [{ price: (await stripe.prices.create({ currency: 'gbp', unit_amount: Math.round(app.monthly_donation_amount * 100), recurring: { interval: 'month' }, product_data: { name: 'Devanhaar Monthly Donation' } })).id }],
           metadata: { camp_application_id: applicationId },
         })
         await supabase.from('camp_applications').update({ stripe_subscription_id: subscription.id }).eq('id', applicationId)
@@ -105,7 +105,7 @@ export async function captureApplicationPayment(applicationId: string) {
       console.error('[Subscription] Failed to create monthly subscription (non-blocking):', subErr)
     }
   }
-  sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === true).catch(() => {})
+  sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === true, Number(app.donation_amount) || 199, Number(app.monthly_donation_amount) || 0).catch(() => {})
   revalidatePath('/dashboard/submissions')
 }
 
