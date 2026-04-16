@@ -50,6 +50,21 @@ const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'ou
   declined: 'destructive',
 }
 
+const statusLabels: Record<string, string> = {
+  new: 'New',
+  in_review: 'In Review',
+  replied: 'Replied',
+  resolved: 'Resolved',
+  archived: 'Archived',
+  pending: 'Pending',
+  payment_pending: 'Awaiting Payment',
+  payment_authorized: 'Payment Auth',
+  payment_support_review: 'Payment Support',
+  paid: 'Paid',
+  approved: 'Approved',
+  declined: 'Declined',
+}
+
 export function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
   const [notesDialog, setNotesDialog] = useState<Submission | null>(null)
@@ -134,8 +149,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                     onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
                     disabled={isPending}
                   >
-                    <SelectTrigger className="h-7 w-28 text-xs">
-                      <SelectValue />
+                    <SelectTrigger className="h-7 w-[140px] text-xs">
+                      <SelectValue>{statusLabels[sub.status] || sub.status}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {sub.source_table === 'camp_applications' ? (
@@ -211,7 +226,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             </div>
                             <div>
                               <p className="text-muted-foreground">Status</p>
-                              <Badge variant={statusColors[sub.status] || 'default'}>{sub.status.replace(/_/g, ' ')}</Badge>
+                              <Badge variant={statusColors[sub.status] || 'default'}>{statusLabels[sub.status] || sub.status}</Badge>
                             </div>
                           </div>
                           {sub.message && (
