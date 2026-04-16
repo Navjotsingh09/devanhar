@@ -1,3 +1,5 @@
+import { createClient } from '@supabase/supabase-js'
+
 const CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN
 const CLICKUP_LIST_ID = process.env.CLICKUP_LIST_ID
 
@@ -57,7 +59,7 @@ function formatInitiativeName(slug: string): string {
     .join(' ')
 }
 
-function buildTaskDescription(app: CampApplicationData): string {
+async function buildTaskDescription(app: CampApplicationData): Promise<string> {
   const lines: string[] = []
   const ini = formatInitiativeName(app.initiative_slug)
 
@@ -141,12 +143,32 @@ function buildTaskDescription(app: CampApplicationData): string {
     lines.push('### ID Document')
     if (app.id_document_type) lines.push('- **Type:** ' + app.id_document_type)
     if (app.id_document_url) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://devanhaar.vercel.app'
-      lines.push('[View uploaded document](' + siteUrl + '/api/camp-applications/view-id?path=' + encodeURIComponent(app.id_document_url) + ')')
+      const signedUrl = await getDocumentSignedUrl(app.id_document_url)
+      if (signedUrl) {
+        lines.push('[View uploaded document](' + signedUrl + ')')
+      } else {
+        lines.push('- **File Path:** ' + app.id_document_url + ' (signed URL generation failed)')
+      }
     }
   }
 
   return lines.join('\n')
+}
+
+async function getDocumentSignedUrl(filePath: string): Promise<string | null> {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const bucket = process.env.SUPABASE_CAMP_UPLOAD_BUCKET || 'camp-applications'
+    if (!supabaseUrl || !serviceKey) return null
+    const admin = createClient(supabaseUrl, serviceKey)
+    // 7-day signed URL for ClickUp
+    const { data, error } = await admin.storage.from(bucket).createSignedUrl(filePath, 7 * 24 * 3600)
+    if (error || !data?.signedUrl) return null
+    return data.signedUrl
+  } catch {
+    return null
+  }
 }
 
 export async function sendToClickUp(app: CampApplicationData): Promise<void> {
@@ -166,7 +188,7 @@ export async function sendToClickUp(app: CampApplicationData): Promise<void> {
     },
     body: JSON.stringify({
       name: taskName,
-      markdown_description: buildTaskDescription(app),
+      markdown_description: await buildTaskDescription(app),
       tags: [app.initiative_slug, app.payment_mode],
       priority: app.requires_payment_support === 'yes' ? 2 : 3,
     }),
