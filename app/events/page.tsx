@@ -86,8 +86,8 @@ export default function EventsPage() {
               <div className="relative">
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
                   <img
-                    src="/community-event.jpg"
-                    alt="Devanhaar community events"
+                    src="/images/events/wolfrun-hero.jpg"
+                    alt="Wolf Run obstacle course event"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
