@@ -1,4 +1,4 @@
-const OWNER_NOTIFICATION_EMAIL = process.env.CAMP_OWNER_NOTIFICATION_EMAIL || 'admin@devanhaar.com'
+const OWNER_NOTIFICATION_EMAIL = process.env.CAMP_OWNER_NOTIFICATION_EMAIL || 'singhscampuk@devanhaar.com'
 
 function formatLabel(key: string): string {
   return key
@@ -61,7 +61,6 @@ function buildHtmlBody(entries: Array<[string, string]>, submissionId: string): 
       return `<tr><td style="padding:8px 12px;border:1px solid #ddd;font-weight:600;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:8px 12px;border:1px solid #ddd;vertical-align:top;">${escapeHtml(value)}</td></tr>`
     })
 
-  console.log('[Camp Notification] Owner email sent to', OWNER_NOTIFICATION_EMAIL)
     .join('')
 
   return `
