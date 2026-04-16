@@ -823,7 +823,7 @@ export function CampApplicationForm({
                             onChange={e => {
                               const updated = e.target.checked
                                 ? [...form.bjj_sport_preference, sport]
-                                : form.bjj_sport_preference.filter((s) => s \!== sport)
+                                : form.bjj_sport_preference.filter((s) => s !== sport)
                               update("bjj_sport_preference", updated)
                             }}
                           />
