@@ -1014,7 +1014,7 @@ export function CampApplicationForm({
                         <Input
                           id="donation_amount"
                           type="number"
-                          min="1"
+                          min="199"
                           step="1"
                           className="pl-7 text-center text-lg font-semibold"
                           value={form.donation_amount}

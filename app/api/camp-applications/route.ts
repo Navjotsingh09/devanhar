@@ -343,7 +343,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate donation amount
     const requestedAmount = Number(body.donation_amount) || campFeeGbp
-    const donationAmount = requestedAmount > 0 ? requestedAmount : campFeeGbp
+    const donationAmount = Math.max(requestedAmount, campFeeGbp) // minimum is camp fee
     const donationAmountPence = donationAmount * 100
 
     // Create Stripe Checkout session
