@@ -128,6 +128,9 @@ export function CampApplicationForm({
     other_allergy: "",
     gift_aid: "",
     donation_amount: "199",
+    donation_type: "one-off",
+    monthly_donation_opted: "no",
+    monthly_donation_amount: "",
   })
 
   // Lock body scroll when modal is open to prevent iOS blank screen issues
@@ -1030,6 +1033,95 @@ export function CampApplicationForm({
                       <p className="text-sm text-emerald-800">
                         <span className="font-semibold">Thank you!</span> Your extra £{Number(form.donation_amount) - 199} helps fund camp activities and support those who need financial assistance.
                       </p>
+
+              {/* Monthly Donation / Direct Debit Section */}
+              <div className="mt-6 pt-6 border-t">
+                <div className="text-center mb-4">
+                  <h4 className="text-lg font-bold">Regular Monthly Donation</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Would you like to set up a regular monthly donation to support Devanhaar? This is entirely optional and separate from your camp contribution.
+                  </p>
+                </div>
+
+                <div className="flex gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => { update("monthly_donation_opted", "yes"); if (!form.monthly_donation_amount) update("monthly_donation_amount", "10"); }}
+                    className={`flex-1 rounded-xl border-2 p-3 text-center text-sm font-semibold transition-all ${form.monthly_donation_opted === "yes" ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/30" : "border-muted hover:border-primary/40 hover:shadow-sm"}`}
+                  >
+                    Yes, I’d like to give monthly
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { update("monthly_donation_opted", "no"); update("monthly_donation_amount", ""); }}
+                    className={`flex-1 rounded-xl border-2 p-3 text-center text-sm font-semibold transition-all ${form.monthly_donation_opted === "no" ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/30" : "border-muted hover:border-primary/40 hover:shadow-sm"}`}
+                  >
+                    No thanks
+                  </button>
+                </div>
+
+                {form.monthly_donation_opted === "yes" && (
+                  <div>
+                    <p className="text-sm text-muted-foreground text-center mb-3">
+                      Choose a monthly amount. Your regular giving helps sustain Devanhaar’s charitable work year-round.
+                    </p>
+                    <div className="grid grid-cols-4 gap-2 mb-3">
+                      {[5, 10, 20, 50].map(amt => (
+                        <button
+                          key={amt}
+                          type="button"
+                          onClick={() => update("monthly_donation_amount", String(amt))}
+                          className={`rounded-xl border-2 p-3 text-center transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/50 ${form.monthly_donation_amount === String(amt) ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/30" : "border-muted hover:border-primary/40 hover:shadow-sm"}`}
+                        >
+                          <span className="text-lg font-bold">£{amt}</span>
+                          <span className="block text-[10px] text-muted-foreground">/month</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (["5", "10", "20", "50"].includes(form.monthly_donation_amount)) {
+                          update("monthly_donation_amount", "")
+                        }
+                        setTimeout(() => {
+                          const el = document.getElementById("monthly_donation_amount") as HTMLInputElement
+                          if (el) { el.focus() }
+                        }, 50)
+                      }}
+                      className={`w-full rounded-xl border-2 p-3 text-center transition-all duration-150 focus:outline-none ${!["5", "10", "20", "50"].includes(form.monthly_donation_amount) && form.monthly_donation_amount !== "" ? "border-primary bg-primary/5 shadow-md ring-1 ring-primary/30" : "border-muted hover:border-primary/40 hover:shadow-sm"}`}
+                    >
+                      <span className="text-sm font-medium text-muted-foreground">Custom monthly amount</span>
+                    </button>
+
+                    {!["5", "10", "20", "50"].includes(form.monthly_donation_amount) && form.monthly_donation_amount !== "" && (
+                      <div className="mt-3">
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">£</span>
+                          <Input
+                            id="monthly_donation_amount"
+                            type="number"
+                            min="1"
+                            step="1"
+                            className="pl-7 text-center text-lg font-semibold"
+                            value={form.monthly_donation_amount}
+                            onChange={e => update("monthly_donation_amount", e.target.value)}
+                            autoFocus
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">/month</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                      <p className="text-xs text-blue-800">
+                        A member of our team will be in touch to set up your monthly direct debit after your application is approved. Your Gift Aid declaration above also applies to your monthly donations.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
                     </div>
                   )}
                 </div>

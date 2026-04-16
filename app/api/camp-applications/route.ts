@@ -163,6 +163,8 @@ export async function POST(request: NextRequest) {
       own_transport_type: body.own_transport_type || null,
       payment_support_details: body.payment_support_details?.trim() || null,
       gift_aid: body.gift_aid === 'yes',
+      monthly_donation_opted: body.monthly_donation_opted === 'yes',
+      monthly_donation_amount: body.monthly_donation_opted === 'yes' && body.monthly_donation_amount ? Number(body.monthly_donation_amount) : null,
     }
 
     // Try with all columns; if migration hasn't run yet, retry with base columns only
