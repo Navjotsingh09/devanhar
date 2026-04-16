@@ -78,13 +78,13 @@ export async function captureApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email, requires_payment_support').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'approved') throw new Error('Already approved')
   if (app.stripe_payment_intent_id) { const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); await stripe.paymentIntents.capture(app.stripe_payment_intent_id) }
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
-  sendApprovalEmail(app.email, app.first_name).catch(() => {})
+  sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === 'yes').catch(() => {})
   revalidatePath('/dashboard/submissions')
 }
 

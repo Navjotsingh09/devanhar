@@ -139,7 +139,13 @@ function buildTaskDescription(app: CampApplicationData): string {
   if (app.id_document_type || app.id_document_url) {
     lines.push('')
     lines.push('### ID Document')
-    lines.push('[View uploaded document](' + app.id_document_url + ')')
+    if (app.id_document_type) lines.push('- **Type:** ' + app.id_document_type)
+    const docUrl = app.id_document_url && /^https?:\/\//i.test(app.id_document_url)
+      ? app.id_document_url
+      : app.id_document_url
+        ? (process.env.NEXT_PUBLIC_SUPABASE_URL || '') + '/storage/v1/object/public/camp-applications/' + app.id_document_url
+        : ''
+    if (docUrl) lines.push('[View uploaded document](' + docUrl + ')')
   }
 
   return lines.join('\n')

@@ -379,7 +379,7 @@ export function CampApplicationForm({
       if (!res.ok) {
         setIdUploadError(json?.error || "Failed to upload file")
       } else {
-        update("id_document_url", json?.file_path ?? "")
+        update("id_document_url", json?.public_url ?? json?.file_path ?? "")
       }
     } catch {
       setIdUploadError("Network error uploading file. Please try again.")

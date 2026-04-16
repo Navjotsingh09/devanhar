@@ -227,14 +227,14 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                                 {Object.entries(sub.form_data).filter(([, v]) => v != null && v !== '' && String(v) !== 'null').map(([key, value]) => (
                                   <div key={key} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3 py-1 border-b border-border last:border-0">
                                     <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                                    {key === 'id_document_url' && typeof value === 'string' && /^https?:\/\//i.test(value) ? (
+                                    {key === 'id_document_url' && typeof value === 'string' && value.length > 0 ? (
                                       <a
-                                        href={value}
+                                        href={/^https?:\/\//i.test(value) ? value : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/camp-applications/${value}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-foreground font-medium underline break-all sm:text-right"
                                       >
-                                        {value}
+                                        View Document
                                       </a>
                                     ) : (
                                       <span className="text-foreground font-medium break-words sm:text-right">{formatFieldValue(value)}</span>

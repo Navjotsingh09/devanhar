@@ -4,7 +4,7 @@ function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 const FROM_EMAIL = 'Devanhaar <noreply@devanhaar.com>'
 
-export async function sendApprovalEmail(to: string, firstName: string) {
+export async function sendApprovalEmail(to: string, firstName: string, requiresPaymentSupport = false) {
   if (!process.env.RESEND_API_KEY) return
   try {
     await getResend().emails.send({
@@ -22,7 +22,9 @@ export async function sendApprovalEmail(to: string, firstName: string) {
       </div>
       <p style="color:#374151;font-size:16px;line-height:1.6;">Dear <strong>${firstName}</strong>,</p>
       <p style="color:#374151;font-size:16px;line-height:1.6;">We are delighted to inform you that your application for <strong>Singhs Camp</strong> has been <span style="color:#059669;font-weight:bold;">approved</span>!</p>
-      <p style="color:#374151;font-size:16px;line-height:1.6;">Your payment of <strong>£199</strong> has been captured and your place is now confirmed.</p>
+      <p style="color:#374151;font-size:16px;line-height:1.6;">${requiresPaymentSupport
+        ? 'Your application has been reviewed and your place is now confirmed. Our team will be in touch regarding payment arrangements.'
+        : 'Your payment of <strong>£199</strong> has been captured and your place is now confirmed.'}</p>
       <div style="background:#ecfdf5;border-left:4px solid #059669;padding:16px;border-radius:4px;margin:24px 0;">
         <p style="color:#065f46;margin:0;font-size:14px;"><strong>What happens next?</strong></p>
         <ul style="color:#065f46;font-size:14px;margin:8px 0 0;padding-left:20px;">
