@@ -66,21 +66,32 @@ export default function EventsPage() {
           <div className="absolute -top-24 -right-10 h-72 w-72 rounded-full bg-amber-200/30 blur-3xl" />
           <div className="absolute -bottom-20 -left-8 h-64 w-64 rounded-full bg-orange-100/30 blur-3xl" />
           <div className="container mx-auto px-6 lg:px-12">
-            <div className="max-w-3xl">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-foreground/60 mb-4">
-                Events
-              </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
-                Event Pathways With Dedicated Registration
-              </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl">
-                Each event now has its own page and event-specific interest
-                form. Choose an event below to review details and submit your
-                registration inputs.
-              </p>
-              <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-sm font-semibold">
-                <Link href="#events-grid">Browse Events</Link>
-              </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-foreground/60 mb-4">
+                  Events
+                </p>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
+                  Event Pathways With Dedicated Registration
+                </h1>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl">
+                  Each event now has its own page and event-specific interest
+                  form. Choose an event below to review details and submit your
+                  registration inputs.
+                </p>
+                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-sm font-semibold">
+                  <Link href="#events-grid">Browse Events</Link>
+                </Button>
+              </div>
+              <div className="relative">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                  <img
+                    src="/community-event.jpg"
+                    alt="Devanhaar community events"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
