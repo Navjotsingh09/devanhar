@@ -25,7 +25,7 @@ const homeFAQs = [
   },
   {
     question: "How are donations used?",
-    answer: "Every donation directly supports our initiatives \u2014 from Singhs Camp and university programmes to Sikhi Vidyala and community outreach. We are transparent about how funds are allocated across our projects."
+    answer: "Every donation directly supports our initiatives \u2014 from Singhs Camp UK and university programmes to Sikhi Vidyala and community outreach. We are transparent about how funds are allocated across our projects."
   },
   {
     question: "Where is Devanhaar based?",

@@ -50,12 +50,12 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: "singhs-camp-2026-registrations-open",
-    title: "Singhs Camp 2026: Registrations Now Open",
+    title: "Singhs Camp UK 2026: Registrations Now Open",
     description: "Our flagship residential camp returns for 2026 with workshops, Kirtan, sport, and community building.",
     pillar: "Empower",
     date: "2026-03-10",
     readTime: "5 min",
-    content: "## Singhs Camp Returns\\n\\nSinghs Camp is back for 2026. Young Sikhs aged 16-30 come together for an immersive programme.\\n\\n### What to Expect\\n- **Interactive Workshops**\\n- **Kirtan & Simran**\\n- **Sports & Outdoor Activities**\\n- **Late Night Diwans**\\n- **Langar & Community**\\n\\n> Singhs Camp changed my life. I found my Sangat and made lifelong friends.",
+    content: "## Singhs Camp UK Returns\\n\\nSinghs Camp UK is back for 2026. Young Sikhs aged 16-30 come together for an immersive programme.\\n\\n### What to Expect\\n- **Interactive Workshops**\\n- **Kirtan & Simran**\\n- **Sports & Outdoor Activities**\\n- **Late Night Diwans**\\n- **Langar & Community**\\n\\n> Singhs Camp UK changed my life. I found my Sangat and made lifelong friends.",
   },
   {
     slug: "400-youth-empowered-through-devanhaar",
@@ -64,7 +64,7 @@ export const blogPosts: BlogPost[] = [
     pillar: "Empower",
     date: "2026-01-05",
     readTime: "3 min",
-    content: "## Empowering 400+ Young Sikhs\\n\\nDevanhaar has directly empowered over 400 young Sikhs.\\n\\n### Where the Impact Happens\\n- **Singhs Camp** \u2014 residential weekends\\n- **Sikhi Vidyala** \u2014 regular academy sessions\\n- **University Talks** \u2014 reaching students UK-wide\\n- **Community Events** \u2014 Nagar Kirtans and gatherings\\n\\n### Measuring Impact\\n- 94% report increased confidence in their Sikh identity\\n- 89% developed practical skills\\n- 91% feel more connected to the Sikh community",
+    content: "## Empowering 400+ Young Sikhs\\n\\nDevanhaar has directly empowered over 400 young Sikhs.\\n\\n### Where the Impact Happens\\n- **Singhs Camp UK** \u2014 residential weekends\\n- **Sikhi Vidyala** \u2014 regular academy sessions\\n- **University Talks** \u2014 reaching students UK-wide\\n- **Community Events** \u2014 Nagar Kirtans and gatherings\\n\\n### Measuring Impact\\n- 94% report increased confidence in their Sikh identity\\n- 89% developed practical skills\\n- 91% feel more connected to the Sikh community",
   },
   {
     slug: "50-events-annually-building-sangat",

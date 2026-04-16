@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = getSupabaseAdmin()
 
-    // Look up Kaurs Camp initiative
+    // Look up Kaurs Camp UK initiative
     const { data: initiative } = await supabase
       .from('initiatives')
       .select('id')
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     }
 
     await supabase.from('activity_log').insert({
-      action: 'Kaurs Camp application received via Beacon webhook',
+      action: 'Kaurs Camp UK application received via Beacon webhook',
       entity_type: 'camp_application',
       entity_id: data.id,
       metadata: {

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "Sikh camp donations",
     "charity donation UK",
     "Sikh youth funding",
-    "Singhs Camp donation",
+    "Singhs Camp UK donation",
     "Sikhi Vidyala support",
   ],
   openGraph: {

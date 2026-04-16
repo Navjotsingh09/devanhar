@@ -9,12 +9,12 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 export const metadata: Metadata = {
   title: "Our Projects & Initiatives | Devanhaar Sikh Charity",
   description:
-    "Explore Devanhaar's eight live initiatives from Singhs Camp and Kaurs Camp to Sikhi Vidyala, Khalsa Catalyst, and university outreach across the UK.",
+    "Explore Devanhaar's eight live initiatives from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala, Khalsa Catalyst, and university outreach across the UK.",
   keywords: [
     "Devanhaar projects",
     "Sikh camps UK",
-    "Singhs Camp",
-    "Kaurs Camp",
+    "Singhs Camp UK",
+    "Kaurs Camp UK",
     "Sikhi Vidyala",
     "Khalsa Catalyst",
     "Sikh university outreach",
@@ -32,12 +32,12 @@ const projectsFAQs = [
   {
     question: "How many initiatives does Devanhaar run?",
     answer:
-      "Devanhaar currently runs eight live initiatives: Singhs Camp, Kaurs Camp, Kids Camps, Sikhi Vidyala, Khalsa Catalyst, University Projects, Gurmat Academy, and Self Defence Academy. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
+      "Devanhaar currently runs eight live initiatives: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikhi Vidyala, Khalsa Catalyst, University Projects, Gurmat Academy, and Self Defence Academy. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
   },
   {
     question: "Who can attend Devanhaar camps?",
     answer:
-      "Our camps are open to young Sikhs from across the UK and Europe. Singhs Camp is for young men, Kaurs Camp is for young women, and Kids Camps caters to younger children. All are welcome regardless of their current level of Sikhi practice.",
+      "Our camps are open to young Sikhs from across the UK and Europe. Singhs Camp UK is for young men, Kaurs Camp UK is for young women, and Kids Camps caters to younger children. All are welcome regardless of their current level of Sikhi practice.",
   },
   {
     question: "What is Sikhi Vidyala?",

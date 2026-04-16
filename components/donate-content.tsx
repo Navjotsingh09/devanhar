@@ -373,7 +373,7 @@ export function DonateContent() {
             </blockquote>
             <div>
               <p className="font-medium text-foreground">Harpreet Singh</p>
-              <p className="text-sm text-muted-foreground">Singhs Camp 2023 Participant</p>
+              <p className="text-sm text-muted-foreground">Singhs Camp UK 2023 Participant</p>
             </div>
           </div>
         </div>

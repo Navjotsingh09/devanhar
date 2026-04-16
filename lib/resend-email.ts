@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 
 function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
-const FROM_EMAIL = 'Singhs Camp <singhscampuk@devanhaar.com>'
+const FROM_EMAIL = 'Singhs Camp UK <singhscampuk@devanhaar.com>'
 
 export async function sendApprovalEmail(to: string, firstName: string, requiresPaymentSupport = false) {
   if (!process.env.RESEND_API_KEY) return
@@ -10,7 +10,7 @@ export async function sendApprovalEmail(to: string, firstName: string, requiresP
     await getResend().emails.send({
       from: FROM_EMAIL,
       to,
-      subject: 'Your Singhs Camp Application Has Been Approved!',
+      subject: 'Your Singhs Camp UK Application Has Been Approved!',
       html: `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -21,7 +21,7 @@ export async function sendApprovalEmail(to: string, firstName: string, requiresP
         <h1 style="color:#1a1a1a;font-size:24px;margin:0;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</h1>
       </div>
       <p style="color:#374151;font-size:16px;line-height:1.6;">Dear <strong>${firstName}</strong>,</p>
-      <p style="color:#374151;font-size:16px;line-height:1.6;">We are delighted to inform you that your application for <strong>Singhs Camp</strong> has been <span style="color:#059669;font-weight:bold;">approved</span>!</p>
+      <p style="color:#374151;font-size:16px;line-height:1.6;">We are delighted to inform you that your application for <strong>Singhs Camp UK</strong> has been <span style="color:#059669;font-weight:bold;">approved</span>!</p>
       <p style="color:#374151;font-size:16px;line-height:1.6;">${requiresPaymentSupport
         ? 'Your application has been reviewed and your place is now confirmed. Our team will be in touch regarding payment arrangements.'
         : 'Your payment of <strong>£199</strong> has been captured and your place is now confirmed.'}</p>
@@ -33,7 +33,7 @@ export async function sendApprovalEmail(to: string, firstName: string, requiresP
           <li>If you have any questions, reply to this email</li>
         </ul>
       </div>
-      <p style="color:#374151;font-size:16px;line-height:1.6;">We look forward to seeing you at Singhs Camp!</p>
+      <p style="color:#374151;font-size:16px;line-height:1.6;">We look forward to seeing you at Singhs Camp UK!</p>
       <p style="color:#374151;font-size:16px;line-height:1.6;">Warm regards,<br><strong>The Devanhaar Team</strong></p>
     </div>
     <p style="text-align:center;color:#9ca3af;font-size:12px;margin-top:20px;">Devanhaar. All rights reserved.</p>
@@ -52,7 +52,7 @@ export async function sendDeclineEmail(to: string, firstName: string) {
     await getResend().emails.send({
       from: FROM_EMAIL,
       to,
-      subject: 'Update on Your Singhs Camp Application',
+      subject: 'Update on Your Singhs Camp UK Application',
       html: `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -63,7 +63,7 @@ export async function sendDeclineEmail(to: string, firstName: string) {
         <h1 style="color:#1a1a1a;font-size:24px;margin:0;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</h1>
       </div>
       <p style="color:#374151;font-size:16px;line-height:1.6;">Dear <strong>${firstName}</strong>,</p>
-      <p style="color:#374151;font-size:16px;line-height:1.6;">Thank you for your interest in <strong>Singhs Camp</strong>. After careful review, we regret to inform you that we are unable to approve your application at this time.</p>
+      <p style="color:#374151;font-size:16px;line-height:1.6;">Thank you for your interest in <strong>Singhs Camp UK</strong>. After careful review, we regret to inform you that we are unable to approve your application at this time.</p>
       <p style="color:#374151;font-size:16px;line-height:1.6;">Any payment hold on your card has been <strong>released</strong> and you will not be charged.</p>
       <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:4px;margin:24px 0;">
         <p style="color:#92400e;margin:0;font-size:14px;"><strong>Please note:</strong> This decision does not prevent you from applying to future Devanhaar initiatives. We encourage you to stay connected and apply again.</p>

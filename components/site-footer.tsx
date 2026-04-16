@@ -19,8 +19,8 @@ export function SiteFooter() {
     {
       title: "Initiatives",
       links: [
-        { label: "Singhs Camp", href: "/initiatives/singhs-camp" },
-        { label: "Kaurs Camp", href: "/initiatives/kaurs-camp" },
+        { label: "Singhs Camp UK", href: "/initiatives/singhs-camp" },
+        { label: "Kaurs Camp UK", href: "/initiatives/kaurs-camp" },
         { label: "Kids Camps", href: "/initiatives/kids-camps" },
         { label: "Sikhi Vidyala", href: "/initiatives/sikhi-vidyala" },
         { label: "Gurmat Academy", href: "/initiatives/gurmat-academy" },

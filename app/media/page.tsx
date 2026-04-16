@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     "Sikh charity news UK",
     "Devanhaar media",
     "Sikh community stories",
-    "Singhs Camp news",
+    "Singhs Camp UK news",
     "Sikh press coverage",
     "Devanhaar gallery",
     "Sikh events UK",

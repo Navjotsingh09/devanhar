@@ -74,7 +74,7 @@ export function CampApplicationForm({
   const [submitted, setSubmitted] = useState(false)
   const [successTitle, setSuccessTitle] = useState("Application submitted")
   const [successMessage, setSuccessMessage] = useState(
-    "Your application for Singhs Camp has been submitted successfully."
+    "Your application for Singhs Camp UK has been submitted successfully."
   )
   const [successDetails, setSuccessDetails] = useState(
     "All applications will be considered by the admin team and you will hear back within 6 weeks."
@@ -317,7 +317,7 @@ export function CampApplicationForm({
 
         setSuccessTitle(data.title || "Application submitted")
         setSuccessMessage(
-          data.message || "Your application for Singhs Camp has been submitted successfully."
+          data.message || "Your application for Singhs Camp UK has been submitted successfully."
         )
         setSuccessDetails(
           data.payment_mode === "deferred"
@@ -418,7 +418,7 @@ export function CampApplicationForm({
       <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto relative mx-auto my-0 sm:my-6" style={{ WebkitOverflowScrolling: "touch" }}>
         <div className="sticky top-0 bg-background z-10 border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
-            <h2 className="text-lg font-bold">Singhs Camp Application</h2>
+            <h2 className="text-lg font-bold">Singhs Camp UK Application</h2>
             <p className="text-xs text-muted-foreground">
               Step {step + 1} of {STEPS.length} &mdash; {STEPS[step]}
             </p>
@@ -882,7 +882,7 @@ export function CampApplicationForm({
                   </Select>
                 </div>
                 <div>
-                  <Label>Been to Singhs Camp before? *</Label>
+                  <Label>Been to Singhs Camp UK before? *</Label>
                   <Select value={form.been_to_singhs_camp_before} onValueChange={v => update("been_to_singhs_camp_before", v)}>
                     <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                     <SelectContent>
@@ -966,7 +966,7 @@ export function CampApplicationForm({
               {form.requires_payment_support !== "yes" && (
                 <div className="mt-6 pt-6 border-t">
                   <div className="text-center mb-4">
-                    <h4 className="text-lg font-bold">Support Singhs Camp</h4>
+                    <h4 className="text-lg font-bold">Support Singhs Camp UK</h4>
                     <p className="text-sm text-muted-foreground mt-1">
                       The standard camp contribution is <strong>£199</strong>. If you are able to give more, your generosity directly funds activities, meals and facilities for all campers.
                     </p>

@@ -157,7 +157,7 @@ export function InitiativePageLayout({
     window.history.replaceState({}, "", url.toString())
   }, [])
 
-  const isSinghsCamp = title.trim().toLowerCase() === "singhs camp"
+  const isSinghsCamp = title.trim().toLowerCase() === "singhs camp uk"
   const effectiveCtaClick = onCtaClick ?? (isSinghsCamp ? () => setShowCampForm(true) : undefined)
 
   return (

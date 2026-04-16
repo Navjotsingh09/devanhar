@@ -44,10 +44,10 @@ const team: TeamMember[] = [
   { name: "Bapinder Singh", role: "Tech Manager", bio: "Leading technology strategy and digital infrastructure.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=BapinderSingh", linkedin: "#" },
   { name: "Inderjit Singh", role: "Head of Self Defence Academy", bio: "Leading self-defence programmes rooted in discipline and empowerment.", image: "/team/inderjit-singh.jpg", linkedin: "https://www.linkedin.com/in/inderjit-singh-963015273/" },
   { name: "Amrit Singh", role: "Creative Lead", bio: "Shaping visual identity and creative direction.", image: "/team/amrit-singh.jpg", linkedin: "https://www.linkedin.com/in/amritsinghpahal/" },
-  { name: "Gursimran Kaur", role: "Head of Kaurs Camp", bio: "Leading the Kaurs Camp initiative to empower young women.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GursimranKaur", linkedin: "#" },
+  { name: "Gursimran Kaur", role: "Head of Kaurs Camp UK", bio: "Leading the Kaurs Camp UK initiative to empower young women.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=GursimranKaur", linkedin: "#" },
   { name: "Benita", role: "Head of Kaurs Spaces", bio: "Creating safe and empowering spaces for Kaurs.", image: "/team/benita.jpg", linkedin: "https://www.linkedin.com/in/benitakaur/" },
   { name: "Gurpreet Rana", role: "Head of Media", bio: "Managing media output and storytelling across platforms.", image: "/team/gurpreet-rana.jpg", linkedin: "https://www.linkedin.com/in/gurpreetkrana/" },
-  { name: "Pritam Singh", role: "Head of Singhs Camp", bio: "Leading the Singhs Camp initiative to develop young men.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=PritamSingh", linkedin: "https://www.linkedin.com/in/pritam-singh-mandair-346220201/" },
+  { name: "Pritam Singh", role: "Head of Singhs Camp UK", bio: "Leading the Singhs Camp UK initiative to develop young men.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=PritamSingh", linkedin: "https://www.linkedin.com/in/pritam-singh-mandair-346220201/" },
   { name: "Dr Taran Singh", role: "Head of Operations", bio: "Supporting operational delivery and strategic planning.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=DrTaranSingh", linkedin: "https://www.linkedin.com/in/taran-dhillon-64a444254/" },
   { name: "Sat Singh", role: "Head of Partnerships", bio: "Building strategic partnerships to expand reach.", image: "https://api.dicebear.com/9.x/notionists/svg?seed=SatSingh", linkedin: "https://www.linkedin.com/in/sat-dhillon/" },
 ]

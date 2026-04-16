@@ -1,7 +1,7 @@
 import { InitiativePageLayout } from "@/components/initiative-page-layout"
 
 export const metadata = {
-  title: "Kaurs Camp | Devanhaar",
+  title: "Kaurs Camp UK | Devanhaar",
   description:
     "Be part of an everlasting sisterhood, with the aim of connecting to Sikhi and the Guru's Sangat.",
 }
@@ -9,13 +9,13 @@ export const metadata = {
 export default function KaursCampPage() {
   return (
     <InitiativePageLayout
-      title="Kaurs Camp"
+      title="Kaurs Camp UK"
       tagline="Be part of an everlasting sisterhood, with the aim of connecting to Sikhi and the Guru's Sangat."
       heroImage="/initiatives/kaurs-camp-top.jpg"
       ctaText="Enquiry Now"
       ctaHref="/contact"
       description={[
-        "If you're seeking spiritual growth, meaningful conversations and an escape from your 9-5 or whatever it is that's occupying your time -- take that leap of faith and apply for Kaurs Camp.",
+        "If you're seeking spiritual growth, meaningful conversations and an escape from your 9-5 or whatever it is that's occupying your time -- take that leap of faith and apply for Kaurs Camp UK.",
         "Camp is open to all females aged 16 and above. It doesn't matter where you are on your Sikhi journey, it's open to everyone from any walk of life. We've even had campers travel from around the world.",
         "A typical day starts with Amrit Vela (early hours of the morning) and is filled with a variety of activities, talks and experiences. Every day is different and an opportunity for self-reflection and to connect with Waheguru.",
       ]}
@@ -52,7 +52,7 @@ export default function KaursCampPage() {
         },
         {
           videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/7d7ebc5362bf4a92828175d205b7bbfa/7d7ebc5362bf4a92828175d205b7bbfa.HD-1080p-2.5Mbps-36118001.mp4?v=0",
-          caption: "A Day in the Life at Kaurs Camp"
+          caption: "A Day in the Life at Kaurs Camp UK"
         },
         {
           videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/5e164916db744a76b4667809c26bcb68/5e164916db744a76b4667809c26bcb68.HD-1080p-2.5Mbps-36117962.mp4?v=0",
@@ -83,7 +83,7 @@ export default function KaursCampPage() {
         {
           question: "What are the facilities like?",
           answer:
-            "Kaurs Camp is being held in the middle of the Welsh countryside with everything you'll need. You'll be sharing a room or a yurt with your group, with the aim to connect to sangat and make lifelong sisters.",
+            "Kaurs Camp UK is being held in the middle of the Welsh countryside with everything you'll need. You'll be sharing a room or a yurt with your group, with the aim to connect to sangat and make lifelong sisters.",
         },
       ]}
       galleryImages={[

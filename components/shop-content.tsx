@@ -209,7 +209,7 @@ export function ShopContent() {
             100% of Profits Fund Our Initiatives
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-            From Singhs Camp to Sikhi Vidyala, every item you purchase helps empower Sikh
+            From Singhs Camp UK to Sikhi Vidyala, every item you purchase helps empower Sikh
             youth and strengthen communities across the UK.
           </p>
           <div className="mt-8 flex justify-center gap-4 flex-wrap">

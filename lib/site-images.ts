@@ -65,8 +65,8 @@ export const SITE_PAGES: Record<string, SitePage> = {
     label: "Initiatives Page",
     sections: [
       { value: "hero-projects", label: "Hero Image", dbSection: "hero", dbCategory: "projects", dimensions: "1600 × 1200px (4:3)", description: "Hero image on the right side of the projects page header" },
-      { value: "project-card-singhs-camp", label: "Card — Singhs Camp", dbSection: "projects", dbCategory: "singhs-camp", dimensions: "2100 × 900px (21:9)", description: "Featured project banner image" },
-      { value: "project-card-kaurs-camp", label: "Card — Kaurs Camp", dbSection: "projects", dbCategory: "kaurs-camp", dimensions: "1600 × 1000px (16:10)" },
+      { value: "project-card-singhs-camp", label: "Card — Singhs Camp UK", dbSection: "projects", dbCategory: "singhs-camp", dimensions: "2100 × 900px (21:9)", description: "Featured project banner image" },
+      { value: "project-card-kaurs-camp", label: "Card — Kaurs Camp UK", dbSection: "projects", dbCategory: "kaurs-camp", dimensions: "1600 × 1000px (16:10)" },
       { value: "project-card-kids-camps", label: "Card — Kids Camps", dbSection: "projects", dbCategory: "kids-camps", dimensions: "1600 × 1000px (16:10)" },
       { value: "project-card-sikhi-vidyala", label: "Card — Sikhi Vidyala", dbSection: "projects", dbCategory: "sikhi-vidyala", dimensions: "900 × 1200px (3:4 portrait)" },
       { value: "project-card-khalsa-catalyst", label: "Card — Khalsa Catalyst", dbSection: "projects", dbCategory: "khalsa-catalyst", dimensions: "900 × 1200px (3:4 portrait)" },
@@ -86,14 +86,14 @@ export const SITE_PAGES: Record<string, SitePage> = {
     ],
   },
   "singhs-camp": {
-    label: "Singhs Camp",
+    label: "Singhs Camp UK",
     sections: [
       { value: "singhs-camp-hero", label: "Hero Image", dbSection: "initiative", dbCategory: "singhs-camp", defaultLabel: "hero", dimensions: "1600 × 1200px (4:3)" },
       { value: "singhs-camp-gallery", label: "Gallery", dbSection: "initiative", dbCategory: "singhs-camp", dimensions: "1200 × 900px (4:3)" },
     ],
   },
   "kaurs-camp": {
-    label: "Kaurs Camp",
+    label: "Kaurs Camp UK",
     sections: [
       { value: "kaurs-camp-hero", label: "Hero Image", dbSection: "initiative", dbCategory: "kaurs-camp", defaultLabel: "hero", dimensions: "1600 × 1200px (4:3)" },
       { value: "kaurs-camp-gallery", label: "Gallery", dbSection: "initiative", dbCategory: "kaurs-camp", dimensions: "1200 × 900px (4:3)" },

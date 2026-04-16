@@ -10,14 +10,14 @@ export function SinghsCampContent() {
   return (
     <>
       <InitiativePageLayout
-        title="Singhs Camp"
+        title="Singhs Camp UK"
         tagline="A residential camp experience for young Singhs"
         heroImage="/initiatives/singhs-camp-top.jpg"
         featuredVideoUrl="https://www.youtube.com/embed/SJLmqSh-L8I"
         ctaText="Apply Now"
         onCtaClick={() => setShowForm(true)}
         description={[
-          "Singhs Camp is a unique residential experience designed to bring young Singhs together in an environment of learning, growth, and community.",
+          "Singhs Camp UK is a unique residential experience designed to bring young Singhs together in an environment of learning, growth, and community.",
           "Through workshops, discussions, and activities, participants deepen their connection to Sikhi while building lasting friendships.",
         ]}
         highlights={[
@@ -41,17 +41,17 @@ export function SinghsCampContent() {
           },
           {
             videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/c51ad5ab73d040078ccd9db3f22ccb8e/c51ad5ab73d040078ccd9db3f22ccb8e.HD-1080p-2.5Mbps-35892682.mp4?v=0",
-            caption: "Onkar Singh’s journey at Singhs Camp is a testament to transformation.",
+            caption: "Onkar Singh’s journey at Singhs Camp UK is a testament to transformation.",
           },
           {
             videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/b6f2e5058efb4b57b6e099039a2a90b2/b6f2e5058efb4b57b6e099039a2a90b2.HD-1080p-2.5Mbps-35892846.mp4?v=0",
-            caption: "Dhiren Singh shares his vibrant journey at Singhs Camp.",
+            caption: "Dhiren Singh shares his vibrant journey at Singhs Camp UK.",
           },
         ]}
         faqs={[
           {
-            question: "Who can attend Singhs Camp?",
-            answer: "Singhs Camp is open to young Singhs aged 16 and over.",
+            question: "Who can attend Singhs Camp UK?",
+            answer: "Singhs Camp UK is open to young Singhs aged 16 and over.",
           },
           {
             question: "What should I bring?",

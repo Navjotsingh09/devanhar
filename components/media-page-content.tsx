@@ -27,8 +27,8 @@ interface Playlist {
 }
 
 const galleryImages: GalleryImage[] = [
-  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Singhs+Camp", alt: "Singhs Camp group", category: "camps", caption: "Singhs Camp 2024 \u2014 Brotherhood and Bonding" },
-  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kaurs+Camp", alt: "Kaurs Camp workshop", category: "camps", caption: "Kaurs Camp \u2014 Empowering Young Sikh Women" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Singhs+Camp", alt: "Singhs Camp UK group", category: "camps", caption: "Singhs Camp UK 2024 \u2014 Brotherhood and Bonding" },
+  { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kaurs+Camp", alt: "Kaurs Camp UK workshop", category: "camps", caption: "Kaurs Camp UK \u2014 Empowering Young Sikh Women" },
   { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Kids+Camps", alt: "Kids learning", category: "education", caption: "Kids Camp \u2014 Learning Through Play" },
   { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Youth+Summit", alt: "Youth summit", category: "events", caption: "Youth Leadership Summit 2024" },
   { src: "https://placehold.co/800x600/1a1a2e/e0e0e0.png?text=Community+Gathering", alt: "Community gathering", category: "community", caption: "Community Gathering \u2014 United in Seva" },
@@ -50,8 +50,8 @@ const playlists: Playlist[] = [
     title: "Camp Highlights",
     description: "Relive the best moments from our residential camps across the UK.",
     videos: [
-      { id: "dQw4w9WgXcQ", title: "Singhs Camp 2024 Highlights", duration: "8:42", description: "A look back at an incredible week of brotherhood, Sikhi, and seva." },
-      { id: "jNQXAC9IVRw", title: "Kaurs Camp \u2014 Stories of Empowerment", duration: "12:15", description: "Young Sikh women share their transformative camp experiences." },
+      { id: "dQw4w9WgXcQ", title: "Singhs Camp UK 2024 Highlights", duration: "8:42", description: "A look back at an incredible week of brotherhood, Sikhi, and seva." },
+      { id: "jNQXAC9IVRw", title: "Kaurs Camp UK \u2014 Stories of Empowerment", duration: "12:15", description: "Young Sikh women share their transformative camp experiences." },
       { id: "9bZkp7q19f0", title: "Kids Camp Fun & Learning", duration: "5:30", description: "See how our youngest campers explore their heritage through play." },
       { id: "kJQP7kiw5Fk", title: "Night of Kirtan \u2014 Camp 2024", duration: "15:20", description: "A beautiful evening of Kirtan and spiritual connection at camp." },
     ],

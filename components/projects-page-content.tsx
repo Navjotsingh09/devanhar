@@ -17,7 +17,7 @@ interface Project {
 
 const projects: Project[] = [
   {
-    title: "Singhs Camp",
+    title: "Singhs Camp UK",
     description: "An immersive residential camp bringing together young Sikh men for spiritual growth, physical discipline, and community bonding.",
     image: "/initiatives/singhs-camp-top.jpg",
     href: "/initiatives/singhs-camp",
@@ -25,7 +25,7 @@ const projects: Project[] = [
     icon: Users,
   },
   {
-    title: "Kaurs Camp",
+    title: "Kaurs Camp UK",
     description: "A dedicated space for young Sikh women to explore their identity, build confidence, and deepen their connection to Sikhi.",
     image: "/initiatives/kaurs-camp-top.jpg",
     href: "/initiatives/kaurs-camp",

@@ -33,7 +33,7 @@ const pillars = [
     description:
       "We create lifelong relationships centred in community, mentorship, and shared growth. The bonds formed through our programmes extend far beyond camp week or classroom sessions -- they become the sangat that carries people through life's journey.",
     description2:
-      "Connection is the heartbeat of everything we do. From the friendships forged at Singhs Camp and Kaurs Camp to the mentor-mentee relationships built through Khalsa Catalyst, every programme strengthens the web of support that holds our community together.",
+      "Connection is the heartbeat of everything we do. From the friendships forged at Singhs Camp UK and Kaurs Camp UK to the mentor-mentee relationships built through Khalsa Catalyst, every programme strengthens the web of support that holds our community together.",
   },
 ]
 

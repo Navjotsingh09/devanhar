@@ -75,7 +75,7 @@ const teamMembers = [
   },
   {
     name: "Gursimran Kaur",
-    role: "Head of Kaurs Camp",
+    role: "Head of Kaurs Camp UK",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=GursimranKaur&backgroundColor=b6e3f4",
     linkedin: "#",
   },
@@ -93,7 +93,7 @@ const teamMembers = [
   },
   {
     name: "Pritam Singh",
-    role: "Head of Singhs Camp",
+    role: "Head of Singhs Camp UK",
     img: "https://api.dicebear.com/9.x/notionists/svg?seed=PritamSingh&backgroundColor=ffd5dc",
     linkedin: "https://www.linkedin.com/in/pritam-singh-mandair-346220201/",
   },

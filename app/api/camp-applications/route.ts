@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         const { data: existingApp } = await dupeQuery.maybeSingle()
         if (existingApp) {
           return NextResponse.json(
-            { error: 'This phone number has already been used for a Singhs Camp application. If you believe this is an error, please contact the team.' },
+            { error: 'This phone number has already been used for a Singhs Camp UK application. If you believe this is an error, please contact the team.' },
             { status: 409 }
           )
         }
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
       // Handle unique constraint violation on phone_normalized + initiative_id
       if (error.code === '23505' && error.message?.includes('phone')) {
         return NextResponse.json(
-          { error: 'This phone number has already been used for a Singhs Camp application. If you believe this is an error, please contact the team.' },
+          { error: 'This phone number has already been used for a Singhs Camp UK application. If you believe this is an error, please contact the team.' },
           { status: 409 }
         )
       }

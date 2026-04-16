@@ -43,7 +43,7 @@ function buildFieldEntries(payload: Record<string, unknown>): Array<[string, str
 
 function buildTextBody(entries: Array<[string, string]>, submissionId: string): string {
   const lines = [
-    'New Singhs Camp application submitted.',
+    'New Singhs Camp UK application submitted.',
     '',
     `Submission ID: ${submissionId}`,
     `Generated at: ${new Date().toISOString()}`,
@@ -65,7 +65,7 @@ function buildHtmlBody(entries: Array<[string, string]>, submissionId: string): 
 
   return `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111;">
-      <h2 style="margin:0 0 8px;">New Singhs Camp application submitted</h2>
+      <h2 style="margin:0 0 8px;">New Singhs Camp UK application submitted</h2>
       <p style="margin:0 0 4px;"><strong>Submission ID:</strong> ${escapeHtml(submissionId)}</p>
       <p style="margin:0 0 16px;"><strong>Generated at:</strong> ${escapeHtml(new Date().toISOString())}</p>
       <table style="border-collapse:collapse;width:100%;font-size:14px;">
@@ -90,9 +90,9 @@ export async function sendCampApplicationOwnerNotification(params: {
   const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Singhs Camp <singhscampuk@devanhaar.com>',
+    from: process.env.RESEND_FROM_EMAIL || 'Singhs Camp UK <singhscampuk@devanhaar.com>',
     to: OWNER_NOTIFICATION_EMAIL,
-    subject: `New Singhs Camp submission - ${params.submissionId}`,
+    subject: `New Singhs Camp UK submission - ${params.submissionId}`,
     text: buildTextBody(entries, params.submissionId),
     html: buildHtmlBody(entries, params.submissionId),
   })

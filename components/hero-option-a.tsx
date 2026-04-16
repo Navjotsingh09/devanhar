@@ -49,7 +49,7 @@ export function HeroOptionA() {
               <CalendarDays className="h-4 w-4 text-amber-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white">Singhs Camp</p>
+              <p className="text-sm font-semibold text-white">Singhs Camp UK</p>
               <p className="text-[11px] text-white/50">Applications open Monday 20th April</p>
             </div>
             <ArrowRight className="ml-auto h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-amber-400" />
