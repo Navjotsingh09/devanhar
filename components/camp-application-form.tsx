@@ -1025,6 +1025,9 @@ export function CampApplicationForm({
                           autoFocus
                         />
                       </div>
+                      {form.donation_amount && Number(form.donation_amount) < 199 && (
+                        <p className="text-xs text-red-600 mt-1 text-center">Minimum camp contribution is £199</p>
+                      )}
                     </div>
                   )}
 
@@ -1129,7 +1132,7 @@ export function CampApplicationForm({
                 <div className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4">
                   <div className="flex justify-between text-sm">
                     <span>Camp fee (one-off):</span>
-                    <span className="font-semibold">£{form.donation_amount || '199'}</span>
+                    <span className="font-semibold">£{Math.max(Number(form.donation_amount) || 199, 199)}</span>
                   </div>
                   {form.monthly_donation_opted === "yes" && Number(form.monthly_donation_amount) > 0 && (
                     <div className="flex justify-between text-sm mt-1">
@@ -1139,7 +1142,7 @@ export function CampApplicationForm({
                   )}
                   <div className="border-t mt-2 pt-2 flex justify-between text-sm font-bold">
                     <span>Total charged today:</span>
-                    <span>£{form.donation_amount || '199'}</span>
+                    <span>£{Math.max(Number(form.donation_amount) || 199, 199)}</span>
                   </div>
                   {form.monthly_donation_opted === "yes" && Number(form.monthly_donation_amount) > 0 && (
                     <p className="text-xs text-muted-foreground mt-1 text-center">
@@ -1173,7 +1176,7 @@ export function CampApplicationForm({
                 Next <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={submitting || !hasRequiredSubmissionFields()}>
+              <Button onClick={handleSubmit} disabled={submitting || !hasRequiredSubmissionFields() || (form.requires_payment_support !== "yes" && Number(form.donation_amount) < 199)}>
                 {submitting ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
                 ) : (
