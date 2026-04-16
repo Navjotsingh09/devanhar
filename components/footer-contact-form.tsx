@@ -29,7 +29,7 @@ export function FooterContactForm() {
 
         if (error) throw error
       } else {
-        window.location.href = `mailto:info@devanhaar.com?subject=Contact from ${firstName} ${lastName}&body=${encodeURIComponent(message)}`
+        window.location.href = `mailto:admin@devanhaar.com?subject=Contact from ${firstName} ${lastName}&body=${encodeURIComponent(message)}`
         return
       }
 

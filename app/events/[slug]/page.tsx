@@ -57,7 +57,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         <section className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl font-bold text-foreground mb-6">Interest Form</h2>
-            <form className="grid gap-4 rounded-2xl border border-border bg-card p-6 md:grid-cols-2" action="mailto:info@devanhaar.com" method="post" encType="text/plain">
+            <form className="grid gap-4 rounded-2xl border border-border bg-card p-6 md:grid-cols-2" action="mailto:admin@devanhaar.com" method="post" encType="text/plain">
               <input aria-label="Event" name="event" defaultValue={event.title} className="hidden" />
               <input name="name" placeholder="Name" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
               <input name="age" placeholder="Age" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />

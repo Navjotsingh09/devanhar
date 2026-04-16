@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS admin_profiles (
 
 INSERT INTO admin_profiles (id, full_name, role)
 SELECT id, email, 'admin' FROM auth.users
-WHERE email = 'info@devanhaar.com'
+WHERE email = 'admin@devanhaar.com'
 ON CONFLICT (id) DO NOTHING;
 
 -- RLS Policies

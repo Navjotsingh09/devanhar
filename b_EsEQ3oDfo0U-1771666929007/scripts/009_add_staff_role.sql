@@ -31,7 +31,7 @@ BEGIN
 END;
 $$;
 
--- Set your current user (info@devanhaar.com) as admin
+-- Set your current user (admin@devanhaar.com) as admin
 -- Replace the UUID below with your actual user ID if different
 UPDATE public.admin_profiles
   SET role = 'admin'
