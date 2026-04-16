@@ -91,7 +91,7 @@ export async function sendCampApplicationOwnerNotification(params: {
   const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Devanhaar <noreply@devanhaar.com>',
+    from: process.env.RESEND_FROM_EMAIL || 'Singhs Camp <singhscampuk@devanhaar.com>',
     to: OWNER_NOTIFICATION_EMAIL,
     subject: `New Singhs Camp submission - ${params.submissionId}`,
     text: buildTextBody(entries, params.submissionId),

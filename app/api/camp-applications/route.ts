@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { sendToClickUp } from '@/lib/clickup'
 import { sendToMailchimp } from '@/lib/mailchimp'
 import { sendCampApplicationOwnerNotification } from '@/lib/camp-application-notifier'
+import { sendApplicationUnderReviewEmail } from '@/lib/camp-applicant-emails'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -208,6 +209,14 @@ export async function POST(request: NextRequest) {
       payload: fullSubmissionPayload,
     }).catch((notifyErr) => {
       console.error('[Camp Notification] Failed to send owner email (non-blocking):', notifyErr)
+    })
+
+    sendApplicationUnderReviewEmail({
+      to: body.email.trim().toLowerCase(),
+      firstName: body.first_name.trim(),
+      applicationId: String(data.id),
+    }).catch((emailErr) => {
+      console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
     })
 
     await supabase.from('activity_log').insert({
