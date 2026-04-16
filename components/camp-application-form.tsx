@@ -34,7 +34,7 @@ const STEPS = [
   "Your Address",
   "Further Details",
   "Travel & Payment",
-  "BJJ / Wrestling",
+  "BJJ / Wrestling / Boxing",
   "Additional Questions",
   "Contact Consent",
 ]
@@ -122,6 +122,7 @@ export function CampApplicationForm({
     own_transport_type: "",
     bjj_interest: "",
     bjj_fought_professionally: "",
+    bjj_sport_preference: [] as string[],
     allergies: [] as string[],
     carries_epipen: "",
     other_allergy: "",
@@ -255,7 +256,7 @@ export function CampApplicationForm({
       case 5:
         return !!(
           form.bjj_interest &&
-          (form.bjj_interest === "no" || form.bjj_fought_professionally)
+          (form.bjj_interest === "no" || (form.bjj_sport_preference.length > 0 && form.bjj_fought_professionally))
         )
       case 6:
         return !!(
@@ -759,7 +760,14 @@ export function CampApplicationForm({
                 </div>
               )}
               <div>
-                <Label htmlFor="requires_payment_support" className="mb-1.5 block">Do you require payment support?</Label>
+                <Label htmlFor="room_preference" className="mb-1.5 block">Are there any other campers you would like to room with?</Label>
+                <Textarea id="room_preference" rows={2}
+                  placeholder="Enter names of campers you'd like to share a room with"
+                  value={form.room_preference}
+                  onChange={e => update("room_preference", e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor="requires_payment_support" className="mb-1.5 block">Do you require financial support for your camp donation of £199?</Label>
                 <Select value={form.requires_payment_support} onValueChange={v => update("requires_payment_support", v)}>
                   <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
@@ -777,20 +785,13 @@ export function CampApplicationForm({
                     onChange={e => update("payment_support_details", e.target.value)} />
                 </div>
               )}
-              <div>
-                <Label htmlFor="room_preference" className="mb-1.5 block">Are there any other campers you would like to room with?</Label>
-                <Textarea id="room_preference" rows={2}
-                  placeholder="Enter names of campers you'd like to share a room with"
-                  value={form.room_preference}
-                  onChange={e => update("room_preference", e.target.value)} />
-              </div>
             </div>
           )}
           {step === 5 && (
             <div className="space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
-                  We will be hosting a <strong>BJJ/wrestling competition</strong> during camp, where the final will be taking place in front of the entire camp.
+                  We will be hosting a <strong>BJJ/wrestling/boxing competition</strong> during camp, where the final will be taking place in front of the entire camp.
                 </p>
               </div>
               <div>
@@ -807,16 +808,41 @@ export function CampApplicationForm({
                 </Select>
               </div>
               {form.bjj_interest === "yes" && (
-                <div>
-                  <Label>Have you ever fought professionally? *</Label>
-                  <Select value={form.bjj_fought_professionally} onValueChange={v => update("bjj_fought_professionally", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <>
+                  <div>
+                    <Label>What sport are you interested in? *</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Select all that apply.
+                    </p>
+                    <div className="flex flex-wrap gap-4 mt-2">
+                      {["BJJ", "Wrestling", "Boxing"].map((sport) => (
+                        <label key={sport} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={form.bjj_sport_preference.includes(sport)}
+                            onChange={e => {
+                              const updated = e.target.checked
+                                ? [...form.bjj_sport_preference, sport]
+                                : form.bjj_sport_preference.filter((s) => s \!== sport)
+                              update("bjj_sport_preference", updated)
+                            }}
+                          />
+                          {sport}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Have you ever fought professionally? *</Label>
+                    <Select value={form.bjj_fought_professionally} onValueChange={v => update("bjj_fought_professionally", v)}>
+                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
               )}
             </div>
           )}

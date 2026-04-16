@@ -154,6 +154,8 @@ export async function POST(request: NextRequest) {
     const migrationColumns = {
       bjj_interest: body.bjj_interest === 'yes',
       bjj_fought_professionally: body.bjj_interest === 'yes' && body.bjj_fought_professionally === 'yes',
+      bjj_sport_preference: body.bjj_interest === "yes" && Array.isArray(body.bjj_sport_preference) ? body.bjj_sport_preference : null,
+      bjj_sport_preference: body.bjj_interest === 'yes' && Array.isArray(body.bjj_sport_preference) ? body.bjj_sport_preference : null,
       consent_whatsapp: body.consent_whatsapp === 'yes',
       phone_normalized: phoneNormalized,
       allergies: Array.isArray(body.allergies) ? body.allergies.join(', ') : (body.allergies || null),
@@ -282,6 +284,8 @@ export async function POST(request: NextRequest) {
       takeaway_from_camp: body.takeaway_from_camp,
       bjj_interest: body.bjj_interest || null,
       bjj_fought_professionally: body.bjj_fought_professionally || null,
+      bjj_sport_preference: Array.isArray(body.bjj_sport_preference) ? body.bjj_sport_preference.join(', ') : null,
+      bjj_sport_preference: Array.isArray(body.bjj_sport_preference) ? body.bjj_sport_preference.join(', ') : null,
       consent_email: body.consent_email || null,
       consent_phone: body.consent_phone || null,
       consent_sms: body.consent_sms || null,
@@ -351,8 +355,8 @@ export async function POST(request: NextRequest) {
               currency: 'gbp',
               unit_amount: campFeeGbp * 100,
               product_data: {
-                name: 'Singhs Camp Donation',
-                description: `Camp application for ${body.first_name} ${body.last_name}`,
+                name: 'Devanhaar Donation',
+                description: `${body.first_name} ${body.last_name}`,
               },
             },
             quantity: 1,

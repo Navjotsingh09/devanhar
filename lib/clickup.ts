@@ -41,6 +41,8 @@ interface CampApplicationData {
   takeaway_from_camp: string
   bjj_interest?: string | null
   bjj_fought_professionally?: string | null
+  bjj_sport_preference?: string | null
+  bjj_sport_preference?: string | null
   consent_email?: string | null
   consent_phone?: string | null
   consent_sms?: string | null
