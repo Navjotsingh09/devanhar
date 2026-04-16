@@ -23,8 +23,9 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
+    console.log('[View ID] User:', user.id, 'Profile:', JSON.stringify(profile))
     if (!profile || !['admin', 'super_admin', 'staff'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: 'Forbidden', debug: { userId: user.id, profile } }, { status: 403 })
     }
 
     const filePath = request.nextUrl.searchParams.get('path')
