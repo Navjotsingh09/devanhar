@@ -371,12 +371,23 @@ export async function POST(request: NextRequest) {
               currency: 'gbp',
               unit_amount: donationAmountPence,
               product_data: {
-                name: 'Devanhaar Donation',
-                description: body.monthly_donation_opted === 'yes' ? `${body.first_name} ${body.last_name} (Camp fee + \u00a3${body.monthly_donation_amount}/mo subscription)` : `${body.first_name} ${body.last_name}`,
+                name: 'Singhs Camp UK – Camp Fee',
+                description: `One-off donation for ${body.first_name} ${body.last_name}`,
               },
             },
             quantity: 1,
           },
+          ...(body.monthly_donation_opted === 'yes' && Number(body.monthly_donation_amount) > 0 ? [{
+            price_data: {
+              currency: 'gbp',
+              unit_amount: 0,
+              product_data: {
+                name: `Monthly Donation – \u00a3${body.monthly_donation_amount}/month`,
+                description: 'Recurring subscription starts after approval (not charged today)',
+              },
+            },
+            quantity: 1,
+          }] : []),
         ],
         custom_fields: [
           {
