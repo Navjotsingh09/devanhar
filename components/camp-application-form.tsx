@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -126,6 +126,24 @@ export function CampApplicationForm({
     other_allergy: "",
     gift_aid: "",
   })
+
+  // Lock body scroll when modal is open to prevent iOS blank screen issues
+  useEffect(() => {
+    const scrollY = window.scrollY
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.left = "0"
+    document.body.style.right = "0"
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.left = ""
+      document.body.style.right = ""
+      document.body.style.overflow = ""
+      window.scrollTo(0, scrollY)
+    }
+  }, [])
 
   const update = (field: string, value: string | boolean | string[]) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -382,8 +400,8 @@ export function CampApplicationForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 sm:p-4">
-      <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto relative mx-auto my-0 sm:my-6">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-3 sm:p-4" style={{ WebkitOverflowScrolling: "touch" }}>
+      <div className="bg-background rounded-2xl w-full max-w-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto relative mx-auto my-0 sm:my-6" style={{ WebkitOverflowScrolling: "touch" }}>
         <div className="sticky top-0 bg-background z-10 border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
             <h2 className="text-lg font-bold">Singhs Camp Application</h2>
@@ -473,10 +491,10 @@ export function CampApplicationForm({
                 </div>
                 <div>
                   <Label htmlFor="age_at_camp">Age at Camp</Label>
-                  <Input id="age_at_camp" type="number" min={16}
+                  <Input id="age_at_camp" type="text" inputMode="numeric"
                     value={form.age_at_camp}
                     readOnly
-                    className="bg-muted/50" />
+                    className="bg-muted/50 max-w-[100px]" />
                 </div>
               </div>
               <div>
@@ -564,15 +582,14 @@ export function CampApplicationForm({
                 {isOver18() ? (
                   <p className="text-sm text-muted-foreground mt-1">Not applicable (you are 18 or over)</p>
                 ) : (
-                  <select id="under_18_consent"
-                    className="w-full border rounded-md px-3 py-2"
-                    value={form.under_18_consent}
-                    onChange={e => update("under_18_consent", e.target.value)}>
-                    <option value="">Select...</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                    <option value="na">N/A (18 or over)</option>
-                  </select>
+                  <Select value={form.under_18_consent} onValueChange={v => update("under_18_consent", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                      <SelectItem value="na">N/A (18 or over)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
               <div>
@@ -607,14 +624,13 @@ export function CampApplicationForm({
                 {form.allergies.length > 0 && (
                   <div className="mt-3">
                     <Label htmlFor="carries_epipen">Will you carry an EpiPen?</Label>
-                    <select id="carries_epipen"
-                      className="w-full border rounded-md px-3 py-2"
-                      value={form.carries_epipen}
-                      onChange={e => update("carries_epipen", e.target.value)}>
-                      <option value="">Select...</option>
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
-                    </select>
+                    <Select value={form.carries_epipen} onValueChange={v => update("carries_epipen", v)}>
+                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
               </div>
@@ -626,22 +642,19 @@ export function CampApplicationForm({
               </div>
               <div>
                 <Label htmlFor="id_document_type">Photo ID Document Type *</Label>
-                <select
-                  id="id_document_type"
-                  className="w-full border rounded-md px-3 py-2"
-                  value={form.id_document_type}
-                  onChange={e => {
-                    update("id_document_type", e.target.value)
-                    // Reset upload if document type changes after upload
+                <Select value={form.id_document_type} onValueChange={v => {
+                    update("id_document_type", v)
                     if (form.id_document_url) {
                       update("id_document_url", "")
                     }
                   }}>
-                  <option value="">Select document type...</option>
-                  {(isOver18() ? ID_DOCUMENT_TYPES_ADULT : ID_DOCUMENT_TYPES_MINOR).map((dt) => (
-                    <option key={dt.value} value={dt.value}>{dt.label}</option>
-                  ))}
-                </select>
+                  <SelectTrigger><SelectValue placeholder="Select document type..." /></SelectTrigger>
+                  <SelectContent>
+                    {(isOver18() ? ID_DOCUMENT_TYPES_ADULT : ID_DOCUMENT_TYPES_MINOR).map((dt) => (
+                      <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {form.id_document_type === "parent-guardian-id" && (
                   <p className="text-xs text-blue-700 mt-1">
                     Please upload your parent or guardian's ID document. A consent letter must also be provided.
@@ -672,9 +685,21 @@ export function CampApplicationForm({
                     </div>
                   )}
                   {!uploadingId && form.id_document_url && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      <p className="text-xs text-green-700">Document uploaded successfully. It will be reviewed by the team.</p>
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <p className="text-xs text-green-700">Document uploaded successfully. It will be reviewed by the team.</p>
+                      </div>
+                      {!form.id_document_url.toLowerCase().endsWith(".pdf") && (
+                        <div className="border rounded-lg overflow-hidden w-32 h-32 bg-muted/30">
+                          <img
+                            src={form.id_document_url}
+                            alt="Uploaded ID preview"
+                            className="w-full h-full object-cover"
+                            onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                   {idUploadError && (
@@ -696,15 +721,14 @@ export function CampApplicationForm({
               </div>
               <div>
                 <Label htmlFor="travel_method">Travel Method</Label>
-                <select id="travel_method"
-                  className="w-full border rounded-md px-3 py-2"
-                  value={form.travel_method}
-                  onChange={e => update("travel_method", e.target.value)}>
-                  <option value="">Select...</option>
-                  <option value="coach-birmingham">Coach from Birmingham</option>
-                  <option value="coach-london">Coach from London (Southall)</option>
-                  <option value="own-transport">Own Transport</option>
-                </select>
+                <Select value={form.travel_method} onValueChange={v => update("travel_method", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="coach-birmingham">Coach from Birmingham</SelectItem>
+                    <SelectItem value="coach-london">Coach from London (Southall)</SelectItem>
+                    <SelectItem value="own-transport">Own Transport</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {form.travel_method === "own-transport" && (
                 <div>
@@ -727,14 +751,13 @@ export function CampApplicationForm({
               )}
               <div>
                 <Label htmlFor="requires_payment_support">Do you require payment support?</Label>
-                <select id="requires_payment_support"
-                  className="w-full border rounded-md px-3 py-2"
-                  value={form.requires_payment_support}
-                  onChange={e => update("requires_payment_support", e.target.value)}>
-                  <option value="">Select...</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
+                <Select value={form.requires_payment_support} onValueChange={v => update("requires_payment_support", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {form.requires_payment_support === "yes" && (
                 <div>
@@ -766,26 +789,24 @@ export function CampApplicationForm({
                 <p className="text-xs text-muted-foreground mb-2">
                   If you answer yes, you will be allocated a ranking match during camp.
                 </p>
-                <select
-                  className="w-full border rounded-md px-3 py-2"
-                  value={form.bjj_interest}
-                  onChange={e => update("bjj_interest", e.target.value)}>
-                  <option value="">Select...</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
+                <Select value={form.bjj_interest} onValueChange={v => update("bjj_interest", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {form.bjj_interest === "yes" && (
                 <div>
                   <Label>Have you ever fought professionally? *</Label>
-                  <select
-                    className="w-full border rounded-md px-3 py-2"
-                    value={form.bjj_fought_professionally}
-                    onChange={e => update("bjj_fought_professionally", e.target.value)}>
-                    <option value="">Select...</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
+                  <Select value={form.bjj_fought_professionally} onValueChange={v => update("bjj_fought_professionally", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
             </div>
@@ -795,44 +816,41 @@ export function CampApplicationForm({
             <div className="space-y-4">
               <div>
                 <Label>How did you hear about camp? *</Label>
-                  <select
-                    className="w-full border rounded-md px-3 py-2"
-                    value={form.heard_about_camp}
-                    onChange={e => update("heard_about_camp", e.target.value)}>
-                    <option value="">Select...</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="twitter">Twitter / X</option>
-                    <option value="friend">Friend</option>
-                    <option value="gurdwara">Gurdwara</option>
-                    <option value="university">University</option>
-                    <option value="website">Website</option>
-                    <option value="previous-camper">Previous Camper</option>
-                    <option value="other">Other</option>
-                  </select>
+                  <Select value={form.heard_about_camp} onValueChange={v => update("heard_about_camp", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="facebook">Facebook</SelectItem>
+                      <SelectItem value="twitter">Twitter / X</SelectItem>
+                      <SelectItem value="friend">Friend</SelectItem>
+                      <SelectItem value="gurdwara">Gurdwara</SelectItem>
+                      <SelectItem value="university">University</SelectItem>
+                      <SelectItem value="website">Website</SelectItem>
+                      <SelectItem value="previous-camper">Previous Camper</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>First residential camp? *</Label>
-                  <select
-                    className="w-full border rounded-md px-3 py-2"
-                    value={form.first_residential_camp}
-                    onChange={e => update("first_residential_camp", e.target.value)}>
-                    <option value="">Select...</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
+                  <Select value={form.first_residential_camp} onValueChange={v => update("first_residential_camp", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label>Been to Singhs Camp before? *</Label>
-                  <select
-                    className="w-full border rounded-md px-3 py-2"
-                    value={form.been_to_singhs_camp_before}
-                    onChange={e => update("been_to_singhs_camp_before", e.target.value)}>
-                    <option value="">Select...</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
+                  <Select value={form.been_to_singhs_camp_before} onValueChange={v => update("been_to_singhs_camp_before", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               {form.first_residential_camp === "no" && (
@@ -844,17 +862,16 @@ export function CampApplicationForm({
               )}
               <div>
                 <Label>Sikhi knowledge level *</Label>
-                  <select
-                    className="w-full border rounded-md px-3 py-2"
-                    value={form.sikhi_knowledge_level}
-                    onChange={e => update("sikhi_knowledge_level", e.target.value)}>
-                    <option value="">Select...</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="some">Some Knowledge</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="good">Good</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
+                  <Select value={form.sikhi_knowledge_level} onValueChange={v => update("sikhi_knowledge_level", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="some">Some Knowledge</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="good">Good</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
               </div>
               <div>
                 <Label>What do you hope to take away from camp? *</Label>
@@ -895,16 +912,18 @@ export function CampApplicationForm({
                   <span className="text-sm">WhatsApp</span>
                 </label>
               </div>
-              <div className="mt-6 pt-6 border-t">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={form.gift_aid === "yes"}
-                    onChange={e => update("gift_aid", e.target.checked ? "yes" : "no")} />
-                  <span className="text-sm">Gift Aid Declaration - I want this camp to reclaim tax on my donation</span>
-                </label>
-                <p className="text-xs text-muted-foreground mt-2">
-                  By ticking this box, I confirm I am a UK taxpayer and pay Income Tax or Capital Gains Tax equal to or greater than the tax that Devanhaar will reclaim.
-                </p>
-              </div>
+              {form.requires_payment_support !== "yes" && (
+                <div className="mt-6 pt-6 border-t">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={form.gift_aid === "yes"}
+                      onChange={e => update("gift_aid", e.target.checked ? "yes" : "no")} />
+                    <span className="text-sm">Gift Aid Declaration - I want this camp to reclaim tax on my donation</span>
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    By ticking this box, I confirm I am a UK taxpayer and pay Income Tax or Capital Gains Tax equal to or greater than the tax that Devanhaar will reclaim.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
