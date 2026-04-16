@@ -183,7 +183,7 @@ export function ContactContent() {
                         name="name"
                         placeholder="Your full name"
                         required
-                        className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
+                        className="w-full rounded-lg border border-border bg-background px-4 py-3 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
                       />
                     </div>
                     <div>
@@ -194,7 +194,7 @@ export function ContactContent() {
                         name="email"
                         placeholder="you@example.com"
                         required
-                        className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
+                        className="w-full rounded-lg border border-border bg-background px-4 py-3 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
                       />
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export function ContactContent() {
                       name="subject"
                       placeholder="What is this about?"
                       required
-                      className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
+                      className="w-full rounded-lg border border-border bg-background px-4 py-3 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
                     />
                   </div>
                   <div>
@@ -217,7 +217,7 @@ export function ContactContent() {
                       rows={6}
                       placeholder="Tell us more about your enquiry..."
                       required
-                      className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors resize-none"
+                      className="w-full rounded-lg border border-border bg-background px-4 py-3 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors resize-none"
                     />
                   </div>
                   <Button type="submit" disabled={loading} size="lg" className="w-full gap-2">

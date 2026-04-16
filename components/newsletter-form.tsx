@@ -68,16 +68,17 @@ export function NewsletterForm() {
           <div className="flex gap-2">
             <input
               type="email"
+              aria-label="Email address"
               placeholder="Your email goes here"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="flex-1 px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/30 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
             <Button
               type="submit"
               disabled={status === "loading"}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-5 py-3 text-sm"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-5 py-3 text-sm min-h-[44px]"
             >
               {status === "loading" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

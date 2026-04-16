@@ -78,7 +78,7 @@ export function FooterContactForm() {
                 First name
               </label>
               <input type="text" id="footerFirstName" name="firstName" required
-                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-base md:text-sm"
                 placeholder="Your first name" />
             </div>
             <div>
@@ -86,7 +86,7 @@ export function FooterContactForm() {
                 Last name
               </label>
               <input type="text" id="footerLastName" name="lastName" required
-                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-base md:text-sm"
                 placeholder="Your last name" />
             </div>
           </div>
@@ -95,7 +95,7 @@ export function FooterContactForm() {
               Email
             </label>
             <input type="email" id="footerEmail" name="email" required
-              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 text-base md:text-sm"
               placeholder="your@email.com" />
           </div>
           <div>

@@ -80,34 +80,34 @@ export function EventInterestForm({ eventTitle, slug }: EventInterestFormProps) 
         <div className="md:col-span-2 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">{errorMsg}</div>
       )}
 
-      <input name="name" placeholder="Name" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
-      <input name="age" placeholder="Age" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
-      <input name="phone" placeholder="Phone No" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
-      <input name="email" type="email" placeholder="Email" required className="rounded-xl border border-border bg-background px-4 py-3 text-sm" />
+      <input name="name" aria-label="Full name" placeholder="Name" required className="rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+      <input name="age" aria-label="Age" inputMode="numeric" pattern="[0-9]*" placeholder="Age" required className="rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+      <input name="phone" aria-label="Phone number" type="tel" placeholder="Phone No" required className="rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+      <input name="email" type="email" aria-label="Email address" placeholder="Email" required className="rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
 
       {slug === "horse-riding" && (
         <div className="md:col-span-2 rounded-xl border border-border p-4">
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="paying_x" /> Interested in paying X amount</label>
-          <input name="times_available" placeholder="Times available (morning/evening)" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
-          <input name="cadence" placeholder="Weekly/Monthly" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
+          <label className="flex items-center gap-3 text-sm min-h-[44px] py-1"><input type="checkbox" className="h-5 w-5 accent-primary" name="paying_x" /> Interested in paying X amount</label>
+          <input name="times_available" placeholder="Times available (morning/evening)" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+          <input name="cadence" placeholder="Weekly/Monthly" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
         </div>
       )}
 
       {slug === "shooting" && (
         <div className="md:col-span-2 rounded-xl border border-border p-4">
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="membership_12_week" /> Interested in a 12 week membership?</label>
-          <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="pay_250" /> Interested in paying GBP 250 a year?</label>
-          <input name="weekly_commitment" placeholder="Weekly commitment" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
-          <label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" name="commitment_policy" /> If not committed, can be removed from course.</label>
+          <label className="flex items-center gap-3 text-sm min-h-[44px] py-1"><input type="checkbox" className="h-5 w-5 accent-primary" name="membership_12_week" /> Interested in a 12 week membership?</label>
+          <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" className="h-5 w-5 accent-primary" name="pay_250" /> Interested in paying GBP 250 a year?</label>
+          <input name="weekly_commitment" placeholder="Weekly commitment" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+          <label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" className="h-5 w-5 accent-primary" name="commitment_policy" /> If not committed, can be removed from course.</label>
         </div>
       )}
 
       {slug === "yorkshire-3-peaks" && (
         <div className="md:col-span-2 rounded-xl border border-border p-4">
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="terms" required /> Agree to T&Cs *</label>
-          <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="fee_20" required /> GBP 20 per person, coach included *</label>
-          <input name="hiked_before" placeholder="Hiked before?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
-          <input name="hiking_level" placeholder="What level?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
+          <label className="flex items-center gap-3 text-sm min-h-[44px] py-1"><input type="checkbox" className="h-5 w-5 accent-primary" name="terms" required /> Agree to T&Cs *</label>
+          <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" className="h-5 w-5 accent-primary" name="fee_20" required /> GBP 20 per person, coach included *</label>
+          <input name="hiked_before" placeholder="Hiked before?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+          <input name="hiking_level" placeholder="What level?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
         </div>
       )}
 

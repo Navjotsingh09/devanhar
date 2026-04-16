@@ -447,7 +447,7 @@ export function CampApplicationForm({
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="first_name">First Name *</Label>
+                  <Label htmlFor="first_name" className="mb-1.5 block">First Name *</Label>
                   <Input id="first_name" value={form.first_name}
                     onChange={e => update("first_name", e.target.value)} />
                   {form.first_name.trim().length > 0 && !isValidName(form.first_name) && (
@@ -455,7 +455,7 @@ export function CampApplicationForm({
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="last_name">Last Name *</Label>
+                  <Label htmlFor="last_name" className="mb-1.5 block">Last Name *</Label>
                   <Input id="last_name" value={form.last_name}
                     onChange={e => update("last_name", e.target.value)} />
                   {form.last_name.trim().length > 0 && !isValidName(form.last_name) && (
@@ -464,7 +464,7 @@ export function CampApplicationForm({
                 </div>
               </div>
               <div>
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email" className="mb-1.5 block">Email *</Label>
                 <Input id="email" type="email" value={form.email}
                   onChange={e => update("email", e.target.value)} />
                 {form.email.trim() && !isValidEmail(form.email) && (
@@ -473,7 +473,7 @@ export function CampApplicationForm({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="date_of_birth">Date of Birth *</Label>
+                  <Label htmlFor="date_of_birth" className="mb-1.5 block">Date of Birth *</Label>
                   <Input id="date_of_birth" type="date"
                     value={form.date_of_birth}
                     onChange={e => {
@@ -490,7 +490,7 @@ export function CampApplicationForm({
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="age_at_camp">Age at Camp</Label>
+                  <Label htmlFor="age_at_camp" className="mb-1.5 block">Age at Camp</Label>
                   <Input id="age_at_camp" type="text" inputMode="numeric"
                     value={form.age_at_camp}
                     readOnly
@@ -498,7 +498,7 @@ export function CampApplicationForm({
                 </div>
               </div>
               <div>
-                <Label htmlFor="phone">Phone *</Label>
+                <Label htmlFor="phone" className="mb-1.5 block">Phone *</Label>
                 <Input id="phone" type="tel" value={form.phone}
                   onChange={e => update("phone", e.target.value)} />
                 {form.phone.trim().length > 0 && !isValidPhone(form.phone) && (
@@ -507,12 +507,12 @@ export function CampApplicationForm({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="university">University</Label>
+                  <Label htmlFor="university" className="mb-1.5 block">University</Label>
                   <Input id="university" value={form.university}
                     onChange={e => update("university", e.target.value)} />
                 </div>
                 <div>
-                  <Label htmlFor="occupation">Occupation</Label>
+                  <Label htmlFor="occupation" className="mb-1.5 block">Occupation</Label>
                   <Input id="occupation" value={form.occupation}
                     onChange={e => update("occupation", e.target.value)} />
                 </div>
@@ -522,34 +522,34 @@ export function CampApplicationForm({
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="address_line_1">Address Line 1 *</Label>
+                <Label htmlFor="address_line_1" className="mb-1.5 block">Address Line 1 *</Label>
                 <Input id="address_line_1" value={form.address_line_1}
                   onChange={e => update("address_line_1", e.target.value)} />
               </div>
               <div>
-                <Label htmlFor="address_line_2">Address Line 2</Label>
+                <Label htmlFor="address_line_2" className="mb-1.5 block">Address Line 2</Label>
                 <Input id="address_line_2" value={form.address_line_2}
                   onChange={e => update("address_line_2", e.target.value)} />
               </div>
               <div>
-                <Label htmlFor="address_line_3">Address Line 3</Label>
+                <Label htmlFor="address_line_3" className="mb-1.5 block">Address Line 3</Label>
                 <Input id="address_line_3" value={form.address_line_3}
                   onChange={e => update("address_line_3", e.target.value)} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="city">City *</Label>
+                  <Label htmlFor="city" className="mb-1.5 block">City *</Label>
                   <Input id="city" value={form.city}
                     onChange={e => update("city", e.target.value)} />
                 </div>
                 <div>
-                  <Label htmlFor="postcode">Postcode *</Label>
+                  <Label htmlFor="postcode" className="mb-1.5 block">Postcode *</Label>
                   <Input id="postcode" value={form.postcode}
                     onChange={e => update("postcode", e.target.value)} />
                 </div>
               </div>
               <div>
-                <Label htmlFor="country">Country *</Label>
+                <Label htmlFor="country" className="mb-1.5 block">Country *</Label>
                 <Input id="country" value={form.country}
                   onChange={e => update("country", e.target.value)} />
               </div>
@@ -558,27 +558,27 @@ export function CampApplicationForm({
           {step === 3 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="emergency_contact_name">Emergency Contact Name *</Label>
+                <Label htmlFor="emergency_contact_name" className="mb-1.5 block">Emergency Contact Name *</Label>
                 <Input id="emergency_contact_name"
                   value={form.emergency_contact_name}
                   onChange={e => update("emergency_contact_name", e.target.value)} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="emergency_contact_relationship">Relationship *</Label>
+                  <Label htmlFor="emergency_contact_relationship" className="mb-1.5 block">Relationship *</Label>
                   <Input id="emergency_contact_relationship"
                     value={form.emergency_contact_relationship}
                     onChange={e => update("emergency_contact_relationship", e.target.value)} />
                 </div>
                 <div>
-                  <Label htmlFor="emergency_contact_phone">Phone *</Label>
+                  <Label htmlFor="emergency_contact_phone" className="mb-1.5 block">Phone *</Label>
                   <Input id="emergency_contact_phone" type="tel"
                     value={form.emergency_contact_phone}
                     onChange={e => update("emergency_contact_phone", e.target.value)} />
                 </div>
               </div>
               <div>
-                <Label htmlFor="under_18_consent">Under 18 Parental Consent</Label>
+                <Label htmlFor="under_18_consent" className="mb-1.5 block">Under 18 Parental Consent</Label>
                 {isOver18() ? (
                   <p className="text-sm text-muted-foreground mt-1">Not applicable (you are 18 or over)</p>
                 ) : (
@@ -593,7 +593,7 @@ export function CampApplicationForm({
                 )}
               </div>
               <div>
-                <Label htmlFor="dietary_requirements">Dietary Requirements</Label>
+                <Label htmlFor="dietary_requirements" className="mb-1.5 block">Dietary Requirements</Label>
                 <Textarea id="dietary_requirements" rows={3}
                   value={form.dietary_requirements}
                   onChange={e => update("dietary_requirements", e.target.value)} />
@@ -623,7 +623,7 @@ export function CampApplicationForm({
                 )}
                 {form.allergies.length > 0 && (
                   <div className="mt-3">
-                    <Label htmlFor="carries_epipen">Will you carry an EpiPen?</Label>
+                    <Label htmlFor="carries_epipen" className="mb-1.5 block">Will you carry an EpiPen?</Label>
                     <Select value={form.carries_epipen} onValueChange={v => update("carries_epipen", v)}>
                       <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                       <SelectContent>
@@ -635,13 +635,13 @@ export function CampApplicationForm({
                 )}
               </div>
               <div>
-                <Label htmlFor="medical_requirements">Medical Requirements</Label>
+                <Label htmlFor="medical_requirements" className="mb-1.5 block">Medical Requirements</Label>
                 <Textarea id="medical_requirements" rows={3}
                   value={form.medical_requirements}
                   onChange={e => update("medical_requirements", e.target.value)} />
               </div>
               <div>
-                <Label htmlFor="id_document_type">Photo ID Document Type *</Label>
+                <Label htmlFor="id_document_type" className="mb-1.5 block">Photo ID Document Type *</Label>
                 <Select value={form.id_document_type} onValueChange={v => {
                     update("id_document_type", v)
                     if (form.id_document_url) {
@@ -668,7 +668,7 @@ export function CampApplicationForm({
               </div>
               {form.id_document_type && (
                 <div>
-                  <Label htmlFor="id_document">Upload Document *</Label>
+                  <Label htmlFor="id_document" className="mb-1.5 block">Upload Document *</Label>
                   <Input
                     id="id_document"
                     type="file"
@@ -720,7 +720,7 @@ export function CampApplicationForm({
                 </p>
               </div>
               <div>
-                <Label htmlFor="travel_method">Travel Method</Label>
+                <Label htmlFor="travel_method" className="mb-1.5 block">Travel Method</Label>
                 <Select value={form.travel_method} onValueChange={v => update("travel_method", v)}>
                   <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
@@ -750,7 +750,7 @@ export function CampApplicationForm({
                 </div>
               )}
               <div>
-                <Label htmlFor="requires_payment_support">Do you require payment support?</Label>
+                <Label htmlFor="requires_payment_support" className="mb-1.5 block">Do you require payment support?</Label>
                 <Select value={form.requires_payment_support} onValueChange={v => update("requires_payment_support", v)}>
                   <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
@@ -761,7 +761,7 @@ export function CampApplicationForm({
               </div>
               {form.requires_payment_support === "yes" && (
                 <div>
-                  <Label htmlFor="payment_support_details">Please explain your circumstances</Label>
+                  <Label htmlFor="payment_support_details" className="mb-1.5 block">Please explain your circumstances</Label>
                   <Textarea id="payment_support_details" rows={3}
                     placeholder="Tell us about your situation so we can help"
                     value={form.payment_support_details}
@@ -769,7 +769,7 @@ export function CampApplicationForm({
                 </div>
               )}
               <div>
-                <Label htmlFor="room_preference">Are there any other campers you would like to room with?</Label>
+                <Label htmlFor="room_preference" className="mb-1.5 block">Are there any other campers you would like to room with?</Label>
                 <Textarea id="room_preference" rows={2}
                   placeholder="Enter names of campers you'd like to share a room with"
                   value={form.room_preference}
@@ -892,22 +892,22 @@ export function CampApplicationForm({
               </p>
               <div className="space-y-3">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={form.consent_email === "yes"}
+                  <input type="checkbox" className="h-5 w-5 accent-primary" checked={form.consent_email === "yes"}
                     onChange={e => update("consent_email", e.target.checked ? "yes" : "no")} />
                   <span className="text-sm">Email</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={form.consent_phone === "yes"}
+                  <input type="checkbox" className="h-5 w-5 accent-primary" checked={form.consent_phone === "yes"}
                     onChange={e => update("consent_phone", e.target.checked ? "yes" : "no")} />
                   <span className="text-sm">Phone</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={form.consent_sms === "yes"}
+                  <input type="checkbox" className="h-5 w-5 accent-primary" checked={form.consent_sms === "yes"}
                     onChange={e => update("consent_sms", e.target.checked ? "yes" : "no")} />
                   <span className="text-sm">SMS</span>
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={form.consent_whatsapp === "yes"}
+                  <input type="checkbox" className="h-5 w-5 accent-primary" checked={form.consent_whatsapp === "yes"}
                     onChange={e => update("consent_whatsapp", e.target.checked ? "yes" : "no")} />
                   <span className="text-sm">WhatsApp</span>
                 </label>
@@ -915,7 +915,7 @@ export function CampApplicationForm({
               {form.requires_payment_support !== "yes" && (
                 <div className="mt-6 pt-6 border-t">
                   <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={form.gift_aid === "yes"}
+                    <input type="checkbox" className="h-5 w-5 accent-primary" checked={form.gift_aid === "yes"}
                       onChange={e => update("gift_aid", e.target.checked ? "yes" : "no")} />
                     <span className="text-sm">Gift Aid Declaration - I want this camp to reclaim tax on my donation</span>
                   </label>
