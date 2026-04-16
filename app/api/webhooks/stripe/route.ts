@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
           .from("camp_applications")
           .update({
             status: "payment_pending",
+            stripe_customer_id: session.customer ? String(session.customer) : null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", campApplicationId)

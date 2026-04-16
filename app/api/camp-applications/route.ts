@@ -358,11 +358,13 @@ export async function POST(request: NextRequest) {
         payment_method_types: ['card'],
         payment_intent_data: {
           capture_method: 'manual',
+          setup_future_usage: 'off_session',
           metadata: {
             camp_application_id: data.id,
           },
         },
         customer_email: body.email.trim().toLowerCase(),
+        customer_creation: 'always',
         line_items: [
           {
             price_data: {
@@ -370,7 +372,7 @@ export async function POST(request: NextRequest) {
               unit_amount: donationAmountPence,
               product_data: {
                 name: 'Devanhaar Donation',
-                description: `${body.first_name} ${body.last_name}`,
+                description: body.monthly_donation_opted === 'yes' ? `${body.first_name} ${body.last_name} (Camp fee + \u00a3${body.monthly_donation_amount}/mo subscription)` : `${body.first_name} ${body.last_name}`,
               },
             },
             quantity: 1,
@@ -407,6 +409,8 @@ export async function POST(request: NextRequest) {
         metadata: {
           camp_application_id: data.id,
           gift_aid: body.gift_aid === 'yes' ? 'true' : 'false',
+          monthly_donation_opted: body.monthly_donation_opted === 'yes' ? 'true' : 'false',
+          monthly_donation_amount: body.monthly_donation_opted === 'yes' ? String(body.monthly_donation_amount || '0') : '0',
         },
         success_url: `${siteUrl}${initiativePath}?payment=success`,
         cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}`,

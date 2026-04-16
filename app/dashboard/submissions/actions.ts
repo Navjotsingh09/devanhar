@@ -78,12 +78,33 @@ export async function captureApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email, requires_payment_support').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email, requires_payment_support, monthly_donation_opted, monthly_donation_amount').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'approved') throw new Error('Already approved')
-  if (app.stripe_payment_intent_id) { const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); await stripe.paymentIntents.capture(app.stripe_payment_intent_id) }
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  if (app.stripe_payment_intent_id) { await stripe.paymentIntents.capture(app.stripe_payment_intent_id) }
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
+  // Create monthly subscription if opted in
+  if (app.monthly_donation_opted && app.monthly_donation_amount > 0 && app.stripe_payment_intent_id) {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id, { expand: ['customer', 'payment_method'] })
+      if (pi.customer && pi.payment_method) {
+        const customerId = typeof pi.customer === 'string' ? pi.customer : pi.customer.id
+        const pmId = typeof pi.payment_method === 'string' ? pi.payment_method : pi.payment_method.id
+        await stripe.customers.update(customerId, { invoice_settings: { default_payment_method: pmId } })
+        const subscription = await stripe.subscriptions.create({
+          customer: customerId,
+          items: [{ price_data: { currency: 'gbp', unit_amount: Math.round(app.monthly_donation_amount * 100), product_data: { name: 'Devanhaar Monthly Donation' }, recurring: { interval: 'month' } } }],
+          metadata: { camp_application_id: applicationId },
+        })
+        await supabase.from('camp_applications').update({ stripe_subscription_id: subscription.id }).eq('id', applicationId)
+        console.log('[Subscription] Created monthly subscription:', subscription.id)
+      }
+    } catch (subErr) {
+      console.error('[Subscription] Failed to create monthly subscription (non-blocking):', subErr)
+    }
+  }
   sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === true).catch(() => {})
   revalidatePath('/dashboard/submissions')
 }
