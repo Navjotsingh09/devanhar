@@ -1100,7 +1100,7 @@ export function CampApplicationForm({
                       <span className="text-sm font-medium text-muted-foreground">Custom monthly amount</span>
                     </button>
 
-                    {!["5", "10", "20", "50"].includes(form.monthly_donation_amount) && form.monthly_donation_amount !== "" && (
+                    {!["5", "10", "20", "50"].includes(form.monthly_donation_amount) && (
                       <div className="mt-3">
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">£</span>
