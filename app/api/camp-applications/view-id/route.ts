@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const admin = createAdminClient(supabaseUrl!, supabaseServiceKey!)
+
+    const { data: profile } = await admin
       .from('admin_profiles')
       .select('role')
       .eq('id', user.id)
@@ -38,8 +40,6 @@ export async function GET(request: NextRequest) {
     if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
-
-    const admin = createAdminClient(supabaseUrl, supabaseServiceKey)
 
     // Generate a signed URL valid for 1 hour
     const { data, error } = await admin.storage

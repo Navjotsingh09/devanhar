@@ -84,7 +84,7 @@ export async function captureApplicationPayment(applicationId: string) {
   if (app.stripe_payment_intent_id) { const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); await stripe.paymentIntents.capture(app.stripe_payment_intent_id) }
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
-  sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === 'yes').catch(() => {})
+  sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === true).catch(() => {})
   revalidatePath('/dashboard/submissions')
 }
 
