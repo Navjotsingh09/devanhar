@@ -332,30 +332,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Calculate donation amount
+    const requestedAmount = Number(body.donation_amount) || campFeeGbp
+    const donationAmount = Math.max(requestedAmount, campFeeGbp) // minimum is camp fee
+    const donationAmountPence = donationAmount * 100
+    const isRecurring = body.donation_type === 'recurring'
+
     // Create Stripe Checkout session
     try {
       const stripe = getStripeClient()
       const initiativePath = `/initiatives/${body.initiative_slug || 'singhs-camp'}`
       const returnTo = encodeURIComponent(initiativePath)
       const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
+        mode: isRecurring ? 'subscription' : 'payment',
         payment_method_types: ['card'],
-        payment_intent_data: {
-          capture_method: 'manual',
-          metadata: {
-            camp_application_id: data.id,
+        ...(isRecurring ? {} : {
+          payment_intent_data: {
+            capture_method: 'manual',
+            metadata: {
+              camp_application_id: data.id,
+            },
           },
-        },
+        }),
         customer_email: body.email.trim().toLowerCase(),
         line_items: [
           {
             price_data: {
               currency: 'gbp',
-              unit_amount: campFeeGbp * 100,
+              unit_amount: donationAmountPence,
               product_data: {
-                name: 'Devanhaar Donation',
+                name: isRecurring ? 'Devanhaar Monthly Donation' : 'Devanhaar Donation',
                 description: `${body.first_name} ${body.last_name}`,
               },
+              ...(isRecurring ? { recurring: { interval: 'month' } } : {}),
             },
             quantity: 1,
           },

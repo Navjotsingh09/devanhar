@@ -127,6 +127,8 @@ export function CampApplicationForm({
     carries_epipen: "",
     other_allergy: "",
     gift_aid: "",
+    donation_amount: "199",
+    donation_type: "one-off",
   })
 
   // Lock body scroll when modal is open to prevent iOS blank screen issues
@@ -957,6 +959,61 @@ export function CampApplicationForm({
                   <p className="text-xs text-muted-foreground mt-2">
                     By ticking this box, I confirm I am a UK taxpayer and pay Income Tax or Capital Gains Tax equal to or greater than the tax that Devanhaar will reclaim.
                   </p>
+                </div>
+              )}
+              {form.requires_payment_support !== "yes" && (
+                <div className="mt-6 pt-6 border-t">
+                  <h4 className="font-semibold mb-2">Donation Amount</h4>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    The standard camp donation is £199. You can increase your donation below if you wish.
+                  </p>
+                  <div>
+                    <Label htmlFor="donation_amount" className="mb-1.5 block">Donation amount (£) *</Label>
+                    <Input
+                      id="donation_amount"
+                      type="number"
+                      min="199"
+                      step="1"
+                      value={form.donation_amount}
+                      onChange={e => {
+                        const val = e.target.value
+                        update("donation_amount", val)
+                      }}
+                    />
+                    {Number(form.donation_amount) < 199 && form.donation_amount.length > 0 && (
+                      <p className="text-xs text-red-700 mt-1">Minimum donation is £199</p>
+                    )}
+                  </div>
+                  <div className="mt-4">
+                    <Label className="mb-1.5 block">Payment type *</Label>
+                    <div className="flex flex-wrap gap-4 mt-2">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name="donation_type"
+                          value="one-off"
+                          checked={form.donation_type === "one-off"}
+                          onChange={e => update("donation_type", e.target.value)}
+                        />
+                        One-off payment
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="radio"
+                          name="donation_type"
+                          value="recurring"
+                          checked={form.donation_type === "recurring"}
+                          onChange={e => update("donation_type", e.target.value)}
+                        />
+                        Recurring monthly donation
+                      </label>
+                    </div>
+                    {form.donation_type === "recurring" && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        A monthly Direct Debit will be set up for £{form.donation_amount || "199"} per month. You can cancel at any time.
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
