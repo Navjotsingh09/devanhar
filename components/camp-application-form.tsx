@@ -81,6 +81,7 @@ export function CampApplicationForm({
   )
   const [error, setError] = useState("")
   const [idUploadError, setIdUploadError] = useState("")
+  const [idPreviewUrl, setIdPreviewUrl] = useState<string | null>(null)
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -340,6 +341,14 @@ export function CampApplicationForm({
     if (file.size > MAX_ID_UPLOAD_BYTES) {
       setIdUploadError(`File is too large. Maximum allowed size is ${MAX_ID_UPLOAD_MB}MB.`)
       return
+    }
+
+    // Create local preview
+    const isImage = ["jpg","jpeg","png","webp"].includes(fileExt)
+    if (isImage) {
+      setIdPreviewUrl(URL.createObjectURL(file))
+    } else {
+      setIdPreviewUrl(null)
     }
 
     setUploadingId(true)
@@ -691,13 +700,12 @@ export function CampApplicationForm({
                         <CheckCircle2 className="h-4 w-4 text-green-600" />
                         <p className="text-xs text-green-700">Document uploaded successfully. It will be reviewed by the team.</p>
                       </div>
-                      {!form.id_document_url.toLowerCase().endsWith(".pdf") && (
+                      {idPreviewUrl && (
                         <div className="border rounded-lg overflow-hidden w-48 h-48 bg-muted/30">
                           <img
-                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${form.id_document_url.includes("/") ? "camp-applications/" + form.id_document_url : form.id_document_url}`}
+                            src={idPreviewUrl}
                             alt="Uploaded ID preview"
                             className="w-full h-full object-cover"
-                            onError={e => { (e.target as HTMLImageElement).style.display = "none" }}
                           />
                         </div>
                       )}
