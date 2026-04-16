@@ -27,6 +27,19 @@ export function NewsletterForm() {
         console.warn("Supabase not configured - newsletter subscription not saved")
       }
 
+      // Notify admin
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: email,
+          email,
+          subject: "New Newsletter Subscription",
+          message: email + " has subscribed to the Devanhaar newsletter.",
+          source_page: "Footer — Newsletter",
+        }),
+      })
+
       setStatus("success")
       setEmail("")
       setTimeout(() => setStatus("idle"), 5000)
