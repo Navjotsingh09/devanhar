@@ -22,7 +22,7 @@ const ID_DOCUMENT_TYPES_ADULT = [
 const ID_DOCUMENT_TYPES_MINOR = [
   { value: "passport", label: "Passport" },
   { value: "driving-licence", label: "Driving Licence" },
-  { value: "provisional", label: "Young Persons Provisional Licence" },
+  { value: "provisional", label: "Young Person's Provisional Licence" },
   { value: "school-id", label: "School / College ID Card" },
   { value: "birth-certificate", label: "Birth Certificate" },
   { value: "parent-guardian-id", label: "Parent/Guardian ID + Consent Letter" },

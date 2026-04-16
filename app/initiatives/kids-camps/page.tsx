@@ -16,13 +16,13 @@ export default function KidsCampsPage() {
       ctaHref="https://www.devanhaar.com/pages/kids-camps"
       description={[
         "Our kids camps are designed to instil Sikhi values into the next generation through interactive sessions, arts and crafts, and sports activities. We empower youth with the tools and confidence to explore Sikhi as they grow, emphasising the beauty of community Sangat along the way.",
-        "Throughout the week, they engage in practical workshops covering Panj Kakaar and the importance of Nitnem, delve into Kirtan classes, explore Sikh history, and discuss the application of Sikhi in the real world. Plus, there are self-defense and empowerment sessions, hands-on roti making, Q&A's, and plenty of fun and games including dodgeball, football, archery, and an inflatable assault course.",
+        "Throughout the week, they engage in practical workshops covering Panj Kakaar and the importance of Nitnem, delve into Kirtan classes, explore Sikh history, and discuss the application of Sikhi in the real world. Plus, there are self-defence and empowerment sessions, hands-on roti making, Q&As, and plenty of fun and games including dodgeball, football, archery, and an inflatable assault course.",
         "The future of Sikhi lies in the hands of our youth. By nurturing and guiding them from a young age, we ensure that they grow into confident individuals who are deeply connected to Guru Sahib. Investing in the next generation means creating spaces where they feel empowered to embrace their Sikhi, ask questions, and develop a strong sense of identity.",
       ]}
       highlights={[
         "Local and residential kids camps across the UK",
         "Interactive workshops on Panj Kakaar, Nitnem and Kirtan",
-        "Activities include archery, dodgeball, football, self-defense and roti making",
+        "Activities include archery, dodgeball, football, self-defence and roti making",
         "Sikh history exploration and real-world Sikhi application",
         "Axe throwing, air rifle shooting, Jang and campfire sessions",
         "Singhs and Kaurs specific workshops with talks on the Chaar Sahibzade",

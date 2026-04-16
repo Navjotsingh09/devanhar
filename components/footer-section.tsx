@@ -185,7 +185,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
           {/* Bottom bar */}
           <div className="pt-6 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-white/60">
-              © 2025 Devanhaar. A registered charity organisation. All rights
+              © 2026 Devanhaar. A registered charity organisation. All rights
               reserved.
             </p>
             <div className="flex items-center gap-6 text-[11px] text-white/60">

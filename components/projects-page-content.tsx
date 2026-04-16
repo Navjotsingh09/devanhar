@@ -116,7 +116,7 @@ export function ProjectsPageContent() {
                 Creating Lasting Impact
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
-                From residential retreats to academic programs and mentorship, every initiative is
+                From residential retreats to academic programmes and mentorship, every initiative is
                 rooted in empowering, elevating and connecting with the Sikh diaspora.
               </p>
               <div className="flex flex-wrap gap-4">

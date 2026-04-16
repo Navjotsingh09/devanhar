@@ -14,7 +14,7 @@ const eventsConfig = [
     badge: "Life Skills",
     dateLabel: "March onwards",
     shortDescription:
-      "Build confidence and discipline through guided horse riding sessions with a seva-centered atmosphere.",
+      "Build confidence and discipline through guided horse riding sessions with a seva-centred atmosphere.",
     priceLabel: "Interested in paying X amount",
   },
   {

@@ -22,7 +22,7 @@ const pillars = [
   {
     title: "Connect",
     description:
-      "Create lifelong relationships centered in community, mentorship, and shared growth.",
+      "Create lifelong relationships centred in community, mentorship, and shared growth.",
     icon: <Handshake className="w-6 h-6" />,
   },
 ]

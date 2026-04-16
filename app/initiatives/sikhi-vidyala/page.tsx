@@ -26,7 +26,7 @@ export default function SikhiVidyalaPage() {
         "Started in 2015 by Bhai Jagraj Singh of Basics of Sikhi",
         "Weekly global guest speakers",
         "Teachers from Basics of Sikhi, Journey of Compassion, Shaheedi Bunga UK",
-        "All accommodations and staff vetted with around-the-clock support",
+        "All accommodation and staff vetted with around-the-clock support",
       ]}
       testimonials={[
         {

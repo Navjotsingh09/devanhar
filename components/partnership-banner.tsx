@@ -12,9 +12,7 @@ export function PartnershipBanner() {
                 Devanhaar partners with communities across the UK &amp; Europe
               </h2>
               <p className="text-white/50 text-sm leading-relaxed max-w-md">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua ut
-                enim ad minim veniam.
+                From Sikh camps to university societies, we work alongside grassroots organisations to deliver programmes that strengthen faith, community, and personal growth.
               </p>
             </div>
             <div className="flex items-center gap-3 mt-8">

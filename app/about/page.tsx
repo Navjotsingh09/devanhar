@@ -153,7 +153,7 @@ export default async function AboutPage() {
                   At Devanhaar, our mission is to create meaningful spaces for
                   Sangat to grow in Sikhi, connect with one another, and develop
                   into strong, confident individuals. We continue to run Sikhi
-                  camps for children, alongside our Singh{"'"}s and Kaur{"'"}s
+                  camps for children, alongside our Singhs and Kaurs
                   camps, which provide a unique space for Sikhs to strengthen
                   their identity and build lifelong bonds.
                 </p>

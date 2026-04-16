@@ -104,14 +104,14 @@ export function EventInterestForm({ eventTitle, slug }: EventInterestFormProps) 
 
       {slug === "yorkshire-3-peaks" && (
         <div className="md:col-span-2 rounded-xl border border-border p-4">
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="terms" required /> Agree to T and Cs *</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="terms" required /> Agree to T&Cs *</label>
           <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name="fee_20" required /> GBP 20 per person, coach included *</label>
           <input name="hiked_before" placeholder="Hiked before?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
           <input name="hiking_level" placeholder="What level?" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm" />
         </div>
       )}
 
-      <label className="md:col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" required name="terms_global" /> Agree to T and Cs *</label>
+      <label className="md:col-span-2 flex items-center gap-2 text-sm"><input type="checkbox" required name="terms_global" /> Agree to T&Cs *</label>
 
       <button type="submit" disabled={status === "loading"} className="md:col-span-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
         {status === "loading" ? (

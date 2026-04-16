@@ -24,7 +24,7 @@ const milestones: Milestone[] = [
   {
     year: 2019, theme: "Foundation", icon: "\u{1F4D6}",
     headline: "Building the Blueprint",
-    description: "Formalized operations and crafted the strategic roadmap that would guide our mission for years to come.",
+    description: "Formalised operations and crafted the strategic roadmap that would guide our mission for years to come.",
     accent: "blue-500",
     image: "/images/about/story-2019.jpg",
   },
@@ -45,14 +45,14 @@ const milestones: Milestone[] = [
   {
     year: 2022, theme: "Growth", icon: "\u{1F49C}",
     headline: "Expanding Our Reach",
-    description: "Extended programs to new communities, building partnerships that amplified our impact across regions.",
+    description: "Extended programmes to new communities, building partnerships that amplified our impact across regions.",
     accent: "rose-500",
     image: "/images/about/story-2022.jpg",
   },
   {
     year: 2023, theme: "Empowerment", icon: "\u{1F94B}",
     headline: "Empowering Communities",
-    description: "Introduced vocational training and community development programs, helping individuals become self-sufficient.",
+    description: "Introduced vocational training and community development programmes, helping individuals become self-sufficient.",
     accent: "teal-500",
     image: "/images/about/story-2023.jpg",
   },
@@ -66,7 +66,7 @@ const milestones: Milestone[] = [
   {
     year: 2025, theme: "Momentum", icon: "\u{1F680}",
     headline: "Accelerating Change",
-    description: "Scaling proven programs nationally while deepening local impact through grassroots engagement.",
+    description: "Scaling proven programmes nationally while deepening local impact through grassroots engagement.",
     accent: "cyan-500",
     image: "/images/about/story-2025.jpg",
   },

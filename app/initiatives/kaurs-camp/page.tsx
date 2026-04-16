@@ -68,12 +68,12 @@ export default function KaursCampPage() {
         {
           question: "When do camp applications come out?",
           answer:
-            "Usually, camp details will be released around the end of the calendar year. The application process then starts around spring time with the camp generally taking place in early August.",
+            "Usually, camp details will be released around the end of the calendar year. The application process then starts around springtime with the camp generally taking place in early August.",
         },
         {
           question: "What can I expect at camp?",
           answer:
-            "For one lots of fun and laughter. A typical day at camp starts with Amrit Vela and is filled with a variety of activities, talks, and experiences. The camp is centered around building a sisterhood, providing moments for self-reflection, and most importantly helping build a deeper connection with Maharaaj.",
+            "For one, lots of fun and laughter. A typical day at camp starts with Amrit Vela and is filled with a variety of activities, talks, and experiences. The camp is centred around building a sisterhood, providing moments for self-reflection, and most importantly helping build a deeper connection with Maharaaj.",
         },
         {
           question: "I don't know about Sikhi, is camp right for me?",

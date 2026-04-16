@@ -19,7 +19,7 @@ const initiatives = [
   {
     title: "Kids Camps",
     description:
-      "Bespoke camps around the UK that are tailored to engage with youth in an interactive, fun and rememberable way.",
+      "Bespoke camps around the UK that are tailored to engage with youth in an interactive, fun and memorable way.",
     icon: <Globe className="w-5 h-5" />,
     href: "/initiatives/kids-camps",
   },

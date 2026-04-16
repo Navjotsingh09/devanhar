@@ -3,14 +3,14 @@ import { InitiativePageLayout } from "@/components/initiative-page-layout"
 export const metadata = {
   title: "University Projects | Devanhaar",
   description:
-    "Delivering talks to universities across the country, hosting weekly Amrit Vela programs and more.",
+    "Delivering talks to universities across the country, hosting weekly Amrit Vela programmes and more.",
 }
 
 export default function UniversityProjectsPage() {
   return (
     <InitiativePageLayout
       title="University Projects"
-      tagline="Delivering talks to universities across the country, hosting weekly Amrit Vela programs and more."
+      tagline="Delivering talks to universities across the country, hosting weekly Amrit Vela programmes and more."
       heroImage="/initiatives/university-projects-top.jpg"
       ctaText="Learn More"
       ctaHref="https://www.devanhaar.com/pages/university-projects"
