@@ -430,6 +430,7 @@ export function CampApplicationForm({
                   <li>Payment authorisation does not confirm your seat. Your application is reviewed first, and your place is only confirmed after approval.</li>
                   <li>Places are limited and allocated on a first-come basis.</li>
                   <li>Please ensure all details are accurate before submitting.</li>
+                  <li>If your application is not approved, any payment taken will be refunded to your original payment method within 15–30 working days.</li>
                 </ul>
               </div>
 
@@ -691,9 +692,9 @@ export function CampApplicationForm({
                         <p className="text-xs text-green-700">Document uploaded successfully. It will be reviewed by the team.</p>
                       </div>
                       {!form.id_document_url.toLowerCase().endsWith(".pdf") && (
-                        <div className="border rounded-lg overflow-hidden w-32 h-32 bg-muted/30">
+                        <div className="border rounded-lg overflow-hidden w-48 h-48 bg-muted/30">
                           <img
-                            src={form.id_document_url}
+                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${form.id_document_url.includes("/") ? "camp-applications/" + form.id_document_url : form.id_document_url}`}
                             alt="Uploaded ID preview"
                             className="w-full h-full object-cover"
                             onError={e => { (e.target as HTMLImageElement).style.display = "none" }}

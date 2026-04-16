@@ -222,7 +222,7 @@ export function InitiativePageLayout({
                       {ctaText} <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                     </Button>
                   ) : (
-                    <a href={ctaHref} target="_blank" rel="noopener noreferrer">
+                    <a href={ctaHref} {...(ctaHref?.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
                       <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base">
                         {ctaText} <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                       </Button>
@@ -437,7 +437,7 @@ export function InitiativePageLayout({
                   {ctaText}
                 </Button>
               ) : (
-                <a href={ctaHref} target="_blank" rel="noopener noreferrer">
+                <a href={ctaHref} {...(ctaHref?.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
                   <Button className="rounded-full px-8 py-6 text-base bg-background text-foreground hover:bg-background/90">
                     {ctaText}
                   </Button>
