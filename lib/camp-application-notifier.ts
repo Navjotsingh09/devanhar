@@ -60,6 +60,8 @@ function buildHtmlBody(entries: Array<[string, string]>, submissionId: string): 
     .map(([label, value]) => {
       return `<tr><td style="padding:8px 12px;border:1px solid #ddd;font-weight:600;vertical-align:top;">${escapeHtml(label)}</td><td style="padding:8px 12px;border:1px solid #ddd;vertical-align:top;">${escapeHtml(value)}</td></tr>`
     })
+
+  console.log('[Camp Notification] Owner email sent to', OWNER_NOTIFICATION_EMAIL)
     .join('')
 
   return `
@@ -89,12 +91,14 @@ export async function sendCampApplicationOwnerNotification(params: {
   const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Devanhaar <noreply@devanhaar.org>',
+    from: process.env.RESEND_FROM_EMAIL || 'Devanhaar <noreply@devanhaar.com>',
     to: OWNER_NOTIFICATION_EMAIL,
     subject: `New Singhs Camp submission - ${params.submissionId}`,
     text: buildTextBody(entries, params.submissionId),
     html: buildHtmlBody(entries, params.submissionId),
   })
+
+  console.log('[Camp Notification] Owner email sent to', OWNER_NOTIFICATION_EMAIL)
 
   return true
 }
