@@ -329,14 +329,21 @@ export function WolfRunContent() {
             <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
               <p>
                 The Wolf Run is one of the UK&apos;s most iconic wild running events. Set in the 
-                stunning Warwickshire countryside at Offchurch Bury near Leamington Spa, runners 
-                take on a 5K course through mud, woodland, lakes, streams, and natural 
-                obstacles.
+                Warwickshire countryside at Offchurch Bury near Leamington Spa, you&apos;ll take on 
+                a 5K course packed with mud, woodland, freezing lakes, streams, and natural obstacles.
               </p>
               <p>
-                Wolf Run isn&apos;t a race — there are no winners. It&apos;s a shared adventure where 
-                people naturally help each other through the course. The challenge is always 
-                personal, and that&apos;s exactly what makes it special.
+                This isn&apos;t a race — there are no winners. It&apos;s about showing up together, 
+                getting absolutely filthy, and having the time of your life doing it. When someone 
+                struggles, the group pulls them through. When the mud swallows your shoe, 
+                someone&apos;s there laughing with you and dragging you out.
+              </p>
+              <p>
+                It doesn&apos;t matter if you&apos;re fast, fit, or have never run a day in your life. 
+                What matters is that you turn up, give it everything, and cross that finish line together.
+              </p>
+              <p>
+                That&apos;s what brotherhood, and sisterhood, look like.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
@@ -353,7 +360,7 @@ export function WolfRunContent() {
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <Trophy className="w-8 h-8 mx-auto mb-3 text-amber-500" />
                 <div className="font-bold text-lg">60 Spaces</div>
-                <div className="text-sm text-muted-foreground">£540 total cost</div>
+                <div className="text-sm text-muted-foreground">Book your Space NOW</div>
               </div>
             </div>
           </div>
@@ -377,6 +384,14 @@ export function WolfRunContent() {
                 we&apos;re showing the power of community and raising vital funds for programmes that 
                 change lives.
               </p>
+              <p>And along the way, you&apos;ll take something back for yourself too:</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+              {["Mental Resilience", "Deeper Bonds", "Real Confidence", "Comfort with Discomfort", "Team Spirit", "Chardi Kala"].map((item) => (
+                <div key={item} className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center font-semibold text-amber-900">
+                  {item}
+                </div>
+              ))}
             </div>
           </div>
         </div>
