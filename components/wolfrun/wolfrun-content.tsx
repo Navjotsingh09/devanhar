@@ -275,9 +275,30 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
+      <div className="space-y-3">
+        <label className="flex items-start gap-2 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.agree_terms}
+            onChange={(e) => setForm((p) => ({ ...p, agree_terms: e.target.checked }))}
+            className="mt-0.5 rounded border-border"
+          />
+          <span>I agree to the Terms &amp; Conditions *</span>
+        </label>
+        <label className="flex items-start gap-2 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.agree_whatsapp_group}
+            onChange={(e) => setForm((p) => ({ ...p, agree_whatsapp_group: e.target.checked }))}
+            className="mt-0.5 rounded border-border"
+          />
+          <span>Add me to the WhatsApp group</span>
+        </label>
+      </div>
+
       <button
         type="submit"
-        disabled={loading || !form.pack || !form.first_name || !form.last_name || !form.email}
+        disabled={loading || !form.pack || !form.first_name || !form.last_name || !form.email || !form.agree_terms}
         className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
