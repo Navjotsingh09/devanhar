@@ -25,11 +25,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { first_name, last_name, email, phone, age, city, pack, fundraising_goal, profile_message, agree_whatsapp_group, agree_terms, opt_in_email, monthly_donation } = body
+    const { first_name, last_name, email, phone, age, city, pack, fundraising_goal, profile_message, agree_whatsapp_group, agree_terms } = body
 
-    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !age || !city?.trim()) {
+    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !pack) {
       return NextResponse.json(
-        { error: 'Missing required fields: first_name, last_name, email, phone, age, city' },
+        { error: 'Missing required fields: first_name, last_name, email, pack' },
         { status: 400 }
       )
     }
@@ -43,10 +43,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
-    const ageNum = Number(age)
-    if (isNaN(ageNum) || ageNum < 16 || ageNum > 99) {
-      return NextResponse.json({ error: 'Age must be between 16 and 99' }, { status: 400 })
+    if (!['singhs', 'kaurs'].includes(pack)) {
+      return NextResponse.json({ error: 'Pack must be "singhs" or "kaurs"' }, { status: 400 })
     }
+
+    const goal = fundraising_goal ? Math.max(1, Math.min(100000, Number(fundraising_goal))) : 100
 
     const supabase = getSupabaseAdmin()
 
@@ -73,17 +74,11 @@ export async function POST(request: NextRequest) {
         first_name: first_name.trim(),
         last_name: last_name.trim(),
         email: email.trim().toLowerCase(),
-        phone: phone.trim(),
-        age: ageNum,
-        city: city.trim(),
-        agree_whatsapp_group: Boolean(agree_whatsapp_group),
-        agree_terms: Boolean(agree_terms),
-        opt_in_email: Boolean(opt_in_email),
-        monthly_donation: Boolean(monthly_donation),
-        pack: pack || null,
-        fundraising_goal: Number(fundraising_goal) || 100,
-        profile_message: profile_message?.trim() || null,
+        phone: phone?.trim() || null,
+        pack,
         slug,
+        fundraising_goal: goal,
+        profile_message: profile_message?.trim() || null,
       })
       .select('id, slug')
       .single()
@@ -102,10 +97,11 @@ export async function POST(request: NextRequest) {
       entity_id: data.id,
       metadata: {
         name: `${first_name.trim()} ${last_name.trim()}`,
-        city: city.trim(),
-        age: ageNum,
-        opt_in_email: Boolean(opt_in_email),
-        monthly_donation: Boolean(monthly_donation),
+        city: city?.trim() || null,
+        age: age ? Number(age) : null,
+        phone: phone?.trim() || null,
+        agree_whatsapp_group: Boolean(agree_whatsapp_group),
+        agree_terms: Boolean(agree_terms),
         link: fundraiserLink,
       },
     }).then(() => {}).catch(() => {})
