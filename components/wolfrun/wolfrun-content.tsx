@@ -52,7 +52,9 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
     phone: "",
     age: "",
     city: "",
-    agree_whatsapp_group: false,
+    pack: "",
+    fundraising_goal: "",
+    profile_message: "",
     agree_terms: false,
     opt_in_email: false,
     monthly_donation: false,
@@ -285,15 +287,7 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
           />
           <span>I agree to the Terms &amp; Conditions *</span>
         </label>
-        <label className="flex items-start gap-2 text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.agree_whatsapp_group}
-            onChange={(e) => setForm((p) => ({ ...p, agree_whatsapp_group: e.target.checked }))}
-            className="mt-0.5 rounded border-border"
-          />
-          <span>Add me to the WhatsApp group</span>
-        </label>
+
       </div>
 
       <button
@@ -317,8 +311,209 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
   )
 }
 
+function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [form, setForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    age: "",
+    city: "",
+    agree_whatsapp_group: false,
+    agree_terms: false,
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+
+    try {
+      const res = await fetch("/api/wolfrun/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+
+      const data = await res.json()
+
+      if (\!res.ok) {
+        setError(data.error || "Something went wrong")
+        return
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch {
+      setError("Unable to connect. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h3 className="text-xl font-bold">Join the Wolf Run</h3>
+      <p className="text-sm text-muted-foreground">Pay your \u00a345 entry fee to secure your spot</p>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium mb-1">First Name *</label>
+          <input
+            type="text"
+            required
+            value={form.first_name}
+            onChange={(e) => setForm((p) => ({ ...p, first_name: e.target.value }))}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Last Name *</label>
+          <input
+            type="text"
+            required
+            value={form.last_name}
+            onChange={(e) => setForm((p) => ({ ...p, last_name: e.target.value }))}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Email *</label>
+        <input
+          type="email"
+          required
+          value={form.email}
+          onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Phone *</label>
+        <input
+          type="tel"
+          required
+          value={form.phone}
+          onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium mb-1">Age *</label>
+          <input
+            type="number"
+            min="16"
+            max="99"
+            required
+            value={form.age}
+            onChange={(e) => setForm((p) => ({ ...p, age: e.target.value }))}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">City *</label>
+          <input
+            type="text"
+            required
+            value={form.city}
+            onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <label className="flex items-start gap-2 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.agree_whatsapp_group}
+            onChange={(e) => setForm((p) => ({ ...p, agree_whatsapp_group: e.target.checked }))}
+            className="mt-0.5 rounded border-border"
+          />
+          <span>Add me to the WhatsApp group</span>
+        </label>
+        <label className="flex items-start gap-2 text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.agree_terms}
+            onChange={(e) => setForm((p) => ({ ...p, agree_terms: e.target.checked }))}
+            className="mt-0.5 rounded border-border"
+          />
+          <span>I agree to the Terms &amp; Conditions *</span>
+        </label>
+      </div>
+
+      <button
+        type="submit"
+        disabled={loading || \!form.first_name || \!form.last_name || \!form.email || \!form.phone || \!form.age || \!form.city || \!form.agree_terms}
+        className="w-full py-3 bg-amber-500 text-slate-900 rounded-lg font-bold hover:bg-amber-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          <>
+            Pay \u00a345 &amp; Secure Your Spot
+            <ArrowRight className="w-4 h-4" />
+          </>
+        )}
+      </button>
+
+      <p className="text-xs text-muted-foreground text-center">
+        You&apos;ll be redirected to Stripe to complete your payment securely.
+      </p>
+    </form>
+  )
+}
+
+function SupportFundraiserPopup({ onClose, onBecomeAFundraiser }: { onClose: () => void; onBecomeAFundraiser: () => void }) {
+  return (
+    <div className="text-center space-y-6 py-2">
+      <h3 className="text-2xl font-bold">Support a Fundraiser</h3>
+      <p className="text-muted-foreground">Choose how you&apos;d like to get involved</p>
+      <div className="space-y-4">
+        <Link
+          href="/events/wolfrun/fundraisers"
+          onClick={onClose}
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg hover:bg-primary/90 transition"
+        >
+          <Heart className="w-5 h-5" />
+          View Fundraisers
+        </Link>
+        <button
+          onClick={onBecomeAFundraiser}
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-muted text-foreground rounded-xl font-semibold text-lg hover:bg-muted/80 transition border border-border"
+        >
+          <Users className="w-5 h-5" />
+          Become a Fundraiser
+        </button>
+      </div>
+      <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground transition underline">
+        Close
+      </button>
+    </div>
+  )
+}
+
 export function WolfRunContent() {
   const [showRegistration, setShowRegistration] = useState(false)
+  const [showPaymentForm, setShowPaymentForm] = useState(false)
+  const [showSupportPopup, setShowSupportPopup] = useState(false)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
 
   return (
@@ -349,19 +544,19 @@ export function WolfRunContent() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => setShowRegistration(true)}
+                onClick={() => setShowPaymentForm(true)}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-bold text-lg hover:bg-amber-400 transition shadow-lg shadow-amber-500/25"
               >
-                Join Devanhaar in the Wolf Run
+                Join Wolf Run
                 <ArrowRight className="w-5 h-5" />
               </button>
-              <Link
-                href="/events/wolfrun/fundraisers"
+              <button
+                onClick={() => setShowSupportPopup(true)}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition border border-white/20"
               >
                 Support a Fundraiser
                 <Heart className="w-5 h-5" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -632,19 +827,19 @@ export function WolfRunContent() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => setShowRegistration(true)}
+                onClick={() => setShowPaymentForm(true)}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-bold text-lg hover:bg-amber-400 transition"
               >
-                Join Devanhaar in the Wolf Run
+                Join Wolf Run
                 <ArrowRight className="w-5 h-5" />
               </button>
-              <Link
-                href="/events/wolfrun/fundraisers"
+              <button
+                onClick={() => setShowSupportPopup(true)}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold text-lg hover:bg-white/20 transition border border-white/20"
               >
-                Browse Fundraisers
-                <Users className="w-5 h-5" />
-              </Link>
+                Support a Fundraiser
+                <Heart className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
@@ -665,6 +860,50 @@ export function WolfRunContent() {
               </svg>
             </button>
             <FundraiserRegistrationForm onClose={() => setShowRegistration(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Payment Form Modal */}
+      {showPaymentForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPaymentForm(false)} />
+          <div className="relative bg-background rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowPaymentForm(false)}
+              className="absolute top-4 right-4 p-1 rounded-md hover:bg-muted transition"
+            >
+              <span className="sr-only">Close</span>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <WolfRunPaymentForm onClose={() => setShowPaymentForm(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Support Fundraiser Popup */}
+      {showSupportPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSupportPopup(false)} />
+          <div className="relative bg-background rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <button
+              onClick={() => setShowSupportPopup(false)}
+              className="absolute top-4 right-4 p-1 rounded-md hover:bg-muted transition"
+            >
+              <span className="sr-only">Close</span>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <SupportFundraiserPopup
+              onClose={() => setShowSupportPopup(false)}
+              onBecomeAFundraiser={() => {
+                setShowSupportPopup(false)
+                setShowRegistration(true)
+              }}
+            />
           </div>
         </div>
       )}

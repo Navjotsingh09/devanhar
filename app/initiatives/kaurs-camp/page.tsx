@@ -47,15 +47,15 @@ export default function KaursCampPage() {
       ]}
       videoTestimonials={[
         {
-          videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/4c3d3d8a4cc8476d862c724d9ab409de/4c3d3d8a4cc8476d862c724d9ab409de.HD-1080p-2.5Mbps-36118000.mp4?v=0",
+          videoUrl: "https://cdn.shopify.com/videos/c/vp/4c3d3d8a4cc8476d862c724d9ab409de/4c3d3d8a4cc8476d862c724d9ab409de.HD-1080p-2.5Mbps-36118000.mp4?v=0",
           caption: "Collective Mindfulness Session"
         },
         {
-          videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/7d7ebc5362bf4a92828175d205b7bbfa/7d7ebc5362bf4a92828175d205b7bbfa.HD-1080p-2.5Mbps-36118001.mp4?v=0",
+          videoUrl: "https://cdn.shopify.com/videos/c/vp/7d7ebc5362bf4a92828175d205b7bbfa/7d7ebc5362bf4a92828175d205b7bbfa.HD-1080p-2.5Mbps-36118001.mp4?v=0",
           caption: "A Day in the Life at Kaurs Camp UK"
         },
         {
-          videoUrl: "https://www.devanhaar.com/cdn/shop/videos/c/vp/5e164916db744a76b4667809c26bcb68/5e164916db744a76b4667809c26bcb68.HD-1080p-2.5Mbps-36117962.mp4?v=0",
+          videoUrl: "https://cdn.shopify.com/videos/c/vp/5e164916db744a76b4667809c26bcb68/5e164916db744a76b4667809c26bcb68.HD-1080p-2.5Mbps-36117962.mp4?v=0",
           caption: "Testimonial from Camp"
         }
       ]}
