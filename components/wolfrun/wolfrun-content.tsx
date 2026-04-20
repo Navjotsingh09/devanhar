@@ -279,13 +279,16 @@ export function WolfRunContent() {
     <>
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900" />
+        <div className="absolute inset-0">
+          <img src="/images/events/wolfrun-hero-bg.jpg" alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-amber-900/80" />
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url('/grid.svg')" }} />
         <div className="container mx-auto px-6 lg:px-12 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-sm mb-8">
               <Calendar className="w-4 h-4" />
-              12th September 2026 — Warwickshire
+              12th & 13th September 2026 — Warwickshire
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
               Run Wild.<br />
@@ -339,7 +342,7 @@ export function WolfRunContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <Calendar className="w-8 h-8 mx-auto mb-3 text-amber-500" />
-                <div className="font-bold text-lg">12th September 2026</div>
+                <div className="font-bold text-lg">12th &amp; 13th September 2026</div>
                 <div className="text-sm text-muted-foreground">The Wolf Run</div>
               </div>
               <div className="bg-muted/50 rounded-xl p-6 text-center">
@@ -484,15 +487,15 @@ export function WolfRunContent() {
             <div className="bg-muted/50 rounded-2xl p-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-bold text-lg mb-4">Spring Wolf 2026</h3>
+                  <h3 className="font-bold text-lg mb-4">Autumn Wolf 2026</h3>
                   <ul className="space-y-3 text-muted-foreground">
                     <li className="flex items-start gap-3">
                       <Calendar className="w-5 h-5 mt-0.5 text-amber-500 shrink-0" />
-                      <span>Saturday 25th &amp; Sunday 26th April 2026</span>
+                      <span>Saturday 12th &amp; Sunday 13th September 2026</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <MapPin className="w-5 h-5 mt-0.5 text-amber-500 shrink-0" />
-                      <span>The Offchurch Bury, Warwickshire, CV33 9AW</span>
+                      <span>The Offchurch Bury, Offchurch, Leamington Spa, CV33 9AW</span>
                     </li>
                   </ul>
                 </div>

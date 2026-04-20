@@ -8,11 +8,11 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 const events = {
   "horse-riding": {
     title: "Horse Riding",
-    price: "Interested in paying X amount",
+    price: "",
   },
   shooting: {
     title: "Shooting",
-    price: "GBP 250 per year",
+    price: "",
   },
   "yorkshire-3-peaks": {
     title: "Yorkshire 3 Peaks",
@@ -51,7 +51,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
           <div className="container mx-auto px-6 lg:px-12">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-foreground/60 mb-4">Event</p>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">{event.title}</h1>
-            <p className="text-muted-foreground">{event.price}</p>
+            {event.price && <p className="text-muted-foreground">{event.price}</p>}
           </div>
         </section>
 

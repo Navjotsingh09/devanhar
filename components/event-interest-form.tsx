@@ -87,18 +87,14 @@ export function EventInterestForm({ eventTitle, slug }: EventInterestFormProps) 
 
       {slug === "horse-riding" && (
         <div className="md:col-span-2 rounded-xl border border-border p-4">
-          <label className="flex items-center gap-3 text-sm min-h-[44px] py-1"><input type="checkbox" className="h-5 w-5 accent-primary" name="paying_x" /> Interested in paying X amount</label>
-          <input name="times_available" placeholder="Times available (morning/evening)" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
+          <input name="times_available" placeholder="Times available (morning/evening)" className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
           <input name="cadence" placeholder="Weekly/Monthly" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
         </div>
       )}
 
       {slug === "shooting" && (
         <div className="md:col-span-2 rounded-xl border border-border p-4">
-          <label className="flex items-center gap-3 text-sm min-h-[44px] py-1"><input type="checkbox" className="h-5 w-5 accent-primary" name="membership_12_week" /> Interested in a 12 week membership?</label>
-          <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" className="h-5 w-5 accent-primary" name="pay_250" /> Interested in paying GBP 250 a year?</label>
-          <input name="weekly_commitment" placeholder="Weekly commitment" className="mt-3 w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
-          <label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" className="h-5 w-5 accent-primary" name="commitment_policy" /> If not committed, can be removed from course.</label>
+          <input name="weekly_commitment" placeholder="Weekly commitment" className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base md:text-sm" />
         </div>
       )}
 

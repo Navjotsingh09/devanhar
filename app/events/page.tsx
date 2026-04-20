@@ -9,37 +9,37 @@ import { Button } from "@/components/ui/button"
 const eventsConfig = [
   {
     slug: "horse-riding",
-    image: "/images/events/wolfrun-spring.jpg",
+    image: "/images/events/horse-riding.jpg",
     title: "Horse Riding",
     badge: "Life Skills",
     dateLabel: "March onwards",
     shortDescription:
       "Build confidence and discipline through guided horse riding sessions with a seva-centred atmosphere.",
-    priceLabel: "Interested in paying X amount",
+    priceLabel: "",
   },
   {
     slug: "shooting",
-    image: "/images/events/wolfrun-mud.jpg",
+    image: "/images/events/shooting.jpg",
     title: "Shooting",
     badge: "Skills",
     dateLabel: "Weekly sessions",
     shortDescription:
       "Regular target shooting sessions designed to build focus, discipline, and consistency.",
-    priceLabel: "GBP 250 per year membership option",
+    priceLabel: "",
   },
   {
     slug: "wolfrun",
     image: "/images/events/wolfrun-hero.jpg",
     title: "Wolf Run",
     badge: "Challenge",
-    dateLabel: "12 September 2026",
+    dateLabel: "12 & 13 September 2026",
     shortDescription:
       "A high-energy obstacle challenge through mud, water, and woodland testing teamwork and resilience.",
     priceLabel: "GBP 45 per person",
   },
   {
     slug: "yorkshire-3-peaks",
-    image: "/images/events/wolfrun-pack.jpg",
+    image: "/images/events/yorkshire-3-peaks.jpg",
     title: "Yorkshire 3 Peaks",
     badge: "Challenge",
     dateLabel: "27 June 2026",
@@ -127,7 +127,7 @@ export default function EventsPage() {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {event.shortDescription}
                   </p>
-                  <p className="mt-4 text-xs font-semibold text-foreground">{event.priceLabel}</p>
+                  {event.priceLabel && <p className="mt-4 text-xs font-semibold text-foreground">{event.priceLabel}</p>}
                   <Button asChild className="mt-5 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold">
                     <Link href={`/events/${event.slug}`}>
                       View Event Page
