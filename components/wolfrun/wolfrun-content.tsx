@@ -339,7 +339,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
 
       const data = await res.json()
 
-      if (\!res.ok) {
+      if (!res.ok) {
         setError(data.error || "Something went wrong")
         return
       }
@@ -357,7 +357,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-xl font-bold">Join the Wolf Run</h3>
-      <p className="text-sm text-muted-foreground">Pay your \u00a345 entry fee to secure your spot</p>
+      <p className="text-sm text-muted-foreground">Pay your £45 entry fee to secure your spot</p>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
@@ -458,7 +458,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
 
       <button
         type="submit"
-        disabled={loading || \!form.first_name || \!form.last_name || \!form.email || \!form.phone || \!form.age || \!form.city || \!form.agree_terms}
+        disabled={loading || !form.first_name || !form.last_name || !form.email || !form.phone || !form.age || !form.city || !form.agree_terms}
         className="w-full py-3 bg-amber-500 text-slate-900 rounded-lg font-bold hover:bg-amber-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
@@ -468,7 +468,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
           </>
         ) : (
           <>
-            Pay \u00a345 &amp; Secure Your Spot
+            Pay £45 &amp; Secure Your Spot
             <ArrowRight className="w-4 h-4" />
           </>
         )}
