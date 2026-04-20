@@ -291,9 +291,9 @@ export function WolfRunContent() {
               12th September 2026 — Warwickshire
             </div>
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Run Wild.<br />
+              Born to Battle.<br />
               <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-                Raise Funds.
+                Built to Endure.
               </span>
             </h1>
             <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">

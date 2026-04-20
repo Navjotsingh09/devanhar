@@ -5,7 +5,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { WolfRunContent } from "@/components/wolfrun/wolfrun-content"
 
 export const metadata: Metadata = {
-  title: "Wolf Run for Devanhaar | Run Wild. Raise Funds.",
+  title: "Wolf Run for Devanhaar | Born to Battle. Built to Endure.",
   description:
     "Join the Devanhaar pack for the Wolf Run — the UK's wildest obstacle run. Become a fundraiser, share your link, and collect sponsorships to support Sikh education, camps, and community programmes.",
   keywords: [
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "sponsorship",
   ],
   openGraph: {
-    title: "Wolf Run for Devanhaar | Run Wild. Raise Funds.",
+    title: "Wolf Run for Devanhaar | Born to Battle. Built to Endure.",
     description:
       "Join the Devanhaar pack for the Wolf Run. Become a fundraiser and collect sponsorships to support Sikh education and community programmes.",
   },
