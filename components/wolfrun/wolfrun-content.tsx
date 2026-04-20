@@ -200,6 +200,31 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium mb-1">Age *</label>
+          <input
+            type="number"
+            min="16"
+            max="100"
+            required
+            value={form.age}
+            onChange={(e) => setForm((p) => ({ ...p, age: e.target.value }))}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">City *</label>
+          <input
+            type="text"
+            required
+            value={form.city}
+            onChange={(e) => setForm((p) => ({ ...p, city: e.target.value }))}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
+      </div>
+
       <div>
         <label className="block text-sm font-medium mb-1">Choose Your Pack *</label>
         <div className="grid grid-cols-2 gap-3">
