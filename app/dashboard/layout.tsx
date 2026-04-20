@@ -52,6 +52,19 @@ export default async function DashboardLayout({
         <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}
         </main>
+        <footer className="border-t border-border px-4 md:px-6 py-3 text-center">
+          <span className="text-xs text-muted-foreground">
+            Dashboard by{" "}
+            <a
+              href="https://5rv.digital"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+            >
+              5rv.digital
+            </a>
+          </span>
+        </footer>
       </SidebarInset>
       <Toaster />
     </SidebarProvider>

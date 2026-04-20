@@ -195,6 +195,17 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
               <Link href="/terms" className="hover:text-white transition-colors">
                 Terms of Service
               </Link>
+              <span className="text-white/40">
+                Site by{" "}
+                <a
+                  href="https://5rv.digital"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  5rv.digital
+                </a>
+              </span>
             </div>
           </div>
         </div>

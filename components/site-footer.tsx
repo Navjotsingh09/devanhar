@@ -138,6 +138,17 @@ export function SiteFooter() {
             >
               Terms of Service
             </Link>
+            <span className="text-xs text-white/30">
+              Site by{" "}
+              <a
+                href="https://5rv.digital"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/40 hover:text-white/70 transition-colors"
+              >
+                5rv.digital
+              </a>
+            </span>
           </div>
         </div>
       </div>
