@@ -386,13 +386,13 @@ export function WolfRunContent() {
               </p>
               <p>And along the way, you&apos;ll take something back for yourself too:</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-              {["Mental Resilience", "Deeper Bonds", "Real Confidence", "Comfort with Discomfort", "Team Spirit", "Chardi Kala"].map((item) => (
-                <div key={item} className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center font-semibold text-amber-900">
-                  {item}
-                </div>
-              ))}
-            </div>
+            <ul className="list-disc list-inside mt-6 space-y-2 text-muted-foreground text-lg">
+              <li>Mental Resilience</li>
+              <li>Real Confidence</li>
+              <li>Comfort with Discomfort</li>
+              <li>Team Spirit</li>
+              <li>Chardi Kala</li>
+            </ul>
           </div>
         </div>
       </section>
