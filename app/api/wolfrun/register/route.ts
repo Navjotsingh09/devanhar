@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const { first_name, last_name, email, phone, age, city, agree_whatsapp_group, agree_terms, opt_in_email, monthly_donation } = body
+    const { first_name, last_name, email, phone, age, city, pack, fundraising_goal, profile_message, agree_whatsapp_group, agree_terms, opt_in_email, monthly_donation } = body
 
     if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !age || !city?.trim()) {
       return NextResponse.json(
@@ -80,6 +80,9 @@ export async function POST(request: NextRequest) {
         agree_terms: Boolean(agree_terms),
         opt_in_email: Boolean(opt_in_email),
         monthly_donation: Boolean(monthly_donation),
+        pack: pack || null,
+        fundraising_goal: Number(fundraising_goal) || 100,
+        profile_message: profile_message?.trim() || null,
         slug,
       })
       .select('id, slug')
