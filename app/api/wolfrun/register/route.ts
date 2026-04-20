@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[Wolf Run Register] Supabase error:', error)
-      return NextResponse.json({ error: 'Failed to register. Please try again.' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to register: ${error.message || error.code || JSON.stringify(error)}` }, { status: 500 })
     }
 
     const fundraiserLink = `${siteUrl}/events/wolfrun/fundraiser/${data.slug}`
