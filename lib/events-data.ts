@@ -22,7 +22,7 @@ const engagementEvents = [
   },
   {
     title: "Wolf Run",
-    date: "12 & 13 September 2026",
+    date: "12 September 2026",
     description:
       "An obstacle course adventure through mud, water, and woodland. A test of grit and teamwork for a great cause.",
     category: "Challenge",

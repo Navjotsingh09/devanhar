@@ -32,7 +32,7 @@ const eventsConfig = [
     image: "/images/events/wolfrun-hero.jpg",
     title: "Wolf Run",
     badge: "Challenge",
-    dateLabel: "12 & 13 September 2026",
+    dateLabel: "12 September 2026",
     shortDescription:
       "A high-energy obstacle challenge through mud, water, and woodland testing teamwork and resilience.",
     priceLabel: "GBP 45 per person",
