@@ -43,9 +43,9 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                     <MapPin className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Location</p>
+                    <p className="text-xs text-muted-foreground">Registered address</p>
                     <p className="text-sm font-medium text-foreground">
-                      United Kingdom
+                      3 Waterside Drive, Langley, United Kingdom
                     </p>
                   </div>
                 </div>
@@ -185,12 +185,15 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
           {/* Bottom bar */}
           <div className="pt-6 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-white/60">
-              © 2026 Devanhaar. A registered charity organisation. All rights
+              © 2026 Devanhaar. Registered charity in England and Wales, No. 1203393. All rights
               reserved.
             </p>
-            <div className="flex items-center gap-6 text-[11px] text-white/60">
+            <div className="flex items-center gap-x-6 gap-y-2 text-[11px] text-white/60 flex-wrap justify-center">
               <Link href="/privacy" className="hover:text-white transition-colors">
                 Privacy Policy
+              </Link>
+              <Link href="/safeguarding" className="hover:text-white transition-colors">
+                Safeguarding
               </Link>
               <Link href="/terms" className="hover:text-white transition-colors">
                 Terms of Service
