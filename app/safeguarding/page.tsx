@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
+import { ScrollAnimations } from "@/components/scroll-animations"
 import { ShieldCheck, ArrowRight, Users, UserCheck } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function SafeguardingPage() {
   return (
     <>
       <Navbar />
+      <ScrollAnimations />
       <main className="min-h-screen mt-20">
         <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container mx-auto px-6 lg:px-12 max-w-4xl">

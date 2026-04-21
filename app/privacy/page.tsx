@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
+import { ScrollAnimations } from "@/components/scroll-animations"
 
 export const metadata: Metadata = {
   title: "Privacy Policy - Devanhaar",
@@ -11,6 +12,7 @@ export default function PrivacyPage() {
   return (
     <>
       <Navbar />
+      <ScrollAnimations />
       <main className="min-h-screen mt-20">
         <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container mx-auto px-6 lg:px-12">
