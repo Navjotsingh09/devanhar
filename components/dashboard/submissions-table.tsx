@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle } from 'lucide-react'
+import { Eye, StickyNote, CheckCircle, XCircle, Download, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
+import { Input } from '@/components/ui/input'
 
 interface Submission {
   id: string
@@ -69,6 +70,78 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [notesDialog, setNotesDialog] = useState<Submission | null>(null)
   const [notes, setNotes] = useState('')
   const [isPending, startTransition] = useTransition()
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+
+  // Distinct statuses present in this list (so the dropdown only shows relevant options)
+  const availableStatuses = Array.from(new Set(submissions.map((s) => s.status))).sort()
+
+  const filteredSubmissions = submissions.filter((s) => {
+    if (statusFilter !== 'all' && s.status !== statusFilter) return false
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase()
+      const hay = `${s.full_name} ${s.email} ${s.phone ?? ''}`.toLowerCase()
+      if (!hay.includes(q)) return false
+    }
+    return true
+  })
+
+  const handleExportCsv = () => {
+    if (filteredSubmissions.length === 0) {
+      toast.error('Nothing to export')
+      return
+    }
+
+    const formDataKeys = new Set<string>()
+    filteredSubmissions.forEach((s) => {
+      Object.keys(s.form_data || {}).forEach((k) => formDataKeys.add(k))
+    })
+    const formDataCols = Array.from(formDataKeys).sort()
+
+    const baseCols = ['id', 'source', 'full_name', 'email', 'phone', 'status', 'project', 'created_at', 'message', 'internal_notes']
+    const headers = [...baseCols, ...formDataCols]
+
+    const escape = (val: unknown): string => {
+      if (val == null) return ''
+      let s: string
+      if (typeof val === 'object') s = JSON.stringify(val)
+      else s = String(val)
+      if (/[",\n\r]/.test(s)) s = `"${s.replace(/"/g, '""')}"`
+      return s
+    }
+
+    const rows = filteredSubmissions.map((s) => {
+      const row: Record<string, unknown> = {
+        id: s.id,
+        source: s.source_table,
+        full_name: s.full_name,
+        email: s.email,
+        phone: s.phone,
+        status: s.status,
+        project: s.initiatives?.name ?? '',
+        created_at: s.created_at,
+        message: s.message,
+        internal_notes: s.internal_notes,
+      }
+      formDataCols.forEach((k) => {
+        row[k] = s.form_data?.[k]
+      })
+      return headers.map((h) => escape(row[h])).join(',')
+    })
+
+    const csv = '\ufeff' + [headers.join(','), ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const ts = new Date().toISOString().slice(0, 10)
+    a.href = url
+    a.download = `submissions-${statusFilter}-${ts}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success(`Exported ${filteredSubmissions.length} row${filteredSubmissions.length === 1 ? '' : 's'}`)
+  }
 
   const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' = 'form_submissions') => {
     startTransition(async () => {
@@ -117,6 +190,56 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
+        <div className="flex flex-1 gap-2 items-center">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search name, email, phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses ({submissions.length})</SelectItem>
+              {availableStatuses.map((s) => {
+                const cfg = getStatus(s)
+                const count = submissions.filter((x) => x.status === s).length
+                return (
+                  <SelectItem key={s} value={s}>
+                    <span className="flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${cfg.dot}`} />
+                      {cfg.label} ({count})
+                    </span>
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground hidden sm:inline">
+            {filteredSubmissions.length} of {submissions.length}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportCsv}
+            disabled={filteredSubmissions.length === 0}
+            className="h-9"
+          >
+            <Download className="h-4 w-4 mr-1.5" />
+            Export CSV
+          </Button>
+        </div>
+      </div>
+
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
@@ -130,7 +253,13 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
             </TableRow>
           </TableHeader>
           <TableBody>
-            {submissions.map((sub) => (
+            {filteredSubmissions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">
+                  No submissions match the current filter.
+                </TableCell>
+              </TableRow>
+            ) : filteredSubmissions.map((sub) => (
               <TableRow key={sub.id + sub.source_table}>
                 <TableCell className="font-medium text-foreground">
                   {sub.full_name}
