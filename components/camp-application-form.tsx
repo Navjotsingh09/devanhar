@@ -62,13 +62,11 @@ const POSTCODE_REGEX = /^[a-zA-Z0-9\s]{3,10}$/
 interface CampApplicationFormProps {
   initiativeSlug?: string
   onClose: () => void
-  showDiscountPreview?: boolean
 }
 
 export function CampApplicationForm({
   initiativeSlug = "singhs-camp",
   onClose,
-  showDiscountPreview = false,
 }: CampApplicationFormProps) {
   const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
@@ -795,7 +793,7 @@ export function CampApplicationForm({
                     onChange={e => update("payment_support_details", e.target.value)} />
                 </div>
               )}
-              {showDiscountPreview && (
+              {(
                 <div className="space-y-4 pt-4 border-t">
                   <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900">
                     <strong>Preview feature</strong> &mdash; Sevadaar discount &amp; promo code (UI only, not yet wired to backend).
