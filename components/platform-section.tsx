@@ -5,7 +5,7 @@ const initiatives = [
   {
     title: "Singhs Camps",
     description:
-      "The UK's first retreat exclusively for Singhs, established in 2020, welcoming Sikhs at every stage of their spiritual journey.",
+      "The first UK & Europe retreats exclusively for Male Adult Sikhs at any stage of their spiritual journey.",
     icon: <Users className="w-5 h-5" />,
     href: "/initiatives/singhs-camp",
   },
