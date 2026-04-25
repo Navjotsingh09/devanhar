@@ -45,8 +45,6 @@ const ALLERGY_OPTIONS = [
   "Nut Allergy",
   "Dairy",
   "Soy",
-  "Egg",
-  "Shellfish",
   "Sesame",
   "Other",
 ]
@@ -244,7 +242,7 @@ export function CampApplicationForm({
         )
       case 2:
         return !!(
-          hasMinLength(form.address_line_1, 3) &&
+          hasValue(form.address_line_1) &&
           hasMinLength(form.city, 2) &&
           form.postcode && isValidPostcode(form.postcode) &&
           hasMinLength(form.country, 2)
