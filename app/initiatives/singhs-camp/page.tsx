@@ -47,7 +47,7 @@ export default function SinghsCampLandingPage() {
 
         <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
-            About the Singhs Camps movement
+            History
           </h2>
           <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
             {singhsCampDescription.map((p, i) => (
