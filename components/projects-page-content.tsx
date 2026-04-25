@@ -91,9 +91,10 @@ const projects: Project[] = [
 ]
 
 const stats = [
-  { value: "Est. 2019", label: "UK Based. Global Reach." },
+  { value: "Est. 2019", label: "UK Based with Global Reach." },
   { value: "9", label: "Live Projects" },
   { value: "800+", label: "Adult Campers Annually" },
+  { value: "3000+", label: "People Impacted Annually" },
 ]
 
 export function ProjectsPageContent() {
@@ -143,7 +144,7 @@ export function ProjectsPageContent() {
       {/* Stats Section */}
       <section className="py-16 bg-[#1a1f2e]">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-4xl md:text-5xl font-bold text-white mb-2">
