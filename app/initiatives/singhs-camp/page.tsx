@@ -21,19 +21,44 @@ export const metadata = {
 
 const faqs = [
   {
-    question: "Who can attend Singhs Camps?",
+    question: "Who can apply for camp?",
     answer:
-      "Singhs Camps are open to Adult Sikh men at any stage of their spiritual journey — whether firmly grounded in Sikhi, returning to it, or beginning to explore it for the first time.",
+      "Camp is open to all males aged 16 and above. It is irrelevant what your background is or where you are in your journey, as the sole aim of the camp is for us in a non-judgmental fashion to come together as brothers and move forward together as one.",
   },
   {
-    question: "What is the difference between the UK and EU camps?",
+    question: "When do camp applications come out?",
     answer:
-      "The UK camp has been running since 2019 and applications are open now. The EU camp is launching in 2027; you can register your interest to be the first to hear when applications open.",
+      "Camp details are usually released at the beginning of the calendar year. Keep an eye on our social media channels (@singhscampuk, @singhscampeurope) and website for updates.",
   },
   {
-    question: "What does a typical day look like?",
+    question: "What can I expect at camp?",
     answer:
-      "Each day begins early with Amrit Vela and is filled with kirtan, simran, talks, workshops, sport, langar and quiet time for reflection.",
+      "For one lots of fun and banter. A typical day at camp starts with Amrit Vela (early morning prayer in congregation) and is filled with a variety of activities, talks, and experiences. The camp is centred around building brotherhood, providing moments for self-reflection, and most importantly helping build a deeper connection with Maharaaj.",
+  },
+  {
+    question: "I don’t know about Sikhi, is camp right for me?",
+    answer:
+      "Definitely! Camp is tailored towards individuals who may not have a lot of knowledge of Sikhi and just want to learn more. We do our best to guide you through the basics, but really it is an experience, a word you might see us using a lot. It is a personal journey and we do our best to support that.",
+  },
+  {
+    question: "What are the facilities like at Singhs Camp?",
+    answer:
+      "Singhs Camp is held in the beautiful Welsh countryside, with access to both indoor and outdoor spaces suitable for all activities.",
+  },
+  {
+    question: "What is the accommodation like?",
+    answer:
+      "Accommodation is typically shared, mostly in rooms or, if opted for in the application form, in yurts. Note: this location is a hot spot in the summer for group outings and Air BnB bookings.",
+  },
+  {
+    question: "What’s the food like at camp?",
+    answer:
+      "A dedicated langar team prepares fresh meals throughout the day. Food is made on-site and caters for all dietary requirements. If you have any allergies or dietary needs, these should be clearly stated in your application.",
+  },
+  {
+    question: "Can I come for one day?",
+    answer:
+      "Unfortunately you cannot attend as a day camper. Safety is a top priority for us and it is important that we manage numbers and keep track of all those on site.",
   },
 ]
 
