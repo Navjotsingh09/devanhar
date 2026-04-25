@@ -1,96 +1,92 @@
-import { InitiativePageLayout } from "@/components/initiative-page-layout"
+import { Navbar } from "@/components/navbar"
+import { FooterSection } from "@/components/footer-section"
+import { ScrollAnimations } from "@/components/scroll-animations"
+import { FAQSection } from "@/components/faq-section"
+import { CampLandingHero } from "@/components/camps/camp-landing-hero"
+import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
+import { ScrollingGallery } from "@/components/camps/scrolling-gallery"
+import { ApplicationProcessTimeline } from "@/components/camps/application-process-timeline"
+import {
+  kaursCorePillars,
+  applicationSteps,
+  kaursCampDescription,
+  kaursGalleryImages,
+} from "@/components/camps/camp-shared-data"
 
 export const metadata = {
-  title: "Kaurs Camp UK | Devanhaar",
+  title: "Kaurs Camps | Devanhaar",
   description:
-    "Be part of an everlasting sisterhood, with the aim of connecting to Sikhi and the Guru's Sangat.",
+    "Kaurs Camps — UK and Europe residential retreats for Adult Sikh women. Apply for the UK camp or register your interest for Europe 2027.",
 }
 
-export default function KaursCampPage() {
+const faqs = [
+  {
+    question: "Who can attend Kaurs Camps?",
+    answer:
+      "Kaurs Camps are open to Adult Sikh women at any stage of their spiritual journey — whether firmly grounded in Sikhi, returning to it, or beginning to explore it for the first time.",
+  },
+  {
+    question: "What is the difference between the UK and EU camps?",
+    answer:
+      "The UK camp runs annually and applications open each year. The EU camp is launching in 2027; you can register your interest to be the first to hear when applications open.",
+  },
+  {
+    question: "What does a typical day look like?",
+    answer:
+      "Each day begins early with Amrit Vela and is filled with kirtan, simran, talks, workshops, langar and quiet time for reflection.",
+  },
+]
+
+export default function KaursCampLandingPage() {
   return (
-    <InitiativePageLayout
-      title="Kaurs Camp UK"
-      tagline="Be part of an everlasting sisterhood, with the aim of connecting to Sikhi and the Guru's Sangat."
-      heroImage="/initiatives/kaurs-camp-top.jpg"
-      ctaText="Enquiry Now"
-      ctaHref="/contact"
-      description={[
-        "If you're seeking spiritual growth, meaningful conversations and an escape from your 9-5 or whatever it is that's occupying your time -- take that leap of faith and apply for Kaurs Camp UK.",
-        "Camp is open to all females aged 16 and above. It doesn't matter where you are on your Sikhi journey, it's open to everyone from any walk of life. We've even had campers travel from around the world.",
-        "A typical day starts with Amrit Vela (early hours of the morning) and is filled with a variety of activities, talks and experiences. Every day is different and an opportunity for self-reflection and to connect with Waheguru.",
-      ]}
-      highlights={[
-        {
-          title: "Open to All",
-          description: "Open to all females aged 16 and above from any walk of life.",
-        },
-        {
-          title: "Global Community",
-          description: "Campers have travelled from around the world to attend.",
-        },
-        {
-          title: "Daily Programme",
-          description: "Daily Amrit Vela followed by activities, talks and experiences.",
-        },
-        {
-          title: "Spiritual Growth",
-          description: "Sisterhood, self-reflection and deeper connection with Waheguru.",
-        },
-        {
-          title: "Kaurs Forum",
-          description: "Monthly sessions in Derby, London and Birmingham.",
-        },
-        {
-          title: "Identity & Heritage",
-          description: "Discussions on Sikh history, identity, and spiritual growth.",
-        },
-      ]}
-      videoTestimonials={[
-        {
-          videoUrl: "https://cdn.shopify.com/videos/c/vp/4c3d3d8a4cc8476d862c724d9ab409de/4c3d3d8a4cc8476d862c724d9ab409de.HD-1080p-2.5Mbps-36118000.mp4?v=0",
-          caption: "Collective Mindfulness Session"
-        },
-        {
-          videoUrl: "https://cdn.shopify.com/videos/c/vp/7d7ebc5362bf4a92828175d205b7bbfa/7d7ebc5362bf4a92828175d205b7bbfa.HD-1080p-2.5Mbps-36118001.mp4?v=0",
-          caption: "A Day in the Life at Kaurs Camp UK"
-        },
-        {
-          videoUrl: "https://cdn.shopify.com/videos/c/vp/5e164916db744a76b4667809c26bcb68/5e164916db744a76b4667809c26bcb68.HD-1080p-2.5Mbps-36117962.mp4?v=0",
-          caption: "Testimonial from Camp"
-        }
-      ]}
-      faqs={[
-        {
-          question: "Who can apply for camp?",
-          answer:
-            "Camp is open to all females aged 16 and above. It is irrelevant what your background is or where you are in your journey, as the sole aim of the camp is for us in a non-judgmental fashion to come together as sisters and grow together as one.",
-        },
-        {
-          question: "When do camp applications come out?",
-          answer:
-            "Usually, camp details will be released around the end of the calendar year. The application process then starts around springtime with the camp generally taking place in early August.",
-        },
-        {
-          question: "What can I expect at camp?",
-          answer:
-            "For one, lots of fun and laughter. A typical day at camp starts with Amrit Vela and is filled with a variety of activities, talks, and experiences. The camp is centred around building a sisterhood, providing moments for self-reflection, and most importantly helping build a deeper connection with Maharaaj.",
-        },
-        {
-          question: "I don't know about Sikhi, is camp right for me?",
-          answer:
-            "Definitely! Camp is tailored towards individuals who may not have a lot of knowledge of Sikhi and just want to learn more. It's a personal journey and we do our best to aid that.",
-        },
-        {
-          question: "What are the facilities like?",
-          answer:
-            "Kaurs Camp UK is being held in the middle of the Welsh countryside with everything you'll need. You'll be sharing a room or a yurt with your group, with the aim to connect to sangat and make lifelong sisters.",
-        },
-      ]}
-      galleryImages={[
-        "/initiatives/kaurs-camp-1.jpg",
-        "/initiatives/kaurs-camp-2.jpg",
-        "/initiatives/kaurs-camp-3.jpg",
-      ]}
-    />
+    <>
+      <Navbar />
+      <ScrollAnimations />
+      <main className="min-h-screen">
+        <CampLandingHero
+          eyebrow="Sisterhood Retreat"
+          title="Kaurs Camps"
+          subtitle="A space for Adult Sikh women to reconnect with Sikhi, build lifelong sisterhood and step away from the noise of everyday life."
+          heroImage="/initiatives/kaurs-camp-top.jpg"
+          ctas={[
+            {
+              label: "Kaurs Camp UK",
+              description:
+                "Our flagship UK residential. Get in touch to be the first to hear when applications open.",
+              href: "/initiatives/kaurs-camp/uk",
+              ctaLabel: "Apply now",
+              primary: true,
+            },
+            {
+              label: "Kaurs Camp EU 2027",
+              description:
+                "Our first European retreat is launching in 2027. Be the first to hear when applications open.",
+              href: "/initiatives/kaurs-camp/eu",
+              ctaLabel: "Register interest",
+            },
+          ]}
+        />
+
+        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+            About the Kaurs Camps movement
+          </h2>
+          <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
+            {kaursCampDescription.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+        </section>
+
+        <CorePillarsGrid pillars={kaursCorePillars} />
+
+        <ScrollingGallery images={kaursGalleryImages} heading="Moments from past camps" />
+
+        <ApplicationProcessTimeline steps={applicationSteps} />
+
+        <FAQSection items={faqs} />
+      </main>
+      <FooterSection />
+    </>
   )
 }

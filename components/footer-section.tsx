@@ -33,8 +33,8 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Email</p>
-                    <a href="mailto:admin@devanhaar.com" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                      admin@devanhaar.com
+                    <a href="mailto:contact@devanhaar.com" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                      contact@devanhaar.com
                     </a>
                   </div>
                 </div>

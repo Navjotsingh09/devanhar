@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const ADMIN_EMAIL = process.env.CONTACT_NOTIFICATION_EMAIL || "admin@devanhaar.com"
+const ADMIN_EMAIL = process.env.CONTACT_NOTIFICATION_EMAIL || "contact@devanhaar.com"
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Devanhaar <noreply@devanhaar.com>"
 
 function escapeHtml(s: string): string {

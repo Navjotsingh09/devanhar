@@ -22,3 +22,7 @@ nextjs-starter-medusa-main/
 nextjs-starter-medusa-main.zip
 
 .env.local
+
+# Internal compliance review documents (not for public distribution)
+/public/Re_ Devanhaar*
+/app/preview/

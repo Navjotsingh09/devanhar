@@ -3,14 +3,14 @@ import { Users, Heart, Globe, BookOpen, Star, GraduationCap, School, Shield } fr
 
 const initiatives = [
   {
-    title: "Singhs Camp UK",
+    title: "Singhs Camps",
     description:
       "The UK's first retreat exclusively for Singhs, established in 2020, welcoming Sikhs at every stage of their spiritual journey.",
     icon: <Users className="w-5 h-5" />,
     href: "/initiatives/singhs-camp",
   },
   {
-    title: "Kaurs Camp UK",
+    title: "Kaurs Camps",
     description:
       "An everlasting sisterhood, grounded in a yearly retreat, with the aim of connecting sangat to spiritual growth, shared learning, and a supportive community.",
     icon: <Heart className="w-5 h-5" />,

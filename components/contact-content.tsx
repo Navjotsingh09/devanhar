@@ -9,8 +9,8 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email Us",
-    detail: "admin@devanhaar.com",
-    href: "mailto:admin@devanhaar.com",
+    detail: "contact@devanhaar.com",
+    href: "mailto:contact@devanhaar.com",
     description: "We aim to respond within 48 hours",
   },
   {
