@@ -809,9 +809,6 @@ export function CampApplicationForm({
                       <Label htmlFor="is_sevadaar" className="cursor-pointer font-medium">
                         Are you a Sevadaar?
                       </Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Active Sevadaars receive a 50% discount on the camp donation. Subject to verification by the admin team.
-                      </p>
                     </div>
                   </div>
                   <div>
