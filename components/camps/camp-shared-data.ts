@@ -22,79 +22,79 @@ export interface ApplicationStep {
 
 export const singhsCorePillars: CorePillar[] = [
   {
-    title: "Naam",
+    title: "Brotherhood",
     description:
-      "Daily Amrit Vela, simran and kirtan create the spiritual foundation of every camp.",
-    icon: Sparkles,
-  },
-  {
-    title: "Sangat",
-    description:
-      "Brotherhood with Singhs from across the country who walk the same path with you.",
+      "Unity through realness, shared experience and collective responsibility.",
     icon: Users,
   },
   {
-    title: "Seva",
+    title: "Faith",
     description:
-      "Hands-on seva — from langar to setup — keeps us humble and rooted in service.",
-    icon: HeartHandshake,
+      "Strengthening connection at any stage of the journey.",
+    icon: Sparkles,
   },
   {
-    title: "Vidya",
+    title: "Discipline",
     description:
-      "Workshops, talks and katha that deepen understanding of Gurbani and Sikh history.",
-    icon: BookOpen,
-  },
-  {
-    title: "Kasrat",
-    description:
-      "Shastar vidya, sport and outdoor challenges to strengthen body alongside the mind.",
+      "Building control, consistency and personal strength.",
     icon: Mountain,
   },
   {
-    title: "Reflection",
+    title: "Identity",
     description:
-      "Quiet time in nature to reset, reflect and return home with clarity and intent.",
+      "Living as a Sikh man in today’s world with clarity and confidence.",
     icon: Sun,
+  },
+  {
+    title: "Growth",
+    description:
+      "Development through discourse, challenge and reflection.",
+    icon: BookOpen,
+  },
+  {
+    title: "Collective Purpose",
+    description:
+      "Moving from the individual to shared responsibility.",
+    icon: HeartHandshake,
   },
 ]
 
 export const kaursCorePillars: CorePillar[] = [
   {
-    title: "Naam",
+    title: "Sisterhood",
     description:
-      "Daily Amrit Vela, simran and kirtan create the spiritual foundation of every camp.",
-    icon: Sparkles,
-  },
-  {
-    title: "Sangat",
-    description:
-      "Sisterhood with Kaurs from across the country who walk the same path with you.",
+      "Unity through realness, shared experience and collective responsibility.",
     icon: Users,
   },
   {
-    title: "Seva",
+    title: "Faith",
     description:
-      "Hands-on seva — from langar to setup — keeps us humble and rooted in service.",
-    icon: HeartHandshake,
+      "Strengthening connection at any stage of the journey.",
+    icon: Sparkles,
   },
   {
-    title: "Vidya",
+    title: "Discipline",
     description:
-      "Workshops, talks and katha that deepen understanding of Gurbani and Sikh history.",
-    icon: BookOpen,
-  },
-  {
-    title: "Kasrat",
-    description:
-      "Movement, outdoor activity and challenges to strengthen body alongside the mind.",
+      "Building control, consistency and personal strength.",
     icon: Mountain,
   },
   {
-    title: "Reflection",
+    title: "Identity",
     description:
-      "Quiet time in nature to reset, reflect and return home with clarity and intent.",
+      "Living as a Sikh woman in today’s world with clarity and confidence.",
     icon: Sun,
+  },
+  {
+    title: "Growth",
+    description:
+      "Development through discourse, challenge and reflection.",
+    icon: BookOpen,
+  },
+  {
+    title: "Collective Purpose",
+    description:
+      "Moving from the individual to shared responsibility.",
+    icon: HeartHandshake,
   },
 ]
 
