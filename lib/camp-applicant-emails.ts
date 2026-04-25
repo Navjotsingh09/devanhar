@@ -9,6 +9,61 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#039;')
 }
 
+export async function sendApplicationReceivedEmail(params: {
+  to: string
+  firstName: string
+  applicationId: string
+}): Promise<boolean> {
+  if (\!process.env.RESEND_API_KEY) {
+    console.warn('[Camp Email] Skipping application-received email - RESEND_API_KEY not configured')
+    return false
+  }
+
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const escapedName = escapeHtml(params.firstName)
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
+      <h2 style="margin:0 0 16px;">Thank you for your application, ${escapedName}\!</h2>
+      <p>We have received your Singhs Camp UK application.</p>
+      <p>Your application has not yet been reviewed. Our team will be in touch with you shortly to arrange payment and confirm next steps.</p>
+      <p>If you have any questions in the meantime, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
+      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!</p>
+      <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
+    </div>
+  `
+
+  const text = `Thank you for your application, ${params.firstName}\!
+
+We have received your Singhs Camp UK application.
+
+Your application has not yet been reviewed. Our team will be in touch with you shortly to arrange payment and confirm next steps.
+
+If you have any questions in the meantime, please contact us at singhscampuk@devanhaar.com.
+
+Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
+
+Singhs Camp UK Team
+Devanhaar`
+
+  try {
+    await resend.emails.send({
+      from: CAMP_FROM_EMAIL,
+      to: params.to,
+      subject: 'We have received your Singhs Camp UK application',
+      html,
+      text,
+    })
+    console.log('[Camp Email] Application-received email sent to', params.to)
+    return true
+  } catch (err) {
+    console.error('[Camp Email] Failed to send application-received email:', err)
+    return false
+  }
+}
+
 export async function sendApplicationUnderReviewEmail(params: {
   to: string
   firstName: string

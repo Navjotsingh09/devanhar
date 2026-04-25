@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 import { sendToClickUp } from '@/lib/clickup'
 import { sendToMailchimp } from '@/lib/mailchimp'
 import { sendCampApplicationOwnerNotification } from '@/lib/camp-application-notifier'
-import { sendApplicationUnderReviewEmail } from '@/lib/camp-applicant-emails'
+import { sendApplicationReceivedEmail } from '@/lib/camp-applicant-emails'
 import { signResumeToken } from '@/lib/camp-resume-token'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -308,12 +308,12 @@ export async function POST(request: NextRequest) {
 
     // If payment support requested, skip Stripe
     if (body.requires_payment_support === 'yes') {
-      sendApplicationUnderReviewEmail({
+      sendApplicationReceivedEmail({
         to: body.email.trim().toLowerCase(),
         firstName: body.first_name.trim(),
         applicationId: String(data.id),
       }).catch((emailErr) => {
-        console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
+        console.error('[Camp Email] Failed to send application-received email (non-blocking):', emailErr)
       })
 
       return NextResponse.json(
@@ -338,12 +338,12 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      sendApplicationUnderReviewEmail({
+      sendApplicationReceivedEmail({
         to: body.email.trim().toLowerCase(),
         firstName: body.first_name.trim(),
         applicationId: String(data.id),
       }).catch((emailErr) => {
-        console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
+        console.error('[Camp Email] Failed to send application-received email (non-blocking):', emailErr)
       })
 
       return NextResponse.json(
@@ -479,12 +479,12 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      sendApplicationUnderReviewEmail({
+      sendApplicationReceivedEmail({
         to: body.email.trim().toLowerCase(),
         firstName: body.first_name.trim(),
         applicationId: String(data.id),
       }).catch((emailErr) => {
-        console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
+        console.error('[Camp Email] Failed to send application-received email (non-blocking):', emailErr)
       })
 
       return NextResponse.json(
