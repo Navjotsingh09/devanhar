@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const stats = [
   { number: "Est. 2019", label: "UK Based. Global Reach." },
   { number: "9", label: "Live Projects" },
-  { number: "2,500+", label: "People Impacted Annually" },
+  { number: "800+", label: "Adult Campers Annually" },
 ]
 
 const values = [
