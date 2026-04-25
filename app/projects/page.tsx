@@ -7,9 +7,9 @@ import { CTABanner } from "@/components/cta-banner"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
 export const metadata: Metadata = {
-  title: "Our Projects & Initiatives | Devanhaar Sikh Charity",
+  title: "Our Projects | Devanhaar Sikh Charity",
   description:
-    "Explore Devanhaar's eight live initiatives from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala, Khalsa Catalyst, and university outreach across the UK.",
+    "Explore Devanhaar's nine live projects from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala, Khalsa Catalyst, and university outreach across the UK.",
   keywords: [
     "Devanhaar projects",
     "Sikh camps UK",
@@ -20,9 +20,9 @@ export const metadata: Metadata = {
     "Sikh university outreach",
   ],
   openGraph: {
-    title: "Our Projects & Initiatives | Devanhaar",
+    title: "Our Projects | Devanhaar",
     description:
-      "Nine community-led Sikh initiatives creating lasting impact across the UK and beyond.",
+      "Nine community-led Sikh projects creating lasting impact across the UK and beyond.",
     url: "https://devanhaar.vercel.app/projects",
   },
   alternates: { canonical: "https://devanhaar.vercel.app/projects" },
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
 
 const projectsFAQs = [
   {
-    question: "How many initiatives does Devanhaar run?",
+    question: "How many projects does Devanhaar run?",
     answer:
-      "Devanhaar currently runs eight live initiatives: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikhi Vidyala, Khalsa Catalyst, University Projects, Gurmat Academy, and Self Defence Academy. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
+      "Devanhaar currently runs nine live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikhi Vidyala, Khalsa Catalyst, University Projects, Gurmat Academy, and Self Defence Academy. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
   },
   {
     question: "Who can attend Devanhaar camps?",
@@ -47,12 +47,12 @@ const projectsFAQs = [
   {
     question: "How can I get involved with a project?",
     answer:
-      "You can volunteer as a sevadaar, attend an event, or support us financially. Visit our contact page to express your interest, and our team will match you with the initiative that best suits your skills and availability.",
+      "You can volunteer as a sevadaar, attend an event, or support us financially. Visit our contact page to express your interest, and our team will match you with the project that best suits your skills and availability.",
   },
   {
     question: "Are Devanhaar projects free to attend?",
     answer:
-      "We strive to keep all our initiatives as accessible as possible. Camps have a small fee to cover logistics, food, and accommodation, but financial support is available so that no one is turned away due to cost.",
+      "We strive to keep all our projects as accessible as possible. Camps have a small fee to cover logistics, food, and accommodation, but financial support is available so that no one is turned away due to cost.",
   },
 ]
 
@@ -64,12 +64,12 @@ export default function ProjectsPage() {
       <main>
         <ProjectsPageContent />
         <FAQSection
-          heading="Projects & Initiatives FAQ"
+          heading="Projects FAQ"
           subheading="Common questions about our camps, programmes, and how to get involved."
           items={projectsFAQs}
         />
         <CTABanner
-          heading="Support Our Initiatives"
+          heading="Support Our Projects"
           description="Every donation helps us run camps, deliver educational programmes, and empower the next generation of Sikhs across the UK and beyond."
           primaryLabel="Donate Now"
           primaryHref="/donate"

@@ -182,7 +182,7 @@ export default async function SubmissionsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Submissions</h1>
-        <p className="text-muted-foreground">Manage form submissions from all initiatives</p>
+        <p className="text-muted-foreground">Manage form submissions from all projects</p>
       </div>
 
       <Tabs defaultValue="all" className="w-full">

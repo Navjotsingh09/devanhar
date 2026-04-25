@@ -207,7 +207,7 @@ export function InitiativePageLayout({
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">
-                Devanhaar Initiative
+                Devanhaar Project
               </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight text-balance mb-6">
                 {title}

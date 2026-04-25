@@ -30,7 +30,7 @@ export default function SafeguardingPage() {
             <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
               Safeguarding is everyone&apos;s responsibility. Devanhaar is committed to protecting
               the welfare, rights, dignity, and safety of every child, young person, and adult at
-              risk who engages with our programmes, camps, and initiatives.
+              risk who engages with our programmes, camps, and projects.
             </p>
           </div>
         </section>

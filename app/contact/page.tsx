@@ -38,7 +38,7 @@ const contactFAQs = [
   {
     question: "How do I sign up for a camp or programme?",
     answer:
-      "Camp and programme registration opens seasonally. Follow us on Instagram @devanhaar or check our initiatives pages for registration links and announcements.",
+      "Camp and programme registration opens seasonally. Follow us on Instagram @devanhaar or check our projects pages for registration links and announcements.",
   },
   {
     question: "I want to partner with Devanhaar. How do I start?",

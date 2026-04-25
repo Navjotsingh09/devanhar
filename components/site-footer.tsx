@@ -17,7 +17,7 @@ export function SiteFooter() {
       ],
     },
     {
-      title: "Initiatives",
+      title: "Projects",
       links: [
         { label: "Singhs Camps", href: "/initiatives/singhs-camp" },
         { label: "Kaurs Camps", href: "/initiatives/kaurs-camp" },
@@ -63,7 +63,7 @@ export function SiteFooter() {
             <p className="text-sm text-white/70 leading-relaxed max-w-sm">
               Rooted in Sikh values of seva, equality, and compassion \u2014
               empowering communities through education, camps, and grassroots
-              initiatives across the UK and Europe.
+              projects across the UK and Europe.
             </p>
           </div>
           <div className="flex flex-col justify-end">

@@ -127,7 +127,7 @@ export function ShopContent() {
             Shop <span className="text-primary">Devanhaar</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Every purchase directly supports our Sikh education programmes, camps, and community initiatives across the UK.
+            Every purchase directly supports our Sikh education programmes, camps, and community projects across the UK.
           </p>
         </div>
 
@@ -206,7 +206,7 @@ export function ShopContent() {
         <div className="mt-20 text-center bg-muted/50 border rounded-3xl p-12">
           <Heart className="w-8 h-8 text-primary mx-auto mb-4" />
           <h2 className="text-2xl sm:text-3xl font-bold">
-            100% of Profits Fund Our Initiatives
+            100% of Profits Fund Our Projects
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
             From Singhs Camp UK to Sikhi Vidyala, every item you purchase helps empower Sikh
@@ -219,7 +219,7 @@ export function ShopContent() {
               </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/projects">Our Initiatives</Link>
+              <Link href="/projects">Our Projects</Link>
             </Button>
           </div>
         </div>

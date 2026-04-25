@@ -122,7 +122,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Initiative</TableHead>
+              <TableHead className="hidden md:table-cell">Project</TableHead>
               <TableHead className="hidden sm:table-cell">Email</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden lg:table-cell">Date</TableHead>
@@ -220,7 +220,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                               </div>
                             )}
                             <div>
-                              <p className="text-muted-foreground">Initiative</p>
+                              <p className="text-muted-foreground">Project</p>
                               <p className="text-foreground font-medium">{sub.initiatives?.name || 'General'}</p>
                             </div>
                             <div>

@@ -14,13 +14,14 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "About Us - Devanhaar",
   description:
-    "With Guru Sahib's Kirpa, since its inception, Devanhaar has grown to develop multiple projects and initiatives UK wide.",
+    "With Guru Sahib's Kirpa, since its inception, Devanhaar has grown to develop multiple projects UK wide.",
 }
 
 const stats = [
-  { number: "Est.", label: "2019" },
+  { number: "2019", label: "Est." },
+  { number: "UK", label: "Based, Global Reach" },
   { number: "9", label: "Live Projects" },
-  { number: "2,000+", label: "People Impacted" },
+  { number: "2,500+", label: "People Impacted Annually" },
 ]
 
 const values = [
@@ -40,7 +41,7 @@ const values = [
     icon: Flame,
     title: "Empower",
     description:
-      "Provide confidence rooted in identity, values, and self-belief. Our initiatives equip individuals with the tools to lead with conviction and purpose.",
+      "Provide confidence rooted in identity, values, and self-belief. Our projects equip individuals with the tools to lead with conviction and purpose.",
   },
   {
     icon: Handshake,
@@ -83,7 +84,7 @@ export default async function AboutPage() {
                     variant="outline"
                     className="bg-transparent rounded-full px-8 py-6 text-base border-foreground/20 hover:bg-foreground/5 w-full sm:w-auto"
                   >
-                    <Link href="/#about">Our Initiatives</Link>
+                    <Link href="/#about">Our Projects</Link>
                   </Button>
                 </div>
               </div>
@@ -165,7 +166,7 @@ export default async function AboutPage() {
                 <p className="text-muted-foreground leading-relaxed">
                   We also run a Gurmat school for the youth, recognising that
                   investing in them means investing in the future of the Panth.
-                  Through all these initiatives, we strive to create a thriving
+                  Through all these projects, we strive to create a thriving
                   community where Sikhs remain grounded in Sikhi and connected
                   to Guru Sahib.
                 </p>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 export const metadata: Metadata = {
   title: "Team Coming Soon | Devanhaar",
   description:
-    "The Devanhaar team page is coming soon. Stay tuned to learn more about the sevadaars serving camps, education, and community initiatives across the UK.",
+    "The Devanhaar team page is coming soon. Stay tuned to learn more about the sevadaars serving camps, education, and community projects across the UK.",
   openGraph: {
     title: "Team Coming Soon | Devanhaar",
     description:

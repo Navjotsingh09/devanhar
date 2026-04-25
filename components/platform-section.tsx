@@ -91,7 +91,7 @@ export function PlatformSection() {
                     OUR APPROACH TO GROWTH
                   </span>
                   <h3 className="text-3xl md:text-4xl font-bold leading-[1.15] mb-4">
-                    Devanhaar Initiatives
+                    Devanhaar Projects
                   </h3>
                   <p className="text-white/60 text-[15px] leading-relaxed max-w-md">
                     Devanhaar is dedicated to inspiring individuals on their

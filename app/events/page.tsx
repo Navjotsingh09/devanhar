@@ -102,7 +102,7 @@ export default function EventsPage() {
               Active Event Pages
             </h2>
             <p className="text-muted-foreground mb-12 max-w-2xl">
-              Events now follow an initiative-style flow with dedicated detail pages and tailored forms.
+              Events now follow a project-style flow with dedicated detail pages and tailored forms.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               {eventsConfig.map((event) => (

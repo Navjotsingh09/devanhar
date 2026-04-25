@@ -91,9 +91,10 @@ const projects: Project[] = [
 ]
 
 const stats = [
-  { value: "Est.", label: "2019" },
+  { value: "2019", label: "Est." },
+  { value: "UK", label: "Based, Global Reach" },
   { value: "9", label: "Live Projects" },
-  { value: "2,000+", label: "People Impacted" },
+  { value: "2,500+", label: "People Impacted Annually" },
 ]
 
 export function ProjectsPageContent() {
@@ -109,13 +110,13 @@ export function ProjectsPageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
-                Our Initiatives
+                Our Projects
               </p>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] text-balance mb-6">
                 Creating Lasting Impact
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
-                From residential retreats to academic programmes and mentorship, every initiative is
+                From residential retreats to academic programmes and mentorship, every project is
                 rooted in empowering, elevating and connecting with the Sikh diaspora.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -129,11 +130,11 @@ export function ProjectsPageContent() {
             </div>
             <div className="relative">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
-                <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Initiatives" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Projects" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
                 <p className="text-3xl font-bold">9</p>
-                <p className="text-sm text-primary-foreground/80">Live Initiatives</p>
+                <p className="text-sm text-primary-foreground/80">Live Projects</p>
               </div>
             </div>
           </div>
@@ -190,7 +191,7 @@ export function ProjectsPageContent() {
                         {project.description}
                       </p>
                       <span className="inline-flex items-center gap-1.5 text-white/90 text-xs font-medium mt-3 group-hover:gap-2.5 transition-all">
-                        Explore Initiative
+                        Explore Project
                         <ArrowRight className="w-3.5 h-3.5" />
                       </span>
                     </div>

@@ -75,7 +75,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
               />
               <p className="text-sm text-white/70 leading-relaxed max-w-sm">
                 Creating, developing, and empowering individuals through Sikh
-                values and community-led initiatives across the UK, Europe, and
+                values and community-led projects across the UK, Europe, and
                 beyond.
               </p>
             </div>
@@ -93,7 +93,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
               <ul className="space-y-3 text-sm">
                 {[
                   { label: "About", href: "/about" },
-                  { label: "Initiatives", href: "/projects" },
+                  { label: "Projects", href: "/projects" },
                   { label: "Team", href: "/team" },
                   { label: "Events", href: "/events" },
                   { label: "Shop", href: "/shop" },
@@ -111,7 +111,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
             </div>
             <div>
               <h4 className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/60 mb-5">
-                Initiatives
+                Projects
               </h4>
               <ul className="space-y-3 text-sm">
                 {[

@@ -17,7 +17,7 @@ const leadership: TeamMember[] = [
   {
     name: "Mandeep Narwal",
     role: "Head of Operations",
-    bio: "Overseeing day-to-day operations and driving organisational growth across all initiatives.",
+    bio: "Overseeing day-to-day operations and driving organisational growth across all projects.",
     image: "https://api.dicebear.com/9.x/notionists/svg?seed=MandeepNarwal",
     linkedin: "https://www.linkedin.com/in/mandeep-singh-narwal/",
   },
@@ -113,7 +113,7 @@ export function TeamPageContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { number: "50+", label: "Active Sevadaars" },
-              { number: "9", label: "Live Initiatives" },
+              { number: "9", label: "Live Projects" },
               { number: "UK", label: "Based" },
               { number: "100%", label: "Volunteer Run" },
             ].map((stat) => (

@@ -119,7 +119,7 @@ export default async function DashboardOverview() {
               <Clock className="h-5 w-5 text-muted-foreground" />
               <CardTitle className="text-foreground">Recent Submissions</CardTitle>
             </div>
-            <CardDescription>Latest form submissions across all initiatives</CardDescription>
+            <CardDescription>Latest form submissions across all projects</CardDescription>
           </CardHeader>
           <CardContent>
             {stats.recentSubmissions.length === 0 ? (

@@ -93,7 +93,7 @@ export function ContactContent() {
             We&apos;d Love to Hear From You
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Whether you have a question about our initiatives, want to volunteer, or are interested in partnering with us — our team is here to help.
+            Whether you have a question about our projects, want to volunteer, or are interested in partnering with us — our team is here to help.
           </p>
         </div>
       </section>

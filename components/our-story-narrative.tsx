@@ -38,7 +38,7 @@ const milestones: Milestone[] = [
   {
     year: 2021, theme: "Education", icon: "\u{1F393}",
     headline: "Unlocking Potential",
-    description: "Launched scholarships and education initiatives, opening doors for underprivileged students to access quality learning.",
+    description: "Launched scholarships and education projects, opening doors for underprivileged students to access quality learning.",
     accent: "violet-500",
     image: "/images/about/story-2021.png",
   },

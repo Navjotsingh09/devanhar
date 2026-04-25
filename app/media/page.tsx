@@ -43,7 +43,7 @@ const mediaFAQs = [
   {
     question: "Does Devanhaar have a media kit?",
     answer:
-      "Yes. We can provide logos, brand guidelines, high-resolution images, and background information about our charity and initiatives. Contact our team to request access.",
+      "Yes. We can provide logos, brand guidelines, high-resolution images, and background information about our charity and projects. Contact our team to request access.",
   },
   {
     question: "Can I cover a Devanhaar event?",
@@ -53,7 +53,7 @@ const mediaFAQs = [
   {
     question: "How can I share my Devanhaar story?",
     answer:
-      "If you have been positively impacted by Devanhaar’s initiatives and would like to share your story, we would love to hear from you. Get in touch through our contact page.",
+      "If you have been positively impacted by Devanhaar’s projects and would like to share your story, we would love to hear from you. Get in touch through our contact page.",
   },
 ]
 

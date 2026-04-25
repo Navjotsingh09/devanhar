@@ -13,7 +13,7 @@ import { FAQSection } from "@/components/faq-section"
 const homeFAQs = [
   {
     question: "What is Devanhaar?",
-    answer: "Devanhaar is a UK-based Sikh charity that empowers young Sikhs through educational camps, university talks, Gurmat academies, and community-building initiatives. Our mission is to develop, empower, elevate and connect."
+    answer: "Devanhaar is a UK-based Sikh charity that empowers young Sikhs through educational camps, university talks, Gurmat academies, and community-building projects. Our mission is to develop, empower, elevate and connect."
   },
   {
     question: "How can I get involved with Devanhaar?",
@@ -21,15 +21,15 @@ const homeFAQs = [
   },
   {
     question: "Are Devanhaar events open to everyone?",
-    answer: "Yes, our events and initiatives are open to all Sikhs regardless of background, experience, or level of practice. We create inclusive, welcoming spaces for everyone on their journey."
+    answer: "Yes, our events and projects are open to all Sikhs regardless of background, experience, or level of practice. We create inclusive, welcoming spaces for everyone on their journey."
   },
   {
     question: "How are donations used?",
-    answer: "Every donation directly supports our initiatives \u2014 from Singhs Camps and university programmes to Sikhi Vidyala and community outreach. We are transparent about how funds are allocated across our projects."
+    answer: "Every donation directly supports our projects \u2014 from Singhs Camps and university programmes to Sikhi Vidyala and community outreach. We are transparent about how funds are allocated across our projects."
   },
   {
     question: "Where is Devanhaar based?",
-    answer: "Devanhaar is a registered UK-based charity. We run initiatives across the UK, with camps, talks and programmes held at various locations nationwide."
+    answer: "Devanhaar is a registered UK-based charity. We run projects across the UK, with camps, talks and programmes held at various locations nationwide."
   },
 ]
 

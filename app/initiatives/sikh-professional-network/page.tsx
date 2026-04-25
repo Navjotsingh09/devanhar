@@ -18,7 +18,7 @@ export default function SikhProfessionalNetworkPage() {
       description={[
         "Sikh Professional Network creates spaces where professionals can connect across industries, exchange experience, and support each other's growth.",
         "The network is designed to help individuals navigate careers with confidence, build meaningful relationships, and access mentorship rooted in shared values and lived experience.",
-        "Whether someone is just starting out or already established in their field, the initiative exists to strengthen professional development while keeping community, service, and purpose at the centre.",
+        "Whether someone is just starting out or already established in their field, the project exists to strengthen professional development while keeping community, service, and purpose at the centre.",
       ]}
       highlights={[
         { title: "Mentorship", description: "Connect early-career professionals with experienced mentors across a range of industries." },
@@ -35,7 +35,7 @@ export default function SikhProfessionalNetworkPage() {
         {
           question: "What kind of support does it offer?",
           answer:
-            "The initiative focuses on mentorship, relationship building, professional development, and creating access to people and opportunities.",
+            "The project focuses on mentorship, relationship building, professional development, and creating access to people and opportunities.",
         },
         {
           question: "Do I need to be established in my career to join?",

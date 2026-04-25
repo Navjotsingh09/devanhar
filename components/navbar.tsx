@@ -10,7 +10,7 @@ import { useCart } from "@/components/cart-provider"
 
 const navLinks = [
   { label: "About", href: "/about" },
-  { label: "Initiatives", href: "/projects" },
+  { label: "Projects", href: "/projects" },
   { label: "Team", href: "/team" },
   { label: "Events", href: "/events" },
   { label: "Shop", href: "/shop" },

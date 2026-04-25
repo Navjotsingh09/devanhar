@@ -56,7 +56,7 @@ export function NewsletterForm() {
       <h3 className="text-lg font-bold text-white mb-2">
         Be a part of the future of education
       </h3>
-      <p className="text-sm text-white/70 mb-4">Stay updated with our initiatives</p>
+      <p className="text-sm text-white/70 mb-4">Stay updated with our projects</p>
 
       {status === "success" ? (
         <div className="flex items-center gap-2 py-3 px-4 rounded-xl bg-green-900/30 border border-green-500/20">
