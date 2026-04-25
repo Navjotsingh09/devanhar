@@ -23,7 +23,7 @@ export function SinghsCampHeroWithApply() {
             primary: true,
             onClick: () => {
               setShowForm(true)
-              if (typeof window \!== "undefined") {
+              if (typeof window !== "undefined") {
                 setTimeout(() => {
                   document
                     .getElementById("singhs-application")
