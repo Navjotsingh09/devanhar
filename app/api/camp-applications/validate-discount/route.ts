@@ -11,7 +11,7 @@ const MAX_PER_WINDOW = 20
 function rateLimit(ip: string): boolean {
   const now = Date.now()
   const cur = ipHits.get(ip)
-  if (\!cur || cur.reset < now) {
+  if (!cur || cur.reset < now) {
     ipHits.set(ip, { count: 1, reset: now + WINDOW_MS })
     return true
   }
@@ -26,13 +26,13 @@ export async function POST(request: NextRequest) {
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       request.headers.get("x-real-ip") ||
       "unknown"
-    if (\!rateLimit(ip)) {
+    if (!rateLimit(ip)) {
       return NextResponse.json({ valid: false, error: "too_many_attempts" }, { status: 429 })
     }
 
     const body = await request.json().catch(() => ({}))
     const code = typeof body?.code === "string" ? body.code : ""
-    if (\!code.trim()) {
+    if (!code.trim()) {
       return NextResponse.json({ valid: false }, { status: 200 })
     }
 

@@ -22,7 +22,7 @@ export type DiscountResolution = {
 
 function loadPromoCodes(): Record<string, number> {
   const raw = process.env.CAMP_PROMO_CODES_JSON
-  if (\!raw) return {}
+  if (!raw) return {}
   try {
     const parsed = JSON.parse(raw)
     if (parsed && typeof parsed === "object") {
@@ -42,7 +42,7 @@ function loadPromoCodes(): Record<string, number> {
 }
 
 export function lookupPromoCode(code: string | null | undefined): number {
-  if (\!code) return 0
+  if (!code) return 0
   const codes = loadPromoCodes()
   return codes[code.trim().toUpperCase()] || 0
 }
@@ -74,7 +74,7 @@ export function resolveDiscount(input: {
 }
 
 export function applyDiscount(baseAmountPence: number, percent: number): number {
-  if (\!percent || percent <= 0) return baseAmountPence
+  if (!percent || percent <= 0) return baseAmountPence
   const safePct = Math.min(Math.max(percent, 0), MAX_DISCOUNT_PERCENT)
   return Math.round(baseAmountPence * (100 - safePct) / 100)
 }

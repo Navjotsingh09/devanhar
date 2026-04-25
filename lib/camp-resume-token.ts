@@ -6,7 +6,7 @@ function getSecret(): string {
     process.env.STRIPE_WEBHOOK_SECRET ||
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     ""
-  if (\!secret) {
+  if (!secret) {
     throw new Error(
       "Missing RESUME_TOKEN_SECRET (and STRIPE_WEBHOOK_SECRET / SUPABASE_SERVICE_ROLE_KEY fallbacks)",
     )
@@ -28,12 +28,12 @@ export function signResumeToken(applicationId: string): string {
 }
 
 export function verifyResumeToken(applicationId: string, token: string): boolean {
-  if (\!applicationId || \!token) return false
+  if (!applicationId || !token) return false
   const expected = signResumeToken(applicationId)
   // constant-time compare
   const a = Buffer.from(expected)
   const b = Buffer.from(token)
-  if (a.length \!== b.length) return false
+  if (a.length !== b.length) return false
   return crypto.timingSafeEqual(a, b)
 }
 

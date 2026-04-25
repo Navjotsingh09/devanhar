@@ -191,7 +191,7 @@ export async function sendApplicationPaymentReminderEmail(params: {
   resumeUrl: string
   amountGbp?: number
 }): Promise<boolean> {
-  if (\!process.env.RESEND_API_KEY) {
+  if (!process.env.RESEND_API_KEY) {
     console.warn('[Camp Email] Skipping payment-reminder email - RESEND_API_KEY not configured')
     return false
   }
@@ -216,7 +216,7 @@ export async function sendApplicationPaymentReminderEmail(params: {
       <p style="font-size:13px;color:#555;">If the button does not work, paste this link into your browser:<br/>${escapedUrl}</p>
       <p>Your card will be authorised but not charged until our team reviews and accepts your application. If you are not accepted, the hold is released in full.</p>
       <p>Need help? Reply to this email or write to <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
-      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!</p>
+      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
       <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
     </div>
   `
@@ -231,7 +231,7 @@ Your card will be authorised but not charged until our team reviews and accepts 
 
 Need help? Reply to this email or write to singhscampuk@devanhaar.com.
 
-Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
+Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
 
 Singhs Camp UK Team
 Devanhaar`
