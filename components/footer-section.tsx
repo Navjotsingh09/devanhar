@@ -95,7 +95,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                   { label: "About", href: "/about" },
                   { label: "Projects", href: "/projects" },
                   { label: "Team", href: "/team" },
-                  { label: "Events", href: "/events" },
+                  { label: "Events (Coming Soon)", href: "/events" },
                   { label: "Shop", href: "/shop" },
                 ].map((l) => (
                   <li key={l.label}>
