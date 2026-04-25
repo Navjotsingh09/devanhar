@@ -17,23 +17,23 @@ export async function POST(req: NextRequest) {
       notes?: string
     }
 
-    if (\!camp || \!ALLOWED_CAMPS.has(camp)) {
+    if (!camp || !ALLOWED_CAMPS.has(camp)) {
       return NextResponse.json({ error: "Invalid camp." }, { status: 400 })
     }
-    if (\!name || \!email) {
+    if (!name || !email) {
       return NextResponse.json(
         { error: "Name and email are required." },
         { status: 400 }
       )
     }
-    if (\!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: "Invalid email address." },
         { status: 400 }
       )
     }
 
-    if (\!SUPABASE_URL || \!SUPABASE_SERVICE_ROLE_KEY) {
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json(
         { error: "Server is not configured." },
         { status: 500 }

@@ -4,7 +4,7 @@ interface ScrollingGalleryProps {
 }
 
 export function ScrollingGallery({ images, heading }: ScrollingGalleryProps) {
-  if (\!images || images.length === 0) return null
+  if (!images || images.length === 0) return null
   const loop = [...images, ...images]
 
   return (

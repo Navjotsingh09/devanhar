@@ -37,7 +37,7 @@ export function RegisterInterestForm({
         body: JSON.stringify({ camp, name, email, country, notes }),
       })
       const data = await res.json().catch(() => ({}))
-      if (\!res.ok) {
+      if (!res.ok) {
         setStatus("error")
         setError(data?.error || "Something went wrong. Please try again.")
         return
