@@ -788,29 +788,19 @@ export function CampApplicationForm({
                     onChange={e => update("payment_support_details", e.target.value)} />
                 </div>
               )}
-              {(
-                <div className="space-y-4 pt-4 border-t">
-                  <div className="flex items-start gap-3 p-3 rounded-lg border bg-slate-50">
-                    <input
-                      type="checkbox"
-                      id="is_sevadaar"
-                      title="Are you a Sevadaar?"
-                      aria-label="Are you a Sevadaar?"
-                      className="mt-1 h-4 w-4"
-                      checked={form.is_sevadaar as boolean}
-                      onChange={e => update("is_sevadaar", e.target.checked)}
-                    />
-                    <div>
-                      <Label htmlFor="is_sevadaar" className="cursor-pointer font-medium">
-                        Are you a Sevadaar?
-                      </Label>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        This applies only to those selected by Singhs Camp UK to serve at the camp. If you are attending as a camper, please do not select this.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <div className="pt-4 border-t">
+                <Label htmlFor="is_sevadaar" className="mb-1.5 block">Are you a Sevadaar?</Label>
+                <Select value={form.is_sevadaar === true ? "yes" : form.is_sevadaar === false ? "no" : ""} onValueChange={v => update("is_sevadaar", v === "yes")}>
+                  <SelectTrigger id="is_sevadaar"><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  This applies only to those selected by Singhs Camp UK to serve at the camp. If you are attending as a camper, please select No.
+                </p>
+              </div>
             </div>
           )}
           {step === 5 && (
