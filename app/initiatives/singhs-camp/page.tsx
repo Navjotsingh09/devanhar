@@ -2,7 +2,7 @@ import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { FAQSection } from "@/components/faq-section"
-import { CampLandingHero } from "@/components/camps/camp-landing-hero"
+import { SinghsCampHeroWithApply } from "@/components/camps/singhs-camp-hero-with-apply"
 import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
 import { ScrollingGallery } from "@/components/camps/scrolling-gallery"
 import { ApplicationProcessTimeline } from "@/components/camps/application-process-timeline"
@@ -43,29 +43,7 @@ export default function SinghsCampLandingPage() {
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen">
-        <CampLandingHero
-          eyebrow="Brotherhood Retreat"
-          title="Singhs Camps"
-          subtitle="A space for Adult Sikh men to reconnect with Sikhi, build lifelong brotherhood and step away from the noise of everyday life."
-          heroImage="/initiatives/singhs-camp-top.jpg"
-          ctas={[
-            {
-              label: "Singhs Camp UK",
-              description:
-                "Our flagship UK residential. Applications are open — secure your place now.",
-              href: "/initiatives/singhs-camp/uk",
-              ctaLabel: "Apply now",
-              primary: true,
-            },
-            {
-              label: "Singhs Camp EU 2027",
-              description:
-                "Our first European retreat is launching in 2027. Be the first to hear when applications open.",
-              href: "/initiatives/singhs-camp/eu",
-              ctaLabel: "Register interest",
-            },
-          ]}
-        />
+        <SinghsCampHeroWithApply />
 
         <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
