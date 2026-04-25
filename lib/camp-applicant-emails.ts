@@ -14,7 +14,7 @@ export async function sendApplicationReceivedEmail(params: {
   firstName: string
   applicationId: string
 }): Promise<boolean> {
-  if (\!process.env.RESEND_API_KEY) {
+  if (!process.env.RESEND_API_KEY) {
     console.warn('[Camp Email] Skipping application-received email - RESEND_API_KEY not configured')
     return false
   }
@@ -26,16 +26,16 @@ export async function sendApplicationReceivedEmail(params: {
 
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
-      <h2 style="margin:0 0 16px;">Thank you for your application, ${escapedName}\!</h2>
+      <h2 style="margin:0 0 16px;">Thank you for your application, ${escapedName}!</h2>
       <p>We have received your Singhs Camp UK application.</p>
       <p>Your application has not yet been reviewed. Our team will be in touch with you shortly to arrange payment and confirm next steps.</p>
       <p>If you have any questions in the meantime, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
-      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!</p>
+      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
       <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
     </div>
   `
 
-  const text = `Thank you for your application, ${params.firstName}\!
+  const text = `Thank you for your application, ${params.firstName}!
 
 We have received your Singhs Camp UK application.
 
@@ -43,7 +43,7 @@ Your application has not yet been reviewed. Our team will be in touch with you s
 
 If you have any questions in the meantime, please contact us at singhscampuk@devanhaar.com.
 
-Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
+Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
 
 Singhs Camp UK Team
 Devanhaar`
