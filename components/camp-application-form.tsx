@@ -122,6 +122,8 @@ export function CampApplicationForm({
     discount_code: "",
     discount_code_applied: "",
     discount_percent: 0,
+    discount_code_error: "",
+    discount_code_checking: false,
     bjj_interest: "",
     bjj_fought_professionally: "",
     bjj_sport_preference: [] as string[],
@@ -793,9 +795,6 @@ export function CampApplicationForm({
               )}
               {(
                 <div className="space-y-4 pt-4 border-t">
-                  <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900">
-                    <strong>Preview feature</strong> &mdash; Sevadaar discount &amp; promo code (UI only, not yet wired to backend).
-                  </div>
                   <div className="flex items-start gap-3 p-3 rounded-lg border bg-slate-50">
                     <input
                       type="checkbox"
@@ -843,24 +842,43 @@ export function CampApplicationForm({
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => {
-                            const DEMO_CODES: Record<string, number> = { SEVA50: 50, CAMP2026: 50 }
+                          onClick={async () => {
                             const code = (form.discount_code as string).trim().toUpperCase()
-                            const pct = DEMO_CODES[code]
-                            if (pct) {
-                              update("discount_code_applied", code)
-                              update("discount_percent", pct)
-                            } else {
-                              alert("Invalid or expired code (preview check)")
+                            if (!code) return
+                            update("discount_code_error", "")
+                            update("discount_code_checking", true)
+                            try {
+                              const res = await fetch("/api/camp-applications/validate-discount", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ code }),
+                              })
+                              const data = await res.json().catch(() => ({}))
+                              if (res.ok && data?.valid && data?.percent) {
+                                update("discount_code_applied", data.code || code)
+                                update("discount_percent", Number(data.percent))
+                                update("discount_code_error", "")
+                              } else if (res.status === 429) {
+                                update("discount_code_error", "Too many attempts. Please try again in a minute.")
+                              } else {
+                                update("discount_code_error", "Invalid or expired code.")
+                              }
+                            } catch {
+                              update("discount_code_error", "Could not validate code. Please try again.")
+                            } finally {
+                              update("discount_code_checking", false)
                             }
                           }}
-                          disabled={!(form.discount_code as string).trim()}
+                          disabled={!(form.discount_code as string).trim() || !!form.discount_code_checking}
                         >
-                          Apply
+                          {form.discount_code_checking ? "Checking..." : "Apply"}
                         </Button>
                       )}
                     </div>
-                    {form.discount_code_applied && (
+                    {form.discount_code_error ? (
+                      <p className="text-xs text-red-600 mt-1.5">{form.discount_code_error as string}</p>
+                    ) : null}
+                    {form.discount_code_applied && !form.discount_code_error && (
                       <p className="text-xs text-green-700 mt-1.5">
                         Code <strong>{form.discount_code_applied}</strong> applied &mdash; {form.discount_percent}% off
                       </p>

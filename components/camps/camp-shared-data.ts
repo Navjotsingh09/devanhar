@@ -142,6 +142,11 @@ export const singhsGalleryImages: string[] = [
   "/initiatives/singhs-camp-1.jpg",
   "/initiatives/singhs-camp-2.jpg",
   "/initiatives/singhs-camp-3.jpg",
+  "/initiatives/singhs-camp-4.jpeg",
+  "/initiatives/singhs-camp-5.jpeg",
+  "/initiatives/singhs-camp-6.jpeg",
+  "/initiatives/singhs-camp-7.jpeg",
+  "/initiatives/singhs-camp-8.jpeg",
   "/initiatives/singhs-camp-top.jpg",
 ]
 

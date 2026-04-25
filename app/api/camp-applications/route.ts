@@ -6,6 +6,7 @@ import { sendToMailchimp } from '@/lib/mailchimp'
 import { sendCampApplicationOwnerNotification } from '@/lib/camp-application-notifier'
 import { sendApplicationUnderReviewEmail } from '@/lib/camp-applicant-emails'
 import { signResumeToken } from '@/lib/camp-resume-token'
+import { resolveDiscount, applyDiscount } from '@/lib/camp-discounts'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -166,6 +167,7 @@ export async function POST(request: NextRequest) {
       gift_aid: body.gift_aid === 'yes',
       monthly_donation_opted: body.monthly_donation_opted === 'yes',
       monthly_donation_amount: body.monthly_donation_opted === 'yes' && body.monthly_donation_amount ? Number(body.monthly_donation_amount) : null,
+      is_sevadaar: body.is_sevadaar === true,
     }
 
     // Try with all columns; if migration hasn't run yet, retry with base columns only
@@ -356,10 +358,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate donation amount
+    // Resolve discount server-side (do NOT trust client-supplied percent).
+    const discount = resolveDiscount({
+      isSevadaar: body.is_sevadaar === true,
+      discountCode: body.discount_code,
+    })
+
     const requestedAmount = Number(body.donation_amount) || campFeeGbp
-    const donationAmount = Math.max(requestedAmount, campFeeGbp) // minimum is camp fee
-    const donationAmountPence = donationAmount * 100
+    const baseAmountPence = Math.max(requestedAmount, campFeeGbp) * 100
+    const discountedBasePence = applyDiscount(campFeeGbp * 100, discount.percent)
+    // Final price: discounted base, but if user typed a higher donation amount keep it.
+    const donationAmountPence = Math.max(baseAmountPence === campFeeGbp * 100 ? discountedBasePence : baseAmountPence, discountedBasePence)
+    const donationAmount = donationAmountPence / 100
+
+    // Persist resolved discount fields back onto the row (best-effort: columns
+    // may not yet exist if the migration has not been run).
+    try {
+      await supabase
+        .from('camp_applications')
+        .update({
+          is_sevadaar: discount.isSevadaar,
+          discount_code: discount.code,
+          discount_percent: discount.percent,
+          discount_source: discount.source,
+          final_amount_pence: donationAmountPence,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', data.id)
+    } catch (discountPersistErr) {
+      console.warn('[Camp Application] Failed to persist discount fields (columns may be missing):', discountPersistErr)
+    }
 
     // Create Stripe Checkout session
     try {
@@ -435,6 +463,10 @@ export async function POST(request: NextRequest) {
           gift_aid: body.gift_aid === 'yes' ? 'true' : 'false',
           monthly_donation_opted: body.monthly_donation_opted === 'yes' ? 'true' : 'false',
           monthly_donation_amount: body.monthly_donation_opted === 'yes' ? String(body.monthly_donation_amount || '0') : '0',
+          is_sevadaar: discount.isSevadaar ? 'true' : 'false',
+          discount_code: discount.code || '',
+          discount_percent: String(discount.percent),
+          discount_source: discount.source || '',
         },
         success_url: `${siteUrl}${initiativePath}?payment=success`,
         cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}&applicationId=${data.id}&resumeToken=${encodeURIComponent(signResumeToken(String(data.id)))}`,
