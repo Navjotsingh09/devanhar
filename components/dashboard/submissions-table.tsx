@@ -137,6 +137,15 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                   {sub.source_table === 'camp_applications' && (
                     <Badge variant="outline" className="ml-2 text-[10px] px-1 py-0">Camp</Badge>
                   )}
+                  {sub.source_table === 'camp_applications' && sub.form_data?.is_sevadaar === true && (
+                    <Badge
+                      variant="outline"
+                      className="ml-1 text-[10px] px-1 py-0 border-amber-500 text-amber-700 bg-amber-50 dark:bg-amber-950 dark:text-amber-300"
+                      title="Applicant claims to be a Sevadaar - verify before issuing discount code"
+                    >
+                      Sevadaar
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Badge variant="outline" className="text-xs">{sub.initiatives?.name || 'General'}</Badge>
