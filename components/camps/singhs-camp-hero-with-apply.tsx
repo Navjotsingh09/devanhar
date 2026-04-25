@@ -12,11 +12,11 @@ export function SinghsCampHeroWithApply() {
       <CampLandingHero
         eyebrow="Brotherhood"
         title="Singhs Camps"
-        subtitle="Annual residential for Sikh men strengthening faith, identity and discipline."
+        subtitle="Annual residentials for Sikh men strengthening faith, identity and discipline."
         heroImage="/initiatives/singhs-camp-top.jpg"
         ctas={[
           {
-            label: "Singhs Camp UK",
+            label: "Singhs Camp UK 2026",
             description:
               "Our flagship UK residential. Applications are open — secure your place now.",
             ctaLabel: "Apply now",
