@@ -119,11 +119,6 @@ export function CampApplicationForm({
     payment_support_details: "",
     own_transport_type: "",
     is_sevadaar: false,
-    discount_code: "",
-    discount_code_applied: "",
-    discount_percent: 0,
-    discount_code_error: "",
-    discount_code_checking: false,
     bjj_interest: "",
     bjj_fought_professionally: "",
     bjj_sport_preference: [] as string[],
@@ -811,92 +806,6 @@ export function CampApplicationForm({
                       </Label>
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="discount_code" className="mb-1.5 block">
-                      Discount code <span className="text-muted-foreground font-normal">(optional)</span>
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="discount_code"
-                        placeholder="Enter code"
-                        value={form.discount_code as string}
-                        onChange={e => update("discount_code", e.target.value.toUpperCase())}
-                        disabled={!!form.discount_code_applied}
-                      />
-                      {form.discount_code_applied ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            update("discount_code", "")
-                            update("discount_code_applied", "")
-                            update("discount_percent", 0)
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={async () => {
-                            const code = (form.discount_code as string).trim().toUpperCase()
-                            if (!code) return
-                            update("discount_code_error", "")
-                            update("discount_code_checking", true)
-                            try {
-                              const res = await fetch("/api/camp-applications/validate-discount", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ code }),
-                              })
-                              const data = await res.json().catch(() => ({}))
-                              if (res.ok && data?.valid && data?.percent) {
-                                update("discount_code_applied", data.code || code)
-                                update("discount_percent", Number(data.percent))
-                                update("discount_code_error", "")
-                              } else if (res.status === 429) {
-                                update("discount_code_error", "Too many attempts. Please try again in a minute.")
-                              } else {
-                                update("discount_code_error", "Invalid or expired code.")
-                              }
-                            } catch {
-                              update("discount_code_error", "Could not validate code. Please try again.")
-                            } finally {
-                              update("discount_code_checking", false)
-                            }
-                          }}
-                          disabled={!(form.discount_code as string).trim() || !!form.discount_code_checking}
-                        >
-                          {form.discount_code_checking ? "Checking..." : "Apply"}
-                        </Button>
-                      )}
-                    </div>
-                    {form.discount_code_error ? (
-                      <p className="text-xs text-red-600 mt-1.5">{form.discount_code_error as string}</p>
-                    ) : null}
-                    {form.discount_code_applied && !form.discount_code_error && (
-                      <p className="text-xs text-green-700 mt-1.5">
-                        Code <strong>{form.discount_code_applied}</strong> applied &mdash; {form.discount_percent}% off
-                      </p>
-                    )}
-                  </div>
-                  {(() => {
-                    const pct = Math.max(form.is_sevadaar ? 50 : 0, form.discount_percent as number)
-                    const base = 199
-                    const final = Math.round(base * (1 - pct / 100))
-                    return (
-                      <div className="rounded-lg bg-white border p-3 text-sm">
-                        <div className="flex justify-between"><span>Base donation</span><span>&pound;{base}</span></div>
-                        {pct > 0 && (
-                          <div className="flex justify-between text-green-700"><span>Discount ({pct}%)</span><span>&minus;&pound;{base - final}</span></div>
-                        )}
-                        <div className="flex justify-between font-semibold border-t mt-2 pt-2">
-                          <span>Total</span><span>&pound;{final}</span>
-                        </div>
-                      </div>
-                    )
-                  })()}
                 </div>
               )}
             </div>
