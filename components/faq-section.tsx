@@ -20,7 +20,7 @@ interface FAQSectionProps {
 
 export function FAQSection({
   heading = "Frequently Asked Questions",
-  subheading = "Find answers to common questions below.",
+  subheading = "Find answers to common questions below",
   items,
 }: FAQSectionProps) {
   return (
