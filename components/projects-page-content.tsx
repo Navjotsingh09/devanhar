@@ -144,7 +144,7 @@ export function ProjectsPageContent() {
       {/* Stats Section */}
       <section className="py-16 bg-[#1a1f2e]">
         <div className="container mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-4 gap-4 md:gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="text-4xl md:text-5xl font-bold text-white mb-2">
