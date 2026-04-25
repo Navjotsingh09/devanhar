@@ -804,6 +804,9 @@ export function CampApplicationForm({
                       <Label htmlFor="is_sevadaar" className="cursor-pointer font-medium">
                         Are you a Sevadaar?
                       </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        This applies only to those selected by Singhs Camp UK to serve at the camp. If you are attending as a camper, please do not select this.
+                      </p>
                     </div>
                   </div>
                 </div>
