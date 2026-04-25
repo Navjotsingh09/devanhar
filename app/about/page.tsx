@@ -18,10 +18,9 @@ export const metadata: Metadata = {
 }
 
 const stats = [
-  { number: "1,000+", label: "Annual Campers" },
-  { number: "25+", label: "Yearly University Talks" },
-  { number: "9", label: "Live Initiatives" },
-  { number: "2019", label: "Est." },
+  { number: "Est.", label: "2019" },
+  { number: "9", label: "Live Projects" },
+  { number: "2,000+", label: "People Impacted" },
 ]
 
 const values = [

@@ -91,10 +91,9 @@ const projects: Project[] = [
 ]
 
 const stats = [
-  { value: "1,000+", label: "Annual Campers" },
-  { value: "25+", label: "Yearly University Talks" },
-  { value: "9", label: "Live Initiatives" },
-  { value: "2019", label: "Est." },
+  { value: "Est.", label: "2019" },
+  { value: "9", label: "Live Projects" },
+  { value: "2,000+", label: "People Impacted" },
 ]
 
 export function ProjectsPageContent() {
