@@ -50,7 +50,7 @@ export function HeroOptionA() {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-white">Singhs Camp UK</p>
-              <p className="text-[11px] text-white/50">Applications are open</p>
+              <p className="text-[11px] text-white/50">Applications are open.</p>
             </div>
             <ArrowRight className="ml-auto h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-amber-400" />
           </Link>
