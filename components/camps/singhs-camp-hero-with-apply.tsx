@@ -12,7 +12,7 @@ export function SinghsCampHeroWithApply() {
       <CampLandingHero
         eyebrow="Brotherhood"
         title="Singhs Camps"
-        subtitle="A movement for Sikh men strengthening faith, identity and discipline."
+        subtitle="Annual residential for Sikh men strengthening faith, identity and discipline."
         heroImage="/initiatives/singhs-camp-top.jpg"
         ctas={[
           {
