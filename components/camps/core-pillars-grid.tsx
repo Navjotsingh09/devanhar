@@ -8,8 +8,8 @@ interface CorePillarsGridProps {
 
 export function CorePillarsGrid({
   pillars,
-  heading = "Our Six Core Pillars",
-  subheading = "Every camp is designed around these six pillars — woven into the daily rhythm.",
+  heading = "Our Core Pillars",
+  subheading = "Every camp is built on 6 core pillars that are embedded into every part of the experience.",
 }: CorePillarsGridProps) {
   return (
     <section className="border-t border-border bg-secondary/30 py-20 md:py-28">

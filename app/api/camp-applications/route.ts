@@ -213,13 +213,9 @@ export async function POST(request: NextRequest) {
       console.error('[Camp Notification] Failed to send owner email (non-blocking):', notifyErr)
     })
 
-    sendApplicationUnderReviewEmail({
-      to: body.email.trim().toLowerCase(),
-      firstName: body.first_name.trim(),
-      applicationId: String(data.id),
-    }).catch((emailErr) => {
-      console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
-    })
+    // Under-review email is intentionally NOT sent here. Sent only after a real
+    // payment signal (Stripe webhook checkout.session.completed), or for branches
+    // that bypass Stripe (payment support / deferred / Stripe error fallback).
 
     await supabase.from('activity_log').insert({
       action: 'New camp application submitted',
@@ -310,6 +306,14 @@ export async function POST(request: NextRequest) {
 
     // If payment support requested, skip Stripe
     if (body.requires_payment_support === 'yes') {
+      sendApplicationUnderReviewEmail({
+        to: body.email.trim().toLowerCase(),
+        firstName: body.first_name.trim(),
+        applicationId: String(data.id),
+      }).catch((emailErr) => {
+        console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
+      })
+
       return NextResponse.json(
         {
           success: true,
@@ -330,6 +334,14 @@ export async function POST(request: NextRequest) {
           reason: 'CAMP_PAYMENT_MODE is not stripe',
           payment_mode: paymentMode,
         },
+      })
+
+      sendApplicationUnderReviewEmail({
+        to: body.email.trim().toLowerCase(),
+        firstName: body.first_name.trim(),
+        applicationId: String(data.id),
+      }).catch((emailErr) => {
+        console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
       })
 
       return NextResponse.json(
@@ -439,6 +451,14 @@ export async function POST(request: NextRequest) {
           reason: stripeError instanceof Error ? stripeError.message : 'Unknown Stripe checkout error',
           payment_mode: 'deferred',
         },
+      })
+
+      sendApplicationUnderReviewEmail({
+        to: body.email.trim().toLowerCase(),
+        firstName: body.first_name.trim(),
+        applicationId: String(data.id),
+      }).catch((emailErr) => {
+        console.error('[Camp Email] Failed to send under-review email (non-blocking):', emailErr)
       })
 
       return NextResponse.json(

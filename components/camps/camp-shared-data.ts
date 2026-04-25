@@ -24,19 +24,19 @@ export const singhsCorePillars: CorePillar[] = [
   {
     title: "Brotherhood",
     description:
-      "Unity through realness, shared experience and collective responsibility.",
+      "Built on trust, realness and shared experience, all without judgement.",
     icon: Users,
   },
   {
     title: "Faith",
     description:
-      "Strengthening connection at any stage of the journey.",
+      "Strengthening spiritual connection no matter the stage of one’s journey.",
     icon: Sparkles,
   },
   {
     title: "Discipline",
     description:
-      "Building control, consistency and personal strength.",
+      "Building control, consistency and strength in both thoughts & action.",
     icon: Mountain,
   },
   {
@@ -46,15 +46,15 @@ export const singhsCorePillars: CorePillar[] = [
     icon: Sun,
   },
   {
-    title: "Growth",
+    title: "Development",
     description:
-      "Development through discourse, challenge and reflection.",
+      "Through experience, discussion and shared learning.",
     icon: BookOpen,
   },
   {
     title: "Collective Purpose",
     description:
-      "Moving from the individual to shared responsibility.",
+      "Moving beyond the individual towards unity, greater responsibility, and shared direction.",
     icon: HeartHandshake,
   },
 ]
@@ -63,19 +63,19 @@ export const kaursCorePillars: CorePillar[] = [
   {
     title: "Sisterhood",
     description:
-      "Unity through realness, shared experience and collective responsibility.",
+      "Built on trust, realness and shared experience, all without judgement.",
     icon: Users,
   },
   {
     title: "Faith",
     description:
-      "Strengthening connection at any stage of the journey.",
+      "Strengthening spiritual connection no matter the stage of one’s journey.",
     icon: Sparkles,
   },
   {
     title: "Discipline",
     description:
-      "Building control, consistency and personal strength.",
+      "Building control, consistency and strength in both thoughts & action.",
     icon: Mountain,
   },
   {
@@ -85,15 +85,15 @@ export const kaursCorePillars: CorePillar[] = [
     icon: Sun,
   },
   {
-    title: "Growth",
+    title: "Development",
     description:
-      "Development through discourse, challenge and reflection.",
+      "Through experience, discussion and shared learning.",
     icon: BookOpen,
   },
   {
     title: "Collective Purpose",
     description:
-      "Moving from the individual to shared responsibility.",
+      "Moving beyond the individual towards unity, greater responsibility, and shared direction.",
     icon: HeartHandshake,
   },
 ]
