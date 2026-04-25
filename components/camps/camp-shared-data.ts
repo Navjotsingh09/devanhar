@@ -103,25 +103,25 @@ export const applicationSteps: ApplicationStep[] = [
     step: "01",
     title: "Apply",
     description:
-      "Submit a short application telling us a little about yourself and why you'd like to come.",
+      "Apply for a spot at Singhs Camp (UK or Europe) using the above links. A donation is requested ahead of time whilst we review your application.\n\nYou will require a proof of ID at this stage of the process.",
   },
   {
     step: "02",
     title: "Review",
     description:
-      "Our team reviews each application personally. We aim to come back to you within two weeks.",
+      "Our team will review all applications and assign spaces using our own pro forma of allocation. Please bear with us, we will typically respond with your application process within 3–4 weeks.",
   },
   {
     step: "03",
     title: "Confirm your place",
     description:
-      "Successful applicants secure their spot with a deposit and receive a full joining pack.",
+      "Successful applications will receive communication by email, a joining pack and other information closer to the time of camp. If you require any further detail, please email our support page.",
   },
   {
     step: "04",
     title: "Arrive at camp",
     description:
-      "Travel details, kit list and a warm welcome await — all you need to do is show up open-hearted.",
+      "We will send out a full camper pack, timetable, and more information closer to the time of camp. This will include what clothes to bring, what to pack and travel information.\n\nPs. Although Singhs Camp UK / Europe is called a ‘camp’, you will not be sleeping in tents. In fact, you’ll have your own bed, with pillows and a duvet.",
   },
 ]
 
