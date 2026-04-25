@@ -10,9 +10,9 @@ export function SinghsCampHeroWithApply() {
   return (
     <>
       <CampLandingHero
-        eyebrow="Brotherhood Retreat"
+        eyebrow="Brotherhood"
         title="Singhs Camps"
-        subtitle="A space for Adult Sikh men to reconnect with Sikhi, build lifelong brotherhood and step away from the noise of everyday life."
+        subtitle="A movement for Sikh men strengthening faith, identity and discipline."
         heroImage="/initiatives/singhs-camp-top.jpg"
         ctas={[
           {
