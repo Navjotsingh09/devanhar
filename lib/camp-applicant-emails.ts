@@ -34,7 +34,7 @@ export async function sendApplicationUnderReviewEmail(params: {
         <li>If your application is <strong>accepted</strong>, your payment will be captured and you will receive a confirmation email with further details about the camp.</li>
         <li>If your application is <strong>not accepted</strong>, your payment hold will be released in full and you will be notified by email.</li>
       </ul>
-      <p>The review process may take a few days. If you have any questions in the meantime, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
+      <p>The review process may take a few weeks. If you have any questions in the meantime, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
       <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
       <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
     </div>
@@ -49,7 +49,7 @@ What happens next?
 - If your application is accepted, your payment will be captured and you will receive a confirmation email with further details about the camp.
 - If your application is not accepted, your payment hold will be released in full and you will be notified by email.
 
-The review process may take a few days. If you have any questions in the meantime, please contact us at singhscampuk@devanhaar.com.
+The review process may take a few weeks. If you have any questions in the meantime, please contact us at singhscampuk@devanhaar.com.
 
 Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
 
