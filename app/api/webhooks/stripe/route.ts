@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from "@/lib/camp-applicant-emails"
+import { sendApplicationApprovedEmail, sendApplicationDeclinedEmail, sendApplicationUnderReviewEmail, sendApplicationPaymentReminderEmail } from "@/lib/camp-applicant-emails"
+import { buildResumeUrl } from "@/lib/camp-resume-token"
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
 import { createClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
 
@@ -61,7 +64,10 @@ export async function POST(request: NextRequest) {
       const campApplicationId = session.metadata?.camp_application_id
       const giftAid = getGiftAidSelection(session)
       if (campApplicationId) {
-        await supabase
+        // Conditional update: only transition rows that are still pending. This
+        // makes Stripe webhook replays idempotent so the under-review email is
+        // sent at most once.
+        const { data: transitioned } = await supabase
           .from("camp_applications")
           .update({
             status: "payment_authorized",
@@ -70,6 +76,9 @@ export async function POST(request: NextRequest) {
             updated_at: new Date().toISOString(),
           })
           .eq("id", campApplicationId)
+          .eq("status", "payment_pending")
+          .select("id, email, first_name")
+          .maybeSingle()
 
         await supabase.from("activity_log").insert({
           action: "Camp application payment authorized (on hold) via Stripe",
@@ -81,8 +90,17 @@ export async function POST(request: NextRequest) {
             amount_total: session.amount_total,
             currency: session.currency,
             gift_aid: giftAid,
+            email_sent: Boolean(transitioned),
           },
         })
+
+        if (transitioned?.email) {
+          sendApplicationUnderReviewEmail({
+            to: transitioned.email,
+            firstName: transitioned.first_name || "Applicant",
+            applicationId: String(transitioned.id),
+          }).catch((err) => console.error("[Camp Email] Under-review email failed:", err))
+        }
       }
     }
     if (event.type === "checkout.session.expired") {
@@ -90,14 +108,48 @@ export async function POST(request: NextRequest) {
       const campApplicationId = session.metadata?.camp_application_id
 
       if (campApplicationId) {
+        // Clear the stored checkout URL so the resume endpoint mints a fresh
+        // session next time. Keep status as payment_pending - user can still pay.
         await supabase
           .from("camp_applications")
           .update({
             status: "payment_pending",
             stripe_customer_id: session.customer ? String(session.customer) : null,
+            stripe_checkout_url: null,
+            stripe_checkout_expires_at: null,
             updated_at: new Date().toISOString(),
           })
           .eq("id", campApplicationId)
+
+        // Send a payment-reminder email (idempotent: skip if already sent or
+        // application is no longer pending). Non-blocking on failure.
+        const { data: app } = await supabase
+          .from("camp_applications")
+          .select("id, status, email, first_name, payment_reminder_sent_at, stripe_checkout_amount_pence")
+          .eq("id", campApplicationId)
+          .maybeSingle()
+
+        if (app && app.status === "payment_pending" && !app.payment_reminder_sent_at && app.email) {
+          const resumeUrl = buildResumeUrl(SITE_URL, String(app.id))
+          const amountGbp = app.stripe_checkout_amount_pence
+            ? Math.round(app.stripe_checkout_amount_pence) / 100
+            : undefined
+          sendApplicationPaymentReminderEmail({
+            to: app.email,
+            firstName: app.first_name || "Applicant",
+            resumeUrl,
+            amountGbp,
+          })
+            .then(async (sent) => {
+              if (sent) {
+                await supabase
+                  .from("camp_applications")
+                  .update({ payment_reminder_sent_at: new Date().toISOString() })
+                  .eq("id", campApplicationId)
+              }
+            })
+            .catch((err) => console.error("[Camp Email] Reminder email failed:", err))
+        }
       }
     }
     if (event.type === "payment_intent.succeeded") {

@@ -5,6 +5,7 @@ import { sendToClickUp } from '@/lib/clickup'
 import { sendToMailchimp } from '@/lib/mailchimp'
 import { sendCampApplicationOwnerNotification } from '@/lib/camp-application-notifier'
 import { sendApplicationUnderReviewEmail } from '@/lib/camp-applicant-emails'
+import { signResumeToken } from '@/lib/camp-resume-token'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -436,8 +437,27 @@ export async function POST(request: NextRequest) {
           monthly_donation_amount: body.monthly_donation_opted === 'yes' ? String(body.monthly_donation_amount || '0') : '0',
         },
         success_url: `${siteUrl}${initiativePath}?payment=success`,
-        cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}`,
+        cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}&applicationId=${data.id}&resumeToken=${encodeURIComponent(signResumeToken(String(data.id)))}`,
       })
+
+      // Persist Stripe checkout session details so the user can resume payment
+      // later if they abandon the Checkout. Non-blocking on failure.
+      try {
+        await supabase
+          .from('camp_applications')
+          .update({
+            stripe_checkout_session_id: session.id,
+            stripe_checkout_url: session.url,
+            stripe_checkout_expires_at: session.expires_at
+              ? new Date(session.expires_at * 1000).toISOString()
+              : null,
+            stripe_checkout_amount_pence: donationAmountPence,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', data.id)
+      } catch (persistErr) {
+        console.warn('[Camp Application] Failed to persist Stripe checkout session (columns may be missing):', persistErr)
+      }
 
       return NextResponse.json({ success: true, payment_mode: 'stripe', checkout_url: session.url }, { status: 201 })
     } catch (stripeError) {

@@ -184,3 +184,70 @@ The Devanhaar Team`
     return false
   }
 }
+
+export async function sendApplicationPaymentReminderEmail(params: {
+  to: string
+  firstName: string
+  resumeUrl: string
+  amountGbp?: number
+}): Promise<boolean> {
+  if (\!process.env.RESEND_API_KEY) {
+    console.warn('[Camp Email] Skipping payment-reminder email - RESEND_API_KEY not configured')
+    return false
+  }
+
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const escapedName = escapeHtml(params.firstName)
+  const escapedUrl = escapeHtml(params.resumeUrl)
+  const amountLine = typeof params.amountGbp === 'number' && params.amountGbp > 0
+    ? `<p style="margin:0 0 16px;">Outstanding camp fee: <strong>&pound;${params.amountGbp.toFixed(2)}</strong></p>`
+    : ''
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
+      <h2 style="margin:0 0 16px;">Finish your Singhs Camp UK application, ${escapedName}</h2>
+      <p>We received your application but could not see a completed payment authorisation. Your spot is not yet held.</p>
+      ${amountLine}
+      <p style="margin:24px 0;">
+        <a href="${escapedUrl}" style="display:inline-block;background:#d29c4a;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-weight:600;">Complete payment</a>
+      </p>
+      <p style="font-size:13px;color:#555;">If the button does not work, paste this link into your browser:<br/>${escapedUrl}</p>
+      <p>Your card will be authorised but not charged until our team reviews and accepts your application. If you are not accepted, the hold is released in full.</p>
+      <p>Need help? Reply to this email or write to <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
+      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!</p>
+      <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
+    </div>
+  `
+
+  const text = `Finish your Singhs Camp UK application, ${params.firstName}
+
+We received your application but could not see a completed payment authorisation. Your spot is not yet held.
+
+${typeof params.amountGbp === 'number' && params.amountGbp > 0 ? `Outstanding camp fee: GBP ${params.amountGbp.toFixed(2)}\n\n` : ''}Complete payment: ${params.resumeUrl}
+
+Your card will be authorised but not charged until our team reviews and accepts your application. If you are not accepted, the hold is released in full.
+
+Need help? Reply to this email or write to singhscampuk@devanhaar.com.
+
+Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
+
+Singhs Camp UK Team
+Devanhaar`
+
+  try {
+    await resend.emails.send({
+      from: CAMP_FROM_EMAIL,
+      to: params.to,
+      subject: 'Complete your Singhs Camp UK payment to finish your application',
+      html,
+      text,
+    })
+    console.log('[Camp Email] Payment reminder email sent to', params.to)
+    return true
+  } catch (err) {
+    console.error('[Camp Email] Failed to send payment reminder email:', err)
+    return false
+  }
+}
