@@ -3,7 +3,7 @@
 import { useSiteImages } from "@/hooks/use-site-images"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Users, Heart, Sparkles, BookOpen, Mic2, GraduationCap, School, Shield } from "lucide-react"
+import { ArrowRight, Users, Heart, Sparkles, BookOpen, GraduationCap, School, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Project {
@@ -47,16 +47,7 @@ const projects: Project[] = [
     href: "/initiatives/sikhi-vidyala",
     tag: "Education",
     icon: BookOpen,
-  },
-  {
-    title: "Khalsa Catalyst",
-    description: "A platform for thought-provoking discussions, panels, and presentations exploring contemporary issues facing the Sikh community.",
-    image: "/images/Khalsa Catalyst/khalsa-top.jpg",
-    href: "/initiatives/khalsa-catalyst",
-    tag: "Discourse",
-    icon: Mic2,
-  },
-  {
+  },  {
     title: "University Projects",
     description: "Engaging talks and workshops at universities across the UK, introducing Sikhi and creating spaces for interfaith dialogue.",
     image: "/initiatives/university-projects-top.jpg",
@@ -92,7 +83,7 @@ const projects: Project[] = [
 
 const stats = [
   { value: "Est. 2019", label: "UK Based with Global Reach." },
-  { value: "9", label: "Live Projects" },
+  { value: "8", label: "Live Projects" }
   { value: "800+", label: "Adult Campers Annually" },
   { value: "3000+", label: "People Impacted Annually" },
 ]
@@ -133,7 +124,7 @@ export function ProjectsPageContent() {
                 <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Projects" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                <p className="text-3xl font-bold">9</p>
+                <p className="text-3xl font-bold">8</p>
                 <p className="text-sm text-primary-foreground/80">Live Projects</p>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Users, Heart, Globe, BookOpen, Star, GraduationCap, School, Shield } from "lucide-react"
+import { Users, Heart, Globe, BookOpen, GraduationCap, School, Shield } from "lucide-react"
 
 const initiatives = [
   {
@@ -29,15 +29,7 @@ const initiatives = [
       "An educational institution providing knowledge on Sikh history, philosophy and teachings. Originally started by Bhai Jagraj Singh.",
     icon: <BookOpen className="w-5 h-5" />,
     href: "/initiatives/sikhi-vidyala",
-  },
-  {
-    title: "Khalsa Catalyst",
-    description:
-      "Developing, empowering and preparing the next generation of Sikh Visionaries through speech, synergy and strategy.",
-    icon: <Star className="w-5 h-5" />,
-    href: "/initiatives/khalsa-catalyst",
-  },
-  {
+  },  {
     title: "University Projects",
     description:
       "Uni Talk Series crisscrossing the UK, delving into 'The Essence of Sikhi' and supporting Sikh students at a defining time.",

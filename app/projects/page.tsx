@@ -9,20 +9,19 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 export const metadata: Metadata = {
   title: "Our Projects | Devanhaar Sikh Charity",
   description:
-    "Explore Devanhaar's nine live projects from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala, Khalsa Catalyst, and university outreach across the UK.",
+    "Explore Devanhaar's live projects from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala and university outreach across the UK.",
   keywords: [
     "Devanhaar projects",
     "Sikh camps UK",
     "Singhs Camp UK",
     "Kaurs Camp UK",
     "Sikhi Vidyala",
-    "Khalsa Catalyst",
     "Sikh university outreach",
   ],
   openGraph: {
     title: "Our Projects | Devanhaar",
     description:
-      "Nine community-led Sikh projects creating lasting impact across the UK and beyond.",
+      "Community-led Sikh projects creating lasting impact across the UK and beyond.",
     url: "https://devanhaar.vercel.app/projects",
   },
   alternates: { canonical: "https://devanhaar.vercel.app/projects" },
@@ -32,7 +31,7 @@ const projectsFAQs = [
   {
     question: "How many projects does Devanhaar run?",
     answer:
-      "Devanhaar currently runs nine live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikhi Vidyala, Khalsa Catalyst, University Projects, Gurmat Academy, and Self Defence Academy. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
+      "Devanhaar currently runs eight live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikhi Vidyala, University Projects, Gurmat Academy, Self Defence Academy, and Sikh Professional Network. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
   },
   {
     question: "Who can attend Devanhaar camps?",

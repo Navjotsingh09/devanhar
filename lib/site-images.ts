@@ -68,9 +68,7 @@ export const SITE_PAGES: Record<string, SitePage> = {
       { value: "project-card-singhs-camp", label: "Card — Singhs Camp UK", dbSection: "projects", dbCategory: "singhs-camp", dimensions: "2100 × 900px (21:9)", description: "Featured project banner image" },
       { value: "project-card-kaurs-camp", label: "Card — Kaurs Camp UK", dbSection: "projects", dbCategory: "kaurs-camp", dimensions: "1600 × 1000px (16:10)" },
       { value: "project-card-kids-camps", label: "Card — Kids Camps", dbSection: "projects", dbCategory: "kids-camps", dimensions: "1600 × 1000px (16:10)" },
-      { value: "project-card-sikhi-vidyala", label: "Card — Sikhi Vidyala", dbSection: "projects", dbCategory: "sikhi-vidyala", dimensions: "900 × 1200px (3:4 portrait)" },
-      { value: "project-card-khalsa-catalyst", label: "Card — Khalsa Catalyst", dbSection: "projects", dbCategory: "khalsa-catalyst", dimensions: "900 × 1200px (3:4 portrait)" },
-      { value: "project-card-university-projects", label: "Card — University Projects", dbSection: "projects", dbCategory: "university-projects", dimensions: "900 × 1200px (3:4 portrait)" },
+      { value: "project-card-sikhi-vidyala", label: "Card — Sikhi Vidyala", dbSection: "projects", dbCategory: "sikhi-vidyala", dimensions: "900 × 1200px (3:4 portrait)" },      { value: "project-card-university-projects", label: "Card — University Projects", dbSection: "projects", dbCategory: "university-projects", dimensions: "900 × 1200px (3:4 portrait)" },
       { value: "project-card-gurmat-academy", label: "Card — Gurmat Academy", dbSection: "projects", dbCategory: "gurmat-academy", dimensions: "900 × 1200px (3:4 portrait)" },
       { value: "project-card-self-defence-academy", label: "Card — Self Defence Academy", dbSection: "projects", dbCategory: "self-defence-academy", dimensions: "900 × 1200px (3:4 portrait)" },
       { value: "project-card-sikh-professional-network", label: "Card — Sikh Professional Network", dbSection: "projects", dbCategory: "sikh-professional-network", dimensions: "900 × 1200px (3:4 portrait)" },
@@ -111,13 +109,6 @@ export const SITE_PAGES: Record<string, SitePage> = {
     sections: [
       { value: "sikhi-vidyala-hero", label: "Hero Image", dbSection: "initiative", dbCategory: "sikhi-vidyala", defaultLabel: "hero", dimensions: "1600 × 1200px (4:3)" },
       { value: "sikhi-vidyala-gallery", label: "Gallery", dbSection: "initiative", dbCategory: "sikhi-vidyala", dimensions: "1200 × 900px (4:3)" },
-    ],
-  },
-  "khalsa-catalyst": {
-    label: "Khalsa Catalyst",
-    sections: [
-      { value: "khalsa-catalyst-hero", label: "Hero Image", dbSection: "initiative", dbCategory: "khalsa-catalyst", defaultLabel: "hero", dimensions: "1600 × 1200px (4:3)" },
-      { value: "khalsa-catalyst-gallery", label: "Gallery", dbSection: "initiative", dbCategory: "khalsa-catalyst", dimensions: "1200 × 900px (4:3)" },
     ],
   },
   "university-projects": {
