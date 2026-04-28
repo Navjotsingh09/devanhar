@@ -83,7 +83,7 @@ const projects: Project[] = [
 
 const stats = [
   { value: "Est. 2019", label: "UK Based with Global Reach." },
-  { value: "8", label: "Live Projects" }
+  { value: "8", label: "Live Projects" },
   { value: "800+", label: "Adult Campers Annually" },
   { value: "3000+", label: "People Impacted Annually" },
 ]
