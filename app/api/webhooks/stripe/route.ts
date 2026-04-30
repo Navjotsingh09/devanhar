@@ -67,14 +67,13 @@ export async function POST(request: NextRequest) {
         // Conditional update: only transition rows that are still pending. This
         // makes Stripe webhook replays idempotent so the under-review email is
         // sent at most once.
-        const { data: transitioned } = await supabase
+        // Always store the PI ID - must be saved regardless of current status.
+      const piId = typeof session.payment_intent === 'string' ? session.payment_intent : null
+      await supabase.from("camp_applications").update({ stripe_payment_intent_id: piId, ...(giftAid === null ? {} : { gift_aid: giftAid }), updated_at: new Date().toISOString() }).eq("id", campApplicationId)
+      // Status transition and email only fires when still payment_pending (idempotent).
+      const { data: transitioned } = await supabase
           .from("camp_applications")
-          .update({
-            status: "payment_authorized",
-            stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
-            ...(giftAid === null ? {} : { gift_aid: giftAid }),
-            updated_at: new Date().toISOString(),
-          })
+          .update({ status: "payment_authorized", updated_at: new Date().toISOString() })
           .eq("id", campApplicationId)
           .eq("status", "payment_pending")
           .select("id, email, first_name")
