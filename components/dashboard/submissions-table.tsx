@@ -555,6 +555,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                     </Dialog>
                     <ReplyComposer
                       submissionId={sub.id}
+                      sourceTable={sub.source_table}
                       recipientName={sub.full_name}
                       recipientEmail={sub.email}
                     />

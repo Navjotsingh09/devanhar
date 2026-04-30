@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { submissionId, emergencyId, subject, bodyText, sendEmail, isInternalNote } = body
+  const { submissionId, emergencyId, subject, bodyText, sendEmail, isInternalNote, sourceTable } = body
+  const isCampApplication = sourceTable === 'camp_applications'
 
   if (!bodyText) {
     return NextResponse.json({ error: 'Reply body is required' }, { status: 400 })
@@ -18,7 +19,14 @@ export async function POST(request: NextRequest) {
   // Get recipient email
   let recipientEmail: string | null = null
   if (sendEmail && !isInternalNote) {
-    if (submissionId) {
+    if (submissionId && isCampApplication) {
+      const { data: app } = await supabase
+        .from('camp_applications')
+        .select('email')
+        .eq('id', submissionId)
+        .single()
+      recipientEmail = app?.email || null
+    } else if (submissionId) {
       const { data: submission } = await supabase
         .from('form_submissions')
         .select('email')
@@ -58,14 +66,14 @@ export async function POST(request: NextRequest) {
   const { data: reply, error } = await supabase
     .from('replies')
     .insert({
-      submission_id: submissionId || null,
-      emergency_id: emergencyId || null,
+      submission_id: !isCampApplication && submissionId ? submissionId : null,
+      camp_application_id: isCampApplication && submissionId ? submissionId : null,
+      emergency_request_id: emergencyId || null,
       admin_id: user.id,
       subject: subject || null,
-      body: bodyText,
-      sent_to_email: recipientEmail,
-      email_sent: emailSent,
-      is_internal_note: isInternalNote || false,
+      message: bodyText,
+      recipient_email: recipientEmail,
+      sent_via: isInternalNote ? 'internal_note' : 'email',
     })
     .select()
     .single()
@@ -76,7 +84,7 @@ export async function POST(request: NextRequest) {
 
   // Update submission/emergency status to 'replied' if it was a reply (not internal note)
   if (!isInternalNote) {
-    if (submissionId) {
+    if (submissionId && !isCampApplication) {
       await supabase
         .from('form_submissions')
         .update({ status: 'replied', updated_at: new Date().toISOString() })
@@ -94,7 +102,7 @@ export async function POST(request: NextRequest) {
   await supabase.from('activity_log').insert({
     admin_id: user.id,
     action: isInternalNote ? 'Added internal note' : `Sent reply${emailSent ? ' (email sent)' : ''}`,
-    entity_type: submissionId ? 'form_submission' : 'emergency_request',
+    entity_type: submissionId ? (isCampApplication ? 'camp_application' : 'form_submission') : 'emergency_request',
     entity_id: submissionId || emergencyId,
     metadata: { email_sent: emailSent, recipient: recipientEmail },
   })

@@ -14,11 +14,12 @@ import { Badge } from '@/components/ui/badge'
 interface ReplyComposerProps {
   submissionId?: string
   emergencyId?: string
+  sourceTable?: 'form_submissions' | 'camp_applications'
   recipientName: string
   recipientEmail: string | null
 }
 
-export function ReplyComposer({ submissionId, emergencyId, recipientName, recipientEmail }: ReplyComposerProps) {
+export function ReplyComposer({ submissionId, emergencyId, sourceTable, recipientName, recipientEmail }: ReplyComposerProps) {
   const [open, setOpen] = useState(false)
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
@@ -40,6 +41,7 @@ export function ReplyComposer({ submissionId, emergencyId, recipientName, recipi
         body: JSON.stringify({
           submissionId,
           emergencyId,
+          sourceTable,
           subject,
           bodyText: body,
           sendEmail: sendEmail && !isInternalNote,
