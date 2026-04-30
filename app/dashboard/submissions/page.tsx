@@ -177,6 +177,7 @@ export default async function SubmissionsPage() {
     acc[init.slug] = submissions.filter((s: DashboardSubmission) => s.initiatives?.slug === init.slug)
     return acc
   }, {} as Record<string, typeof submissions>)
+  const generalSubmissions = submissions.filter((s: DashboardSubmission) => !s.initiatives?.slug)
 
   return (
     <div className="flex flex-col gap-6">
@@ -198,6 +199,11 @@ export default async function SubmissionsPage() {
               </TabsTrigger>
             )
           })}
+          {generalSubmissions.length > 0 && (
+            <TabsTrigger value="__general" className="text-xs">
+              General / Contact ({generalSubmissions.length})
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
@@ -209,6 +215,12 @@ export default async function SubmissionsPage() {
             <SubmissionsTable submissions={groupedByInitiative[init.slug] || []} />
           </TabsContent>
         ))}
+
+        {generalSubmissions.length > 0 && (
+          <TabsContent value="__general" className="mt-4">
+            <SubmissionsTable submissions={generalSubmissions} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )

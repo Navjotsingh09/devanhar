@@ -35,6 +35,107 @@ function formatFieldValue(value: unknown): string {
   return String(value)
 }
 
+function formatLabel(key: string): string {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/\bid\b/gi, 'ID')
+    .replace(/\burl\b/gi, 'URL')
+    .replace(/\bsms\b/gi, 'SMS')
+    .replace(/\bbjj\b/gi, 'BJJ')
+    .replace(/\bdob\b/gi, 'DOB')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+const FIELD_SECTIONS: Array<{ title: string; keys: string[]; collapsible?: boolean }> = [
+  { title: 'Personal', keys: ['first_name', 'last_name', 'date_of_birth', 'age_at_camp', 'university', 'occupation'] },
+  { title: 'Contact', keys: ['email', 'phone', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'postcode', 'country'] },
+  { title: 'Emergency Contact', keys: ['emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_phone', 'under_18_consent'] },
+  { title: 'Health & Dietary', keys: ['dietary_requirements', 'medical_requirements', 'allergies', 'other_allergy', 'carries_epipen'] },
+  { title: 'Camp Details', keys: ['travel_method', 'own_transport_type', 'room_preference', 'heard_about_camp', 'first_residential_camp', 'been_to_singhs_camp_before', 'previous_camps', 'sikhi_knowledge_level', 'takeaway_from_camp', 'bjj_interest', 'bjj_fought_professionally'] },
+  { title: 'ID & Sevadaar', keys: ['id_document_type', 'id_document_url', 'is_sevadaar', 'sevadaar_verified'] },
+  { title: 'Consent', keys: ['consent_email', 'consent_phone', 'consent_sms', 'consent_whatsapp'] },
+  { title: 'Payment Details', collapsible: true, keys: ['requires_payment_support', 'payment_support_details', 'stripe_payment_intent_id', 'stripe_checkout_session_id', 'stripe_checkout_url', 'stripe_checkout_expires_at', 'stripe_checkout_amount_pence', 'phone_normalized'] },
+]
+
+function renderFieldValue(key: string, value: unknown) {
+  if (key === 'id_document_url' && typeof value === 'string' && value.length > 0) {
+    return (
+      <a
+        href={`/api/camp-applications/view-id?path=${encodeURIComponent(String(value))}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary font-medium underline break-all"
+      >
+        View Document
+      </a>
+    )
+  }
+  if (key === 'stripe_checkout_url' && typeof value === 'string' && value.length > 0) {
+    return (
+      <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary underline break-all text-xs">
+        Open Stripe Checkout
+      </a>
+    )
+  }
+  if ((key === 'stripe_payment_intent_id' || key === 'stripe_checkout_session_id') && typeof value === 'string') {
+    return <span className="font-mono text-xs break-all">{value}</span>
+  }
+  if (key === 'stripe_checkout_amount_pence' && (typeof value === 'number' || typeof value === 'string')) {
+    const pence = Number(value)
+    if (Number.isFinite(pence)) return <span className="font-medium">£{(pence / 100).toFixed(2)}</span>
+  }
+  return <span className="font-medium break-words">{formatFieldValue(value)}</span>
+}
+
+function FormDataSections({ formData }: { formData: Record<string, unknown> }) {
+  const isPresent = (v: unknown) => v != null && v !== '' && String(v) !== 'null'
+  const usedKeys = new Set<string>()
+
+  const sections = FIELD_SECTIONS.map((section) => {
+    const present = section.keys.filter((k) => isPresent(formData[k]))
+    present.forEach((k) => usedKeys.add(k))
+    return { ...section, present }
+  }).filter((s) => s.present.length > 0)
+
+  const otherKeys = Object.keys(formData).filter((k) => !usedKeys.has(k) && isPresent(formData[k]))
+  if (otherKeys.length > 0) {
+    sections.push({ title: 'Other', collapsible: true, keys: otherKeys, present: otherKeys })
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {sections.map((section) => {
+        const body = (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 bg-muted/40 rounded-lg p-3 text-sm">
+            {section.present.map((key) => (
+              <div key={key} className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{formatLabel(key)}</span>
+                <div className="text-foreground text-sm min-w-0">{renderFieldValue(key, formData[key])}</div>
+              </div>
+            ))}
+          </div>
+        )
+        if (section.collapsible) {
+          return (
+            <details key={section.title} className="group">
+              <summary className="cursor-pointer select-none text-xs font-semibold text-muted-foreground uppercase tracking-wide py-1 hover:text-foreground">
+                {section.title} <span className="text-[10px] font-normal">({section.present.length}) — click to expand</span>
+              </summary>
+              <div className="mt-1.5">{body}</div>
+            </details>
+          )
+        }
+        return (
+          <div key={section.title}>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">{section.title}</p>
+            {body}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 
 const statusConfig: Record<string, { label: string; dot: string; bg: string; text: string; badge: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   new:                     { label: 'New',              dot: 'bg-blue-500',    bg: 'bg-blue-50 dark:bg-blue-950',       text: 'text-blue-700 dark:text-blue-300',    badge: 'default' },
@@ -309,6 +410,11 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 </TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{sub.email}</TableCell>
                 <TableCell>
+                  {sub.source_table === 'camp_applications' && (sub.status === 'approved' || sub.status === 'declined') ? (
+                    <span title={sub.status === 'approved' ? 'Status locked - payment captured. Use Delete to reverse.' : 'Status locked - declined and refunded.'}>
+                      <StatusPill status={sub.status} />
+                    </span>
+                  ) : (
                   <Select
                     value={sub.status}
                     onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
@@ -341,6 +447,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                       )}
                     </SelectContent>
                   </Select>
+                  )}
                 </TableCell>
                 <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
                   {new Date(sub.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -386,7 +493,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                           <span className="sr-only">View details</span>
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="text-foreground">Submission Details</DialogTitle>
                           <DialogDescription>
@@ -421,28 +528,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             </div>
                           )}
                           {sub.form_data && Object.keys(sub.form_data).length > 0 && (
-                            <div>
-                              <p className="text-sm text-muted-foreground mb-1">Form Data</p>
-                              <div className="bg-muted rounded-lg p-3 text-sm">
-                                {Object.entries(sub.form_data).filter(([, v]) => v != null && v !== '' && String(v) !== 'null').map(([key, value]) => (
-                                  <div key={key} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3 py-1 border-b border-border last:border-0">
-                                    <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                                    {key === 'id_document_url' && typeof value === 'string' && value.length > 0 ? (
-                                      <a
-                                        href={`/api/camp-applications/view-id?path=${encodeURIComponent(String(value))}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-foreground font-medium underline break-all sm:text-right"
-                                      >
-                                        View Document
-                                      </a>
-                                    ) : (
-                                      <span className="text-foreground font-medium break-words sm:text-right">{formatFieldValue(value)}</span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
+                            <FormDataSections formData={sub.form_data} />
                           )}
                           {sub.internal_notes && (
                             <div>
