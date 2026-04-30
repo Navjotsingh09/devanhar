@@ -80,13 +80,29 @@ export async function captureApplicationPayment(applicationId: string) {
   if (!user) throw new Error('Unauthorized')
   const { data: app } = await supabase.from('camp_applications').select('*').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
-  if (app.status === 'approved') throw new Error('Already approved')
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   if (app.stripe_payment_intent_id) {
-    try { await stripe.paymentIntents.capture(app.stripe_payment_intent_id) } catch (captureErr: any) {
-      if (captureErr?.code !== 'payment_intent_unexpected_state') throw captureErr
-      console.warn('[Capture] Payment intent already captured or in unexpected state')
+    // Idempotent: only capture if the PI is still in requires_capture. This
+    // lets admins safely re-run on records that were marked approved in the
+    // DB without the Stripe capture having actually run.
+    try {
+      const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id)
+      if (pi.status === 'requires_capture') {
+        await stripe.paymentIntents.capture(app.stripe_payment_intent_id)
+      } else if (pi.status === 'succeeded') {
+        console.log('[Capture] Payment intent already captured:', pi.id)
+      } else {
+        throw new Error(`Cannot capture payment in state "${pi.status}"`)
+      }
+    } catch (captureErr: any) {
+      if (captureErr?.code === 'payment_intent_unexpected_state') {
+        console.warn('[Capture] Payment intent already captured or in unexpected state')
+      } else {
+        throw captureErr
+      }
     }
+  } else if (app.status === 'approved') {
+    throw new Error('Already approved (no payment intent on file)')
   }
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })

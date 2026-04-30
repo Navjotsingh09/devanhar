@@ -146,10 +146,23 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' = 'form_submissions') => {
     startTransition(async () => {
       try {
+        // For camp applications, approve/decline must go through Stripe so the
+        // payment is actually captured (or the auth released). A plain status
+        // update would leave the payment in an authorized-but-uncaptured state.
+        if (sourceTable === 'camp_applications' && status === 'approved') {
+          await captureApplicationPayment(id)
+          toast.success('Approved — payment captured')
+          return
+        }
+        if (sourceTable === 'camp_applications' && status === 'declined') {
+          await cancelApplicationPayment(id)
+          toast.success('Declined — funds released')
+          return
+        }
         await updateSubmissionStatus(id, status, sourceTable)
         toast.success('Status updated')
-      } catch {
-        toast.error('Failed to update status')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to update status')
       }
     })
   }
@@ -319,16 +332,25 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
-                  {sub.source_table === 'camp_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
+                  {sub.source_table === 'camp_applications' && sub.status !== 'declined' && (
                     <>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleApprove(sub.id)} disabled={isPending} title="Approve - capture payment">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => handleApprove(sub.id)}
+                        disabled={isPending}
+                        title={sub.status === 'approved' ? 'Re-run Stripe capture' : 'Approve - capture payment'}
+                      >
                         <CheckCircle className="h-4 w-4" />
-                        <span className="sr-only">Approve</span>
+                        <span className="sr-only">{sub.status === 'approved' ? 'Re-capture payment' : 'Approve'}</span>
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDecline(sub.id)} disabled={isPending} title="Decline - release funds">
-                        <XCircle className="h-4 w-4" />
-                        <span className="sr-only">Decline</span>
-                      </Button>
+                      {sub.status !== 'approved' && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDecline(sub.id)} disabled={isPending} title="Decline - release funds">
+                          <XCircle className="h-4 w-4" />
+                          <span className="sr-only">Decline</span>
+                        </Button>
+                      )}
                     </>
                   )}
                     <Dialog>
@@ -402,16 +424,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                               <p className="text-sm text-foreground bg-accent/20 rounded-lg p-3">{sub.internal_notes}</p>
                             </div>
                           )}
-                          {sub.source_table === 'camp_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
+                          {sub.source_table === 'camp_applications' && sub.status !== 'declined' && (
                             <div className="flex gap-2 pt-2">
                               <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleApprove(sub.id)} disabled={isPending}>
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                Approve & Capture Payment
+                                {sub.status === 'approved' ? 'Re-run Stripe Capture' : 'Approve & Capture Payment'}
                               </Button>
-                              <Button variant="destructive" className="flex-1" onClick={() => handleDecline(sub.id)} disabled={isPending}>
-                                <XCircle className="h-4 w-4 mr-2" />
-                                Decline & Release Funds
-                              </Button>
+                              {sub.status !== 'approved' && (
+                                <Button variant="destructive" className="flex-1" onClick={() => handleDecline(sub.id)} disabled={isPending}>
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Decline & Release Funds
+                                </Button>
+                              )}
                             </div>
                           )}
                         </div>
