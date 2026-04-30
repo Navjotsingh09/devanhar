@@ -12,20 +12,22 @@ const eventsConfig = [
     image: "/images/events/horse-riding.jpg",
     title: "Horse Riding",
     badge: "Life Skills",
-    dateLabel: "March onwards",
+    dateLabel: "Coming Soon",
     shortDescription:
       "Build confidence and discipline through guided horse riding sessions with a seva-centred atmosphere.",
     priceLabel: "",
+    comingSoon: true,
   },
   {
     slug: "shooting",
     image: "/images/events/shooting.jpg",
     title: "Shooting",
     badge: "Skills",
-    dateLabel: "Weekly sessions",
+    dateLabel: "Coming Soon",
     shortDescription:
       "Regular target shooting sessions designed to build focus, discipline, and consistency.",
     priceLabel: "",
+    comingSoon: true,
   },
   {
     slug: "wolfrun",
@@ -36,16 +38,18 @@ const eventsConfig = [
     shortDescription:
       "A high-energy obstacle challenge through mud, water, and woodland testing teamwork and resilience.",
     priceLabel: "GBP 45 per person",
+    comingSoon: false,
   },
   {
     slug: "yorkshire-3-peaks",
     image: "/images/events/yorkshire-3-peaks.jpg",
     title: "Yorkshire 3 Peaks",
     badge: "Challenge",
-    dateLabel: "27 June 2026",
+    dateLabel: "Coming Soon",
     shortDescription:
       "A full-day charity hike across Pen-y-ghent, Whernside, and Ingleborough with coach fee included.",
-    priceLabel: "GBP 20 per person (coach fee included)",
+    priceLabel: "",
+    comingSoon: true,
   },
 ]
 
@@ -108,10 +112,17 @@ export default function EventsPage() {
               {eventsConfig.map((event) => (
                 <article
                   key={event.title}
-                    className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors"
+                    className={`group rounded-2xl border border-border bg-card overflow-hidden transition-colors ${event.comingSoon ? "opacity-90" : "hover:border-primary/30"}`}
                   >
                     <div className="relative h-48 w-full overflow-hidden">
-                      <img src={event.image} alt={event.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <img src={event.image} alt={event.title} className={`h-full w-full object-cover transition-transform duration-300 ${event.comingSoon ? "grayscale" : "group-hover:scale-105"}`} />
+                      {event.comingSoon && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                          <span className="text-white text-sm font-semibold tracking-[0.2em] uppercase border border-white/70 rounded-full px-4 py-1.5 backdrop-blur-sm">
+                            Coming Soon
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="p-7">
                   <span className="inline-block text-[10px] font-semibold tracking-[0.15em] uppercase text-foreground/70 mb-4 border border-border rounded-full px-3 py-1">
@@ -128,12 +139,21 @@ export default function EventsPage() {
                     {event.shortDescription}
                   </p>
                   {event.priceLabel && <p className="mt-4 text-xs font-semibold text-foreground">{event.priceLabel}</p>}
-                  <Button asChild className="mt-5 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold">
-                    <Link href={`/events/${event.slug}`}>
-                      View Event Page
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
+                  {event.comingSoon ? (
+                    <Button
+                      disabled
+                      className="mt-5 w-full rounded-full bg-muted text-muted-foreground hover:bg-muted text-sm font-semibold cursor-not-allowed"
+                    >
+                      Coming Soon
+                    </Button>
+                  ) : (
+                    <Button asChild className="mt-5 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold">
+                      <Link href={`/events/${event.slug}`}>
+                        View Event Page
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                     </div>
                   </article>
               ))}
