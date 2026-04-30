@@ -68,12 +68,13 @@ export async function POST(request: NextRequest) {
     .insert({
       submission_id: !isCampApplication && submissionId ? submissionId : null,
       camp_application_id: isCampApplication && submissionId ? submissionId : null,
-      emergency_request_id: emergencyId || null,
+      emergency_id: emergencyId || null,
       admin_id: user.id,
       subject: subject || null,
-      message: bodyText,
-      recipient_email: recipientEmail,
-      sent_via: isInternalNote ? 'internal_note' : 'email',
+      body: bodyText,
+      sent_to_email: recipientEmail,
+      email_sent: emailSent,
+      is_internal_note: isInternalNote || false,
     })
     .select()
     .single()
