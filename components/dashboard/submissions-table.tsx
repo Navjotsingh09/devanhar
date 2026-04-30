@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle, Download, Search } from 'lucide-react'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission } from '@/app/dashboard/submissions/actions'
+import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 import { Input } from '@/components/ui/input'
@@ -176,6 +176,21 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const handleDecline = (id: string) => {
     startTransition(async () => {
       try { await cancelApplicationPayment(id); toast.success('Declined - funds released') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
+    })
+  }
+
+  const handleDelete = (sub: Submission) => {
+    const confirmed = window.confirm(
+      `Permanently delete this ${sub.source_table === 'camp_applications' ? 'camp application' : 'submission'} from ${sub.full_name} <${sub.email}>?\n\nThis cannot be undone. Any uncaptured Stripe authorisation will be cancelled first.`
+    )
+    if (!confirmed) return
+    startTransition(async () => {
+      try {
+        await deleteSubmission(sub.id, sub.source_table)
+        toast.success('Deleted')
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to delete')
+      }
     })
   }
 
@@ -353,6 +368,17 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                       )}
                     </>
                   )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                      onClick={() => handleDelete(sub)}
+                      disabled={isPending}
+                      title="Delete permanently"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedSubmission(sub)}>

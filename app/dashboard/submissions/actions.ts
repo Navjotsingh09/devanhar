@@ -143,3 +143,48 @@ export async function cancelApplicationPayment(applicationId: string) {
   sendDeclineEmail(app.email, app.first_name).catch(() => {})
   revalidatePath('/dashboard/submissions')
 }
+
+export async function deleteSubmission(id: string, sourceTable: SourceTable = 'form_submissions') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  if (sourceTable === 'camp_applications') {
+    const { data: app } = await supabase
+      .from('camp_applications')
+      .select('first_name, last_name, email, stripe_payment_intent_id')
+      .eq('id', id)
+      .single()
+
+    if (app?.stripe_payment_intent_id) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+        const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id)
+        if (pi.status === 'requires_capture' || pi.status === 'requires_payment_method' || pi.status === 'requires_confirmation' || pi.status === 'requires_action') {
+          await stripe.paymentIntents.cancel(app.stripe_payment_intent_id)
+        }
+      } catch (err) {
+        console.warn('[Delete] Failed to cancel Stripe PI before delete (continuing):', err)
+      }
+    }
+
+    await supabase.from('activity_log').insert({
+      admin_id: user.id,
+      action: `Deleted camp application: ${app?.first_name ?? ''} ${app?.last_name ?? ''} <${app?.email ?? ''}>`,
+      entity_type: 'camp_application',
+      entity_id: id,
+    })
+  } else {
+    await supabase.from('activity_log').insert({
+      admin_id: user.id,
+      action: 'Deleted form submission',
+      entity_type: 'form_submission',
+      entity_id: id,
+    })
+  }
+
+  const { error } = await supabase.from(sourceTable).delete().eq('id', id)
+  if (error) throw new Error(error.message)
+
+  revalidatePath('/dashboard/submissions')
+}
