@@ -1,9 +1,16 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 
-export async function updateUserRole(userId: string, newRole: 'admin' | 'staff') {
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  return createServiceClient(url, key, { auth: { persistSession: false } })
+}
+
+export async function updateUserRole(userId: string, newRole: 'admin' | 'staff' | 'vacancies_only') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -30,6 +37,12 @@ export async function updateUserRole(userId: string, newRole: 'admin' | 'staff')
     .eq('id', userId)
 
   if (error) throw new Error(error.message)
+
+  // Sync role to auth app_metadata so middleware can enforce it without a DB query
+  const serviceClient = getServiceClient()
+  await serviceClient.auth.admin.updateUserById(userId, {
+    app_metadata: { role: newRole },
+  })
 
   // Log activity
   await supabase.from('activity_log').insert({

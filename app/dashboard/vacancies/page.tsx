@@ -1,19 +1,21 @@
-import { createClient } from '@/lib/supabase/server'
-import { VacanciesClient } from '@/components/dashboard/vacancies-client'
+import { createClient } from "@/lib/supabase/server"
+import { VacanciesClient } from "@/components/dashboard/vacancies-client"
 
 async function getVacanciesData() {
   const supabase = await createClient()
 
-  const [{ data: vacancies }, { data: applications }, { data: initiatives }] = await Promise.all([
-    supabase.from('vacancies').select('*, initiatives(name)').order('created_at', { ascending: false }),
-    supabase.from('vacancy_applications').select('*, vacancies(title)').order('created_at', { ascending: false }),
-    supabase.from('initiatives').select('id, name').eq('is_active', true).order('sort_order'),
+  const [{ data: vacancies }, { data: applications }, { data: initiatives }, { data: messages }] = await Promise.all([
+    supabase.from("vacancies").select("*, initiatives(name)").order("created_at", { ascending: false }),
+    supabase.from("vacancy_applications").select("*, vacancies(title)").order("created_at", { ascending: false }),
+    supabase.from("initiatives").select("id, name").eq("is_active", true).order("sort_order"),
+    supabase.from("vacancy_messages").select("*").order("created_at", { ascending: true }),
   ])
 
   return {
     vacancies: vacancies ?? [],
     applications: applications ?? [],
     initiatives: initiatives ?? [],
+    messages: messages ?? [],
   }
 }
 

@@ -83,9 +83,14 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const isAdmin = user.role === 'admin' || user.role === 'super_admin'
+  const isVacanciesOnly = user.role === 'vacancies_only'
 
-  const filteredMainNav = mainNav.filter((item) => !item.adminOnly || isAdmin)
-  const filteredSystemNav = systemNav.filter((item) => !item.adminOnly || isAdmin)
+  const filteredMainNav = isVacanciesOnly
+    ? mainNav.filter((item) => item.url === '/dashboard/vacancies')
+    : mainNav.filter((item) => !item.adminOnly || isAdmin)
+  const filteredSystemNav = isVacanciesOnly
+    ? []
+    : systemNav.filter((item) => !item.adminOnly || isAdmin)
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -107,8 +112,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Shield className="h-4 w-4" />
+                <div className="flex h8 w8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <Shield className="h4 w4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Devanhaar</span>
@@ -129,9 +134,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(item.url))}>
                     <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h4 w4" />
                       <span>{item.title}</span>
-                      {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
+                      {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -140,9 +145,10 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <ShoppingBag className="h-3 w-3 mr-1" />
+            <ShoppingBag className="h3 w3 mr-1" />
             Shop
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -151,7 +157,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h4 w4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -160,10 +166,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Trophy className="h-3 w-3 mr-1" />
+            <Trophy className="h3 w3 mr-1" />
             Events
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -172,7 +180,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h4 w4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -181,7 +189,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {filteredSystemNav.length > 0 && (
         <SidebarGroup>
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -190,9 +200,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h4 w4" />
                       <span>{item.title}</span>
-                      {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
+                      {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -200,6 +210,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
@@ -208,21 +219,21 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg">
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h8 w8">
                     <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col gap-0.5 leading-none text-left">
-                    <span className="text-sm font-medium truncate max-w-[120px]">{user.fullName}</span>
+                    <span className="text-sm font-medium truncate max-w[120px]">{user.fullName}</span>
                     <span className="text-xs opacity-70 capitalize">{user.role?.replace('_', ' ')}</span>
                   </div>
-                  <ChevronDown className="ml-auto h-4 w-4" />
+                  <ChevronDown className="ml-auto h4 w4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h4 w4" />
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>

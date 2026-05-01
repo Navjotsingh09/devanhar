@@ -31,12 +31,18 @@ export default async function DashboardLayout({
 
   const role = profile?.role || 'staff'
   const isAdmin = role === 'admin' || role === 'super_admin'
+  const isVacanciesOnly = role === 'vacancies_only'
 
   // Protect admin-only routes
   const headerList = await headers()
   const pathname = headerList.get('x-pathname') || ''
   if (!isAdmin && adminOnlyRoutes.some((r) => pathname.startsWith(r))) {
     redirect('/dashboard')
+  }
+
+  // Vacancies-only role: restrict to /dashboard/vacancies (and its subpaths)
+  if (isVacanciesOnly && pathname && !pathname.startsWith('/dashboard/vacancies')) {
+    redirect('/dashboard/vacancies')
   }
   const userData = {
     email: user.email || '',

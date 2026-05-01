@@ -31,6 +31,7 @@ const roleConfig: Record<string, { label: string; icon: React.ComponentType<{ cl
   super_admin: { label: 'Super Admin', icon: ShieldCheck, variant: 'default' },
   admin: { label: 'Admin', icon: Shield, variant: 'default' },
   staff: { label: 'Staff', icon: User, variant: 'secondary' },
+  vacancies_only: { label: 'Vacancies Only', icon: User, variant: 'outline' },
   volunteer: { label: 'Staff', icon: User, variant: 'secondary' },
 }
 
@@ -40,7 +41,7 @@ export function UsersClient({ profiles, currentUserId }: UsersClientProps) {
   const handleRoleChange = (userId: string, newRole: string) => {
     startTransition(async () => {
       try {
-        await updateUserRole(userId, newRole as 'admin' | 'staff')
+        await updateUserRole(userId, newRole as 'admin' | 'staff' | 'vacancies_only')
         toast.success('User role updated successfully')
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to update role')
@@ -51,7 +52,7 @@ export function UsersClient({ profiles, currentUserId }: UsersClientProps) {
   return (
     <div className="flex flex-col gap-6">
       {/* Access Levels Info */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -158,6 +159,7 @@ export function UsersClient({ profiles, currentUserId }: UsersClientProps) {
                           <SelectContent>
                             <SelectItem value="admin">Admin</SelectItem>
                             <SelectItem value="staff">Staff</SelectItem>
+                            <SelectItem value="vacancies_only">Vacancies Only</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
