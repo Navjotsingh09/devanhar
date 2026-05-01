@@ -21,8 +21,7 @@ const navLinks: NavLink[] = [
     label: "Team",
     href: "/team",
     children: [
-      { label: "Our Team", href: "/team", description: "Meet the sevadaars behind Devanhaar" },
-      { label: "Careers", href: "/careers", description: "Open vacancies and volunteer roles" },
+      { label: "Career", href: "/careers", description: "Open vacancies and volunteer roles" },
     ],
   },
   { label: "Events", href: "/events" },
