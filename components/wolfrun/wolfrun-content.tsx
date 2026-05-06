@@ -321,6 +321,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
     phone: "",
     age: "",
     city: "",
+    pack: "",
     agree_whatsapp_group: false,
     agree_terms: false,
   })
@@ -410,6 +411,34 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
+      <div>
+        <label className="block text-sm font-medium mb-1">Choose Your Pack *</label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setForm((p) => ({ ...p, pack: "singhs" }))}
+            className={`p-3 rounded-lg border-2 text-center transition text-sm font-medium ${
+              form.pack === "singhs"
+                ? "border-amber-500 bg-amber-50 text-amber-700"
+                : "border-border hover:border-amber-300"
+            }`}
+          >
+            Singhs Camp UK Pack
+          </button>
+          <button
+            type="button"
+            onClick={() => setForm((p) => ({ ...p, pack: "kaurs" }))}
+            className={`p-3 rounded-lg border-2 text-center transition text-sm font-medium ${
+              form.pack === "kaurs"
+                ? "border-purple-500 bg-purple-50 text-purple-700"
+                : "border-border hover:border-purple-300"
+            }`}
+          >
+            Kaurs Camp UK Pack
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium mb-1">Age *</label>
@@ -458,7 +487,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
 
       <button
         type="submit"
-        disabled={loading || !form.first_name || !form.last_name || !form.email || !form.phone || !form.age || !form.city || !form.agree_terms}
+        disabled={loading || !form.first_name || !form.last_name || !form.email || !form.phone || !form.age || !form.city || !form.pack || !form.agree_terms}
         className="w-full py-3 bg-amber-500 text-slate-900 rounded-lg font-bold hover:bg-amber-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (

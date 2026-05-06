@@ -14,7 +14,7 @@ function getStripeClient() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { first_name, last_name, email, phone, age, city, agree_whatsapp_group, agree_terms } = body
+    const { first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, agree_terms } = body
 
     if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !age || !city?.trim()) {
       return NextResponse.json(
@@ -25,6 +25,10 @@ export async function POST(request: NextRequest) {
 
     if (!agree_terms) {
       return NextResponse.json({ error: 'You must agree to the Terms & Conditions' }, { status: 400 })
+    }
+
+    if (!pack || !['singhs', 'kaurs'].includes(pack)) {
+      return NextResponse.json({ error: 'You must choose a pack — Singhs or Kaurs' }, { status: 400 })
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -61,6 +65,7 @@ export async function POST(request: NextRequest) {
         phone: phone.trim(),
         age: String(ageNum),
         city: city.trim(),
+        pack: pack,
         agree_whatsapp_group: agree_whatsapp_group ? 'true' : 'false',
       },
       success_url: `${siteUrl}/events/wolfrun?payment=success`,

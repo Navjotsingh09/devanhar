@@ -64,7 +64,8 @@ const shopNav: NavItem[] = [
 
 
 const eventsNav: NavItem[] = [
-  { title: 'Wolf Run', url: '/dashboard/wolfrun', icon: Trophy },
+  { title: 'Wolf Run Fundraisers', url: '/dashboard/wolfrun', icon: Trophy },
+  { title: 'Wolf Run Runners', url: '/dashboard/wolfrun-runners', icon: Users },
 ]
 const systemNav: NavItem[] = [
   { title: 'Activity Log', url: '/dashboard/activity', icon: Activity },

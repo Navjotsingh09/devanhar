@@ -101,6 +101,46 @@ export async function POST(request: NextRequest) {
           }).catch((err) => console.error("[Camp Email] Under-review email failed:", err))
         }
       }
+
+      // Wolf Run entry payment completed — store runner in wolfrun_runners
+      if (session.metadata?.type === "wolfrun_entry") {
+        const m = session.metadata
+        const piId = typeof session.payment_intent === "string" ? session.payment_intent : null
+        const { error: runnerError } = await supabase
+          .from("wolfrun_runners")
+          .upsert(
+            {
+              first_name: m.first_name ?? "",
+              last_name: m.last_name ?? "",
+              email: m.email ?? "",
+              phone: m.phone ?? "",
+              age: m.age ? parseInt(m.age, 10) : 0,
+              city: m.city ?? "",
+              pack: m.pack ?? "",
+              agree_whatsapp_group: m.agree_whatsapp_group === "true",
+              status: "confirmed",
+              stripe_session_id: session.id,
+              stripe_payment_intent_id: piId,
+            },
+            { onConflict: "stripe_session_id", ignoreDuplicates: true }
+          )
+
+        if (runnerError) {
+          console.error("[Wolf Run Webhook] Failed to save runner:", runnerError)
+        }
+
+        await supabase.from("activity_log").insert({
+          action: "Wolf Run entry payment completed — runner saved",
+          entity_type: "wolfrun_runner",
+          metadata: {
+            stripe_session_id: session.id,
+            stripe_payment_intent: session.payment_intent,
+            email: m.email,
+            pack: m.pack,
+            amount_total: session.amount_total,
+          },
+        }).catch((err) => console.error("[Wolf Run Webhook] Activity log failed:", err))
+      }
     }
     if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session
