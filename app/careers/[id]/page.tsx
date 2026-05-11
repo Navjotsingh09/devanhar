@@ -5,7 +5,7 @@ import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { createClient } from "@/lib/supabase/server"
-import { CareersApplyForm } from "@/components/careers/careers-apply-form"
+import { CareersApplyForm, type ApplicationConfig } from "@/components/careers/careers-apply-form"
 import { ArrowLeft, MapPin, Clock, Briefcase, Banknote } from "lucide-react"
 
 export const revalidate = 60
@@ -24,6 +24,7 @@ type Vacancy = {
   how_to_apply: string | null
   closes_at: string | null
   is_active: boolean
+  application_config: ApplicationConfig | null
   initiatives: { name: string } | null
 }
 
@@ -31,7 +32,7 @@ async function getVacancy(id: string): Promise<Vacancy | null> {
   const supabase = await createClient()
   const { data } = await supabase
     .from("vacancies")
-    .select("id, title, description, vacancy_type, employment_basis, location, is_remote, salary_range, requirements, responsibilities, how_to_apply, closes_at, is_active, initiatives(name)")
+    .select("id, title, description, vacancy_type, employment_basis, location, is_remote, salary_range, requirements, responsibilities, how_to_apply, closes_at, is_active, application_config, initiatives(name)")
     .eq("id", id)
     .eq("is_active", true)
     .maybeSingle()
@@ -100,7 +101,7 @@ export default async function VacancyDetailPage({ params }: { params: Promise<{ 
             <p className="text-sm text-muted-foreground mb-6">
               Fill in the form below. We aim to respond within 7 days.
             </p>
-            <CareersApplyForm vacancyId={v.id} vacancyTitle={v.title} />
+            <CareersApplyForm vacancyId={v.id} vacancyTitle={v.title} config={v.application_config} />
           </section>
         </div>
       </main>

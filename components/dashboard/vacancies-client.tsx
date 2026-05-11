@@ -307,6 +307,7 @@ function VacancyForm({ initiatives, initial, onSubmit, pending, submitLabel }: {
         <Switch id="is_remote" name="is_remote" value="true" defaultChecked={!!v.is_remote} />
         <Label htmlFor="is_remote" className="text-foreground">Remote position</Label>
       </div>
+      <ApplicationConfigEditor config={(v.application_config as Record<string, boolean> | null) || null} />
       <Button type="submit" disabled={pending}>
         {pending ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>) : submitLabel}
       </Button>
@@ -353,6 +354,17 @@ function ApplicationDetail({ app, messages, onDelete, onStatusChange }: { app: R
     finally { setCvLoading(false) }
   }
 
+  const openFile = async (path: string, label: string) => {
+    try {
+      const res = await fetch("/api/careers/cv-url?path=" + encodeURIComponent(path))
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || "Failed")
+      window.open(json.url, "_blank", "noopener")
+    } catch (e) { toast.error(e instanceof Error ? e.message : `Could not open ${label}`) }
+  }
+
+  const yesNo = (v: unknown) => v === true ? "Yes" : v === false ? "No" : null
+
   return (
     <>
       <DialogHeader>
@@ -385,10 +397,21 @@ function ApplicationDetail({ app, messages, onDelete, onStatusChange }: { app: R
           <div className="grid grid-cols-2 gap-3">
             <Field label="Email" value={app.email as string} />
             {app.phone ? <Field label="Phone" value={app.phone as string} /> : null}
+            {app.date_of_birth ? <Field label="Date of birth" value={new Date(app.date_of_birth as string).toLocaleDateString("en-GB")} /> : null}
           </div>
+          {(yesNo(app.right_to_work_uk) !== null || yesNo(app.has_filming_equipment) !== null || yesNo(app.can_attend_in_person) !== null || yesNo(app.can_travel_events) !== null) && (
+            <div className="grid grid-cols-2 gap-3 rounded-lg border border-border p-3">
+              {yesNo(app.right_to_work_uk) !== null && <Field label="Right to work (UK)" value={yesNo(app.right_to_work_uk) as string} />}
+              {yesNo(app.has_filming_equipment) !== null && <Field label="Filming equipment" value={yesNo(app.has_filming_equipment) as string} />}
+              {yesNo(app.can_attend_in_person) !== null && <Field label="In-person meetings" value={yesNo(app.can_attend_in_person) as string} />}
+              {yesNo(app.can_travel_events) !== null && <Field label="Travel for events" value={yesNo(app.can_travel_events) as string} />}
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             {app.linkedin_url ? (<a href={app.linkedin_url as string} target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-border hover:bg-muted"><Linkedin className="w-3.5 h-3.5" /> LinkedIn <ExternalLink className="w-3 h-3" /></a>) : null}
             {app.cv_url ? (<Button variant="outline" size="sm" className="h-7 text-xs" onClick={openCv} disabled={cvLoading}>{cvLoading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <FileText className="w-3.5 h-3.5 mr-1.5" />} View CV</Button>) : null}
+            {app.cover_letter_url ? (<Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => openFile(app.cover_letter_url as string, "cover letter")}><FileText className="w-3.5 h-3.5 mr-1.5" /> View Cover Letter</Button>) : null}
+            {app.portfolio_url ? (<Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => openFile(app.portfolio_url as string, "portfolio")}><FileText className="w-3.5 h-3.5 mr-1.5" /> View Portfolio</Button>) : null}
           </div>
           {app.cover_letter ? (
             <div>
@@ -457,6 +480,34 @@ function Field({ label, value }: { label: string; value: string }) {
     <div>
       <p className="text-muted-foreground text-xs uppercase tracking-wider">{label}</p>
       <p className="text-foreground font-medium">{value}</p>
+    </div>
+  )
+}
+
+const CONFIG_OPTIONS: { key: string; label: string }[] = [
+  { key: "ask_dob", label: "Ask date of birth" },
+  { key: "ask_right_to_work", label: "Ask right to work in the UK" },
+  { key: "ask_filming_equipment", label: "Ask if applicant has filming equipment" },
+  { key: "ask_in_person_meetings", label: "Ask about in-person meetings/events" },
+  { key: "ask_travel_events", label: "Ask about travel for events/shoots" },
+  { key: "require_portfolio", label: "Require portfolio / examples upload" },
+  { key: "allow_cover_letter_upload", label: "Allow cover letter upload" },
+]
+
+function ApplicationConfigEditor({ config }: { config: Record<string, boolean> | null }) {
+  const cfg = config || {}
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Application form questions</p>
+      <p className="text-xs text-muted-foreground">Toggle which questions appear on the public apply form for this role.</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+        {CONFIG_OPTIONS.map((opt) => (
+          <label key={opt.key} className="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" name={`cfg_${opt.key}`} defaultChecked={!!cfg[opt.key]} />
+            <span className="text-foreground">{opt.label}</span>
+          </label>
+        ))}
+      </div>
     </div>
   )
 }

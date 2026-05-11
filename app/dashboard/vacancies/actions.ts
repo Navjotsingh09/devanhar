@@ -30,6 +30,15 @@ function fieldsFromForm(formData: FormData) {
     how_to_apply: str("how_to_apply"),
     initiative_id: str("initiative_id"),
     closes_at: str("closes_at"),
+    application_config: {
+      ask_dob: get("cfg_ask_dob") === "on" || get("cfg_ask_dob") === "true",
+      ask_right_to_work: get("cfg_ask_right_to_work") === "on" || get("cfg_ask_right_to_work") === "true",
+      ask_filming_equipment: get("cfg_ask_filming_equipment") === "on" || get("cfg_ask_filming_equipment") === "true",
+      ask_in_person_meetings: get("cfg_ask_in_person_meetings") === "on" || get("cfg_ask_in_person_meetings") === "true",
+      ask_travel_events: get("cfg_ask_travel_events") === "on" || get("cfg_ask_travel_events") === "true",
+      require_portfolio: get("cfg_require_portfolio") === "on" || get("cfg_require_portfolio") === "true",
+      allow_cover_letter_upload: get("cfg_allow_cover_letter_upload") === "on" || get("cfg_allow_cover_letter_upload") === "true",
+    },
   }
 }
 
