@@ -9,7 +9,7 @@ const BUCKET = 'vacancy-cvs'
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (\!url || \!key) throw new Error('Missing Supabase service credentials')
+  if (!url || !key) throw new Error('Missing Supabase service credentials')
   return createServiceClient(url, key)
 }
 
@@ -28,7 +28,7 @@ async function uploadFile(
   file: File,
 ): Promise<{ ok: true; path: string } | { ok: false; error: string }> {
   const ext = file.name.split('.').pop()?.toLowerCase() || ''
-  if (\!ALLOWED_EXT.includes(ext)) {
+  if (!ALLOWED_EXT.includes(ext)) {
     return { ok: false, error: `${field} must be PDF, DOC or DOCX` }
   }
   if (file.size > MAX_BYTES) {
@@ -79,13 +79,13 @@ export async function POST(req: NextRequest) {
     const coverLetterFile = fd.get('cover_letter_file') as File | null
     const portfolioFile = fd.get('portfolio_file') as File | null
 
-    if (\!vacancyId || \!fullName || \!email) {
+    if (!vacancyId || !fullName || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
-    if (\!consent) {
+    if (!consent) {
       return NextResponse.json({ error: 'Consent is required' }, { status: 400 })
     }
-    if (\!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 })
     }
 
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       .select('id, title, is_active, application_config')
       .eq('id', vacancyId)
       .maybeSingle()
-    if (vErr || \!vacancy || \!vacancy.is_active) {
+    if (vErr || !vacancy || !vacancy.is_active) {
       return NextResponse.json({ error: 'Vacancy not available' }, { status: 404 })
     }
 
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
     if (cfg.ask_right_to_work && rightToWork === null) {
       return NextResponse.json({ error: 'Please answer the right to work question' }, { status: 400 })
     }
-    if (cfg.require_portfolio && \!(portfolioFile && portfolioFile.size > 0)) {
+    if (cfg.require_portfolio && !(portfolioFile && portfolioFile.size > 0)) {
       return NextResponse.json(
         { error: 'Portfolio / examples of work are required for this role' },
         { status: 400 },
@@ -117,17 +117,17 @@ export async function POST(req: NextRequest) {
 
     if (cvFile && cvFile.size > 0) {
       const r = await uploadFile(supabase, vacancyId, 'cv', cvFile)
-      if (\!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
+      if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
       cvUrl = r.path
     }
     if (coverLetterFile && coverLetterFile.size > 0) {
       const r = await uploadFile(supabase, vacancyId, 'cover_letter', coverLetterFile)
-      if (\!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
+      if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
       coverLetterUrl = r.path
     }
     if (portfolioFile && portfolioFile.size > 0) {
       const r = await uploadFile(supabase, vacancyId, 'portfolio', portfolioFile)
-      if (\!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
+      if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
       portfolioUrl = r.path
     }
 
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
       .select('id')
       .single()
 
-    if (insErr || \!app) {
+    if (insErr || !app) {
       console.error('[Careers Apply] Insert failed:', insErr)
       return NextResponse.json({ error: 'Failed to save application' }, { status: 500 })
     }
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
         vacancyTitle: vacancy.title,
         vacancyId,
         applicationId: app.id,
-        hasCv: \!\!cvUrl,
+        hasCv: !!cvUrl,
       }),
     ])
 
