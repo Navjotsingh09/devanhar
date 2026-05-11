@@ -182,7 +182,7 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
             id="portfolio_file"
             name="portfolio_file"
             label="Portfolio / examples of work *"
-            helper="Required \u2014 applications without examples will not be considered."
+            helper="Required — applications without examples will not be considered."
             fileName={portfolioName}
             onChange={setPortfolioName}
             required
