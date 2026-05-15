@@ -169,7 +169,7 @@ export function VacanciesClient({ vacancies, applications, initiatives, messages
                     <TableHead className="hidden sm:table-cell">Email</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden lg:table-cell">Date</TableHead>
-                    <TableHead className="text-right">View</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -188,7 +188,10 @@ export function VacanciesClient({ vacancies, applications, initiatives, messages
                       </TableCell>
                       <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">{new Date(app.created_at as string).toLocaleDateString("en-GB")}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setAppTarget(app)}><Eye className="h-4 w-4" /><span className="sr-only">View</span></Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setAppTarget(app)} title="View"><Eye className="h-4 w-4" /><span className="sr-only">View</span></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteApp(app.id as string, app.full_name as string)} disabled={isPending} title="Delete"><Trash2 className="h-4 w-4" /><span className="sr-only">Delete</span></Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
