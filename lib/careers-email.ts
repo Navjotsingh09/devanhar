@@ -4,7 +4,7 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY)
 }
 
-const CAREERS_EMAIL = process.env.CAREERS_EMAIL || 'careers@devanhaar.com'
+const CAREERS_EMAIL = process.env.CAREERS_EMAIL || 'contact@devanhaar.com'
 const FROM_EMAIL = process.env.CAREERS_FROM_EMAIL || `Devanhaar Careers <${CAREERS_EMAIL}>`
 const STAFF_NOTIFY = process.env.CAREERS_NOTIFY_EMAIL || CAREERS_EMAIL
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://devanhaar.vercel.app'

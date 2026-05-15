@@ -6,6 +6,54 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, CheckCircle2, Upload } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+
+const MAX_FILE_BYTES = 5 * 1024 * 1024
+const ALLOWED_EXT = ["pdf", "doc", "docx"]
+
+type UploadField = "cv" | "cover_letter" | "portfolio"
+
+async function uploadToStorage(
+  vacancyId: string,
+  field: UploadField,
+  file: File,
+): Promise<string> {
+  const ext = file.name.split(".").pop()?.toLowerCase() || ""
+  if (!ALLOWED_EXT.includes(ext)) {
+    throw new Error(`${field.replace("_", " ")} must be PDF, DOC or DOCX`)
+  }
+  if (file.size > MAX_FILE_BYTES) {
+    throw new Error(`${field.replace("_", " ")} must be under 5MB`)
+  }
+
+  const res = await fetch("/api/careers/upload-url", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      vacancy_id: vacancyId,
+      field,
+      filename: file.name,
+      size: file.size,
+    }),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok || !json.path || !json.token) {
+    throw new Error(json.error || `Failed to prepare ${field.replace("_", " ")} upload`)
+  }
+
+  const supabase = createClient()
+  const { error } = await supabase.storage
+    .from(json.bucket)
+    .uploadToSignedUrl(json.path, json.token, file, {
+      contentType: file.type || "application/octet-stream",
+      upsert: false,
+    })
+  if (error) {
+    console.error("[Careers Form] storage upload failed:", error)
+    throw new Error(`Failed to upload ${field.replace("_", " ")}`)
+  }
+  return json.path as string
+}
 
 export interface ApplicationConfig {
   ask_dob?: boolean
@@ -41,6 +89,10 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
   const [cvName, setCvName] = useState<string | null>(null)
   const [coverName, setCoverName] = useState<string | null>(null)
   const [portfolioName, setPortfolioName] = useState<string | null>(null)
+  const [cvFile, setCvFile] = useState<File | null>(null)
+  const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [portfolioFile, setPortfolioFile] = useState<File | null>(null)
+  const [progress, setProgress] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,12 +105,56 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
         setSuccess(true)
         return
       }
-      fd.set("vacancy_id", vacancyId)
-      const res = await fetch("/api/careers/apply", { method: "POST", body: fd })
+
+      let cvPath: string | null = null
+      let coverPath: string | null = null
+      let portfolioPath: string | null = null
+
+      if (cvFile) {
+        setProgress("Uploading CV...")
+        cvPath = await uploadToStorage(vacancyId, "cv", cvFile)
+      }
+      if (coverFile) {
+        setProgress("Uploading cover letter...")
+        coverPath = await uploadToStorage(vacancyId, "cover_letter", coverFile)
+      }
+      if (portfolioFile) {
+        setProgress("Uploading portfolio...")
+        portfolioPath = await uploadToStorage(vacancyId, "portfolio", portfolioFile)
+      }
+
+      setProgress("Submitting application...")
+      const payload: Record<string, unknown> = {
+        vacancy_id: vacancyId,
+        first_name: fd.get("first_name"),
+        last_name: fd.get("last_name"),
+        date_of_birth: fd.get("date_of_birth"),
+        phone: fd.get("phone"),
+        email: fd.get("email"),
+        linkedin_url: fd.get("linkedin_url"),
+        right_to_work_uk: fd.get("right_to_work_uk"),
+        has_filming_equipment: fd.get("has_filming_equipment"),
+        can_attend_in_person: fd.get("can_attend_in_person"),
+        can_travel_events: fd.get("can_travel_events"),
+        cover_letter: fd.get("cover_letter"),
+        consent: fd.get("consent") === "on" || fd.get("consent") === "true",
+        cv_path: cvPath,
+        cover_letter_path: coverPath,
+        portfolio_path: portfolioPath,
+      }
+
+      const res = await fetch("/api/careers/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(json.error || "Failed to submit application")
       setSuccess(true)
       formRef.current?.reset()
+      setCvFile(null)
+      setCoverFile(null)
+      setPortfolioFile(null)
       setCvName(null)
       setCoverName(null)
       setPortfolioName(null)
@@ -66,6 +162,7 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
       setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setSubmitting(false)
+      setProgress(null)
     }
   }
 
@@ -171,10 +268,28 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
           Supported formats: PDF, DOC, DOCX (max 5MB each).
         </p>
 
-        <FileField id="cv" name="cv" label="CV / Resume" fileName={cvName} onChange={setCvName} />
+        <FileField
+          id="cv"
+          name="cv"
+          label="CV / Resume"
+          fileName={cvName}
+          onChange={(f) => {
+            setCvFile(f)
+            setCvName(f?.name ?? null)
+          }}
+        />
 
         {cfg.allow_cover_letter_upload && (
-          <FileField id="cover_letter_file" name="cover_letter_file" label="Cover letter (optional)" fileName={coverName} onChange={setCoverName} />
+          <FileField
+            id="cover_letter_file"
+            name="cover_letter_file"
+            label="Cover letter (optional)"
+            fileName={coverName}
+            onChange={(f) => {
+              setCoverFile(f)
+              setCoverName(f?.name ?? null)
+            }}
+          />
         )}
 
         {cfg.require_portfolio && (
@@ -184,7 +299,10 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
             label="Portfolio / examples of work *"
             helper="Required — applications without examples will not be considered."
             fileName={portfolioName}
-            onChange={setPortfolioName}
+            onChange={(f) => {
+              setPortfolioFile(f)
+              setPortfolioName(f?.name ?? null)
+            }}
             required
           />
         )}
@@ -207,7 +325,7 @@ export function CareersApplyForm({ vacancyId, vacancyTitle, config }: Props) {
       <Button type="submit" disabled={submitting} className="w-full md:w-auto">
         {submitting ? (
           <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {progress ?? "Submitting..."}
           </>
         ) : (
           "Submit application"
@@ -249,7 +367,7 @@ function FileField({
   label: string
   helper?: string
   fileName: string | null
-  onChange: (n: string | null) => void
+  onChange: (f: File | null) => void
   required?: boolean
 }) {
   return (
@@ -272,7 +390,7 @@ function FileField({
         accept=".pdf,.doc,.docx"
         required={required}
         className="sr-only"
-        onChange={(e) => onChange(e.target.files?.[0]?.name ?? null)}
+        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
       />
     </div>
   )

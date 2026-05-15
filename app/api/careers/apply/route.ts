@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { sendApplicationConfirmation, sendStaffApplicationNotification } from '@/lib/careers-email'
 
-const ALLOWED_EXT = ['pdf', 'doc', 'docx']
-const MAX_BYTES = 5 * 1024 * 1024
 const BUCKET = 'vacancy-cvs'
 
 function getAdmin() {
@@ -13,71 +11,75 @@ function getAdmin() {
   return createServiceClient(url, key)
 }
 
-function tristate(v: FormDataEntryValue | null): boolean | null {
-  if (v === null) return null
+function tristate(v: unknown): boolean | null {
+  if (v === null || v === undefined) return null
+  if (typeof v === 'boolean') return v
   const s = String(v).trim().toLowerCase()
   if (s === 'yes' || s === 'true' || s === 'on') return true
   if (s === 'no' || s === 'false') return false
   return null
 }
 
-async function uploadFile(
+function str(v: unknown): string {
+  return typeof v === 'string' ? v.trim() : ''
+}
+
+function strOrNull(v: unknown): string | null {
+  const s = str(v)
+  return s === '' ? null : s
+}
+
+async function verifyUploadedPath(
   admin: ReturnType<typeof getAdmin>,
   vacancyId: string,
-  field: string,
-  file: File,
-): Promise<{ ok: true; path: string } | { ok: false; error: string }> {
-  const ext = file.name.split('.').pop()?.toLowerCase() || ''
-  if (!ALLOWED_EXT.includes(ext)) {
-    return { ok: false, error: `${field} must be PDF, DOC or DOCX` }
-  }
-  if (file.size > MAX_BYTES) {
-    return { ok: false, error: `${field} must be under 5MB` }
-  }
-  const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-  const path = `${vacancyId}/${field}/${Date.now()}-${safe}`
-  const buf = await file.arrayBuffer()
-  const { error } = await admin.storage
+  field: 'cv' | 'cover_letter' | 'portfolio',
+  path: string,
+): Promise<boolean> {
+  const expectedPrefix = `${vacancyId}/${field}/`
+  if (!path.startsWith(expectedPrefix)) return false
+  const folder = path.substring(0, path.lastIndexOf('/'))
+  const filename = path.substring(path.lastIndexOf('/') + 1)
+  const { data, error } = await admin.storage
     .from(BUCKET)
-    .upload(path, new Uint8Array(buf), {
-      contentType: file.type || 'application/octet-stream',
-      upsert: false,
-    })
+    .list(folder, { search: filename, limit: 1 })
   if (error) {
-    console.error(`[Careers Apply] ${field} upload failed:`, error)
-    return { ok: false, error: `Failed to upload ${field}` }
+    console.error('[Careers Apply] verify list failed:', error)
+    return false
   }
-  return { ok: true, path }
+  return Array.isArray(data) && data.some((o) => o.name === filename)
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const fd = await req.formData()
-    const vacancyId = String(fd.get('vacancy_id') || '').trim()
+    const body = await req.json().catch(() => null)
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
 
-    const firstName = String(fd.get('first_name') || '').trim()
-    const lastName = String(fd.get('last_name') || '').trim()
-    const fullNameInput = String(fd.get('full_name') || '').trim()
+    const vacancyId = str(body.vacancy_id)
+
+    const firstName = str(body.first_name)
+    const lastName = str(body.last_name)
+    const fullNameInput = str(body.full_name)
     const fullName = (firstName || lastName)
       ? `${firstName} ${lastName}`.trim()
       : fullNameInput
 
-    const email = String(fd.get('email') || '').trim().toLowerCase()
-    const phone = String(fd.get('phone') || '').trim() || null
-    const linkedin = String(fd.get('linkedin_url') || '').trim() || null
-    const dobRaw = String(fd.get('date_of_birth') || '').trim()
-    const dateOfBirth = dobRaw || null
-    const coverLetter = String(fd.get('cover_letter') || '').trim()
-    const consent = fd.get('consent')
+    const email = str(body.email).toLowerCase()
+    const phone = strOrNull(body.phone)
+    const linkedin = strOrNull(body.linkedin_url)
+    const dateOfBirth = strOrNull(body.date_of_birth)
+    const coverLetter = str(body.cover_letter)
+    const consent = body.consent === true || body.consent === 'on' || body.consent === 'true'
 
-    const rightToWork = tristate(fd.get('right_to_work_uk'))
-    const hasFilmingEquipment = tristate(fd.get('has_filming_equipment'))
-    const canTravelEvents = tristate(fd.get('can_travel_events'))
-    const canAttendInPerson = tristate(fd.get('can_attend_in_person'))
+    const rightToWork = tristate(body.right_to_work_uk)
+    const hasFilmingEquipment = tristate(body.has_filming_equipment)
+    const canTravelEvents = tristate(body.can_travel_events)
+    const canAttendInPerson = tristate(body.can_attend_in_person)
 
-    const cvFile = fd.get('cv') as File | null
-    const coverLetterFile = fd.get('cover_letter_file') as File | null
-    const portfolioFile = fd.get('portfolio_file') as File | null
+    const cvPath = strOrNull(body.cv_path)
+    const coverLetterPath = strOrNull(body.cover_letter_path)
+    const portfolioPath = strOrNull(body.portfolio_path)
 
     if (!vacancyId || !fullName || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -104,31 +106,21 @@ export async function POST(req: NextRequest) {
     if (cfg.ask_right_to_work && rightToWork === null) {
       return NextResponse.json({ error: 'Please answer the right to work question' }, { status: 400 })
     }
-    if (cfg.require_portfolio && !(portfolioFile && portfolioFile.size > 0)) {
+    if (cfg.require_portfolio && !portfolioPath) {
       return NextResponse.json(
         { error: 'Portfolio / examples of work are required for this role' },
         { status: 400 },
       )
     }
 
-    let cvUrl: string | null = null
-    let coverLetterUrl: string | null = null
-    let portfolioUrl: string | null = null
-
-    if (cvFile && cvFile.size > 0) {
-      const r = await uploadFile(supabase, vacancyId, 'cv', cvFile)
-      if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
-      cvUrl = r.path
-    }
-    if (coverLetterFile && coverLetterFile.size > 0) {
-      const r = await uploadFile(supabase, vacancyId, 'cover_letter', coverLetterFile)
-      if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
-      coverLetterUrl = r.path
-    }
-    if (portfolioFile && portfolioFile.size > 0) {
-      const r = await uploadFile(supabase, vacancyId, 'portfolio', portfolioFile)
-      if (!r.ok) return NextResponse.json({ error: r.error }, { status: 400 })
-      portfolioUrl = r.path
+    const checks: Array<Promise<{ field: string; ok: boolean }>> = []
+    if (cvPath) checks.push(verifyUploadedPath(supabase, vacancyId, 'cv', cvPath).then((ok) => ({ field: 'CV', ok })))
+    if (coverLetterPath) checks.push(verifyUploadedPath(supabase, vacancyId, 'cover_letter', coverLetterPath).then((ok) => ({ field: 'cover letter', ok })))
+    if (portfolioPath) checks.push(verifyUploadedPath(supabase, vacancyId, 'portfolio', portfolioPath).then((ok) => ({ field: 'portfolio', ok })))
+    const results = await Promise.all(checks)
+    const bad = results.find((r) => !r.ok)
+    if (bad) {
+      return NextResponse.json({ error: `Uploaded ${bad.field} could not be verified. Please re-upload.` }, { status: 400 })
     }
 
     const { data: app, error: insErr } = await supabase
@@ -143,9 +135,9 @@ export async function POST(req: NextRequest) {
         phone,
         linkedin_url: linkedin,
         cover_letter: coverLetter || null,
-        cv_url: cvUrl,
-        cover_letter_url: coverLetterUrl,
-        portfolio_url: portfolioUrl,
+        cv_url: cvPath,
+        cover_letter_url: coverLetterPath,
+        portfolio_url: portfolioPath,
         right_to_work_uk: rightToWork,
         has_filming_equipment: hasFilmingEquipment,
         can_travel_events: canTravelEvents,
@@ -168,7 +160,7 @@ export async function POST(req: NextRequest) {
         vacancyTitle: vacancy.title,
         vacancyId,
         applicationId: app.id,
-        hasCv: !!cvUrl,
+        hasCv: !!cvPath,
       }),
     ])
 
