@@ -30,7 +30,7 @@ export function HeroOptionA() {
 
   return (
     <section className="relative w-full h-screen overflow-hidden">
-      {imgs.map((src, i) => (
+      {!loading && imgs.map((src, i) => (
         <div key={i} className="absolute inset-0 transition-opacity duration-[2s]" style={{ opacity: i === cur ? 1 : 0 }}>
           <img src={src} alt={slides[i]?.subtitle} className="w-full h-full object-cover transition-transform duration-[10s]" style={{ transform: i === cur ? "scale(1.05)" : "scale(1)" }} {...(i === 0 ? { fetchPriority: "high" } : { loading: "lazy" })} />
         </div>
