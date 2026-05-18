@@ -31,12 +31,12 @@ export async function sendApplicationConfirmation(opts: {
 }) {
   if (!process.env.RESEND_API_KEY) return
   const inner = `
-    <h1>Application received</h1>
     <p>Dear ${escapeHtml(opts.applicantName)},</p>
-    <p>Thank you for applying for <strong>${escapeHtml(opts.vacancyTitle)}</strong> at Devanhaar.</p>
-    <p>Our team will review your application and aim to respond within <strong>7 days</strong>. If you are shortlisted, we will be in touch to arrange next steps.</p>
-    <p>If you have any questions in the meantime, simply reply to this email.</p>
-    <p style="margin-top:24px;">Warm regards,<br><strong>The Devanhaar Team</strong></p>
+    <p>Thank you for your application and for taking the time to express your interest in joining the Devanhaar team.</p>
+    <p>Your application has been successfully received and will now be reviewed by our team. If your experience and skills align with the requirements of the role, a member of our team will be in touch regarding the next stages of the process.</p>
+    <p>Please note that due to the volume of applications we may receive, we may not be able to provide individual feedback to every applicant.</p>
+    <p>Thank you again for your interest in Devanhaar, and we wish you all the best throughout the recruitment process.</p>
+    <p style="margin-top:24px;">Kind regards,<br><strong>Devanhaar Team</strong></p>
   `
   try {
     await getResend().emails.send({
