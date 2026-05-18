@@ -1,9 +1,28 @@
 "use client"
 
+import { useState, useEffect, useRef } from "react"
 import { Instagram } from "lucide-react"
-import Script from "next/script"
 
 export function MediaSection() {
+  const [loaded, setLoaded] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoaded(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: "200px" }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section id="media" className="py-24 md:py-32 border-t border-border">
       <div className="container mx-auto px-6 lg:px-12">
@@ -31,17 +50,22 @@ export function MediaSection() {
           </div>
 
           {/* Live Instagram Feed Embed */}
-          <div data-animate className="rounded-2xl border border-border bg-card overflow-hidden">
-            <iframe
-              src="https://www.instagram.com/devanhaar/embed"
-              className="w-full border-0"
-              height="800"
-              scrolling="no"
-              allowtransparency
-              title="Devanhaar Instagram Feed"
-            />
+          <div ref={containerRef} data-animate className="rounded-2xl border border-border bg-card overflow-hidden">
+            {loaded ? (
+              <iframe
+                src="https://www.instagram.com/devanhaar/embed"
+                className="w-full border-0"
+                height="800"
+                scrolling="no"
+                allowTransparency={true}
+                title="Devanhaar Instagram Feed"
+              />
+            ) : (
+              <div className="w-full h-[800px] flex items-center justify-center bg-muted/20">
+                <Instagram className="h-8 w-8 text-muted-foreground/40" />
+              </div>
+            )}
           </div>
-          <Script src="//www.instagram.com/embed.js" strategy="lazyOnload" />
 
       </div>
     </section>

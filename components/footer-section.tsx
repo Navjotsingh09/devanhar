@@ -70,7 +70,6 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                 alt="Devanhaar"
                 width={160}
                 height={40}
-                unoptimized
                 className="h-10 w-auto mb-6"
               />
               <p className="text-sm text-white/70 leading-relaxed max-w-sm">

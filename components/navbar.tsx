@@ -74,7 +74,6 @@ export function Navbar() {
                 alt="Devanhaar"
                 width={140}
                 height={36}
-                unoptimized
                 className="h-8 md:h-9 w-auto"
               />
             </Link>

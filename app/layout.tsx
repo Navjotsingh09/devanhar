@@ -25,6 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        <link rel="preconnect" href="https://igkpvudaqxkncxgslbvb.supabase.co" />
+      </head>
       <body className="font-sans antialiased">
         <DonationProvider>
           <CartProvider>

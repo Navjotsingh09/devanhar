@@ -120,7 +120,6 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
                 className={`object-cover transition-transform duration-300 ${isZoomed ? "scale-150" : "scale-100"}`}
                 style={isZoomed ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` } : undefined}
                 priority
-                unoptimized
               />
               {product.badge && (
                 <span className="absolute top-4 left-4 bg-amber-400 text-black text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -147,7 +146,7 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
                         : "opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <Image src={img} alt={`${product.name} ${idx + 1}`} fill className="object-cover" unoptimized />
+                    <Image src={img} alt={`${product.name} ${idx + 1}`} fill className="object-cover" />
                   </button>
                 ))}
               </div>
@@ -356,7 +355,6 @@ export function ProductDetail({ product, relatedProducts }: ProductDetailProps) 
                       alt={item.name}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      unoptimized
                     />
                     {item.badge && (
                       <span className="absolute top-3 left-3 bg-amber-400 text-black text-[10px] font-semibold px-2 py-1 rounded-full">

@@ -164,7 +164,6 @@ export function ProjectsPageContent() {
                     alt={project.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent group-hover:from-black/80 group-hover:via-black/40 transition-all duration-500" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">

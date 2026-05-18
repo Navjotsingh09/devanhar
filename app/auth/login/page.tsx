@@ -44,7 +44,6 @@ export default function LoginPage() {
             fill
             className="object-cover opacity-20"
             priority
-            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-br from-[#0d1120] via-[#0d1120]/90 to-amber-900/20" />
         </div>

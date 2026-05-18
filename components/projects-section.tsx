@@ -21,7 +21,7 @@ const partners = [
     location: "UK Wide",
     metricLabel: "Futures Supported",
     numericValue: 20000,
-    image: "/images/pillars/elevate.png",
+    image: "/images/pillars/elevate.jpg",
   },
   {
     badge: "Empower",
@@ -115,7 +115,7 @@ export function ProjectsSection() {
               >
                 {/* Top image area */}
                 <div className="relative h-52 bg-muted/30 overflow-hidden border-b border-border">
-                  <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={p.image} alt={p.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute top-4 left-5">
                     <span className="inline-flex items-center rounded-full bg-background/80 backdrop-blur-sm border border-border/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {p.badge}

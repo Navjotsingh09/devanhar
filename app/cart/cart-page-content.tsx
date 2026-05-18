@@ -111,7 +111,6 @@ export function CartPageContent() {
                         alt={item.name}
                         fill
                         className="object-cover transition-transform hover:scale-105"
-                        unoptimized
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">

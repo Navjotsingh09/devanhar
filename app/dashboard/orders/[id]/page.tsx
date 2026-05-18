@@ -203,7 +203,6 @@ export default function OrderDetailPage() {
                         alt={item.name}
                         fill
                         className="object-cover"
-                        unoptimized
                       />
                     </div>
                     <div className="flex-1 min-w-0">

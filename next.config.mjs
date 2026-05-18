@@ -6,7 +6,12 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      { protocol: "https", hostname: "igkpvudaqxkncxgslbvb.supabase.co" },
+      { protocol: "https", hostname: "api.dicebear.com" },
+      { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "img.youtube.com" },
+    ],
   },
 }
 

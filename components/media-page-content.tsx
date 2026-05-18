@@ -112,7 +112,7 @@ function LightboxModal({ images, index, onClose, onPrev, onNext }: {
       </button>
       <div className="relative w-full max-w-5xl mx-4 md:mx-8" onClick={(e) => e.stopPropagation()}>
         <div className="relative aspect-[16/10] overflow-hidden rounded-lg">
-          <Image src={img.src} alt={img.alt} fill className="object-contain" unoptimized />
+          <Image src={img.src} alt={img.alt} fill className="object-contain" />
         </div>
         <div className="mt-4 text-center">
           <p className="text-white text-sm md:text-base font-medium">{img.caption}</p>
@@ -228,7 +228,6 @@ export function MediaPageContent() {
                       alt={img.alt}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
@@ -304,7 +303,6 @@ export function MediaPageContent() {
                         alt={video.title}
                         fill
                         className="object-cover"
-                        unoptimized
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-7 h-7 rounded-full bg-black/60 flex items-center justify-center">

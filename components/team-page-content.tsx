@@ -138,7 +138,7 @@ export function TeamPageContent() {
           {leadership.map((m) => (
             <div key={m.name} className="group">
               <div className="relative aspect-[3/4] mb-6 overflow-hidden bg-muted">
-                <Image src={m.image} alt={m.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                <Image src={m.image} alt={m.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-500 mb-2">{m.role}</p>
               <h3 className="text-2xl font-medium text-foreground mb-3">{m.name}</h3>
@@ -162,7 +162,7 @@ export function TeamPageContent() {
             {team.map((m) => (
               <div key={m.name} className="group">
                 <div className="relative aspect-square mb-4 overflow-hidden bg-muted">
-                  <Image src={m.image} alt={m.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                  <Image src={m.image} alt={m.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-500 mb-1">{m.role}</p>
                 <h3 className="text-lg font-medium text-foreground mb-2">{m.name}</h3>
