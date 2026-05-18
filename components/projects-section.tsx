@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { ArrowRight, ExternalLink } from "lucide-react"
 import NumberFlow from "@number-flow/react"
 import Link from "next/link"
+import Image from "next/image"
 import { blogPosts, type Pillar } from "@/lib/blog"
 
 const partners = [
@@ -115,7 +116,14 @@ export function ProjectsSection() {
               >
                 {/* Top image area */}
                 <div className="relative h-52 bg-muted/30 overflow-hidden border-b border-border">
-                  <img src={p.image} alt={p.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover"
+                  />
                   <div className="absolute top-4 left-5">
                     <span className="inline-flex items-center rounded-full bg-background/80 backdrop-blur-sm border border-border/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       {p.badge}

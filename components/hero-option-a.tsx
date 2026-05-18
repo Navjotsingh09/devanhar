@@ -3,6 +3,7 @@
 import { ArrowRight, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 import { useSiteImages } from "@/hooks/use-site-images"
 
@@ -32,7 +33,16 @@ export function HeroOptionA() {
     <section className="relative w-full h-screen overflow-hidden">
       {!loading && imgs.map((src, i) => (
         <div key={i} className="absolute inset-0 transition-opacity duration-[2s]" style={{ opacity: i === cur ? 1 : 0 }}>
-          <img src={src} alt={slides[i]?.subtitle} className="w-full h-full object-cover transition-transform duration-[10s]" style={{ transform: i === cur ? "scale(1.05)" : "scale(1)" }} {...(i === 0 ? { fetchPriority: "high" } : { loading: "lazy" })} />
+          <Image
+            src={src}
+            alt={slides[i]?.subtitle || ""}
+            fill
+            sizes="100vw"
+            priority={i === 0}
+            quality={75}
+            className="object-cover transition-transform duration-[10s]"
+            style={{ transform: i === cur ? "scale(1.05)" : "scale(1)" }}
+          />
         </div>
       ))}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent z-10" />
@@ -64,7 +74,7 @@ export function HeroOptionA() {
           A UK-based charity empowering generations through Sikh values, knowledge, and spiritual growth.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-4" style={{ opacity: ready ? 1 : 0, transition: "opacity 0.8s ease 1s" }}>
-          <Link href="/about">
+          <Link href="/about" aria-label="Learn more about Devanhaar">
             <Button className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-sm font-semibold">
               Learn More <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
