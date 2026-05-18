@@ -219,6 +219,63 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (event.type === "payment_intent.payment_failed") {
+      const pi = event.data.object as Stripe.PaymentIntent
+      const cid = pi.metadata?.camp_application_id
+      // Only alert on camp application payments, not other PI types
+      if (cid) {
+        const declineReason = pi.last_payment_error?.decline_code
+          || pi.last_payment_error?.code
+          || pi.last_payment_error?.message
+          || "unknown reason"
+
+        const { data: app } = await supabase
+          .from("camp_applications")
+          .select("first_name, last_name, email, phone")
+          .eq("id", cid)
+          .maybeSingle()
+
+        await supabase.from("activity_log").insert({
+          action: "Camp application payment failed",
+          entity_type: "camp_application",
+          entity_id: cid,
+          metadata: {
+            stripe_pi: pi.id,
+            decline_reason: declineReason,
+            amount: pi.amount,
+            email: app?.email,
+          },
+        }).catch(() => {})
+
+        // Alert the admin team
+        try {
+          const { Resend } = await import("resend")
+          const resend = new Resend(process.env.RESEND_API_KEY)
+          const adminEmail = process.env.CAMP_OWNER_NOTIFICATION_EMAIL || "singhscampuk@devanhaar.com"
+          const name = app ? `${app.first_name} ${app.last_name}` : "Unknown applicant"
+          await resend.emails.send({
+            from: "Devanhaar Alerts <noreply@devanhaar.com>",
+            to: adminEmail,
+            subject: `[Action needed] Camp payment failed — ${name}`,
+            html: `
+              <p>A camp application payment has <strong>failed</strong> and needs attention.</p>
+              <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;">
+                <tr><td style="padding:4px 12px 4px 0;color:#666">Name</td><td><strong>${name}</strong></td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#666">Email</td><td>${app?.email ?? "—"}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#666">Phone</td><td>${app?.phone ?? "—"}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#666">Reason</td><td>${declineReason}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#666">Application ID</td><td>${cid}</td></tr>
+                <tr><td style="padding:4px 12px 4px 0;color:#666">Stripe PI</td><td>${pi.id}</td></tr>
+              </table>
+              <p style="margin-top:16px"><a href="${SITE_URL}/dashboard/submissions" style="background:#1a1a2e;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none">View in dashboard</a></p>
+            `,
+          })
+        } catch (alertErr) {
+          console.error("[Stripe Webhook] Failed to send payment failure alert:", alertErr)
+        }
+      }
+    }
+
     return NextResponse.json({ received: true, event: event.type })
   } catch (error) {
     console.error("[Stripe Webhook] Error:", error)
