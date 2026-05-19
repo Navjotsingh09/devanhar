@@ -72,10 +72,16 @@ function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> 
     'takeaway_from_camp',
     'bjj_interest',
     'bjj_fought_professionally',
+    'bjj_sport_preference',
+    'is_sevadaar',
     'consent_email',
     'consent_phone',
     'consent_sms',
     'consent_whatsapp',
+    'gift_aid',
+    'donation_amount',
+    'monthly_donation_opted',
+    'monthly_donation_amount',
     'phone_normalized',
   ]
 

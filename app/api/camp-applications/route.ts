@@ -167,6 +167,8 @@ export async function POST(request: NextRequest) {
       monthly_donation_opted: body.monthly_donation_opted === 'yes',
       monthly_donation_amount: body.monthly_donation_opted === 'yes' && body.monthly_donation_amount ? Number(body.monthly_donation_amount) : null,
       is_sevadaar: body.is_sevadaar === true,
+      other_allergy: body.other_allergy?.trim() || null,
+      donation_amount: body.donation_amount ? Number(body.donation_amount) : null,
     }
 
     // Try with all columns; if migration hasn't run yet, retry with base columns only
