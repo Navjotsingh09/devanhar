@@ -51,10 +51,10 @@ const FIELD_SECTIONS: Array<{ title: string; keys: string[]; collapsible?: boole
   { title: 'Contact', keys: ['email', 'phone', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'postcode', 'country'] },
   { title: 'Emergency Contact', keys: ['emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_phone', 'under_18_consent'] },
   { title: 'Health & Dietary', keys: ['dietary_requirements', 'medical_requirements', 'allergies', 'other_allergy', 'carries_epipen'] },
-  { title: 'Camp Details', keys: ['travel_method', 'own_transport_type', 'room_preference', 'heard_about_camp', 'first_residential_camp', 'been_to_singhs_camp_before', 'previous_camps', 'sikhi_knowledge_level', 'takeaway_from_camp', 'bjj_interest', 'bjj_fought_professionally'] },
+  { title: 'Camp Details', keys: ['travel_method', 'own_transport_type', 'room_preference', 'heard_about_camp', 'first_residential_camp', 'been_to_singhs_camp_before', 'previous_camps', 'sikhi_knowledge_level', 'takeaway_from_camp', 'bjj_interest', 'bjj_fought_professionally', 'bjj_sport_preference'] },
   { title: 'ID & Sevadaar', keys: ['id_document_type', 'id_document_url', 'is_sevadaar', 'sevadaar_verified'] },
   { title: 'Consent', keys: ['consent_email', 'consent_phone', 'consent_sms', 'consent_whatsapp'] },
-  { title: 'Payment Details', collapsible: true, keys: ['requires_payment_support', 'payment_support_details', 'stripe_payment_intent_id', 'stripe_checkout_session_id', 'stripe_checkout_url', 'stripe_checkout_expires_at', 'stripe_checkout_amount_pence', 'phone_normalized'] },
+  { title: 'Payment Details', collapsible: true, keys: ['requires_payment_support', 'payment_support_details', 'donation_amount', 'gift_aid', 'monthly_donation_opted', 'monthly_donation_amount', 'stripe_payment_intent_id', 'stripe_checkout_session_id', 'stripe_checkout_url', 'stripe_checkout_expires_at', 'stripe_checkout_amount_pence', 'phone_normalized'] },
 ]
 
 function renderFieldValue(key: string, value: unknown) {
