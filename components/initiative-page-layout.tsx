@@ -43,6 +43,7 @@ interface InitiativePageProps {
   ctaText?: string
   onCtaClick?: () => void
   ctaHref?: string
+  hideCtaSection?: boolean
   galleryImages?: string[]
   featuredVideoUrl?: string
   additionalSections?: React.ReactNode
@@ -113,6 +114,7 @@ export function InitiativePageLayout({
   ctaText,
   ctaHref,
   onCtaClick,
+  hideCtaSection,
   galleryImages,
   featuredVideoUrl,
   additionalSections,
@@ -422,7 +424,7 @@ export function InitiativePageLayout({
         </section>
       ) : null}
       {/* Bottom CTA */}
-      <section className="py-16 lg:py-24 bg-foreground text-background">
+      {\!hideCtaSection && <section className="py-16 lg:py-24 bg-foreground text-background">
         <div className="container mx-auto px-6 lg:px-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Get Involved with {title}
@@ -454,7 +456,7 @@ export function InitiativePageLayout({
             </Link>
           </div>
         </div>
-      </section>
+      </section>}
 
       {isSinghsCamp && showCampForm && (
         <CampApplicationForm
