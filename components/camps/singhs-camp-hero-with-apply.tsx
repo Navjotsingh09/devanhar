@@ -18,7 +18,7 @@ export function SinghsCampHeroWithApply() {
           {
             label: "Singhs Camp UK 2026",
             description:
-              "Our flagship UK residential. Applications are open — secure your place now.",
+              "31st July – 4th August 2026 · Wales. Our flagship UK residential. Applications are open — secure your place now.",
             ctaLabel: "Apply now",
             primary: true,
             onClick: () => {
