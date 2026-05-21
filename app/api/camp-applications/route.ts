@@ -473,14 +473,19 @@ export async function POST(request: NextRequest) {
 
       // Email the applicant their personal resume link so they can return and
       // pay at any time — even after the 24h Stripe session has expired.
-      sendPaymentPendingEmail({
-        to: body.email.trim().toLowerCase(),
-        firstName: body.first_name.trim(),
-        applicationId: String(data.id),
-        resumeUrl: `${siteUrl}/api/camp-applications/resume-payment?application_id=${data.id}&token=${encodeURIComponent(signResumeToken(String(data.id)))}`,
-      }).catch((emailErr) => {
-        console.error('[Camp Email] Failed to send payment-pending email (non-blocking):', emailErr)
-      })
+      // Awaited (not fire-and-forget) so the serverless function does not
+      // terminate before the send completes. The function retries up to 3x
+      // internally; failure here is logged but never blocks the response.
+      try {
+        await sendPaymentPendingEmail({
+          to: body.email.trim().toLowerCase(),
+          firstName: body.first_name.trim(),
+          applicationId: String(data.id),
+          resumeUrl: `${siteUrl}/api/camp-applications/resume-payment?application_id=${data.id}&token=${encodeURIComponent(signResumeToken(String(data.id)))}`,
+        })
+      } catch (emailErr) {
+        console.error('[Camp Email] Payment-pending email failed after all retries (non-blocking):', emailErr)
+      }
 
       return NextResponse.json({ success: true, payment_mode: 'stripe', checkout_url: session.url }, { status: 201 })
     } catch (stripeError) {

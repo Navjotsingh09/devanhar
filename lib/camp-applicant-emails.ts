@@ -58,20 +58,29 @@ Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
 Singhs Camp UK Team
 Devanhaar`
 
-  try {
-    await resend.emails.send({
-      from: CAMP_FROM_EMAIL,
-      to: params.to,
-      subject: 'Complete your Singhs Camp UK 2026 payment',
-      html,
-      text,
-    })
-    console.log('[Camp Email] Payment-pending email sent to', params.to)
-    return true
-  } catch (err) {
-    console.error('[Camp Email] Failed to send payment-pending email:', err)
-    return false
+  const MAX_ATTEMPTS = 3
+  let lastErr: unknown
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      await resend.emails.send({
+        from: CAMP_FROM_EMAIL,
+        to: params.to,
+        subject: 'Complete your Singhs Camp UK 2026 payment',
+        html,
+        text,
+      })
+      console.log(`[Camp Email] Payment-pending email sent to ${params.to} (attempt ${attempt})`)
+      return true
+    } catch (err) {
+      lastErr = err
+      console.warn(`[Camp Email] Payment-pending send attempt ${attempt}/${MAX_ATTEMPTS} failed:`, err)
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise((resolve) => setTimeout(resolve, 600 * attempt))
+      }
+    }
   }
+  console.error('[Camp Email] All attempts to send payment-pending email failed:', lastErr)
+  return false
 }
 
 export async function sendApplicationReceivedEmail(params: {
