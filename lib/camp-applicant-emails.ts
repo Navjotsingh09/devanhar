@@ -15,7 +15,7 @@ export async function sendPaymentPendingEmail(params: {
   applicationId: string
   resumeUrl: string
 }): Promise<boolean> {
-  if (\!process.env.RESEND_API_KEY) {
+  if (!process.env.RESEND_API_KEY) {
     console.warn('[Camp Email] Skipping payment-pending email - RESEND_API_KEY not configured')
     return false
   }
