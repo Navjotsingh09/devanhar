@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 import { sendToClickUp } from '@/lib/clickup'
 import { sendToMailchimp } from '@/lib/mailchimp'
 import { sendCampApplicationOwnerNotification } from '@/lib/camp-application-notifier'
-import { sendApplicationReceivedEmail } from '@/lib/camp-applicant-emails'
+import { sendApplicationReceivedEmail, sendPaymentPendingEmail } from '@/lib/camp-applicant-emails'
 import { signResumeToken } from '@/lib/camp-resume-token'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -470,6 +470,17 @@ export async function POST(request: NextRequest) {
       } catch (persistErr) {
         console.warn('[Camp Application] Failed to persist Stripe checkout session (columns may be missing):', persistErr)
       }
+
+      // Email the applicant their personal resume link so they can return and
+      // pay at any time — even after the 24h Stripe session has expired.
+      sendPaymentPendingEmail({
+        to: body.email.trim().toLowerCase(),
+        firstName: body.first_name.trim(),
+        applicationId: String(data.id),
+        resumeUrl: `${siteUrl}/api/camp-applications/resume-payment?application_id=${data.id}&token=${encodeURIComponent(signResumeToken(String(data.id)))}`,
+      }).catch((emailErr) => {
+        console.error('[Camp Email] Failed to send payment-pending email (non-blocking):', emailErr)
+      })
 
       return NextResponse.json({ success: true, payment_mode: 'stripe', checkout_url: session.url }, { status: 201 })
     } catch (stripeError) {

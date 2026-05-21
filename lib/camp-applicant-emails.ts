@@ -9,6 +9,71 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#039;')
 }
 
+export async function sendPaymentPendingEmail(params: {
+  to: string
+  firstName: string
+  applicationId: string
+  resumeUrl: string
+}): Promise<boolean> {
+  if (\!process.env.RESEND_API_KEY) {
+    console.warn('[Camp Email] Skipping payment-pending email - RESEND_API_KEY not configured')
+    return false
+  }
+
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const escapedName = escapeHtml(params.firstName)
+  const escapedUrl = escapeHtml(params.resumeUrl)
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
+      <h2 style="margin:0 0 16px;">Application submitted — payment required</h2>
+      <p>Dear ${escapedName},</p>
+      <p>Your Singhs Camp UK 2026 application has been received. To secure your place, please complete your payment using the link below.</p>
+      <p style="text-align:center;margin:28px 0;">
+        <a href="${escapedUrl}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
+      </p>
+      <p>This link is personal to you and will always work — if the payment page has expired it will automatically open a fresh one.</p>
+      <p>If you have any questions, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
+      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!</p>
+      <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
+    </div>
+  `
+
+  const text = `Application submitted — payment required
+
+Dear ${params.firstName},
+
+Your Singhs Camp UK 2026 application has been received. To secure your place, please complete your payment using the link below.
+
+Complete payment: ${params.resumeUrl}
+
+This link is personal to you and will always work — if the payment page has expired it will automatically open a fresh one.
+
+If you have any questions, please contact us at singhscampuk@devanhaar.com.
+
+Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
+
+Singhs Camp UK Team
+Devanhaar`
+
+  try {
+    await resend.emails.send({
+      from: CAMP_FROM_EMAIL,
+      to: params.to,
+      subject: 'Complete your Singhs Camp UK 2026 payment',
+      html,
+      text,
+    })
+    console.log('[Camp Email] Payment-pending email sent to', params.to)
+    return true
+  } catch (err) {
+    console.error('[Camp Email] Failed to send payment-pending email:', err)
+    return false
+  }
+}
+
 export async function sendApplicationReceivedEmail(params: {
   to: string
   firstName: string
