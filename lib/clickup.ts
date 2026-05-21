@@ -118,9 +118,12 @@ async function buildTaskDescription(app: CampApplicationData): Promise<string> {
   }
   lines.push('')
 
-  lines.push('### BJJ / Wrestling')
-  lines.push('- **Interested:** ' + (app.bjj_interest || 'not specified'))
-  if (app.bjj_interest === 'yes' && app.bjj_fought_professionally) lines.push('- **Fought Professionally:** ' + app.bjj_fought_professionally)
+  lines.push('### BJJ / Wrestling / Boxing')
+  lines.push('- **Interested in competing:** ' + (app.bjj_interest || 'not specified'))
+  if (app.bjj_interest === 'yes') {
+    if (app.bjj_sport_preference) lines.push('- **Sport Preference:** ' + app.bjj_sport_preference)
+    if (app.bjj_fought_professionally) lines.push('- **Fought Professionally:** ' + app.bjj_fought_professionally)
+  }
   lines.push('')
 
   lines.push('### Sikhi & Camp')
