@@ -44,29 +44,16 @@ export async function GET(request: NextRequest) {
 
     const supabase = getSupabaseAdmin()
 
-    // Try full select (includes migration-added columns).
-    // Fall back to base columns if the DB schema hasn't been migrated yet.
-    const fullSelect = "id, status, email, first_name, last_name, initiative_id, stripe_checkout_url, stripe_checkout_expires_at, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid"
-    const baseSelect = "id, status, email, first_name, last_name, initiative_id, gift_aid"
-
-    let queryResult = await supabase
+    // Step 1: query base columns only (these always exist in the schema).
+    // We deliberately avoid migration-added columns here because supabase-js
+    // .maybeSingle() can silently return { data: null, error: null } when
+    // PostgREST rejects the request with a 400 (column not found), which would
+    // make it look like the row is missing when it actually exists.
+    const { data: app, error } = await supabase
       .from("camp_applications")
-      .select(fullSelect)
+      .select("id, status, email, first_name, last_name, initiative_id, gift_aid")
       .eq("id", applicationId)
       .maybeSingle()
-
-    if (queryResult.error) {
-      console.warn("[Camp Resume] Full select failed, retrying with base columns:", queryResult.error.message)
-      queryResult = await supabase
-        .from("camp_applications")
-        .select(baseSelect)
-        .eq("id", applicationId)
-        .maybeSingle()
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const app = queryResult.data as any
-    const error = queryResult.error
 
     if (error || !app) {
       const hint = error ? "db_error" : "row_missing"
@@ -76,6 +63,26 @@ export async function GET(request: NextRequest) {
         `${siteUrl}/?camp_resume_error=not_found&hint=${hint}&id=${idPrefix}`
       )
     }
+
+    // Step 2: optionally fetch Stripe/donation columns added via migration.
+    // Non-fatal — if these columns don't exist yet we skip Stripe session reuse
+    // and create a fresh checkout session below.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let stripeData: any = {}
+    try {
+      const { data: sd } = await supabase
+        .from("camp_applications")
+        .select("stripe_checkout_url, stripe_checkout_expires_at, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount")
+        .eq("id", applicationId)
+        .maybeSingle()
+      if (sd) stripeData = sd
+    } catch {
+      // Columns not yet migrated — proceed without Stripe session reuse
+    }
+
+    // Merge base + stripe data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fullApp: any = { ...app, ...stripeData }
 
     // Look up initiative slug for redirect URLs
     let initiativeSlug = "singhs-camp"
@@ -96,18 +103,18 @@ export async function GET(request: NextRequest) {
 
     // Reuse the original Stripe Checkout session if it has not expired yet.
     if (
-      app.stripe_checkout_url &&
-      app.stripe_checkout_expires_at &&
-      new Date(app.stripe_checkout_expires_at).getTime() > Date.now() + 60_000
+      fullApp.stripe_checkout_url &&
+      fullApp.stripe_checkout_expires_at &&
+      new Date(fullApp.stripe_checkout_expires_at).getTime() > Date.now() + 60_000
     ) {
-      return NextResponse.redirect(app.stripe_checkout_url)
+      return NextResponse.redirect(fullApp.stripe_checkout_url)
     }
 
     // Mint a fresh Checkout session preserving the original camp_application_id.
     const stripe = getStripe()
     const donationAmountPence =
-      app.stripe_checkout_amount_pence && app.stripe_checkout_amount_pence > 0
-        ? app.stripe_checkout_amount_pence
+      fullApp.stripe_checkout_amount_pence && fullApp.stripe_checkout_amount_pence > 0
+        ? fullApp.stripe_checkout_amount_pence
         : campFeeGbp * 100
     const returnTo = encodeURIComponent(initiativePath)
 
@@ -129,20 +136,20 @@ export async function GET(request: NextRequest) {
             currency: "gbp",
             unit_amount: donationAmountPence,
             product_data: {
-              name: "Singhs Camp UK – Camp Fee",
+              name: "Singhs Camp UK \u2013 Camp Fee",
               description: `One-off donation for ${app.first_name} ${app.last_name}`,
             },
           },
           quantity: 1,
         },
-        ...(app.monthly_donation_opted && Number(app.monthly_donation_amount) > 0
+        ...(fullApp.monthly_donation_opted && Number(fullApp.monthly_donation_amount) > 0
           ? [
               {
                 price_data: {
                   currency: "gbp",
                   unit_amount: 0,
                   product_data: {
-                    name: `Monthly Donation – £${app.monthly_donation_amount}/month`,
+                    name: `Monthly Donation \u2013 \u00a3${fullApp.monthly_donation_amount}/month`,
                     description: "Recurring subscription starts after approval (not charged today)",
                   },
                 },
@@ -168,8 +175,8 @@ export async function GET(request: NextRequest) {
       metadata: {
         camp_application_id: app.id,
         gift_aid: app.gift_aid ? "true" : "false",
-        monthly_donation_opted: app.monthly_donation_opted ? "true" : "false",
-        monthly_donation_amount: app.monthly_donation_opted ? String(app.monthly_donation_amount || "0") : "0",
+        monthly_donation_opted: fullApp.monthly_donation_opted ? "true" : "false",
+        monthly_donation_amount: fullApp.monthly_donation_opted ? String(fullApp.monthly_donation_amount || "0") : "0",
         resumed: "true",
       },
       success_url: `${siteUrl}${initiativePath}?payment=success`,
