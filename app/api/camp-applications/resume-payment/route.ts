@@ -69,8 +69,12 @@ export async function GET(request: NextRequest) {
     const error = queryResult.error
 
     if (error || !app) {
-      console.error("[Camp Resume] Application not found or query error:", error?.message, "id:", applicationId)
-      return errorRedirect("not_found")
+      const hint = error ? "db_error" : "row_missing"
+      const idPrefix = applicationId ? applicationId.substring(0, 8) : "none"
+      console.error("[Camp Resume] not_found:", hint, "id_prefix:", idPrefix, "err:", error?.message)
+      return NextResponse.redirect(
+        `${siteUrl}/?camp_resume_error=not_found&hint=${hint}&id=${idPrefix}`
+      )
     }
 
     // Look up initiative slug for redirect URLs
@@ -125,7 +129,7 @@ export async function GET(request: NextRequest) {
             currency: "gbp",
             unit_amount: donationAmountPence,
             product_data: {
-              name: "Singhs Camp UK \u2013 Camp Fee",
+              name: "Singhs Camp UK – Camp Fee",
               description: `One-off donation for ${app.first_name} ${app.last_name}`,
             },
           },
@@ -138,7 +142,7 @@ export async function GET(request: NextRequest) {
                   currency: "gbp",
                   unit_amount: 0,
                   product_data: {
-                    name: `Monthly Donation \u2013 \u00a3${app.monthly_donation_amount}/month`,
+                    name: `Monthly Donation – £${app.monthly_donation_amount}/month`,
                     description: "Recurring subscription starts after approval (not charged today)",
                   },
                 },
