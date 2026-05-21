@@ -24,19 +24,17 @@ export async function sendPaymentPendingEmail(params: {
   const resend = new Resend(process.env.RESEND_API_KEY)
 
   const escapedName = escapeHtml(params.firstName)
-  const escapedUrl = escapeHtml(params.resumeUrl)
-
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
       <h2 style="margin:0 0 16px;">Application submitted — payment required</h2>
       <p>Dear ${escapedName},</p>
       <p>Your Singhs Camp UK 2026 application has been received. To secure your place, please complete your payment using the link below.</p>
       <p style="text-align:center;margin:28px 0;">
-        <a href="${escapedUrl}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
+        <a href="${params.resumeUrl}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
       </p>
       <p>This link is personal to you and will always work — if the payment page has expired it will automatically open a fresh one.</p>
       <p>If you have any questions, please reply to this email or contact us at <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
-      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!</p>
+      <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
       <p><strong>Singhs Camp UK Team</strong><br/>Devanhaar</p>
     </div>
   `
@@ -53,7 +51,7 @@ This link is personal to you and will always work — if the payment page has ex
 
 If you have any questions, please contact us at singhscampuk@devanhaar.com.
 
-Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh\!
+Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!
 
 Singhs Camp UK Team
 Devanhaar`
@@ -329,7 +327,6 @@ export async function sendApplicationPaymentReminderEmail(params: {
   const resend = new Resend(process.env.RESEND_API_KEY)
 
   const escapedName = escapeHtml(params.firstName)
-  const escapedUrl = escapeHtml(params.resumeUrl)
   const amountLine = typeof params.amountGbp === 'number' && params.amountGbp > 0
     ? `<p style="margin:0 0 16px;">Outstanding camp fee: <strong>&pound;${params.amountGbp.toFixed(2)}</strong></p>`
     : ''
@@ -340,9 +337,9 @@ export async function sendApplicationPaymentReminderEmail(params: {
       <p>We received your application but could not see a completed payment authorisation. Your spot is not yet held.</p>
       ${amountLine}
       <p style="margin:24px 0;">
-        <a href="${escapedUrl}" style="display:inline-block;background:#d29c4a;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-weight:600;">Complete payment</a>
+        <a href="${params.resumeUrl}" style="display:inline-block;background:#d29c4a;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-weight:600;">Complete payment</a>
       </p>
-      <p style="font-size:13px;color:#555;">If the button does not work, paste this link into your browser:<br/>${escapedUrl}</p>
+      <p style="font-size:13px;color:#555;">If the button does not work, paste this link into your browser:<br/>${params.resumeUrl}</p>
       <p>Your card will be authorised but not charged until our team reviews and accepts your application. If you are not accepted, the hold is released in full.</p>
       <p>Need help? Reply to this email or write to <a href="mailto:singhscampuk@devanhaar.com">singhscampuk@devanhaar.com</a>.</p>
       <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!</p>
