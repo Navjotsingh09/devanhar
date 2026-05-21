@@ -74,6 +74,7 @@ function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> 
     'bjj_fought_professionally',
     'bjj_sport_preference',
     'is_sevadaar',
+    'sevadaar_verified',
     'consent_email',
     'consent_phone',
     'consent_sms',
