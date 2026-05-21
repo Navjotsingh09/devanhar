@@ -43,15 +43,33 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = getSupabaseAdmin()
-    const { data: app, error } = await supabase
+
+    // Try full select (includes migration-added columns).
+    // Fall back to base columns if the DB schema hasn't been migrated yet.
+    const fullSelect = "id, status, email, first_name, last_name, initiative_id, stripe_checkout_url, stripe_checkout_expires_at, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid"
+    const baseSelect = "id, status, email, first_name, last_name, initiative_id, gift_aid"
+
+    let queryResult = await supabase
       .from("camp_applications")
-      .select(
-        "id, status, email, first_name, last_name, initiative_id, stripe_checkout_url, stripe_checkout_expires_at, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid",
-      )
+      .select(fullSelect)
       .eq("id", applicationId)
       .maybeSingle()
 
+    if (queryResult.error) {
+      console.warn("[Camp Resume] Full select failed, retrying with base columns:", queryResult.error.message)
+      queryResult = await supabase
+        .from("camp_applications")
+        .select(baseSelect)
+        .eq("id", applicationId)
+        .maybeSingle()
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const app = queryResult.data as any
+    const error = queryResult.error
+
     if (error || !app) {
+      console.error("[Camp Resume] Application not found or query error:", error?.message, "id:", applicationId)
       return errorRedirect("not_found")
     }
 
@@ -107,7 +125,7 @@ export async function GET(request: NextRequest) {
             currency: "gbp",
             unit_amount: donationAmountPence,
             product_data: {
-              name: "Singhs Camp UK – Camp Fee",
+              name: "Singhs Camp UK \u2013 Camp Fee",
               description: `One-off donation for ${app.first_name} ${app.last_name}`,
             },
           },
@@ -120,7 +138,7 @@ export async function GET(request: NextRequest) {
                   currency: "gbp",
                   unit_amount: 0,
                   product_data: {
-                    name: `Monthly Donation – \u00a3${app.monthly_donation_amount}/month`,
+                    name: `Monthly Donation \u2013 \u00a3${app.monthly_donation_amount}/month`,
                     description: "Recurring subscription starts after approval (not charged today)",
                   },
                 },
@@ -154,18 +172,23 @@ export async function GET(request: NextRequest) {
       cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}&applicationId=${app.id}&resumeToken=${encodeURIComponent(signResumeToken(String(app.id)))}`,
     })
 
-    await supabase
-      .from("camp_applications")
-      .update({
-        stripe_checkout_session_id: session.id,
-        stripe_checkout_url: session.url,
-        stripe_checkout_expires_at: session.expires_at
-          ? new Date(session.expires_at * 1000).toISOString()
-          : null,
-        stripe_checkout_amount_pence: donationAmountPence,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", app.id)
+    try {
+      await supabase
+        .from("camp_applications")
+        .update({
+          stripe_checkout_session_id: session.id,
+          stripe_checkout_url: session.url,
+          stripe_checkout_expires_at: session.expires_at
+            ? new Date(session.expires_at * 1000).toISOString()
+            : null,
+          stripe_checkout_amount_pence: donationAmountPence,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", app.id)
+    } catch (updateErr) {
+      // Non-fatal: migration columns may not exist yet. Session URL is still valid.
+      console.warn("[Camp Resume] Could not persist new session to DB (non-fatal):", updateErr)
+    }
 
     if (!session.url) {
       return errorRedirect("stripe_no_url")
