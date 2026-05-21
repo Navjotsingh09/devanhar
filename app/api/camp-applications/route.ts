@@ -147,23 +147,26 @@ export async function POST(request: NextRequest) {
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
+      // gift_aid is in the base schema — always include it in the base payload
+      gift_aid: body.gift_aid === 'yes',
       id_document_url: body.id_document_url || null,
       id_document_type: body.id_document_type || null,
       status: body.requires_payment_support === 'yes' ? 'payment_support_review' : 'payment_pending',
     }
 
-    // Extra columns that require the camp-id-verification migration to have been run
+    // Extra columns added via migrations (camp-id-verification, camp-bjj-sevadaar, etc.)
+    // If ANY column here is absent, PostgREST returns a column error and we fall back
+    // to payload-only.  Keep gift_aid above (base schema) so it is always saved.
     const migrationColumns = {
       bjj_interest: body.bjj_interest === 'yes',
       bjj_fought_professionally: body.bjj_interest === 'yes' && body.bjj_fought_professionally === 'yes',
-      bjj_sport_preference: body.bjj_interest === "yes" && Array.isArray(body.bjj_sport_preference) ? body.bjj_sport_preference : null,
+      bjj_sport_preference: body.bjj_interest === 'yes' && Array.isArray(body.bjj_sport_preference) ? body.bjj_sport_preference : null,
       consent_whatsapp: body.consent_whatsapp === 'yes',
       phone_normalized: phoneNormalized,
       allergies: Array.isArray(body.allergies) ? body.allergies.join(', ') : (body.allergies || null),
       carries_epipen: body.carries_epipen === 'yes' ? true : body.carries_epipen === 'no' ? false : null,
       own_transport_type: body.own_transport_type || null,
       payment_support_details: body.payment_support_details?.trim() || null,
-      gift_aid: body.gift_aid === 'yes',
       monthly_donation_opted: body.monthly_donation_opted === 'yes',
       monthly_donation_amount: body.monthly_donation_opted === 'yes' && body.monthly_donation_amount ? Number(body.monthly_donation_amount) : null,
       is_sevadaar: body.is_sevadaar === true,
