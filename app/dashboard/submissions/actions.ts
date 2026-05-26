@@ -221,9 +221,16 @@ export async function resendPaymentLink(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('id, email, first_name, last_name, initiative_id, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid, status').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('id, email, first_name, last_name, initiative_id, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid, status, stripe_payment_intent_id').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
-  if (app.status !== 'payment_pending') throw new Error(`Cannot resend`)
+  const isBrokenApproval = app.status === 'approved' && !app.stripe_payment_intent_id
+  if (app.status !== 'payment_pending' && !isBrokenApproval) {
+    throw new Error(`Cannot resend payment link: status is "${app.status}" and a payment intent already exists`)
+  }
+  if (isBrokenApproval) {
+    await supabase.from('camp_applications').update({ status: 'payment_pending', updated_at: new Date().toISOString() }).eq('id', applicationId)
+    await supabase.from('activity_log').insert({ admin_id: user.id, action: `Reset status from approved -> payment_pending (no PI on file, sending fresh payment link)`, entity_type: 'camp_application', entity_id: applicationId })
+  }
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
   const stripe = new Stripe(stripeKey)

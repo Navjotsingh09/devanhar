@@ -20,6 +20,9 @@ type DashboardSubmission = {
   created_at: string
   initiatives: { name: string; slug: string } | null
   source_table: 'form_submissions' | 'camp_applications'
+  stripe_payment_intent_id: string | null
+  stripe_checkout_session_id: string | null
+  stripe_checkout_expires_at: string | null
 }
 
 function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> {
@@ -142,6 +145,9 @@ async function getSubmissions() {
       created_at: String(s.created_at ?? new Date().toISOString()),
       initiatives: (s.initiatives as { name: string; slug: string } | null) ?? null,
       source_table: 'form_submissions',
+      stripe_payment_intent_id: null,
+      stripe_checkout_session_id: null,
+      stripe_checkout_expires_at: null,
     })
   )
 
@@ -162,6 +168,9 @@ async function getSubmissions() {
         created_at: String(c.created_at ?? new Date().toISOString()),
         initiatives: (c.initiatives as { name: string; slug: string } | null) ?? null,
         source_table: 'camp_applications',
+        stripe_payment_intent_id: (c.stripe_payment_intent_id as string | null) ?? null,
+        stripe_checkout_session_id: (c.stripe_checkout_session_id as string | null) ?? null,
+        stripe_checkout_expires_at: (c.stripe_checkout_expires_at as string | null) ?? null,
       }
     }
   )

@@ -26,6 +26,9 @@ interface Submission {
   created_at: string
   initiatives: { name: string; slug: string } | null
   source_table: 'form_submissions' | 'camp_applications'
+  stripe_payment_intent_id?: string | null
+  stripe_checkout_session_id?: string | null
+  stripe_checkout_expires_at?: string | null
 }
 
 function formatFieldValue(value: unknown): string {
@@ -137,6 +140,84 @@ function FormDataSections({ formData }: { formData: Record<string, unknown> }) {
 }
 
 
+
+// Payment health derived from camp_application status + Stripe fields.
+// "approved_no_payment" is the silent-approve bug victim subset: status=approved but no PI.
+type PaymentHealth =
+  | 'captured'
+  | 'authorized'
+  | 'awaiting_payment'
+  | 'approved_no_payment'
+  | 'declined'
+  | 'pending_review'
+  | 'na'
+
+function getPaymentHealth(sub: Submission): PaymentHealth {
+  if (sub.source_table !== 'camp_applications') return 'na'
+  const hasPI = !!(sub.stripe_payment_intent_id && sub.stripe_payment_intent_id.length > 0)
+  switch (sub.status) {
+    case 'approved':
+      return hasPI ? 'captured' : 'approved_no_payment'
+    case 'paid':
+      return 'captured'
+    case 'payment_authorized':
+      return 'authorized'
+    case 'payment_pending':
+    case 'payment_support_review':
+      return 'awaiting_payment'
+    case 'declined':
+      return 'declined'
+    case 'pending':
+    case 'in_review':
+      return 'pending_review'
+    default:
+      return 'pending_review'
+  }
+}
+
+const HEALTH_CARDS: Array<{ key: PaymentHealth | 'all'; label: string; hint: string; dot: string; ringSelected: string; textSelected: string }> = [
+  { key: 'all',                 label: 'All applications', hint: 'Every camp application',                          dot: 'bg-foreground',  ringSelected: 'ring-foreground',  textSelected: 'text-foreground' },
+  { key: 'captured',            label: 'Captured',         hint: 'Approved AND payment captured on Stripe',          dot: 'bg-emerald-500', ringSelected: 'ring-emerald-500', textSelected: 'text-emerald-700' },
+  { key: 'authorized',          label: 'Authorised',       hint: 'Card auth held, waiting for admin to capture',     dot: 'bg-indigo-500',  ringSelected: 'ring-indigo-500',  textSelected: 'text-indigo-700' },
+  { key: 'awaiting_payment',    label: 'Awaiting payment', hint: 'Checkout link issued, customer has not paid yet',  dot: 'bg-orange-500',  ringSelected: 'ring-orange-500',  textSelected: 'text-orange-700' },
+  { key: 'approved_no_payment', label: 'No payment',       hint: 'Approved but NO Stripe payment intent on file',    dot: 'bg-red-500',     ringSelected: 'ring-red-500',     textSelected: 'text-red-700' },
+  { key: 'declined',            label: 'Declined',         hint: 'Funds released / refunded',                        dot: 'bg-gray-500',    ringSelected: 'ring-gray-500',    textSelected: 'text-gray-700' },
+  { key: 'pending_review',      label: 'Pending review',   hint: 'Awaiting admin review',                            dot: 'bg-yellow-500',  ringSelected: 'ring-yellow-500',  textSelected: 'text-yellow-700' },
+]
+
+function PaymentHealthCards({ submissions, selected, onSelect }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void }) {
+  const campApps = submissions.filter((s) => s.source_table === 'camp_applications')
+  if (campApps.length === 0) return null
+  const counts: Record<string, number> = { all: campApps.length }
+  for (const s of campApps) {
+    const h = getPaymentHealth(s)
+    counts[h] = (counts[h] || 0) + 1
+  }
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 mb-3">
+      {HEALTH_CARDS.map((card) => {
+        const count = counts[card.key] || 0
+        const isSel = selected === card.key
+        return (
+          <button
+            key={card.key}
+            type="button"
+            onClick={() => onSelect(card.key)}
+            title={card.hint}
+            className={'text-left rounded-lg border border-border bg-card px-3 py-2 transition hover:border-foreground/30 ' + (isSel ? 'ring-2 ' + card.ringSelected + ' border-transparent' : '')}
+          >
+            <div className="flex items-center gap-1.5">
+              <span className={'h-2 w-2 rounded-full ' + card.dot} />
+              <span className={'text-[11px] uppercase tracking-wide ' + (isSel ? card.textSelected : 'text-muted-foreground')}>{card.label}</span>
+            </div>
+            <div className={'text-xl font-semibold mt-1 ' + (isSel ? card.textSelected : 'text-foreground')}>{count}</div>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 const statusConfig: Record<string, { label: string; dot: string; bg: string; text: string; badge: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   new:                     { label: 'New',              dot: 'bg-blue-500',    bg: 'bg-blue-50 dark:bg-blue-950',       text: 'text-blue-700 dark:text-blue-300',    badge: 'default' },
   in_review:               { label: 'In Review',       dot: 'bg-amber-500',   bg: 'bg-amber-50 dark:bg-amber-950',     text: 'text-amber-700 dark:text-amber-300',  badge: 'secondary' },
@@ -173,11 +254,13 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [isPending, startTransition] = useTransition()
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
+  const [paymentFilter, setPaymentFilter] = useState<PaymentHealth | 'all'>('all')
 
   // Distinct statuses present in this list (so the dropdown only shows relevant options)
   const availableStatuses = Array.from(new Set(submissions.map((s) => s.status))).sort()
 
   const filteredSubmissions = submissions.filter((s) => {
+    if (paymentFilter !== 'all' && getPaymentHealth(s) !== paymentFilter) return false
     if (statusFilter !== 'all' && s.status !== statusFilter) return false
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase()
@@ -280,6 +363,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     })
   }
 
+  const handleSendRepaymentLink = (sub: Submission) => {
+    const isBroken = sub.status === 'approved' && !!(sub.stripe_payment_intent_id && sub.stripe_payment_intent_id.length > 0) === false
+    const msg = isBroken
+      ? 'This application was approved but NO payment was ever taken (silent-approve bug victim). Reset to payment_pending and email a fresh Stripe checkout link to ' + sub.email + '?'
+      : 'Send a fresh Stripe checkout link to ' + sub.email + '?'
+    if (!window.confirm(msg)) return
+    startTransition(async () => {
+      try { await resendPaymentLink(sub.id); toast.success('Payment link sent to ' + sub.email) }
+      catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to send payment link') }
+    })
+  }
+
   const handleDelete = (sub: Submission) => {
     const confirmed = window.confirm(
       `Permanently delete this ${sub.source_table === 'camp_applications' ? 'camp application' : 'submission'} from ${sub.full_name} <${sub.email}>?\n\nThis cannot be undone. Any uncaptured Stripe authorisation will be cancelled first.`
@@ -319,6 +414,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
+      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} />
       <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
         <div className="flex flex-1 gap-2 items-center">
           <div className="relative flex-1 max-w-sm">
@@ -473,6 +569,26 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                           <span className="sr-only">Decline</span>
                         </Button>
                       )}
+                      {(() => {
+                        const h = getPaymentHealth(sub)
+                        if (h === 'awaiting_payment' || h === 'approved_no_payment') {
+                          const isBroken = h === 'approved_no_payment'
+                          return (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={'h-8 w-8 ' + (isBroken ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50')}
+                              onClick={() => handleSendRepaymentLink(sub)}
+                              disabled={isPending}
+                              title={isBroken ? 'Approved with NO payment - reset and send fresh Stripe link' : 'Send fresh Stripe payment link to applicant'}
+                            >
+                              <Mail className="h-4 w-4" />
+                              <span className="sr-only">Send repayment link</span>
+                            </Button>
+                          )
+                        }
+                        return null
+                      })()}
                     </>
                   )}
                     <Button
