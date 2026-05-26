@@ -448,7 +448,7 @@ export async function getRecentCampActivity(limit = 60): Promise<ActivityLogEntr
   return (data ?? []) as ActivityLogEntry[]
 }
 
-export async function captureAllPayments(): Promise<{ captured: number; failed: number; errors: string[] }> {
+export async function captureAllPayments(): Promise<{ captured: number; failed: number; errors: string[]; debug?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -466,13 +466,14 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   //  - status IN ('payment_authorized','approved') with a PI on file (legacy
   //    records where the column was set before stripe_pi_status existed, or
   //    where the admin manually approved before capture was wired up).
-  const { data: apps } = await supabase
+  const { data: apps, error: qErr } = await supabase
     .from('camp_applications')
     .select('id, first_name, last_name, email, status, stripe_pi_status, stripe_payment_intent_id')
     .or('stripe_pi_status.eq.requires_capture,status.eq.payment_authorized,status.eq.approved')
     .not('stripe_payment_intent_id', 'is', null)
 
-  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [] }
+  if (qErr) return { captured: 0, failed: 0, errors: [], debug: `query error: ${qErr.message}` }
+  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'query returned 0 apps' }
 
   let captured = 0
   const errors: string[] = []
@@ -510,5 +511,6 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   }
 
   revalidatePath('/dashboard/submissions')
-  return { captured, failed: errors.length, errors }
+  const debug = `found ${apps.length} apps, captured ${captured}; sample: ${apps.slice(0,3).map(a => `${a.email}[${a.status}/${a.stripe_pi_status}]`).join(', ')}`
+  return { captured, failed: errors.length, errors, debug }
 }

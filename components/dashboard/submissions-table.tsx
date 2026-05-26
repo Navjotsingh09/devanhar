@@ -612,6 +612,10 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
       } else {
         toast.success(`Captured ${result.captured} payment${result.captured !== 1 ? 's' : ''} — approval emails sent`)
       }
+      if ((result as any).debug) {
+        toast.info((result as any).debug, { duration: 30000 })
+        console.log('[CaptureAll DEBUG]', (result as any).debug)
+      }
       router.refresh()
     }).catch(err => {
       toast.error(err instanceof Error ? err.message : 'Capture all failed')
