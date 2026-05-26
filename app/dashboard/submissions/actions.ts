@@ -457,10 +457,12 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
   const stripe = new Stripe(stripeKey)
 
+  // Include both 'payment_authorized' (new flow) and 'approved' (old records
+  // where admin used the status dropdown before capture was wired up).
   const { data: apps } = await supabase
     .from('camp_applications')
     .select('id, first_name, last_name, email, stripe_payment_intent_id')
-    .in('status', ['payment_authorized'])
+    .in('status', ['payment_authorized', 'approved'])
     .not('stripe_payment_intent_id', 'is', null)
 
   if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [] }
@@ -470,6 +472,8 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
 
   for (const app of apps) {
     try {
+      const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id!)
+      if (pi.status !== 'requires_capture') continue  // already captured/cancelled — skip
       await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
       // Update DB immediately so the dashboard reflects the change before the
       // payment_intent.succeeded webhook fires. The webhook's .neq guard will
