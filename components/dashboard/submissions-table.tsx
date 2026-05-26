@@ -6,10 +6,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks } from '@/app/dashboard/submissions/actions'
+import { Checkbox } from '@/components/ui/checkbox'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants } from '@/app/dashboard/submissions/actions'
+import type { SendableApplicant } from '@/app/dashboard/submissions/actions'
 import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
@@ -586,16 +588,43 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   }
 
   const [isSendingAll, setIsSendingAll] = useState(false)
+  const [sendAllModal, setSendAllModal] = useState(false)
+  const [sendableApplicants, setSendableApplicants] = useState<SendableApplicant[]>([])
+  const [selectedSendIds, setSelectedSendIds] = useState<Set<number>>(new Set())
+  const [sendAllResults, setSendAllResults] = useState<{ sent: number; failed: number; sent_to: string[]; errors: string[] } | null>(null)
 
-  const handleSendAllPaymentLinks = async () => {
-    if (!window.confirm(`Send payment emails to all ${submissions.filter(s => s.source_table === 'camp_applications' && (s.status === 'payment_pending' || (s.status === 'approved' && !s.stripe_payment_intent_id))).length} awaiting applicants? Each will receive their own unique payment link.`)) return
+  const openSendAllPreview = async () => {
+    try {
+      const applicants = await getSendableApplicants()
+      setSendableApplicants(applicants)
+      setSelectedSendIds(new Set(applicants.map(a => a.id)))
+      setSendAllResults(null)
+      setSendAllModal(true)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load applicants')
+    }
+  }
+
+  const toggleSendId = (id: number, checked: boolean) => {
+    setSelectedSendIds(prev => {
+      const next = new Set(prev)
+      checked ? next.add(id) : next.delete(id)
+      return next
+    })
+  }
+
+  const confirmBulkSend = async () => {
+    const ids = Array.from(selectedSendIds)
+    if (ids.length === 0) return
     setIsSendingAll(true)
     try {
-      const result = await sendAllPaymentLinks()
+      const result = await sendAllPaymentLinks(ids)
+      setSendAllResults(result)
       if (result.failed > 0) {
-        toast.error(`Sent ${result.sent}, failed ${result.failed}: ${result.errors.slice(0, 2).join('; ')}`)
+        toast.error(`Sent ${result.sent}, ${result.failed} failed — see details below`)
       } else {
-        toast.success(`Payment emails sent to all ${result.sent} applicants`)
+        toast.success(`Payment emails sent to ${result.sent} applicant${result.sent !== 1 ? 's' : ''}`)
+        setSendAllModal(false)
       }
       router.refresh()
     } catch (err) {
@@ -604,6 +633,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
       setIsSendingAll(false)
     }
   }
+
+  const handleSendAllPaymentLinks = openSendAllPreview
 
   const handleSendRepaymentLink = (sub: Submission) => {
     const isBroken = sub.status === 'approved' && !!(sub.stripe_payment_intent_id && sub.stripe_payment_intent_id.length > 0) === false
@@ -978,6 +1009,94 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
               {isPending ? 'Saving...' : 'Save Notes'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Send All: Pre-send Review Modal ── */}
+      <Dialog open={sendAllModal} onOpenChange={setSendAllModal}>
+        <DialogContent className="max-w-2xl flex flex-col" style={{ maxHeight: '85vh' }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-4 w-4 text-orange-600" />
+              Review before sending
+            </DialogTitle>
+            <DialogDescription>
+              Each applicant below has been approved for a camp seat by an admin.
+              Sending issues them a <strong>unique, personal payment link</strong> via email.
+              A seat is reserved when their payment is authorised by Stripe.
+              Uncheck anyone you are !yet ready to send to.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Select all bar */}
+          <div className="flex items-center justify-between px-1 py-2 border-b text-xs text-muted-foreground">
+            <div className="flex gap-3">
+              <button className="underline hover:text-foreground" onClick={() => setSelectedSendIds(new Set(sendableApplicants.map(a => a.id)))}>Select all</button>
+              <button className="underline hover:text-foreground" onClick={() => setSelectedSendIds(new Set())}>Deselect all</button>
+            </div>
+            <span className="font-medium text-foreground">{selectedSendIds.size} of {sendableApplicants.length} selected</span>
+          </div>
+
+          {/* Applicant list */}
+          <div className="overflow-y-auto flex-1 divide-y">
+            {sendableApplicants.map(app => (
+              <label key={app.id} className="flex items-center gap-3 px-1 py-3 cursor-pointer hover:bg-muted/40 rounded">
+                <Checkbox
+                  checked={selectedSendIds.has(app.id)}
+                  onCheckedChange={(v) => toggleSendId(app.id, Boolean(v))}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{app.first_name} {app.last_name}</p>
+                  <p className="text-xs text-muted-foreground">{app.email}</p>
+                  {app.payment_reminder_sent_at && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      Previously sent {new Date(app.payment_reminder_sent_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </p>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${app.status === 'approved' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300'}`}>
+                    {app.status === 'approved' ? 'Approved — no link yet' : 'Awaiting payment'}
+                  </span>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    £{app.stripe_checkout_amount_pence ? (app.stripe_checkout_amount_pence / 100).toFixed(2) : '199.00'}
+                  </p>
+                </div>
+              </label>
+            ))}
+          </div>
+
+          {/* Post-send results */}
+          {sendAllResults && (
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm space-y-2 max-h-40 overflow-y-auto">
+              <p className="font-semibold text-green-700 dark:text-green-400">
+                ✓ Sent to {sendAllResults.sent} applicant{sendAllResults.sent !== 1 ? 's' : ''}
+              </p>
+              {sendAllResults.sent_to.map((name, i) => (
+                <p key={i} className="text-xs text-muted-foreground">• {name}</p>
+              ))}
+              {sendAllResults.errors.length > 0 && (
+                <div className="pt-1 border-t">
+                  <p className="font-semibold text-red-600">{sendAllResults.errors.length} failed:</p>
+                  {sendAllResults.errors.map((e, i) => (
+                    <p key={i} className="text-xs text-red-500">• {e}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSendAllModal(false)}>
+              {sendAllResults ? 'Close' : 'Cancel'}
+            </Button>
+            {!sendAllResults && (
+              <Button onClick={confirmBulkSend} disabled={selectedSendIds.size === 0 || isSendingAll} className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
+                <Send className="h-4 w-4" />
+                {isSendingAll ? 'Sending...' : `Send to ${selectedSendIds.size} applicant${selectedSendIds.size !== 1 ? 's' : ''}`}
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

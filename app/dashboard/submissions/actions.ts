@@ -308,7 +308,7 @@ export async function reconcileApplicationWithStripe(applicationId: string) {
   return { success: true, message: `Linked PI ${foundPI.id} (${foundPI.status})`, piId: foundPI.id }
 }
 
-export async function sendAllPaymentLinks(): Promise<{ sent: number; failed: number; errors: string[] }> {
+export async function sendAllPaymentLinks(allowedIds?: number[]): Promise<{ sent: number; failed: number; errors: string[]; sent_to: string[] }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -334,7 +334,8 @@ export async function sendAllPaymentLinks(): Promise<{ sent: number; failed: num
   let sent = 0
   const errors: string[] = []
 
-  for (const app of apps) {
+  const sent_to: string[] = []
+  for (const app of eligible) {
     try {
       const initiativeSlug = (app.initiative_id && slugMap.get(app.initiative_id)) || 'singhs-camp'
       const initiativePath = `/initiatives/${initiativeSlug}`
@@ -368,6 +369,7 @@ export async function sendAllPaymentLinks(): Promise<{ sent: number; failed: num
       await sendApplicationPaymentReminderEmail({ to: app.email, firstName: app.first_name || 'Applicant', resumeUrl, amountGbp: Math.round(donationAmountPence) / 100 })
 
       await supabase.from('activity_log').insert({ admin_id: user.id, action: `Bulk send: payment link sent to ${app.first_name} ${app.last_name} <${app.email}>`, entity_type: 'camp_application', entity_id: app.id })
+      sent_to.push(`${app.first_name} ${app.last_name} <${app.email}>`)
       sent++
     } catch (err) {
       errors.push(`${app.first_name} ${app.last_name} <${app.email}>: ${err instanceof Error ? err.message : String(err)}`)
@@ -375,5 +377,31 @@ export async function sendAllPaymentLinks(): Promise<{ sent: number; failed: num
   }
 
   revalidatePath('/dashboard/submissions')
-  return { sent, failed: errors.length, errors }
+  return { sent, failed: errors.length, errors, sent_to }
+}
+
+export type SendableApplicant = {
+  id: number
+  first_name: string | null
+  last_name: string | null
+  email: string
+  status: string
+  stripe_checkout_amount_pence: number | null
+  payment_reminder_sent_at: string | null
+  initiative_id: number | null
+}
+
+export async function getSendableApplicants(): Promise<SendableApplicant[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data, error } = await supabase
+    .from('camp_applications')
+    .select('id, first_name, last_name, email, status, stripe_checkout_amount_pence, payment_reminder_sent_at, initiative_id')
+    .or('status.eq.payment_pending,and(status.eq.approved,stripe_payment_intent_id.is.null)')
+    .order('created_at', { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as SendableApplicant[]
 }
