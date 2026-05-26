@@ -105,6 +105,14 @@ export async function captureApplicationPayment(applicationId: string) {
     }
   } else if (app.status === 'approved') {
     throw new Error('Already approved (no payment intent on file)')
+  } else if (app.requires_payment_support === true) {
+    // Payment-support applicants are approved manually by the team without Stripe.
+    // No capture needed — fall through to DB update and send approval email directly.
+    sendApprovalEmail(app.email, app.first_name, true, Number(app.donation_amount) || 199, 0).catch(() => {})
+  } else {
+    // stripe_payment_intent_id is null and not yet approved — payment was never
+    // authorized (applicant never completed checkout). Refuse to silently approve.
+    throw new Error('No payment intent on file — applicant has not completed checkout. Use "Requires Payment Support" flow or ensure the applicant pays first.')
   }
   await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
@@ -128,7 +136,8 @@ export async function captureApplicationPayment(applicationId: string) {
       console.error('[Subscription] Failed to create monthly subscription (non-blocking):', subErr)
     }
   }
-  sendApprovalEmail(app.email, app.first_name, app.requires_payment_support === true, Number(app.donation_amount) || 199, Number(app.monthly_donation_amount) || 0).catch(() => {})
+  // NOTE: Approval email is sent by the Stripe webhook (payment_intent.succeeded),
+  // which fires after the capture above completes. Do not send it here to avoid duplicates.
   revalidatePath('/dashboard/submissions')
 }
 
@@ -139,7 +148,24 @@ export async function cancelApplicationPayment(applicationId: string) {
   const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'declined') throw new Error('Already declined')
-  if (app.stripe_payment_intent_id) { const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); try { await stripe.paymentIntents.cancel(app.stripe_payment_intent_id) } catch { await stripe.refunds.create({ payment_intent: app.stripe_payment_intent_id }) } }
+  if (app.stripe_payment_intent_id) {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+    try {
+      await stripe.paymentIntents.cancel(app.stripe_payment_intent_id)
+    } catch (cancelErr: any) {
+      // If PI is already captured (succeeded), issue a refund instead
+      if (cancelErr?.code === 'payment_intent_unexpected_state') {
+        try {
+          await stripe.refunds.create({ payment_intent: app.stripe_payment_intent_id })
+        } catch (refundErr: any) {
+          console.error('[Decline] Refund failed after cancel failed:', refundErr?.message)
+          throw new Error(`Could not release payment: ${refundErr?.message || 'Refund failed'}`)
+        }
+      } else {
+        throw cancelErr
+      }
+    }
+  }
   await supabase.from('camp_applications').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   sendDeclineEmail(app.email, app.first_name).catch(() => {})

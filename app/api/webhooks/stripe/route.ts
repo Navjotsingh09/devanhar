@@ -195,13 +195,18 @@ export async function POST(request: NextRequest) {
       const pi = event.data.object as Stripe.PaymentIntent
       const cid = pi.metadata?.camp_application_id
       if (cid) {
-        await supabase.from("camp_applications").update({ status: "approved", updated_at: new Date().toISOString() }).eq("id", cid)
+        // Idempotent: only transition and email if not already approved
+        const { data: transitioned } = await supabase
+          .from("camp_applications")
+          .update({ status: "approved", updated_at: new Date().toISOString() })
+          .eq("id", cid)
+          .neq("status", "approved")
+          .select("email, first_name")
+          .maybeSingle()
         await supabase.from("activity_log").insert({ action: "Payment captured - application approved", entity_type: "camp_application", entity_id: cid, metadata: { stripe_pi: pi.id, amount: pi.amount_received } })
-
-          const { data: app } = await supabase.from("camp_applications").select("email, first_name").eq("id", cid).single()
-          if (app?.email) {
-            sendApplicationApprovedEmail({ to: app.email, firstName: app.first_name || "Applicant" }).catch(err => console.error("[Camp Email] Approved email failed:", err))
-          }
+        if (transitioned?.email) {
+          sendApplicationApprovedEmail({ to: transitioned.email, firstName: transitioned.first_name || "Applicant" }).catch(err => console.error("[Camp Email] Approved email failed:", err))
+        }
       }
     }
 
