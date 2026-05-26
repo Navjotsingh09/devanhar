@@ -123,7 +123,11 @@ export async function GET(request: NextRequest) {
       payment_method_types: ["card"],
       payment_intent_data: {
         capture_method: "manual",
-        setup_future_usage: "off_session",
+        // Only set up the card for future off-session use when the applicant
+        // has opted into a monthly donation. Setting this unconditionally
+        // forces mandatory 3DS/SCA on every UK card, causing the checkout
+        // to hang on "Processing..." if the bank auth notification is missed.
+        ...(fullApp.monthly_donation_opted ? { setup_future_usage: "off_session" } : {}),
         metadata: {
           camp_application_id: app.id,
         },

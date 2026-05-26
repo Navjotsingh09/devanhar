@@ -86,7 +86,9 @@ async function main() {
     payment_method_types: ["card"],
     payment_intent_data: {
       capture_method: "manual",
-      setup_future_usage: "off_session",
+      // Only set setup_future_usage when the applicant opted into a monthly
+      // donation. Setting it unconditionally forces 3DS/SCA on every UK card.
+      ...(app.monthly_donation_opted ? { setup_future_usage: "off_session" } : {}),
       metadata: { camp_application_id: app.id },
     },
     customer_email: app.email,
