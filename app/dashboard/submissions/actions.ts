@@ -255,3 +255,55 @@ export async function resendPaymentLink(applicationId: string) {
   await supabase.from('activity_log').insert({ admin_id: user.id, action: `Resent payment link to ${app.first_name} ${app.last_name} <${app.email}>`, entity_type: 'camp_application', entity_id: applicationId })
   revalidatePath('/dashboard/submissions')
 }
+
+export async function reconcileApplicationWithStripe(applicationId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data: app } = await supabase.from('camp_applications')
+    .select('id, email, first_name, last_name, status, stripe_payment_intent_id, stripe_checkout_session_id')
+    .eq('id', applicationId).single()
+  if (!app) throw new Error('Application not found')
+
+  if (app.stripe_payment_intent_id) {
+    return { success: false, message: 'Already has PI on file', piId: app.stripe_payment_intent_id }
+  }
+
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
+  const stripe = new Stripe(stripeKey)
+
+  let foundPI: Stripe.PaymentIntent | null = null
+
+  if (app.stripe_checkout_session_id) {
+    const session = await stripe.checkout.sessions.retrieve(app.stripe_checkout_session_id)
+    if (session.payment_intent && typeof session.payment_intent === 'string') {
+      foundPI = await stripe.paymentIntents.retrieve(session.payment_intent)
+    }
+  } else if (app.email) {
+    const intents = await stripe.paymentIntents.list({ customer_email: app.email, limit: 100 })
+    const matched = intents.data
+      .filter(pi => pi.status === 'succeeded' || pi.status === 'requires_capture')
+      .sort((a, b) => b.created - a.created)
+    if (matched.length > 0) foundPI = matched[0]
+  }
+
+  if (!foundPI) {
+    return { success: false, message: 'No payment found in Stripe for this application' }
+  }
+
+  await supabase.from('camp_applications')
+    .update({ stripe_payment_intent_id: foundPI.id, updated_at: new Date().toISOString() })
+    .eq('id', applicationId)
+
+  await supabase.from('activity_log').insert({
+    admin_id: user.id,
+    action: `Reconciled with Stripe: backfilled stripe_payment_intent_id = ${foundPI.id} (status: ${foundPI.status})`,
+    entity_type: 'camp_application',
+    entity_id: applicationId,
+  })
+
+  revalidatePath('/dashboard/submissions')
+  return { success: true, message: `Linked PI ${foundPI.id} (${foundPI.status})`, piId: foundPI.id }
+}

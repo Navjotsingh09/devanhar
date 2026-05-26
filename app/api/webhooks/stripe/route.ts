@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         // sent at most once.
         // Always store the PI ID - must be saved regardless of current status.
       const piId = typeof session.payment_intent === 'string' ? session.payment_intent : null
-      await supabase.from("camp_applications").update({ stripe_payment_intent_id: piId, ...(giftAid === null ? {} : { gift_aid: giftAid }), updated_at: new Date().toISOString() }).eq("id", campApplicationId)
+      await supabase.from("camp_applications").update({ stripe_payment_intent_id: piId, stripe_pi_status: 'requires_capture', stripe_pi_synced_at: new Date().toISOString(), ...(giftAid === null ? {} : { gift_aid: giftAid }), updated_at: new Date().toISOString() }).eq("id", campApplicationId)
       // Status transition and email only fires when still payment_pending (idempotent).
       const { data: transitioned } = await supabase
           .from("camp_applications")
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
         // Idempotent: only transition and email if not already approved
         const { data: transitioned } = await supabase
           .from("camp_applications")
-          .update({ status: "approved", updated_at: new Date().toISOString() })
+          .update({ status: "approved", stripe_pi_status: "succeeded", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() })
           .eq("id", cid)
           .neq("status", "approved")
           .select("email, first_name")
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
       const pi = event.data.object as Stripe.PaymentIntent
       const cid = pi.metadata?.camp_application_id
       if (cid) {
-        await supabase.from("camp_applications").update({ status: "declined", updated_at: new Date().toISOString() }).eq("id", cid)
+        await supabase.from("camp_applications").update({ status: "declined", stripe_pi_status: "canceled", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", cid)
         await supabase.from("activity_log").insert({ action: "Payment released - application declined", entity_type: "camp_application", entity_id: cid, metadata: { stripe_pi: pi.id } })
 
           const { data: app } = await supabase.from("camp_applications").select("email, first_name").eq("id", cid).single()
@@ -278,6 +278,45 @@ export async function POST(request: NextRequest) {
         } catch (alertErr) {
           console.error("[Stripe Webhook] Failed to send payment failure alert:", alertErr)
         }
+      }
+    }
+
+
+    if (event.type === "review.opened") {
+      const review = event.data.object as Stripe.Review
+      const piId = typeof review.payment_intent === "string" ? review.payment_intent : null
+      if (piId) {
+        await supabase.from("camp_applications").update({ stripe_review_state: review.reason === "manual" ? "new" : "new", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("stripe_payment_intent_id", piId)
+        await supabase.from("activity_log").insert({ action: "Stripe review opened", entity_type: "camp_application", metadata: { stripe_pi: piId, reason: review.reason } })
+      }
+    }
+
+    if (event.type === "review.closed") {
+      const review = event.data.object as Stripe.Review
+      const piId = typeof review.payment_intent === "string" ? review.payment_intent : null
+      if (piId) {
+        const reasonMap: Record<string, string> = { approved: "approved", refunded: "resolved", refunded_as_fraud: "resolved", disputed: "payment_support", redacted: "resolved" }
+        const newState = reasonMap[review.reason || ""] || "resolved"
+        await supabase.from("camp_applications").update({ stripe_review_state: newState, stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("stripe_payment_intent_id", piId)
+        await supabase.from("activity_log").insert({ action: `Stripe review closed: ${newState}`, entity_type: "camp_application", metadata: { stripe_pi: piId, reason: review.reason } })
+      }
+    }
+
+    if (event.type === "charge.dispute.created" || event.type === "charge.dispute.funds_withdrawn") {
+      const dispute = event.data.object as Stripe.Dispute
+      const piId = typeof dispute.payment_intent === "string" ? dispute.payment_intent : null
+      if (piId) {
+        await supabase.from("camp_applications").update({ stripe_review_state: "payment_support", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("stripe_payment_intent_id", piId)
+        await supabase.from("activity_log").insert({ action: `Stripe dispute ${event.type === "charge.dispute.created" ? "opened" : "funds withdrawn"}`, entity_type: "camp_application", metadata: { stripe_pi: piId, dispute_id: dispute.id, reason: dispute.reason, amount: dispute.amount } })
+      }
+    }
+
+    if (event.type === "charge.dispute.closed" || event.type === "charge.dispute.funds_reinstated") {
+      const dispute = event.data.object as Stripe.Dispute
+      const piId = typeof dispute.payment_intent === "string" ? dispute.payment_intent : null
+      if (piId) {
+        await supabase.from("camp_applications").update({ stripe_review_state: "resolved", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("stripe_payment_intent_id", piId)
+        await supabase.from("activity_log").insert({ action: `Stripe dispute resolved: ${dispute.status}`, entity_type: "camp_application", metadata: { stripe_pi: piId, dispute_id: dispute.id, status: dispute.status } })
       }
     }
 

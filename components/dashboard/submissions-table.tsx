@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail } from 'lucide-react'
+import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 import { Input } from '@/components/ui/input'
@@ -29,6 +29,8 @@ interface Submission {
   stripe_payment_intent_id?: string | null
   stripe_checkout_session_id?: string | null
   stripe_checkout_expires_at?: string | null
+  stripe_pi_status?: string | null
+  stripe_review_state?: string | null
 }
 
 function formatFieldValue(value: unknown): string {
@@ -144,22 +146,32 @@ function FormDataSections({ formData }: { formData: Record<string, unknown> }) {
 // Payment health derived from camp_application status + Stripe fields.
 // "approved_no_payment" is the silent-approve bug victim subset: status=approved but no PI.
 type PaymentHealth =
-  | 'captured'
+  | 'needs_action'
   | 'authorized'
   | 'awaiting_payment'
-  | 'approved_no_payment'
+  | 'captured'
   | 'declined'
   | 'pending_review'
   | 'na'
 
+type AwaitingSubState = 'abandoned' | 'expired' | 'reminder' | 'not_started'
+type NeedsActionSubState = 'dispute' | 'radar_review'
+
 function getPaymentHealth(sub: Submission): PaymentHealth {
   if (sub.source_table !== 'camp_applications') return 'na'
-  const hasPI = !!(sub.stripe_payment_intent_id && sub.stripe_payment_intent_id.length > 0)
+  const review = sub.stripe_review_state
+  const pi = sub.stripe_pi_status
+  // Highest priority: disputes / chargebacks / Radar reviews
+  if (review === 'payment_support' || review === 'new') return 'needs_action'
+  // Stripe payment intent state takes precedence over DB status when present
+  if (pi === 'succeeded') return 'captured'
+  if (pi === 'requires_capture') return 'authorized'
+  if (pi === 'canceled') return 'declined'
+  // Fallback to DB status
   switch (sub.status) {
     case 'approved':
-      return hasPI ? 'captured' : 'approved_no_payment'
     case 'paid':
-      return 'captured'
+      return sub.stripe_payment_intent_id ? 'captured' : 'awaiting_payment'
     case 'payment_authorized':
       return 'authorized'
     case 'payment_pending':
@@ -175,17 +187,31 @@ function getPaymentHealth(sub: Submission): PaymentHealth {
   }
 }
 
+function getAwaitingSubState(sub: Submission): AwaitingSubState {
+  const pi = sub.stripe_pi_status
+  const expires = sub.stripe_checkout_expires_at ? new Date(sub.stripe_checkout_expires_at).getTime() : 0
+  const now = Date.now()
+  if (pi === 'requires_payment_method' || pi === 'requires_action' || pi === 'requires_confirmation') return 'abandoned'
+  if (sub.stripe_checkout_session_id && expires && expires < now) return 'expired'
+  if (sub.stripe_checkout_session_id) return 'reminder'
+  return 'not_started'
+}
+
+function getNeedsActionSubState(sub: Submission): NeedsActionSubState {
+  return sub.stripe_review_state === 'payment_support' ? 'dispute' : 'radar_review'
+}
+
 const HEALTH_CARDS: Array<{ key: PaymentHealth | 'all'; label: string; hint: string; dot: string; ringSelected: string; textSelected: string }> = [
-  { key: 'all',                 label: 'All applications', hint: 'Every camp application',                          dot: 'bg-foreground',  ringSelected: 'ring-foreground',  textSelected: 'text-foreground' },
-  { key: 'captured',            label: 'Captured',         hint: 'Approved AND payment captured on Stripe',          dot: 'bg-emerald-500', ringSelected: 'ring-emerald-500', textSelected: 'text-emerald-700' },
-  { key: 'authorized',          label: 'Authorised',       hint: 'Card auth held, waiting for admin to capture',     dot: 'bg-indigo-500',  ringSelected: 'ring-indigo-500',  textSelected: 'text-indigo-700' },
-  { key: 'awaiting_payment',    label: 'Awaiting payment', hint: 'Checkout link issued, customer has not paid yet',  dot: 'bg-orange-500',  ringSelected: 'ring-orange-500',  textSelected: 'text-orange-700' },
-  { key: 'approved_no_payment', label: 'No payment',       hint: 'Approved but NO Stripe payment intent on file',    dot: 'bg-red-500',     ringSelected: 'ring-red-500',     textSelected: 'text-red-700' },
-  { key: 'declined',            label: 'Declined',         hint: 'Funds released / refunded',                        dot: 'bg-gray-500',    ringSelected: 'ring-gray-500',    textSelected: 'text-gray-700' },
-  { key: 'pending_review',      label: 'Pending review',   hint: 'Awaiting admin review',                            dot: 'bg-yellow-500',  ringSelected: 'ring-yellow-500',  textSelected: 'text-yellow-700' },
+  { key: 'all',              label: 'All applications', hint: 'Every camp application',                                       dot: 'bg-foreground',  ringSelected: 'ring-foreground',  textSelected: 'text-foreground' },
+  { key: 'needs_action',     label: 'Needs action',     hint: 'Stripe disputes, chargebacks, or Radar reviews — act in Stripe', dot: 'bg-red-500',     ringSelected: 'ring-red-500',     textSelected: 'text-red-700' },
+  { key: 'authorized',       label: 'Authorised',       hint: 'Card auth held — capture within 7 days or funds release',      dot: 'bg-indigo-500',  ringSelected: 'ring-indigo-500',  textSelected: 'text-indigo-700' },
+  { key: 'awaiting_payment', label: 'Awaiting payment', hint: 'Approved but no payment yet — send / resend a link',           dot: 'bg-orange-500',  ringSelected: 'ring-orange-500',  textSelected: 'text-orange-700' },
+  { key: 'captured',         label: 'Captured',         hint: 'Payment succeeded — money in the account',                     dot: 'bg-emerald-500', ringSelected: 'ring-emerald-500', textSelected: 'text-emerald-700' },
+  { key: 'declined',         label: 'Declined',         hint: 'Payment cancelled / declined by Stripe',                       dot: 'bg-gray-500',    ringSelected: 'ring-gray-500',    textSelected: 'text-gray-700' },
+  { key: 'pending_review',   label: 'Pending review',   hint: 'Application awaiting admin approve / reject',                  dot: 'bg-yellow-500',  ringSelected: 'ring-yellow-500',  textSelected: 'text-yellow-700' },
 ]
 
-function PaymentHealthCards({ submissions, selected, onSelect }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void }) {
+function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isReconciling }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; onReconcile: () => void; isReconciling: boolean }) {
   const campApps = submissions.filter((s) => s.source_table === 'camp_applications')
   if (campApps.length === 0) return null
   const counts: Record<string, number> = { all: campApps.length }
@@ -194,7 +220,15 @@ function PaymentHealthCards({ submissions, selected, onSelect }: { submissions: 
     counts[h] = (counts[h] || 0) + 1
   }
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 mb-3">
+    <div className="mb-3">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-medium text-muted-foreground">Payment health (camp applications)</h3>
+        <Button variant="outline" size="sm" onClick={onReconcile} disabled={isReconciling} className="h-8" title="Re-sync every application with Stripe to pull latest payment status, disputes and reviews">
+          <RefreshCw className={'h-3.5 w-3.5 mr-1.5 ' + (isReconciling ? 'animate-spin' : '')} />
+          {isReconciling ? 'Syncing from Stripe...' : 'Sync from Stripe'}
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
       {HEALTH_CARDS.map((card) => {
         const count = counts[card.key] || 0
         const isSel = selected === card.key
@@ -214,6 +248,7 @@ function PaymentHealthCards({ submissions, selected, onSelect }: { submissions: 
           </button>
         )
       })}
+      </div>
     </div>
   )
 }
@@ -375,6 +410,24 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     })
   }
 
+  const [isReconciling, setIsReconciling] = useState(false)
+  const handleReconcile = async () => {
+    if (isReconciling) return
+    if (!window.confirm('Sync ALL camp applications with Stripe? This pulls latest payment, dispute and review states from Stripe for every row. May take up to 5 minutes.')) return
+    setIsReconciling(true)
+    try {
+      const res = await fetch('/api/admin/reconcile-stripe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ onlyMissing: false, limit: 500 }) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'Reconcile failed')
+      toast.success('Stripe sync complete: ' + (data.updated ?? 0) + ' updated, ' + (data.linked ?? 0) + ' newly linked, ' + (data.notFound ?? 0) + ' not found')
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Reconcile failed')
+    } finally {
+      setIsReconciling(false)
+    }
+  }
+
   const handleDelete = (sub: Submission) => {
     const confirmed = window.confirm(
       `Permanently delete this ${sub.source_table === 'camp_applications' ? 'camp application' : 'submission'} from ${sub.full_name} <${sub.email}>?\n\nThis cannot be undone. Any uncaptured Stripe authorisation will be cancelled first.`
@@ -414,7 +467,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
-      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} />
+      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} onReconcile={handleReconcile} isReconciling={isReconciling} />
       <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
         <div className="flex flex-1 gap-2 items-center">
           <div className="relative flex-1 max-w-sm">
@@ -571,8 +624,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                       )}
                       {(() => {
                         const h = getPaymentHealth(sub)
-                        if (h === 'awaiting_payment' || h === 'approved_no_payment') {
-                          const isBroken = h === 'approved_no_payment'
+                        if (h === 'awaiting_payment') {
+                          const isBroken = sub.status === 'approved' && !sub.stripe_payment_intent_id
                           return (
                             <Button
                               variant="ghost"

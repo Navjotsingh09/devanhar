@@ -23,6 +23,8 @@ type DashboardSubmission = {
   stripe_payment_intent_id: string | null
   stripe_checkout_session_id: string | null
   stripe_checkout_expires_at: string | null
+  stripe_pi_status: string | null
+  stripe_review_state: string | null
 }
 
 function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> {
@@ -148,6 +150,8 @@ async function getSubmissions() {
       stripe_payment_intent_id: null,
       stripe_checkout_session_id: null,
       stripe_checkout_expires_at: null,
+      stripe_pi_status: null,
+      stripe_review_state: null,
     })
   )
 
@@ -171,6 +175,8 @@ async function getSubmissions() {
         stripe_payment_intent_id: (c.stripe_payment_intent_id as string | null) ?? null,
         stripe_checkout_session_id: (c.stripe_checkout_session_id as string | null) ?? null,
         stripe_checkout_expires_at: (c.stripe_checkout_expires_at as string | null) ?? null,
+        stripe_pi_status: (c.stripe_pi_status as string | null) ?? null,
+        stripe_review_state: (c.stripe_review_state as string | null) ?? null,
       }
     }
   )
