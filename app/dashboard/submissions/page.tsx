@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { SubmissionsTable } from '@/components/dashboard/submissions-table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import Stripe from 'stripe'
 
 type Initiative = {
   id: string
@@ -115,6 +116,71 @@ function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> 
   return Object.fromEntries(ordered)
 }
 
+async function fetchStripeStatusMap(
+  apps: Array<{ id: string; stripe_payment_intent_id: string | null; stripe_checkout_session_id: string | null; email: string }>
+): Promise<Map<string, string>> {
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeKey || apps.length === 0) return new Map()
+  try {
+    const stripe = new Stripe(stripeKey)
+    const allPIs: Stripe.PaymentIntent[] = []
+    let startingAfter: string | undefined
+    while (true) {
+      const page = await stripe.paymentIntents.list({ limit: 100, ...(startingAfter ? { starting_after: startingAfter } : {}) })
+      allPIs.push(...page.data)
+      if (!page.has_more) break
+      startingAfter = page.data[page.data.length - 1].id
+    }
+    const piById = new Map(allPIs.map(pi => [pi.id, pi]))
+    const piByAppId = new Map<string, Stripe.PaymentIntent>()
+    const piByEmail = new Map<string, Stripe.PaymentIntent[]>()
+    for (const pi of allPIs) {
+      const appId = pi.metadata?.camp_application_id
+      if (appId && !piByAppId.has(appId)) piByAppId.set(appId, pi)
+      const email = pi.receipt_email ?? pi.metadata?.email
+      if (email) {
+        const existing = piByEmail.get(email)
+        existing ? existing.push(pi) : piByEmail.set(email, [pi])
+      }
+    }
+    const result = new Map<string, string>()
+    const sessionCache = new Map<string, Stripe.PaymentIntent | null>()
+    for (const app of apps) {
+      let pi: Stripe.PaymentIntent | null = null
+      if (app.stripe_payment_intent_id) pi = piById.get(app.stripe_payment_intent_id) ?? null
+      if (pi === null && app.stripe_checkout_session_id) {
+        if (sessionCache.has(app.stripe_checkout_session_id)) {
+          pi = sessionCache.get(app.stripe_checkout_session_id) ?? null
+        } else {
+          try {
+            const session = await stripe.checkout.sessions.retrieve(app.stripe_checkout_session_id)
+            if (session.payment_intent && typeof session.payment_intent === 'string') {
+              pi = piById.get(session.payment_intent) ?? await stripe.paymentIntents.retrieve(session.payment_intent)
+              sessionCache.set(app.stripe_checkout_session_id, pi as Stripe.PaymentIntent)
+            } else { sessionCache.set(app.stripe_checkout_session_id, null) }
+          } catch { sessionCache.set(app.stripe_checkout_session_id, null) }
+        }
+      }
+      if (pi === null) pi = piByAppId.get(app.id) ?? null
+      if (pi === null && app.email) {
+        const emailPIs = piByEmail.get(app.email) ?? []
+        if (emailPIs.length > 0) {
+          const order = ['succeeded', 'requires_capture']
+          pi = [...emailPIs].sort((a, b) => {
+            const ai = order.indexOf(a.status) === -1 ? 99 : order.indexOf(a.status)
+            const bi = order.indexOf(b.status) === -1 ? 99 : order.indexOf(b.status)
+            return ai !== bi ? ai - bi : b.created - a.created
+          })[0]
+        }
+      }
+      if (pi) result.set(app.id, pi.status)
+    }
+    return result
+  } catch {
+    return new Map()
+  }
+}
+
 async function getSubmissions() {
   const supabase = await createClient()
 
@@ -133,6 +199,15 @@ async function getSubmissions() {
     .from('camp_applications')
     .select('*, initiatives(name, slug)')
     .order('created_at', { ascending: false })
+
+  const stripeStatusMap = await fetchStripeStatusMap(
+    (campApplications ?? []).map(c => ({
+      id: String(c.id),
+      stripe_payment_intent_id: (c.stripe_payment_intent_id as string | null) ?? null,
+      stripe_checkout_session_id: (c.stripe_checkout_session_id as string | null) ?? null,
+      email: String(c.email ?? ''),
+    }))
+  )
 
   const formSubmissions: DashboardSubmission[] = (submissions ?? []).map(
     (s: Record<string, unknown>) => ({
@@ -175,7 +250,7 @@ async function getSubmissions() {
         stripe_payment_intent_id: (c.stripe_payment_intent_id as string | null) ?? null,
         stripe_checkout_session_id: (c.stripe_checkout_session_id as string | null) ?? null,
         stripe_checkout_expires_at: (c.stripe_checkout_expires_at as string | null) ?? null,
-        stripe_pi_status: (c.stripe_pi_status as string | null) ?? null,
+        stripe_pi_status: stripeStatusMap.get(String(c.id)) ?? (c.stripe_pi_status as string | null) ?? null,
         stripe_review_state: (c.stripe_review_state as string | null) ?? null,
       }
     }
