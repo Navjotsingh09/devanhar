@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, RefreshCw } from 'lucide-react'
+import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 import { Input } from '@/components/ui/input'
@@ -201,6 +202,172 @@ function getNeedsActionSubState(sub: Submission): NeedsActionSubState {
   return sub.stripe_review_state === 'payment_support' ? 'dispute' : 'radar_review'
 }
 
+// ── Awaiting-payment breakdown ─────────────────────────────────────────────
+type AwaitingReason = 'silent_approve' | 'payment_failed' | 'checkout_expired' | 'checkout_active' | 'never_started'
+
+function getAwaitingReason(sub: Submission): AwaitingReason {
+  const pi = sub.stripe_pi_status
+  // Approved by team but no payment was ever collected (silent-approve bug)
+  if (sub.status === 'approved' && !sub.stripe_payment_intent_id) return 'silent_approve'
+  // Stripe said payment failed or was explicitly abandoned
+  if (pi === 'canceled' || pi === 'requires_payment_method') return 'payment_failed'
+  const expires = sub.stripe_checkout_expires_at ? new Date(sub.stripe_checkout_expires_at).getTime() : 0
+  if (sub.stripe_checkout_session_id && expires && expires < Date.now()) return 'checkout_expired'
+  if (sub.stripe_checkout_session_id) return 'checkout_active'
+  return 'never_started'
+}
+
+const AWAITING_REASON_CONFIG: Record<AwaitingReason, { label: string; why: string; action: string; border: string; bg: string; text: string }> = {
+  silent_approve: {
+    label: 'Approved — payment never collected',
+    why: 'The team approved this application but no payment was ever taken. This happened because of a bug in the old approval flow (payment link was bypassed). The applicant does NOT know they owe money.',
+    action: 'Send payment link',
+    border: 'border-red-300', bg: 'bg-red-50 dark:bg-red-950/40', text: 'text-red-800 dark:text-red-200',
+  },
+  payment_failed: {
+    label: 'Payment failed or abandoned mid-flow',
+    why: 'The applicant clicked the payment link and started entering card details, but the payment did not complete — either their card was declined or they abandoned the form.',
+    action: 'Resend payment link',
+    border: 'border-orange-300', bg: 'bg-orange-50 dark:bg-orange-950/40', text: 'text-orange-800 dark:text-orange-200',
+  },
+  checkout_expired: {
+    label: 'Payment link expired',
+    why: 'A payment link was sent to the applicant but they did not complete it before it expired (Stripe checkout links expire after 24 hours).',
+    action: 'Resend payment link',
+    border: 'border-orange-200', bg: 'bg-orange-50/60 dark:bg-orange-950/30', text: 'text-orange-700 dark:text-orange-300',
+  },
+  checkout_active: {
+    label: 'Checkout link sent — not yet completed',
+    why: 'A payment link has been sent and is still active. The applicant may still complete it. Send a reminder if needed.',
+    action: 'Send reminder',
+    border: 'border-yellow-300', bg: 'bg-yellow-50 dark:bg-yellow-950/40', text: 'text-yellow-800 dark:text-yellow-200',
+  },
+  never_started: {
+    label: 'No payment link sent yet',
+    why: 'This applicant is awaiting payment but no Stripe checkout link has been created or sent to them yet.',
+    action: 'Send payment link',
+    border: 'border-gray-200', bg: 'bg-gray-50 dark:bg-gray-900/40', text: 'text-gray-700 dark:text-gray-300',
+  },
+}
+
+function AwaitingPaymentBreakdown({ submissions, onSendLink, isPending }: {
+  submissions: Submission[]
+  onSendLink: (sub: Submission) => void
+  isPending: boolean
+}) {
+  if (submissions.length === 0) {
+    return (
+      <div className="mb-3 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground text-center">
+        No applications awaiting payment.
+      </div>
+    )
+  }
+
+  // Group by reason, in priority order
+  const ORDER: AwaitingReason[] = ['silent_approve', 'payment_failed', 'checkout_expired', 'checkout_active', 'never_started']
+  const grouped: Record<AwaitingReason, Submission[]> = {
+    silent_approve: [], payment_failed: [], checkout_expired: [], checkout_active: [], never_started: [],
+  }
+  for (const sub of submissions) grouped[getAwaitingReason(sub)].push(sub)
+
+  return (
+    <div className="mb-3 rounded-xl border border-orange-200 dark:border-orange-900 bg-orange-50/40 dark:bg-orange-950/20 overflow-hidden">
+      <div className="px-4 py-3 border-b border-orange-200 dark:border-orange-900 flex items-center gap-2">
+        <AlertTriangle className="h-4 w-4 text-orange-600" />
+        <span className="text-sm font-semibold text-orange-800 dark:text-orange-200">
+          {submissions.length} application{submissions.length !== 1 ? 's' : ''} awaiting payment — grouped by reason
+        </span>
+      </div>
+      <div className="divide-y divide-orange-100 dark:divide-orange-900/50">
+        {ORDER.filter(r => grouped[r].length > 0).map(reason => {
+          const cfg = AWAITING_REASON_CONFIG[reason]
+          const rows = grouped[reason]
+          return (
+            <div key={reason} className={'p-4 ' + cfg.bg}>
+              <div className="flex items-start gap-2 mb-2">
+                <span className={'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ' + cfg.border + ' ' + cfg.text}>
+                  {rows.length} — {cfg.label}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{cfg.why}</p>
+              <div className="flex flex-col gap-2">
+                {rows.map(sub => (
+                  <div key={sub.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{sub.full_name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{sub.email}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(sub.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={isPending}
+                      onClick={() => onSendLink(sub)}
+                      className="shrink-0 gap-1.5 text-xs"
+                    >
+                      <Send className="h-3 w-3" />
+                      {cfg.action}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function AuthorisedBreakdown({ submissions, onCapture, onDecline, isPending }: {
+  submissions: Submission[]
+  onCapture: (id: string) => void
+  onDecline: (id: string) => void
+  isPending: boolean
+}) {
+  if (submissions.length === 0) {
+    return (
+      <div className="mb-3 rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground text-center">
+        No on-hold payments.
+      </div>
+    )
+  }
+  return (
+    <div className="mb-3 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/40 dark:bg-indigo-950/20 overflow-hidden">
+      <div className="px-4 py-3 border-b border-indigo-200 dark:border-indigo-900 flex items-center gap-2">
+        <Clock className="h-4 w-4 text-indigo-600" />
+        <div>
+          <span className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+            {submissions.length} payment{submissions.length !== 1 ? 's' : ''} on hold — capture within 7 days
+          </span>
+          <p className="text-xs text-indigo-600/80 dark:text-indigo-300/80 mt-0.5">
+            Stripe is holding the money but it has NOT been taken yet. You must click Capture for each one. If you wait more than 7 days from the authorisation date, Stripe automatically releases the hold and the money goes back to the applicant.
+          </p>
+        </div>
+      </div>
+      <div className="p-4 flex flex-col gap-2">
+        {submissions.map(sub => (
+          <div key={sub.id} className="flex items-center justify-between gap-3 rounded-lg border border-indigo-100 dark:border-indigo-900 bg-card px-3 py-2">
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate">{sub.full_name}</p>
+              <p className="text-xs text-muted-foreground truncate">{sub.email}</p>
+              <p className="text-xs text-muted-foreground">{new Date(sub.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Button size="sm" disabled={isPending} onClick={() => onCapture(sub.id)} className="gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">
+                <CheckCircle className="h-3 w-3" /> Capture
+              </Button>
+              <Button size="sm" variant="outline" disabled={isPending} onClick={() => onDecline(sub.id)} className="gap-1.5 text-xs text-red-600 border-red-200 hover:bg-red-50">
+                <XCircle className="h-3 w-3" /> Release
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const HEALTH_CARDS: Array<{ key: PaymentHealth | 'all'; label: string; hint: string; dot: string; ringSelected: string; textSelected: string }> = [
   { key: 'all',              label: 'All applications', hint: 'Every camp application',                                       dot: 'bg-foreground',  ringSelected: 'ring-foreground',  textSelected: 'text-foreground' },
   { key: 'needs_action',     label: 'Needs action',     hint: 'Stripe disputes, chargebacks, or Radar reviews — act in Stripe', dot: 'bg-red-500',     ringSelected: 'ring-red-500',     textSelected: 'text-red-700' },
@@ -211,7 +378,7 @@ const HEALTH_CARDS: Array<{ key: PaymentHealth | 'all'; label: string; hint: str
   { key: 'pending_review',   label: 'Pending review',   hint: 'Application awaiting admin approve / reject',                  dot: 'bg-yellow-500',  ringSelected: 'ring-yellow-500',  textSelected: 'text-yellow-700' },
 ]
 
-function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isReconciling }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; onReconcile: () => void; isReconciling: boolean }) {
+function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isReconciling, expandedPanel, onTogglePanel }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; onReconcile: () => void; isReconciling: boolean; expandedPanel: PaymentHealth | null; onTogglePanel: (v: PaymentHealth | null) => void }) {
   const campApps = submissions.filter((s) => s.source_table === 'camp_applications')
   if (campApps.length === 0) return null
   const counts: Record<string, number> = { all: campApps.length }
@@ -232,20 +399,33 @@ function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isRe
       {HEALTH_CARDS.map((card) => {
         const count = counts[card.key] || 0
         const isSel = selected === card.key
+        const canExpand = card.key === 'awaiting_payment' || card.key === 'authorized'
+        const isExpanded = expandedPanel === card.key
         return (
-          <button
-            key={card.key}
-            type="button"
-            onClick={() => onSelect(card.key)}
-            title={card.hint}
-            className={'text-left rounded-lg border border-border bg-card px-3 py-2 transition hover:border-foreground/30 ' + (isSel ? 'ring-2 ' + card.ringSelected + ' border-transparent' : '')}
-          >
-            <div className="flex items-center gap-1.5">
-              <span className={'h-2 w-2 rounded-full ' + card.dot} />
-              <span className={'text-[11px] uppercase tracking-wide ' + (isSel ? card.textSelected : 'text-muted-foreground')}>{card.label}</span>
-            </div>
-            <div className={'text-xl font-semibold mt-1 ' + (isSel ? card.textSelected : 'text-foreground')}>{count}</div>
-          </button>
+          <div key={card.key} className="relative">
+            <button
+              type="button"
+              onClick={() => onSelect(card.key)}
+              title={card.hint}
+              className={'text-left rounded-lg border border-border bg-card px-3 py-2 transition hover:border-foreground/30 w-full ' + (isSel ? 'ring-2 ' + card.ringSelected + ' border-transparent' : '')}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className={'h-2 w-2 rounded-full ' + card.dot} />
+                <span className={'text-[11px] uppercase tracking-wide ' + (isSel ? card.textSelected : 'text-muted-foreground')}>{card.label}</span>
+              </div>
+              <div className={'text-xl font-semibold mt-1 ' + (isSel ? card.textSelected : 'text-foreground')}>{count}</div>
+            </button>
+            {canExpand && count > 0 && (
+              <button
+                type="button"
+                title={isExpanded ? 'Collapse breakdown' : 'Expand breakdown — see why and send emails'}
+                onClick={(e) => { e.stopPropagation(); onTogglePanel(isExpanded ? null : (card.key as PaymentHealth)) }}
+                className={'absolute bottom-1 right-1 rounded p-0.5 transition ' + (isExpanded ? 'text-foreground bg-muted' : 'text-muted-foreground hover:text-foreground hover:bg-muted')}
+              >
+                {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              </button>
+            )}
+          </div>
         )
       })}
       </div>
@@ -283,6 +463,7 @@ function StatusPill({ status }: { status: string }) {
 }
 
 export function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
+  const router = useRouter()
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
   const [notesDialog, setNotesDialog] = useState<Submission | null>(null)
   const [notes, setNotes] = useState('')
@@ -290,6 +471,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [paymentFilter, setPaymentFilter] = useState<PaymentHealth | 'all'>('all')
+  const [expandedPanel, setExpandedPanel] = useState<PaymentHealth | null>(null)
 
   // Distinct statuses present in this list (so the dropdown only shows relevant options)
   const availableStatuses = Array.from(new Set(submissions.map((s) => s.status))).sort()
@@ -467,7 +649,22 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
-      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} onReconcile={handleReconcile} isReconciling={isReconciling} />
+      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} onReconcile={handleReconcile} isReconciling={isReconciling} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} />
+      {expandedPanel === 'awaiting_payment' && (
+        <AwaitingPaymentBreakdown
+          submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'awaiting_payment')}
+          onSendLink={handleSendRepaymentLink}
+          isPending={isPending}
+        />
+      )}
+      {expandedPanel === 'authorized' && (
+        <AuthorisedBreakdown
+          submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'authorized')}
+          onCapture={handleApprove}
+          onDecline={handleDecline}
+          isPending={isPending}
+        />
+      )}
       <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
         <div className="flex flex-1 gap-2 items-center">
           <div className="relative flex-1 max-w-sm">
