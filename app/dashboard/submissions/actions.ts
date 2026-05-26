@@ -457,61 +457,95 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
   const stripe = new Stripe(stripeKey)
 
-  // Target every app whose Supabase record says the PI is still on hold.
-  // This includes apps where the webhook auto-captured the PI successfully but
-  // the payment_intent.succeeded handler was skipped because the admin had
-  // already set status='approved' via the dropdown (the .neq guard blocked it).
-  // Cover every record that could show as AUTHORISED in the UI:
-  //  - stripe_pi_status='requires_capture' (the canonical signal), OR
-  //  - status IN ('payment_authorized','approved') with a PI on file (legacy
-  //    records where the column was set before stripe_pi_status existed, or
-  //    where the admin manually approved before capture was wired up).
-  // Note: stripe_pi_status column doesn't exist in production Supabase.
-  // We rely on status='payment_authorized' as the on-hold signal, and use
-  // Stripe as source of truth for the actual PI state per record.
-  // The UI's AUTHORISED bucket comes from Stripe-live data, so the apps
-  // may already be status='approved' in Supabase but their PI is still
-  // requires_capture in Stripe. Pull both statuses + filter by Stripe PI state.
+  // The UI's AUTHORISED bucket is built from Stripe live data, NOT from the
+  // Supabase stripe_payment_intent_id column (many records have NULL there but
+  // the PI is matched at render time via checkout session, metadata, or email).
+  // To capture every record the UI shows as AUTHORISED, we scan all Stripe PIs
+  // in requires_capture state and resolve each back to a camp_application via
+  // direct PI id -> checkout session -> metadata.camp_application_id -> email.
+
   const { data: apps, error: qErr } = await supabase
     .from('camp_applications')
-    .select('id, first_name, last_name, email, status, stripe_payment_intent_id')
-    .in('status', ['payment_authorized', 'approved'])
-    .not('stripe_payment_intent_id', 'is', null)
-
+    .select('id, first_name, last_name, email, status, stripe_payment_intent_id, stripe_checkout_session_id')
   if (qErr) return { captured: 0, failed: 0, errors: [], debug: `query error: ${qErr.message}` }
-  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'no eligible apps' }
+  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'no camp_applications found' }
+
+  type App = typeof apps[number]
+  const appByPiId = new Map<string, App>()
+  const appBySessionId = new Map<string, App>()
+  const appByEmail = new Map<string, App[]>()
+  for (const a of apps) {
+    if (a.stripe_payment_intent_id) appByPiId.set(a.stripe_payment_intent_id, a)
+    if (a.stripe_checkout_session_id) appBySessionId.set(a.stripe_checkout_session_id, a)
+    const e = (a.email || '').toLowerCase().trim()
+    if (e) {
+      const arr = appByEmail.get(e) ?? []
+      arr.push(a)
+      appByEmail.set(e, arr)
+    }
+  }
+
+  const onHold: Stripe.PaymentIntent[] = []
+  let startingAfter: string | undefined
+  while (true) {
+    const pg: Stripe.ApiList<Stripe.PaymentIntent> = await stripe.paymentIntents.list({
+      limit: 100,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    })
+    for (const pi of pg.data) {
+      if (pi.status === 'requires_capture') onHold.push(pi)
+    }
+    if (!pg.has_more) break
+    startingAfter = pg.data[pg.data.length - 1].id
+  }
+
+  if (onHold.length === 0) {
+    return { captured: 0, failed: 0, errors: [], debug: `scanned ${apps.length} apps; no Stripe PIs in requires_capture` }
+  }
 
   let captured = 0
   const errors: string[] = []
+  const unmatched: string[] = []
 
-  for (const app of apps) {
-    try {
-      const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id!)
-
-      if (pi.status !== 'requires_capture') {
-        // Already captured (succeeded), canceled, etc. — skip. Don't re-email.
-        continue
+  for (const pi of onHold) {
+    let app: App | undefined = appByPiId.get(pi.id)
+    if (!app) {
+      const sessionId = pi.metadata?.checkout_session_id as string | undefined
+      if (sessionId) app = appBySessionId.get(sessionId)
+    }
+    if (!app) {
+      const metaAppId = pi.metadata?.camp_application_id
+      if (metaAppId) app = apps.find(a => String(a.id) === String(metaAppId))
+    }
+    if (!app) {
+      const email = (pi.receipt_email || pi.metadata?.email || '').toLowerCase().trim()
+      if (email) {
+        const candidates = appByEmail.get(email) ?? []
+        app = candidates[0]
       }
-      // PI is on hold — capture it now.
-      await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
+    }
+    if (!app) { unmatched.push(`${pi.id}/${pi.receipt_email ?? '?'}`); continue }
 
+    try {
+      await stripe.paymentIntents.capture(pi.id)
       await supabase.from('camp_applications').update({
-        status: 'approved', updated_at: new Date().toISOString()
+        status: 'approved', updated_at: new Date().toISOString(),
+        ...(app.stripe_payment_intent_id ? {} : { stripe_payment_intent_id: pi.id }),
       }).eq('id', app.id)
       sendApplicationApprovedEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
         .catch(err => console.error('[Capture All] Approval email failed:', err))
       await supabase.from('activity_log').insert({
         admin_id: user.id,
-        action: `Bulk capture: payment approved for ${app.first_name} ${app.last_name} <${app.email}> (Stripe status was: ${pi.status})`,
+        action: `Bulk capture: payment approved for ${app.first_name} ${app.last_name} <${app.email}> (PI ${pi.id})`,
         entity_type: 'camp_application', entity_id: app.id
       })
       captured++
     } catch (err) {
-      errors.push(`${app.first_name} ${app.last_name} <${app.email}>: ${err instanceof Error ? err.message : String(err)}`)
+      errors.push(`${app.first_name} ${app.last_name} <${app.email}> [${pi.id}]: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
   revalidatePath('/dashboard/submissions')
-  const debug = `found ${apps.length} apps, captured ${captured}; sample: ${apps.slice(0,3).map(a => `${a.email}[${a.status}]`).join(', ')}`
+  const debug = `scanned ${apps.length} apps, ${onHold.length} PIs on hold, captured ${captured}, unmatched ${unmatched.length}${unmatched.length ? `: ${unmatched.slice(0,3).join(', ')}` : ''}`
   return { captured, failed: errors.length, errors, debug }
 }
