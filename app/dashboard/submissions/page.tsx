@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { SubmissionsTable } from '@/components/dashboard/submissions-table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Stripe from 'stripe'
+import { getRecentCampActivity } from '@/app/dashboard/submissions/actions'
+import type { ActivityLogEntry } from '@/app/dashboard/submissions/actions'
 
 type Initiative = {
   id: string
@@ -267,7 +269,10 @@ async function getSubmissions() {
 }
 
 export default async function SubmissionsPage() {
-  const { initiatives, submissions } = await getSubmissions()
+  const [{ initiatives, submissions }, recentActivity] = await Promise.all([
+    getSubmissions(),
+    getRecentCampActivity(60).catch(() => [] as ActivityLogEntry[]),
+  ])
 
   const allSubmissions = submissions
   const groupedByInitiative = (initiatives as Initiative[]).reduce((acc, init) => {
@@ -319,6 +324,25 @@ export default async function SubmissionsPage() {
           </TabsContent>
         )}
       </Tabs>
+
+      {recentActivity.length > 0 && (
+        <section>
+          <h2 className="text-base font-semibold mb-3 text-foreground">Recent activity</h2>
+          <div className="rounded-xl border border-border bg-card divide-y divide-border text-sm max-h-[420px] overflow-y-auto">
+            {recentActivity.map(entry => (
+              <div key={entry.id} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/40 transition-colors">
+                <span className="text-xs text-muted-foreground tabular-nums shrink-0 mt-0.5 w-32">
+                  {new Date(entry.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                </span>
+                <span className="text-foreground flex-1 break-words">{entry.action}</span>
+                {entry.entity_id && (
+                  <span className="text-xs text-muted-foreground shrink-0">#{entry.entity_id}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

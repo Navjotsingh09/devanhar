@@ -405,3 +405,70 @@ export async function getSendableApplicants(): Promise<SendableApplicant[]> {
   if (error) throw new Error(error.message)
   return (data ?? []) as SendableApplicant[]
 }
+
+export type ActivityLogEntry = {
+  id: number
+  created_at: string
+  admin_id: string | null
+  action: string
+  entity_type: string | null
+  entity_id: number | null
+  metadata: Record<string, unknown> | null
+}
+
+export async function getRecentCampActivity(limit = 60): Promise<ActivityLogEntry[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data } = await supabase
+    .from('activity_log')
+    .select('*')
+    .or("entity_type.eq.camp_application,action.ilike.%camp%,action.ilike.%payment%,action.ilike.%bulk%")
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  return (data ?? []) as ActivityLogEntry[]
+}
+
+export async function captureAllPayments(): Promise<{ captured: number; failed: number; errors: string[] }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
+  const stripe = new Stripe(stripeKey)
+
+  const { data: apps } = await supabase
+    .from('camp_applications')
+    .select('id, first_name, last_name, email, stripe_payment_intent_id')
+    .in('status', ['payment_authorized'])
+    .not('stripe_payment_intent_id', 'is', null)
+
+  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [] }
+
+  let captured = 0
+  const errors: string[] = []
+
+  for (const app of apps) {
+    try {
+      await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
+      await supabase.from('camp_applications').update({
+        status: 'approved', stripe_pi_status: 'succeeded',
+        stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString()
+      }).eq('id', app.id)
+      await supabase.from('activity_log').insert({
+        admin_id: user.id,
+        action: `Bulk capture: payment captured for ${app.first_name} ${app.last_name} <${app.email}>`,
+        entity_type: 'camp_application', entity_id: app.id
+      })
+      captured++
+    } catch (err) {
+      errors.push(`${app.first_name} ${app.last_name} <${app.email}>: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  revalidatePath('/dashboard/submissions')
+  return { captured, failed: errors.length, errors }
+}

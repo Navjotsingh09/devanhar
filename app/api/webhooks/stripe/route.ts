@@ -64,41 +64,60 @@ export async function POST(request: NextRequest) {
       const campApplicationId = session.metadata?.camp_application_id
       const giftAid = getGiftAidSelection(session)
       if (campApplicationId) {
-        // Conditional update: only transition rows that are still pending. This
-        // makes Stripe webhook replays idempotent so the under-review email is
-        // sent at most once.
-        // Always store the PI ID - must be saved regardless of current status.
-      const piId = typeof session.payment_intent === 'string' ? session.payment_intent : null
-      await supabase.from("camp_applications").update({ stripe_payment_intent_id: piId, stripe_pi_status: 'requires_capture', stripe_pi_synced_at: new Date().toISOString(), ...(giftAid === null ? {} : { gift_aid: giftAid }), updated_at: new Date().toISOString() }).eq("id", campApplicationId)
-      // Status transition and email only fires when still payment_pending (idempotent).
-      const { data: transitioned } = await supabase
-          .from("camp_applications")
-          .update({ status: "payment_authorized", updated_at: new Date().toISOString() })
-          .eq("id", campApplicationId)
-          .eq("status", "payment_pending")
-          .select("id, email, first_name")
-          .maybeSingle()
+        // Save the PI ID immediately so we can capture it below.
+        const piId = typeof session.payment_intent === 'string' ? session.payment_intent : null
+        await supabase.from("camp_applications").update({
+          stripe_payment_intent_id: piId,
+          stripe_pi_status: 'requires_capture',
+          stripe_pi_synced_at: new Date().toISOString(),
+          ...(giftAid === null ? {} : { gift_aid: giftAid }),
+          updated_at: new Date().toISOString(),
+        }).eq("id", campApplicationId)
 
-        await supabase.from("activity_log").insert({
-          action: "Camp application payment authorized (on hold) via Stripe",
-          entity_type: "camp_application",
-          entity_id: campApplicationId,
-          metadata: {
-            stripe_session_id: session.id,
-            stripe_payment_intent: session.payment_intent,
-            amount_total: session.amount_total,
-            currency: session.currency,
-            gift_aid: giftAid,
-            email_sent: Boolean(transitioned),
-          },
-        })
+        // Auto-capture: the admin sent this payment link after approving the
+        // applicant, so capture the hold immediately. If capture succeeds,
+        // payment_intent.succeeded fires next and sets status=approved + email.
+        let autoCaptured = false
+        if (piId) {
+          try {
+            const stripe = getStripeClient()
+            await stripe.paymentIntents.capture(piId)
+            autoCaptured = true
+            await supabase.from("activity_log").insert({
+              action: "Checkout completed — payment captured automatically",
+              entity_type: "camp_application",
+              entity_id: campApplicationId,
+              metadata: { stripe_session_id: session.id, stripe_payment_intent: piId, amount_total: session.amount_total, currency: session.currency, gift_aid: giftAid },
+            })
+          } catch (captureErr) {
+            console.error("[Webhook] Auto-capture failed — falling back to manual review:", captureErr)
+          }
+        }
 
-        if (transitioned?.email) {
-          sendApplicationUnderReviewEmail({
-            to: transitioned.email,
-            firstName: transitioned.first_name || "Applicant",
-            applicationId: String(transitioned.id),
-          }).catch((err) => console.error("[Camp Email] Under-review email failed:", err))
+        // Fallback if auto-capture failed or no PI ID.
+        if (!autoCaptured) {
+          const { data: transitioned } = await supabase
+            .from("camp_applications")
+            .update({ status: "payment_authorized", updated_at: new Date().toISOString() })
+            .eq("id", campApplicationId)
+            .eq("status", "payment_pending")
+            .select("id, email, first_name")
+            .maybeSingle()
+
+          await supabase.from("activity_log").insert({
+            action: "Checkout completed — payment on hold, awaiting manual capture",
+            entity_type: "camp_application",
+            entity_id: campApplicationId,
+            metadata: { stripe_session_id: session.id, stripe_payment_intent: piId, amount_total: session.amount_total, currency: session.currency, gift_aid: giftAid, email_sent: Boolean(transitioned) },
+          })
+
+          if (transitioned?.email) {
+            sendApplicationUnderReviewEmail({
+              to: transitioned.email,
+              firstName: transitioned.first_name || "Applicant",
+              applicationId: String(transitioned.id),
+            }).catch((err) => console.error("[Camp Email] Under-review email failed:", err))
+          }
         }
       }
 
@@ -139,7 +158,7 @@ export async function POST(request: NextRequest) {
             pack: m.pack,
             amount_total: session.amount_total,
           },
-        }).catch((err) => console.error("[Wolf Run Webhook] Activity log failed:", err))
+        }).then(undefined, (err: unknown) => console.error("[Wolf Run Webhook] Activity log failed:", err))
       }
     }
     if (event.type === "checkout.session.expired") {
@@ -250,7 +269,7 @@ export async function POST(request: NextRequest) {
             amount: pi.amount,
             email: app?.email,
           },
-        }).catch(() => {})
+        }).then(undefined, () => {})
 
         // Alert the admin team
         try {

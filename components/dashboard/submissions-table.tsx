@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants } from '@/app/dashboard/submissions/actions'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants, captureAllPayments } from '@/app/dashboard/submissions/actions'
 import type { SendableApplicant } from '@/app/dashboard/submissions/actions'
 import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
@@ -329,10 +329,12 @@ function AwaitingPaymentBreakdown({ submissions, onSendLink, onSendAll, isSendin
   )
 }
 
-function AuthorisedBreakdown({ submissions, onCapture, onDecline, isPending }: {
+function AuthorisedBreakdown({ submissions, onCapture, onDecline, onCaptureAll, isCaptureAll, isPending }: {
   submissions: Submission[]
   onCapture: (id: string) => void
   onDecline: (id: string) => void
+  onCaptureAll: () => void
+  isCaptureAll: boolean
   isPending: boolean
 }) {
   if (submissions.length === 0) {
@@ -344,16 +346,27 @@ function AuthorisedBreakdown({ submissions, onCapture, onDecline, isPending }: {
   }
   return (
     <div className="mb-3 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/40 dark:bg-indigo-950/20 overflow-hidden">
-      <div className="px-4 py-3 border-b border-indigo-200 dark:border-indigo-900 flex items-center gap-2">
-        <Clock className="h-4 w-4 text-indigo-600" />
-        <div>
-          <span className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
-            {submissions.length} payment{submissions.length !== 1 ? 's' : ''} on hold — capture within 7 days
-          </span>
-          <p className="text-xs text-indigo-600/80 dark:text-indigo-300/80 mt-0.5">
-            Stripe is holding the money but it has NOT been taken yet. You must click Capture for each one. If you wait more than 7 days from the authorisation date, Stripe automatically releases the hold and the money goes back to the applicant.
-          </p>
+      <div className="px-4 py-3 border-b border-indigo-200 dark:border-indigo-900 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <Clock className="h-4 w-4 text-indigo-600 shrink-0" />
+          <div>
+            <span className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+              {submissions.length} payment{submissions.length !== 1 ? 's' : ''} on hold — capture within 7 days
+            </span>
+            <p className="text-xs text-indigo-600/80 dark:text-indigo-300/80 mt-0.5">
+              Stripe is holding the money but it has NOT been taken yet. You must click Capture for each one. If you wait more than 7 days from the authorisation date, Stripe automatically releases the hold and the money goes back to the applicant.
+            </p>
+          </div>
         </div>
+        <Button
+          size="sm"
+          disabled={isPending || isCaptureAll}
+          onClick={onCaptureAll}
+          className="shrink-0 gap-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+        >
+          <CheckCircle className="h-3 w-3" />
+          {isCaptureAll ? 'Capturing…' : `Capture all ${submissions.length}`}
+        </Button>
       </div>
       <div className="p-4 flex flex-col gap-2">
         {submissions.map(sub => (
@@ -587,6 +600,24 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     })
   }
 
+  const [isCaptureAll, setIsCaptureAll] = useState(false)
+
+  const handleCaptureAll = () => {
+    const authCount = submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'authorized').length
+    if (!window.confirm(`Capture payments for all ${authCount} applicant${authCount !== 1 ? 's' : ''} on hold? This will charge their cards and send them approval emails.`)) return
+    setIsCaptureAll(true)
+    captureAllPayments().then(result => {
+      if (result.failed > 0) {
+        toast.error(`Captured ${result.captured}, failed ${result.failed}: ${result.errors.slice(0, 2).join('; ')}`)
+      } else {
+        toast.success(`Captured ${result.captured} payment${result.captured !== 1 ? 's' : ''} — approval emails sent`)
+      }
+      router.refresh()
+    }).catch(err => {
+      toast.error(err instanceof Error ? err.message : 'Capture all failed')
+    }).finally(() => setIsCaptureAll(false))
+  }
+
   const [isSendingAll, setIsSendingAll] = useState(false)
   const [sendAllModal, setSendAllModal] = useState(false)
   const [sendableApplicants, setSendableApplicants] = useState<SendableApplicant[]>([])
@@ -704,6 +735,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'authorized')}
           onCapture={handleApprove}
           onDecline={handleDecline}
+          onCaptureAll={handleCaptureAll}
+          isCaptureAll={isCaptureAll}
           isPending={isPending}
         />
       )}
