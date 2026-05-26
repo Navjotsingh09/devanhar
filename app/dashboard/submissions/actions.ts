@@ -307,3 +307,73 @@ export async function reconcileApplicationWithStripe(applicationId: string) {
   revalidatePath('/dashboard/submissions')
   return { success: true, message: `Linked PI ${foundPI.id} (${foundPI.status})`, piId: foundPI.id }
 }
+
+export async function sendAllPaymentLinks(): Promise<{ sent: number; failed: number; errors: string[] }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
+  const stripe = new Stripe(stripeKey)
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+  const campFeeGbp = Number(process.env.STRIPE_CAMP_FEE_GBP || '199')
+
+  const { data: apps } = await supabase
+    .from('camp_applications')
+    .select('id, email, first_name, last_name, initiative_id, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid, status, stripe_payment_intent_id')
+    .or('status.eq.payment_pending,and(status.eq.approved,stripe_payment_intent_id.is.null)')
+    .order('created_at', { ascending: true })
+
+  if (!apps || apps.length === 0) return { sent: 0, failed: 0, errors: [] }
+
+  const { data: initiatives } = await supabase.from('initiatives').select('id, slug')
+  const slugMap = new Map((initiatives ?? []).map(i => [i.id, i.slug]))
+
+  let sent = 0
+  const errors: string[] = []
+
+  for (const app of apps) {
+    try {
+      const initiativeSlug = (app.initiative_id && slugMap.get(app.initiative_id)) || 'singhs-camp'
+      const initiativePath = `/initiatives/${initiativeSlug}`
+      const returnTo = encodeURIComponent(initiativePath)
+      const donationAmountPence = app.stripe_checkout_amount_pence && app.stripe_checkout_amount_pence > 0
+        ? app.stripe_checkout_amount_pence : campFeeGbp * 100
+
+      if (app.status === 'approved' && !app.stripe_payment_intent_id) {
+        await supabase.from('camp_applications').update({ status: 'payment_pending', updated_at: new Date().toISOString() }).eq('id', app.id)
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment', payment_method_types: ['card'],
+        payment_intent_data: { capture_method: 'manual', ...(app.monthly_donation_opted ? { setup_future_usage: 'off_session' } : {}), metadata: { camp_application_id: app.id } },
+        customer_email: app.email, customer_creation: 'always',
+        line_items: [{ price_data: { currency: 'gbp', unit_amount: donationAmountPence, product_data: { name: 'Singhs Camp UK Camp Fee', description: `One-off donation for ${app.first_name} ${app.last_name}` } }, quantity: 1 }],
+        custom_fields: [{ key: 'gift_aid', label: { type: 'custom', custom: 'Gift Aid declaration' }, type: 'dropdown', optional: false, dropdown: { options: [{ label: 'Yes - I am a UK taxpayer and want Devanhaar to claim Gift Aid', value: 'yes' }, { label: 'No - do not claim Gift Aid on this payment', value: 'no' }] } }],
+        metadata: { camp_application_id: app.id, gift_aid: app.gift_aid ? 'true' : 'false', monthly_donation_opted: app.monthly_donation_opted ? 'true' : 'false', monthly_donation_amount: app.monthly_donation_opted ? String(app.monthly_donation_amount || '0') : '0', resumed: 'admin_bulk_resend' },
+        success_url: `${siteUrl}${initiativePath}?payment=success`,
+        cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}&applicationId=${app.id}`
+      })
+
+      await supabase.from('camp_applications').update({
+        stripe_checkout_session_id: session.id, stripe_checkout_url: session.url,
+        stripe_checkout_expires_at: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null,
+        stripe_checkout_amount_pence: donationAmountPence,
+        payment_reminder_sent_at: new Date().toISOString(), updated_at: new Date().toISOString()
+      }).eq('id', app.id)
+
+      const resumeUrl = buildResumeUrl(siteUrl, String(app.id))
+      await sendApplicationPaymentReminderEmail({ to: app.email, firstName: app.first_name || 'Applicant', resumeUrl, amountGbp: Math.round(donationAmountPence) / 100 })
+
+      await supabase.from('activity_log').insert({ admin_id: user.id, action: `Bulk send: payment link sent to ${app.first_name} ${app.last_name} <${app.email}>`, entity_type: 'camp_application', entity_id: app.id })
+      sent++
+    } catch (err) {
+      errors.push(`${app.first_name} ${app.last_name} <${app.email}>: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  revalidatePath('/dashboard/submissions')
+  return { sent, failed: errors.length, errors }
+}

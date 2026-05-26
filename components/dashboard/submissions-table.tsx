@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink } from '@/app/dashboard/submissions/actions'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks } from '@/app/dashboard/submissions/actions'
 import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
@@ -250,9 +250,11 @@ const AWAITING_REASON_CONFIG: Record<AwaitingReason, { label: string; why: strin
   },
 }
 
-function AwaitingPaymentBreakdown({ submissions, onSendLink, isPending }: {
+function AwaitingPaymentBreakdown({ submissions, onSendLink, onSendAll, isSendingAll, isPending }: {
   submissions: Submission[]
   onSendLink: (sub: Submission) => void
+  onSendAll: () => void
+  isSendingAll: boolean
   isPending: boolean
 }) {
   if (submissions.length === 0) {
@@ -272,11 +274,17 @@ function AwaitingPaymentBreakdown({ submissions, onSendLink, isPending }: {
 
   return (
     <div className="mb-3 rounded-xl border border-orange-200 dark:border-orange-900 bg-orange-50/40 dark:bg-orange-950/20 overflow-hidden">
-      <div className="px-4 py-3 border-b border-orange-200 dark:border-orange-900 flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4 text-orange-600" />
-        <span className="text-sm font-semibold text-orange-800 dark:text-orange-200">
-          {submissions.length} application{submissions.length !== 1 ? 's' : ''} awaiting payment — grouped by reason
-        </span>
+      <div className="px-4 py-3 border-b border-orange-200 dark:border-orange-900 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <span className="text-sm font-semibold text-orange-800 dark:text-orange-200">
+            {submissions.length} application{submissions.length !== 1 ? 's' : ''} awaiting payment — grouped by reason
+          </span>
+        </div>
+        <Button size="sm" variant="outline" onClick={onSendAll} disabled={isSendingAll || isPending} className="shrink-0 gap-1.5 text-xs border-orange-300 text-orange-700 hover:bg-orange-100">
+          <Send className="h-3 w-3" />
+          {isSendingAll ? 'Sending...' : `Send all ${submissions.length}`}
+        </Button>
       </div>
       <div className="divide-y divide-orange-100 dark:divide-orange-900/50">
         {ORDER.filter(r => grouped[r].length > 0).map(reason => {
@@ -577,6 +585,26 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     })
   }
 
+  const [isSendingAll, setIsSendingAll] = useState(false)
+
+  const handleSendAllPaymentLinks = async () => {
+    if (!window.confirm(`Send payment emails to all ${submissions.filter(s => s.source_table === 'camp_applications' && (s.status === 'payment_pending' || (s.status === 'approved' && !s.stripe_payment_intent_id))).length} awaiting applicants? Each will receive their own unique payment link.`)) return
+    setIsSendingAll(true)
+    try {
+      const result = await sendAllPaymentLinks()
+      if (result.failed > 0) {
+        toast.error(`Sent ${result.sent}, failed ${result.failed}: ${result.errors.slice(0, 2).join('; ')}`)
+      } else {
+        toast.success(`Payment emails sent to all ${result.sent} applicants`)
+      }
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Bulk send failed')
+    } finally {
+      setIsSendingAll(false)
+    }
+  }
+
   const handleSendRepaymentLink = (sub: Submission) => {
     const isBroken = sub.status === 'approved' && !!(sub.stripe_payment_intent_id && sub.stripe_payment_intent_id.length > 0) === false
     const msg = isBroken
@@ -635,6 +663,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
         <AwaitingPaymentBreakdown
           submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'awaiting_payment')}
           onSendLink={handleSendRepaymentLink}
+          onSendAll={handleSendAllPaymentLinks}
+          isSendingAll={isSendingAll}
           isPending={isPending}
         />
       )}
