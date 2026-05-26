@@ -171,7 +171,7 @@ function getPaymentHealth(sub: Submission): PaymentHealth {
   switch (sub.status) {
     case 'approved':
     case 'paid':
-      return sub.stripe_payment_intent_id ? 'captured' : 'awaiting_payment'
+      return 'captured' // approved = payment was taken (even if PI not yet backfilled)
     case 'payment_authorized':
       return 'authorized'
     case 'payment_pending':
