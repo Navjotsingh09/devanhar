@@ -2,10 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
-import { sendApprovalEmail, sendDeclineEmail } from '@/lib/resend-email'
 import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
-import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail } from '@/lib/camp-applicant-emails'
+import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from '@/lib/camp-applicant-emails'
 
 type SourceTable = 'form_submissions' | 'camp_applications'
 
@@ -107,8 +106,7 @@ export async function captureApplicationPayment(applicationId: string) {
     throw new Error('Already approved (no payment intent on file)')
   } else if (app.requires_payment_support === true) {
     // Payment-support applicants are approved manually by the team without Stripe.
-    // No capture needed — fall through to DB update and send approval email directly.
-    sendApprovalEmail(app.email, app.first_name, true, Number(app.donation_amount) || 199, 0).catch(() => {})
+    // No capture needed — fall through to DB update; approval email sent below.
   } else {
     // stripe_payment_intent_id is null and not yet approved — payment was never
     // authorized (applicant never completed checkout). Refuse to silently approve.
@@ -136,8 +134,13 @@ export async function captureApplicationPayment(applicationId: string) {
       console.error('[Subscription] Failed to create monthly subscription (non-blocking):', subErr)
     }
   }
-  // NOTE: Approval email is sent by the Stripe webhook (payment_intent.succeeded),
-  // which fires after the capture above completes. Do not send it here to avoid duplicates.
+  // Send the approval email directly. The webhook's payment_intent.succeeded
+  // handler has a .neq("status","approved") guard which no-ops since we already
+  // flipped status above — so the action MUST own the email.
+  if (app.email) {
+    sendApplicationApprovedEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
+      .catch(err => console.error('[Capture] Approval email failed (non-blocking):', err))
+  }
   revalidatePath('/dashboard/submissions')
 }
 
@@ -168,7 +171,12 @@ export async function cancelApplicationPayment(applicationId: string) {
   }
   await supabase.from('camp_applications').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
-  sendDeclineEmail(app.email, app.first_name).catch(() => {})
+  // Send the decline email directly. Webhook payment_intent.canceled now has
+  // a .neq("status","declined") guard, so it will not double-send.
+  if (app.email) {
+    sendApplicationDeclinedEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
+      .catch(err => console.error('[Decline] Decline email failed (non-blocking):', err))
+  }
   revalidatePath('/dashboard/submissions')
 }
 
@@ -282,11 +290,14 @@ export async function reconcileApplicationWithStripe(applicationId: string) {
       foundPI = await stripe.paymentIntents.retrieve(session.payment_intent)
     }
   } else if (app.email) {
-    const intents = await stripe.paymentIntents.list({ customer_email: app.email, limit: 100 })
-    const matched = intents.data
-      .filter(pi => pi.status === 'succeeded' || pi.status === 'requires_capture')
-      .sort((a, b) => b.created - a.created)
-    if (matched.length > 0) foundPI = matched[0]
+    const customers = await stripe.customers.list({ email: app.email, limit: 10 })
+    for (const cust of customers.data) {
+      const intents = await stripe.paymentIntents.list({ customer: cust.id, limit: 100 })
+      const matched = intents.data
+        .filter(pi => pi.status === 'succeeded' || pi.status === 'requires_capture')
+        .sort((a, b) => b.created - a.created)
+      if (matched.length > 0) { foundPI = matched[0]; break }
+    }
   }
 
   if (!foundPI) {
@@ -326,7 +337,13 @@ export async function sendAllPaymentLinks(allowedIds?: number[]): Promise<{ sent
     .or('status.eq.payment_pending,and(status.eq.approved,stripe_payment_intent_id.is.null)')
     .order('created_at', { ascending: true })
 
-  if (!apps || apps.length === 0) return { sent: 0, failed: 0, errors: [] }
+  if (!apps || apps.length === 0) return { sent: 0, failed: 0, errors: [], sent_to: [] }
+
+  const eligible = allowedIds && allowedIds.length > 0
+    ? apps.filter(a => allowedIds.includes(a.id))
+    : apps
+
+  if (eligible.length === 0) return { sent: 0, failed: 0, errors: [], sent_to: [] }
 
   const { data: initiatives } = await supabase.from('initiatives').select('id, slug')
   const slugMap = new Map((initiatives ?? []).map(i => [i.id, i.slug]))
