@@ -5,7 +5,7 @@ import Stripe from 'stripe'
 import { sendApprovalEmail, sendDeclineEmail } from '@/lib/resend-email'
 import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
-import { sendApplicationPaymentReminderEmail } from '@/lib/camp-applicant-emails'
+import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail } from '@/lib/camp-applicant-emails'
 
 type SourceTable = 'form_submissions' | 'camp_applications'
 
@@ -454,10 +454,16 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   for (const app of apps) {
     try {
       await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
+      // Update DB immediately so the dashboard reflects the change before the
+      // payment_intent.succeeded webhook fires. The webhook's .neq guard will
+      // then skip a redundant update -- which is why we must send the approval
+      // email here rather than relying on the webhook to do it.
       await supabase.from('camp_applications').update({
         status: 'approved', stripe_pi_status: 'succeeded',
         stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString()
       }).eq('id', app.id)
+      sendApplicationApprovedEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
+        .catch(err => console.error('[Capture All] Approval email failed:', err))
       await supabase.from('activity_log').insert({
         admin_id: user.id,
         action: `Bulk capture: payment captured for ${app.first_name} ${app.last_name} <${app.email}>`,
