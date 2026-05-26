@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
+import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Clock, Send, BarChart2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 import { Input } from '@/components/ui/input'
@@ -378,7 +378,88 @@ const HEALTH_CARDS: Array<{ key: PaymentHealth | 'all'; label: string; hint: str
   { key: 'pending_review',   label: 'Pending review',   hint: 'Application awaiting admin approve / reject',                  dot: 'bg-yellow-500',  ringSelected: 'ring-yellow-500',  textSelected: 'text-yellow-700' },
 ]
 
-function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isReconciling, expandedPanel, onTogglePanel }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; onReconcile: () => void; isReconciling: boolean; expandedPanel: PaymentHealth | null; onTogglePanel: (v: PaymentHealth | null) => void }) {
+
+type AuditRow = { app_id: string; name: string; email: string | null; db_status: string; match_method: 'pi_id' | 'session_id' | 'metadata' | 'email' | 'none'; stripe_pi_id: string | null; stripe_status: string | null; amount_gbp: number | null; stripe_created: string | null }
+type AuditReport = { total_apps: number; matched: number; unmatched: number; by_stripe_status: Record<string, { count: number; total_gbp: number }>; total_collected_gbp: number; on_hold_gbp: number; rows: AuditRow[] }
+
+function AuditReportPanel({ report, onClose }: { report: AuditReport; onClose: () => void }) {
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const STATUS_COLORS: Record<string, string> = {
+    succeeded: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+    requires_capture: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
+    requires_payment_method: 'bg-orange-100 text-orange-800',
+    canceled: 'bg-gray-100 text-gray-700',
+    no_payment: 'bg-red-100 text-red-700',
+  }
+  const MATCH_LABELS: Record<string, string> = {
+    pi_id: 'DB link', session_id: 'Session', metadata: 'Metadata', email: 'Email (fuzzy)', none: 'No match',
+  }
+  const STATUS_LABELS: Record<string, string> = {
+    succeeded: 'Collected', requires_capture: 'On hold', canceled: 'Canceled',
+    requires_payment_method: 'Incomplete', no_payment: 'No payment',
+  }
+  const visibleRows = statusFilter === 'all'
+    ? report.rows
+    : report.rows.filter(r => (r.stripe_status ?? 'no_payment') === statusFilter)
+  const matchRate = report.total_apps > 0 ? Math.round(report.matched / report.total_apps * 100) : 0
+  return (
+    <div className="mb-4 rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center gap-2">
+          <BarChart2 className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-semibold">Stripe audit</span>
+          <span className="text-xs text-muted-foreground ml-1">Live read from Stripe — {new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose} className="h-7 px-2 text-xs">Close</Button>
+      </div>
+      <div className="flex flex-wrap gap-x-6 gap-y-2 px-4 py-3 border-b border-border bg-muted/30 text-sm">
+        <div><span className="font-semibold text-foreground">{report.total_apps}</span> <span className="text-muted-foreground">camp applications</span></div>
+        <div><span className="font-semibold text-emerald-700 dark:text-emerald-400">{report.by_stripe_status['succeeded']?.count ?? 0}</span> <span className="text-muted-foreground">payments collected</span> <span className="font-semibold text-emerald-700 dark:text-emerald-400">£{report.total_collected_gbp.toFixed(2)}</span></div>
+        <div><span className="font-semibold text-indigo-700 dark:text-indigo-400">{report.by_stripe_status['requires_capture']?.count ?? 0}</span> <span className="text-muted-foreground">on hold</span> <span className="font-semibold text-indigo-700 dark:text-indigo-400">£{report.on_hold_gbp.toFixed(2)}</span></div>
+        <div><span className="font-semibold text-red-600">{report.unmatched}</span> <span className="text-muted-foreground">no Stripe record</span></div>
+        <div className="text-muted-foreground">Match rate: <span className="font-semibold text-foreground">{matchRate}%</span></div>
+      </div>
+      <div className="flex gap-1.5 px-4 py-2 border-b border-border flex-wrap">
+        {['all', ...Object.keys(report.by_stripe_status)].map(key => (
+          <button key={key} onClick={() => setStatusFilter(key)} className={'px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ' + (statusFilter === key ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-muted/70')}>
+            {key === 'all' ? 'All' : (STATUS_LABELS[key] ?? key)}{' '}
+            ({key === 'all' ? report.total_apps : (report.by_stripe_status[key]?.count ?? 0)})
+          </button>
+        ))}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead className="bg-muted/20">
+            <tr className="border-b border-border text-muted-foreground">
+              <th className="px-3 py-2 text-left font-medium">#</th>
+              <th className="px-3 py-2 text-left font-medium">Name</th>
+              <th className="px-3 py-2 text-left font-medium">Email</th>
+              <th className="px-3 py-2 text-left font-medium">DB status</th>
+              <th className="px-3 py-2 text-left font-medium">Stripe status</th>
+              <th className="px-3 py-2 text-right font-medium">Amount</th>
+              <th className="px-3 py-2 text-left font-medium">Matched by</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((row, i) => (
+              <tr key={row.app_id} className="border-b border-border/50 hover:bg-muted/20">
+                <td className="px-3 py-2 text-muted-foreground">{i + 1}</td>
+                <td className="px-3 py-2 font-medium whitespace-nowrap">{row.name}</td>
+                <td className="px-3 py-2 text-muted-foreground max-w-[180px] truncate">{row.email ?? '—'}</td>
+                <td className="px-3 py-2"><span className="inline-block px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[10px]">{row.db_status}</span></td>
+                <td className="px-3 py-2"><span className={'inline-block px-1.5 py-0.5 rounded text-[10px] ' + (STATUS_COLORS[row.stripe_status ?? 'no_payment'] ?? 'bg-muted text-muted-foreground')}>{row.stripe_status ?? 'none'}</span></td>
+                <td className="px-3 py-2 text-right font-mono">{row.amount_gbp !== null ? ('£' + row.amount_gbp.toFixed(2)) : '—'}</td>
+                <td className="px-3 py-2 text-muted-foreground text-[10px]">{MATCH_LABELS[row.match_method] ?? row.match_method}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isReconciling, expandedPanel, onTogglePanel, onAudit, isAuditing }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; onReconcile: () => void; isReconciling: boolean; expandedPanel: PaymentHealth | null; onTogglePanel: (v: PaymentHealth | null) => void; onAudit: () => void; isAuditing: boolean }) {
   const campApps = submissions.filter((s) => s.source_table === 'camp_applications')
   if (campApps.length === 0) return null
   const counts: Record<string, number> = { all: campApps.length }
@@ -390,10 +471,16 @@ function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isRe
     <div className="mb-3">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-muted-foreground">Payment health (camp applications)</h3>
-        <Button variant="outline" size="sm" onClick={onReconcile} disabled={isReconciling} className="h-8" title="Re-sync every application with Stripe to pull latest payment status, disputes and reviews">
-          <RefreshCw className={'h-3.5 w-3.5 mr-1.5 ' + (isReconciling ? 'animate-spin' : '')} />
-          {isReconciling ? 'Syncing from Stripe...' : 'Sync from Stripe'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={onReconcile} disabled={isReconciling} className="h-8" title="Re-sync every camp application with Stripe to pull latest payment status, disputes and reviews">
+            <RefreshCw className={'h-3.5 w-3.5 mr-1.5 ' + (isReconciling ? 'animate-spin' : '')} />
+            {isReconciling ? 'Syncing...' : 'Sync from Stripe'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={onAudit} disabled={isAuditing} className="h-8" title="Cross-reference every camp application against all Stripe payment intents and show a full reconciliation report">
+            <BarChart2 className={'h-3.5 w-3.5 mr-1.5 ' + (isAuditing ? 'animate-spin' : '')} />
+            {isAuditing ? 'Auditing...' : 'Check vs Stripe'}
+          </Button>
+        </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
       {HEALTH_CARDS.map((card) => {
@@ -593,6 +680,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   }
 
   const [isReconciling, setIsReconciling] = useState(false)
+  const [isAuditing, setIsAuditing] = useState(false)
+  const [auditReport, setAuditReport] = useState<AuditReport | null>(null)
   const handleReconcile = async () => {
     if (isReconciling) return
     if (!window.confirm('Sync ALL camp applications with Stripe? This pulls latest payment, dispute and review states from Stripe for every row. May take up to 5 minutes.')) return
@@ -607,6 +696,21 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
       toast.error(err instanceof Error ? err.message : 'Reconcile failed')
     } finally {
       setIsReconciling(false)
+    }
+  }
+
+  const handleAudit = async () => {
+    if (isAuditing) return
+    setIsAuditing(true)
+    try {
+      const res = await fetch('/api/admin/stripe-audit')
+      const data = await res.json()
+      if (res.ok === false) throw new Error(data?.error ?? 'Audit failed')
+      setAuditReport(data as AuditReport)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Audit failed')
+    } finally {
+      setIsAuditing(false)
     }
   }
 
@@ -649,7 +753,10 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
-      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} onReconcile={handleReconcile} isReconciling={isReconciling} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} />
+      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} onReconcile={handleReconcile} isReconciling={isReconciling} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} onAudit={handleAudit} isAuditing={isAuditing} />
+      {auditReport !== null && (
+        <AuditReportPanel report={auditReport} onClose={() => setAuditReport(null)} />
+      )}
       {expandedPanel === 'awaiting_payment' && (
         <AwaitingPaymentBreakdown
           submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'awaiting_payment')}
