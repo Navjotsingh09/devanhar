@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Clock, Send, BarChart2 } from 'lucide-react'
+import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 import { Input } from '@/components/ui/input'
@@ -379,58 +379,9 @@ const HEALTH_CARDS: Array<{ key: PaymentHealth | 'all'; label: string; hint: str
 ]
 
 
-type AuditRow = { app_id: string; name: string; email: string | null; db_status: string; match_method: 'pi_id' | 'session_id' | 'metadata' | 'email' | 'none'; stripe_pi_id: string | null; stripe_status: string | null; amount_gbp: number | null; stripe_created: string | null }
-type AuditReport = { total_apps: number; matched: number; unmatched: number; by_stripe_status: Record<string, { count: number; total_gbp: number }>; total_collected_gbp: number; on_hold_gbp: number; rows: AuditRow[] }
 
-function NotCapturedCard({ auditReport }: { auditReport: AuditReport }) {
-  const [open, setOpen] = useState(false)
-  const onHold   = auditReport.by_stripe_status['requires_capture']?.count ?? 0
-  const declined = (auditReport.by_stripe_status['canceled']?.count ?? 0) +
-                   (auditReport.by_stripe_status['requires_payment_method']?.count ?? 0)
-  const noRecord = auditReport.unmatched
-  const total = onHold + declined + noRecord
-  if (total === 0) return null
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        title="Payments not yet captured in Stripe — click to see why"
-        className="text-left rounded-lg border border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20 px-3 py-2 transition hover:border-orange-400 w-full"
-      >
-        <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-orange-500" />
-          <span className="text-[11px] uppercase tracking-wide text-orange-700 dark:text-orange-400">Not captured</span>
-        </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-xl font-semibold text-orange-700 dark:text-orange-400">{total}</span>
-          {open ? <ChevronUp className="h-3.5 w-3.5 text-orange-500" /> : <ChevronDown className="h-3.5 w-3.5 text-orange-500" />}
-        </div>
-      </button>
-      {open && (
-        <div className="mt-1 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50/60 dark:bg-orange-950/10 px-3 py-2 space-y-1.5 text-xs">
-          {onHold > 0 && (
-            <p className="text-indigo-700 dark:text-indigo-400">
-              <span className="font-semibold">{onHold}</span> on hold — payment authorised but not yet captured (click Authorised card to capture)
-            </p>
-          )}
-          {declined > 0 && (
-            <p className="text-gray-600 dark:text-gray-400">
-              <span className="font-semibold">{declined}</span> declined — payment failed or cancelled in Stripe
-            </p>
-          )}
-          {noRecord > 0 && (
-            <p className="text-red-600 dark:text-red-400">
-              <span className="font-semibold">{noRecord}</span> no Stripe record — applicant was never sent a payment link
-            </p>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
 
-function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isReconciling, expandedPanel, onTogglePanel, onAudit, isAuditing, auditReport }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; onReconcile: () => void; isReconciling: boolean; expandedPanel: PaymentHealth | null; onTogglePanel: (v: PaymentHealth | null) => void; onAudit: () => void; isAuditing: boolean; auditReport: AuditReport | null }) {
+function PaymentHealthCards({ submissions, selected, onSelect, expandedPanel, onTogglePanel }: { submissions: Submission[]; selected: PaymentHealth | 'all'; onSelect: (v: PaymentHealth | 'all') => void; expandedPanel: PaymentHealth | null; onTogglePanel: (v: PaymentHealth | null) => void }) {
   const campApps = submissions.filter((s) => s.source_table === 'camp_applications')
   if (campApps.length === 0) return null
   const counts: Record<string, number> = { all: campApps.length }
@@ -438,29 +389,9 @@ function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isRe
     const h = getPaymentHealth(s)
     counts[h] = (counts[h] || 0) + 1
   }
-  // When audit data is loaded, override counts with accurate Stripe numbers
-  if (auditReport) {
-    counts.all        = auditReport.total_apps
-    counts.captured   = auditReport.by_stripe_status['succeeded']?.count ?? 0
-    counts.authorized = auditReport.by_stripe_status['requires_capture']?.count ?? 0
-    counts.declined   = (auditReport.by_stripe_status['canceled']?.count ?? 0) +
-                        (auditReport.by_stripe_status['requires_payment_method']?.count ?? 0)
-  }
   return (
     <div className="mb-3">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-muted-foreground">Payment health (camp applications)</h3>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onReconcile} disabled={isReconciling} className="h-8" title="Re-sync every camp application with Stripe to pull latest payment status, disputes and reviews">
-            <RefreshCw className={'h-3.5 w-3.5 mr-1.5 ' + (isReconciling ? 'animate-spin' : '')} />
-            {isReconciling ? 'Syncing...' : 'Sync from Stripe'}
-          </Button>
-          <Button variant="outline" size="sm" onClick={onAudit} disabled={isAuditing} className="h-8" title="Cross-reference every camp application against all Stripe payment intents and show a full reconciliation report">
-            <BarChart2 className={'h-3.5 w-3.5 mr-1.5 ' + (isAuditing ? 'animate-spin' : '')} />
-            {isAuditing ? 'Auditing...' : 'Check vs Stripe'}
-          </Button>
-        </div>
-      </div>
+      <h3 className="text-sm font-medium text-muted-foreground mb-2">Payment health (camp applications)</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
       {HEALTH_CARDS.map((card) => {
         const count = counts[card.key] || 0
@@ -494,7 +425,6 @@ function PaymentHealthCards({ submissions, selected, onSelect, onReconcile, isRe
           </div>
         )
       })}
-      {auditReport !== null && <NotCapturedCard auditReport={auditReport} />}
       </div>
     </div>
   )
@@ -659,40 +589,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     })
   }
 
-  const [isReconciling, setIsReconciling] = useState(false)
-  const [isAuditing, setIsAuditing] = useState(false)
-  const [auditReport, setAuditReport] = useState<AuditReport | null>(null)
-  const handleReconcile = async () => {
-    if (isReconciling) return
-    if (!window.confirm('Sync ALL camp applications with Stripe? This pulls latest payment, dispute and review states from Stripe for every row. May take up to 5 minutes.')) return
-    setIsReconciling(true)
-    try {
-      const res = await fetch('/api/admin/reconcile-stripe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ onlyMissing: false, limit: 500 }) })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Reconcile failed')
-      toast.success('Stripe sync complete: ' + (data.updated ?? 0) + ' updated, ' + (data.linked ?? 0) + ' newly linked, ' + (data.notFound ?? 0) + ' not found')
-      router.refresh()
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Reconcile failed')
-    } finally {
-      setIsReconciling(false)
-    }
-  }
 
-  const handleAudit = async () => {
-    if (isAuditing) return
-    setIsAuditing(true)
-    try {
-      const res = await fetch('/api/admin/stripe-audit')
-      const data = await res.json()
-      if (res.ok === false) throw new Error(data?.error ?? 'Audit failed')
-      setAuditReport(data as AuditReport)
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Audit failed')
-    } finally {
-      setIsAuditing(false)
-    }
-  }
 
   const handleDelete = (sub: Submission) => {
     const confirmed = window.confirm(
@@ -733,7 +630,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
-      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} onReconcile={handleReconcile} isReconciling={isReconciling} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} onAudit={handleAudit} isAuditing={isAuditing} auditReport={auditReport} />
+      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} />
       {expandedPanel === 'awaiting_payment' && (
         <AwaitingPaymentBreakdown
           submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'awaiting_payment')}
