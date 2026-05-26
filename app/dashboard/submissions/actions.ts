@@ -461,10 +461,15 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   // This includes apps where the webhook auto-captured the PI successfully but
   // the payment_intent.succeeded handler was skipped because the admin had
   // already set status='approved' via the dropdown (the .neq guard blocked it).
+  // Cover every record that could show as AUTHORISED in the UI:
+  //  - stripe_pi_status='requires_capture' (the canonical signal), OR
+  //  - status IN ('payment_authorized','approved') with a PI on file (legacy
+  //    records where the column was set before stripe_pi_status existed, or
+  //    where the admin manually approved before capture was wired up).
   const { data: apps } = await supabase
     .from('camp_applications')
-    .select('id, first_name, last_name, email, stripe_payment_intent_id')
-    .eq('stripe_pi_status', 'requires_capture')
+    .select('id, first_name, last_name, email, status, stripe_pi_status, stripe_payment_intent_id')
+    .or('stripe_pi_status.eq.requires_capture,status.eq.payment_authorized,status.eq.approved')
     .not('stripe_payment_intent_id', 'is', null)
 
   if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [] }
