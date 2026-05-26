@@ -469,14 +469,17 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   // Note: stripe_pi_status column doesn't exist in production Supabase.
   // We rely on status='payment_authorized' as the on-hold signal, and use
   // Stripe as source of truth for the actual PI state per record.
+  // The UI's AUTHORISED bucket comes from Stripe-live data, so the apps
+  // may already be status='approved' in Supabase but their PI is still
+  // requires_capture in Stripe. Pull both statuses + filter by Stripe PI state.
   const { data: apps, error: qErr } = await supabase
     .from('camp_applications')
     .select('id, first_name, last_name, email, status, stripe_payment_intent_id')
-    .eq('status', 'payment_authorized')
+    .in('status', ['payment_authorized', 'approved'])
     .not('stripe_payment_intent_id', 'is', null)
 
   if (qErr) return { captured: 0, failed: 0, errors: [], debug: `query error: ${qErr.message}` }
-  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'no payment_authorized apps with PI on file' }
+  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'no eligible apps' }
 
   let captured = 0
   const errors: string[] = []
@@ -485,16 +488,12 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
     try {
       const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id!)
 
-      if (pi.status === 'requires_capture') {
-        // PI is still on hold — capture it now.
-        await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
-      } else if (pi.status !== 'succeeded') {
-        // canceled, requires_payment_method, etc. — skip silently.
+      if (pi.status !== 'requires_capture') {
+        // Already captured (succeeded), canceled, etc. — skip. Don't re-email.
         continue
       }
-      // succeeded: PI was already captured by webhook auto-capture but Supabase
-      // was never updated (payment_intent.succeeded blocked by .neq guard).
-      // Money is safe — just sync DB + send the approval email.
+      // PI is on hold — capture it now.
+      await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
 
       await supabase.from('camp_applications').update({
         status: 'approved', updated_at: new Date().toISOString()
