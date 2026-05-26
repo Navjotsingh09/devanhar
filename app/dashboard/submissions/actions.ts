@@ -466,14 +466,17 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   //  - status IN ('payment_authorized','approved') with a PI on file (legacy
   //    records where the column was set before stripe_pi_status existed, or
   //    where the admin manually approved before capture was wired up).
+  // Note: stripe_pi_status column doesn't exist in production Supabase.
+  // We rely on status='payment_authorized' as the on-hold signal, and use
+  // Stripe as source of truth for the actual PI state per record.
   const { data: apps, error: qErr } = await supabase
     .from('camp_applications')
-    .select('id, first_name, last_name, email, status, stripe_pi_status, stripe_payment_intent_id')
-    .or('stripe_pi_status.eq.requires_capture,status.eq.payment_authorized,status.eq.approved')
+    .select('id, first_name, last_name, email, status, stripe_payment_intent_id')
+    .eq('status', 'payment_authorized')
     .not('stripe_payment_intent_id', 'is', null)
 
   if (qErr) return { captured: 0, failed: 0, errors: [], debug: `query error: ${qErr.message}` }
-  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'query returned 0 apps' }
+  if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [], debug: 'no payment_authorized apps with PI on file' }
 
   let captured = 0
   const errors: string[] = []
@@ -494,8 +497,7 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
       // Money is safe — just sync DB + send the approval email.
 
       await supabase.from('camp_applications').update({
-        status: 'approved', stripe_pi_status: 'succeeded',
-        stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString()
+        status: 'approved', updated_at: new Date().toISOString()
       }).eq('id', app.id)
       sendApplicationApprovedEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
         .catch(err => console.error('[Capture All] Approval email failed:', err))
@@ -511,6 +513,6 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   }
 
   revalidatePath('/dashboard/submissions')
-  const debug = `found ${apps.length} apps, captured ${captured}; sample: ${apps.slice(0,3).map(a => `${a.email}[${a.status}/${a.stripe_pi_status}]`).join(', ')}`
+  const debug = `found ${apps.length} apps, captured ${captured}; sample: ${apps.slice(0,3).map(a => `${a.email}[${a.status}]`).join(', ')}`
   return { captured, failed: errors.length, errors, debug }
 }
