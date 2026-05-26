@@ -457,12 +457,14 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
   const stripe = new Stripe(stripeKey)
 
-  // Include both 'payment_authorized' (new flow) and 'approved' (old records
-  // where admin used the status dropdown before capture was wired up).
+  // Target every app whose Supabase record says the PI is still on hold.
+  // This includes apps where the webhook auto-captured the PI successfully but
+  // the payment_intent.succeeded handler was skipped because the admin had
+  // already set status='approved' via the dropdown (the .neq guard blocked it).
   const { data: apps } = await supabase
     .from('camp_applications')
     .select('id, first_name, last_name, email, stripe_payment_intent_id')
-    .in('status', ['payment_authorized', 'approved'])
+    .eq('stripe_pi_status', 'requires_capture')
     .not('stripe_payment_intent_id', 'is', null)
 
   if (!apps || apps.length === 0) return { captured: 0, failed: 0, errors: [] }
@@ -473,12 +475,18 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   for (const app of apps) {
     try {
       const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id!)
-      if (pi.status !== 'requires_capture') continue  // already captured/cancelled — skip
-      await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
-      // Update DB immediately so the dashboard reflects the change before the
-      // payment_intent.succeeded webhook fires. The webhook's .neq guard will
-      // then skip a redundant update -- which is why we must send the approval
-      // email here rather than relying on the webhook to do it.
+
+      if (pi.status === 'requires_capture') {
+        // PI is still on hold — capture it now.
+        await stripe.paymentIntents.capture(app.stripe_payment_intent_id!)
+      } else if (pi.status !== 'succeeded') {
+        // canceled, requires_payment_method, etc. — skip silently.
+        continue
+      }
+      // succeeded: PI was already captured by webhook auto-capture but Supabase
+      // was never updated (payment_intent.succeeded blocked by .neq guard).
+      // Money is safe — just sync DB + send the approval email.
+
       await supabase.from('camp_applications').update({
         status: 'approved', stripe_pi_status: 'succeeded',
         stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString()
@@ -487,7 +495,7 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
         .catch(err => console.error('[Capture All] Approval email failed:', err))
       await supabase.from('activity_log').insert({
         admin_id: user.id,
-        action: `Bulk capture: payment captured for ${app.first_name} ${app.last_name} <${app.email}>`,
+        action: `Bulk capture: payment approved for ${app.first_name} ${app.last_name} <${app.email}> (Stripe status was: ${pi.status})`,
         entity_type: 'camp_application', entity_id: app.id
       })
       captured++
