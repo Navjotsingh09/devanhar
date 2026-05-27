@@ -1,7 +1,10 @@
 const CAMP_FROM_EMAIL = 'Singhs Camp UK <singhscampuk@devanhaar.com>'
 
-function escapeHtml(value: string): string {
-  return value
+function escapeHtml(value: string | null | undefined): string {
+  // Belt-and-braces: coerce null/undefined to empty string so a missing
+  // first_name can never crash a transactional email send.
+  const str = value == null ? '' : String(value)
+  return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')

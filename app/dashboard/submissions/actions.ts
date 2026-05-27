@@ -8,6 +8,82 @@ import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, send
 
 type SourceTable = 'form_submissions' | 'camp_applications'
 
+/**
+ * Locate the Stripe PaymentIntent that belongs to a camp_application even
+ * when stripe_payment_intent_id is NULL in Supabase. Mirrors the fallback
+ * chain used by app/dashboard/submissions/page.tsx fetchStripeStatusMap so
+ * the admin actions can't fail just because the column was never populated.
+ *
+ * Lookup order:
+ *   1. app.stripe_payment_intent_id (direct)
+ *   2. app.stripe_checkout_session_id -> session.payment_intent
+ *   3. Stripe PIs with metadata.camp_application_id == app.id
+ *   4. Stripe PIs whose receipt_email matches app.email (newest, prefer
+ *      requires_capture or succeeded)
+ *
+ * Returns null if nothing matches. Pure read-only; safe to call freely.
+ */
+async function findStripePiForApp(
+  stripe: Stripe,
+  app: { id: string | number; email?: string | null; stripe_payment_intent_id?: string | null; stripe_checkout_session_id?: string | null }
+): Promise<Stripe.PaymentIntent | null> {
+  // 1) Direct PI id.
+  if (app.stripe_payment_intent_id) {
+    try {
+      return await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id)
+    } catch (e) {
+      console.warn('[findStripePiForApp] direct PI retrieve failed:', (e as Error).message)
+    }
+  }
+
+  // 2) Checkout session -> PI.
+  if (app.stripe_checkout_session_id) {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(app.stripe_checkout_session_id)
+      if (session.payment_intent && typeof session.payment_intent === 'string') {
+        return await stripe.paymentIntents.retrieve(session.payment_intent)
+      }
+    } catch (e) {
+      console.warn('[findStripePiForApp] session lookup failed:', (e as Error).message)
+    }
+  }
+
+  // 3 + 4) Scan recent PIs for metadata match or email match. We page through
+  // up to 5 pages (~500 PIs) which covers any realistic backlog for camp ops.
+  const email = (app.email || '').toLowerCase().trim()
+  const appIdStr = String(app.id)
+  let startingAfter: string | undefined
+  for (let pageIdx = 0; pageIdx < 5; pageIdx++) {
+    const pg: Stripe.ApiList<Stripe.PaymentIntent> = await stripe.paymentIntents.list({
+      limit: 100,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    })
+    // metadata match wins
+    for (const pi of pg.data) {
+      const metaId = pi.metadata?.camp_application_id
+      if (metaId && String(metaId) === appIdStr) return pi
+    }
+    // email match (prefer requires_capture, then succeeded, then newest)
+    if (email) {
+      const matches = pg.data.filter(pi => (pi.receipt_email || pi.metadata?.email || '').toLowerCase().trim() === email)
+      if (matches.length > 0) {
+        const order = ['requires_capture', 'succeeded']
+        matches.sort((a, b) => {
+          const ai = order.indexOf(a.status) === -1 ? 99 : order.indexOf(a.status)
+          const bi = order.indexOf(b.status) === -1 ? 99 : order.indexOf(b.status)
+          return ai !== bi ? ai - bi : b.created - a.created
+        })
+        return matches[0]
+      }
+    }
+    if (!pg.has_more) break
+    startingAfter = pg.data[pg.data.length - 1].id
+  }
+
+  return null
+}
+
+
 export async function updateSubmissionStatus(id: string, status: string, sourceTable: SourceTable = 'form_submissions') {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -82,25 +158,31 @@ export async function captureApplicationPayment(applicationId: string) {
   const { data: app } = await supabase.from('camp_applications').select('*').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-  if (app.stripe_payment_intent_id) {
-    // Idempotent: only capture if the PI is still in requires_capture. This
-    // lets admins safely re-run on records that were marked approved in the
-    // DB without the Stripe capture having actually run.
-    try {
-      const pi = await stripe.paymentIntents.retrieve(app.stripe_payment_intent_id)
-      if (pi.status === 'requires_capture') {
-        await stripe.paymentIntents.capture(app.stripe_payment_intent_id)
-      } else if (pi.status === 'succeeded') {
-        console.log('[Capture] Payment intent already captured:', pi.id)
-      } else {
-        throw new Error(`Cannot capture payment in state "${pi.status}"`)
+
+  // Resolve the PI even if stripe_payment_intent_id is NULL (column was not
+  // populated for some legacy records). Mirrors page.tsx fallback chain.
+  const pi = await findStripePiForApp(stripe, app)
+  let resolvedPiId: string | null = pi?.id ?? null
+
+  if (pi) {
+    if (pi.status === 'requires_capture') {
+      try {
+        await stripe.paymentIntents.capture(pi.id)
+      } catch (captureErr: any) {
+        if (captureErr?.code === 'payment_intent_unexpected_state') {
+          console.warn('[Capture] PI already captured between retrieve and capture')
+        } else {
+          throw captureErr
+        }
       }
-    } catch (captureErr: any) {
-      if (captureErr?.code === 'payment_intent_unexpected_state') {
-        console.warn('[Capture] Payment intent already captured or in unexpected state')
-      } else {
-        throw captureErr
-      }
+    } else if (pi.status === 'succeeded') {
+      console.log('[Capture] Payment intent already captured:', pi.id)
+    } else if (pi.status === 'requires_action') {
+      throw new Error('Customer must complete 3-D Secure authentication before this can be captured. Resend payment link.')
+    } else if (pi.status === 'canceled') {
+      throw new Error('Payment was canceled or expired. Resend payment link to start a new authorisation.')
+    } else {
+      throw new Error(`Cannot capture payment in state "${pi.status}"`)
     }
   } else if (app.status === 'approved') {
     throw new Error('Already approved (no payment intent on file)')
@@ -108,11 +190,14 @@ export async function captureApplicationPayment(applicationId: string) {
     // Payment-support applicants are approved manually by the team without Stripe.
     // No capture needed — fall through to DB update; approval email sent below.
   } else {
-    // stripe_payment_intent_id is null and not yet approved — payment was never
-    // authorized (applicant never completed checkout). Refuse to silently approve.
+    // No PI in Stripe at all — applicant truly never started checkout.
     throw new Error('No payment intent on file — applicant has not completed checkout. Use "Requires Payment Support" flow or ensure the applicant pays first.')
   }
-  await supabase.from('camp_applications').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', applicationId)
+
+  // Backfill stripe_payment_intent_id so future reads don't need the fallback.
+  const dbUpdate: Record<string, unknown> = { status: 'approved', updated_at: new Date().toISOString() }
+  if (resolvedPiId && !app.stripe_payment_intent_id) dbUpdate.stripe_payment_intent_id = resolvedPiId
+  await supabase.from('camp_applications').update(dbUpdate).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   // Create monthly subscription if opted in
   if (app.monthly_donation_opted && Number(app.monthly_donation_amount) > 0 && app.stripe_payment_intent_id) {
@@ -148,19 +233,29 @@ export async function cancelApplicationPayment(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: app } = await supabase.from('camp_applications').select('stripe_payment_intent_id, status, first_name, last_name, email').eq('id', applicationId).single()
+  const { data: app } = await supabase.from('camp_applications').select('id, stripe_payment_intent_id, stripe_checkout_session_id, status, first_name, last_name, email').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'declined') throw new Error('Already declined')
-  if (app.stripe_payment_intent_id) {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+  // Find the PI even if stripe_payment_intent_id is NULL so we don't silently
+  // leave money on a 7-day hold when an admin clicks Release.
+  const pi = await findStripePiForApp(stripe, app)
+  let resolvedPiId: string | null = pi?.id ?? null
+
+  if (pi) {
     try {
-      await stripe.paymentIntents.cancel(app.stripe_payment_intent_id)
+      if (pi.status === 'succeeded') {
+        // Already captured — refund.
+        await stripe.refunds.create({ payment_intent: pi.id })
+      } else if (pi.status !== 'canceled') {
+        // requires_capture / requires_action / requires_payment_method / processing — cancel the hold.
+        await stripe.paymentIntents.cancel(pi.id)
+      }
     } catch (cancelErr: any) {
-      // If PI is already captured (succeeded), issue a refund instead
       if (cancelErr?.code === 'payment_intent_unexpected_state') {
-        try {
-          await stripe.refunds.create({ payment_intent: app.stripe_payment_intent_id })
-        } catch (refundErr: any) {
+        // Race: PI flipped between retrieve and cancel. Try refund as last resort.
+        try { await stripe.refunds.create({ payment_intent: pi.id }) } catch (refundErr: any) {
           console.error('[Decline] Refund failed after cancel failed:', refundErr?.message)
           throw new Error(`Could not release payment: ${refundErr?.message || 'Refund failed'}`)
         }
@@ -169,7 +264,10 @@ export async function cancelApplicationPayment(applicationId: string) {
       }
     }
   }
-  await supabase.from('camp_applications').update({ status: 'declined', updated_at: new Date().toISOString() }).eq('id', applicationId)
+
+  const dbUpdate: Record<string, unknown> = { status: 'declined', updated_at: new Date().toISOString() }
+  if (resolvedPiId && !app.stripe_payment_intent_id) dbUpdate.stripe_payment_intent_id = resolvedPiId
+  await supabase.from('camp_applications').update(dbUpdate).eq('id', applicationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined ' + app.first_name + ' ' + app.last_name, entity_type: 'camp_application', entity_id: applicationId })
   // Send the decline email directly. Webhook payment_intent.canceled now has
   // a .neq("status","declined") guard, so it will not double-send.
