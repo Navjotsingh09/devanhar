@@ -92,6 +92,9 @@ function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> 
     'monthly_donation_opted',
     'monthly_donation_amount',
     'phone_normalized',
+    'page_url',
+    'source',
+    'medium',
   ]
 
   const normalizedEntries = Object.entries(c).filter(([key, value]) => {

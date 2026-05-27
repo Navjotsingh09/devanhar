@@ -130,7 +130,30 @@ export function CampApplicationForm({
     donation_type: "one-off",
     monthly_donation_opted: "no",
     monthly_donation_amount: "",
+    page_url: "",
+    source: "",
+    medium: "",
   })
+
+  // Capture page URL + attribution (utm_source/utm_medium, falling back to ?source/?medium)
+  // at mount. Wrapped in try/catch so a malformed URL can never break the form.
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return
+      const href = window.location.href
+      const params = new URLSearchParams(window.location.search)
+      const src = (params.get("utm_source") || params.get("source") || "").slice(0, 255)
+      const med = (params.get("utm_medium") || params.get("medium") || "").slice(0, 255)
+      setForm((prev) => ({
+        ...prev,
+        page_url: href.slice(0, 2048),
+        source: src,
+        medium: med,
+      }))
+    } catch {
+      /* non-fatal */
+    }
+  }, [])
 
   // Lock body scroll when modal is open to prevent iOS blank screen issues
   useEffect(() => {

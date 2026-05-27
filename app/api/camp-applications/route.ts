@@ -172,6 +172,9 @@ export async function POST(request: NextRequest) {
       is_sevadaar: body.is_sevadaar === true,
       other_allergy: body.other_allergy?.trim() || null,
       donation_amount: body.donation_amount ? Number(body.donation_amount) : null,
+      page_url: typeof body.page_url === 'string' && body.page_url.trim() ? body.page_url.trim().slice(0, 2048) : null,
+      source: typeof body.source === 'string' && body.source.trim() ? body.source.trim().slice(0, 255) : null,
+      medium: typeof body.medium === 'string' && body.medium.trim() ? body.medium.trim().slice(0, 255) : null,
     }
 
     // Try with all columns; if migration hasn't run yet, retry with base columns only

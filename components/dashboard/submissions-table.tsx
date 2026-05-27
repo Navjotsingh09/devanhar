@@ -63,9 +63,22 @@ const FIELD_SECTIONS: Array<{ title: string; keys: string[]; collapsible?: boole
   { title: 'ID & Sevadaar', keys: ['id_document_type', 'id_document_url', 'is_sevadaar', 'sevadaar_verified'] },
   { title: 'Consent', keys: ['consent_email', 'consent_phone', 'consent_sms', 'consent_whatsapp'] },
   { title: 'Payment Details', collapsible: true, keys: ['requires_payment_support', 'payment_support_details', 'donation_amount', 'gift_aid', 'monthly_donation_opted', 'monthly_donation_amount', 'stripe_payment_intent_id', 'stripe_checkout_session_id', 'stripe_checkout_url', 'stripe_checkout_expires_at', 'stripe_checkout_amount_pence', 'phone_normalized'] },
+  { title: 'Tracking', collapsible: true, keys: ['page_url', 'source', 'medium'] },
 ]
 
 function renderFieldValue(key: string, value: unknown) {
+  if (key === 'page_url' && typeof value === 'string' && value.length > 0) {
+    return (
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline break-all text-xs"
+      >
+        {value}
+      </a>
+    )
+  }
   if (key === 'id_document_url' && typeof value === 'string' && value.length > 0) {
     return (
       <a
