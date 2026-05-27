@@ -323,7 +323,7 @@ export async function deleteSubmission(id: string, sourceTable: SourceTable = 'f
   revalidatePath('/dashboard/submissions')
 }
 
-export async function resendPaymentLink(applicationId: string) {
+export async function resendPaymentLink(applicationId: string, opts?: { force?: boolean }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -333,13 +333,31 @@ export async function resendPaymentLink(applicationId: string) {
   if (app.status !== 'payment_pending' && !isBrokenApproval) {
     throw new Error(`Cannot resend payment link: status is "${app.status}" and a payment intent already exists`)
   }
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
+  const stripe = new Stripe(stripeKey)
+
+  // HARD GUARD: don't resend if Pritam (or any admin) already issued an
+  // invoice / manual checkout session for this applicant via the Stripe
+  // dashboard. Pass opts.force=true from the UI to override.
+  if (!opts?.force) {
+    try {
+      const contactMap = await fetchStripeManualContactMap(stripe)
+      const manual = contactMap.get((app.email || '').toLowerCase().trim())
+      if (manual) {
+        throw new Error(`Blocked: this applicant was already contacted manually via Stripe ${manual.kind} ${manual.identifier} (${manual.status}, GBP ${manual.amount_gbp.toFixed(2)}). Use the override option to send anyway.`)
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      if (msg.startsWith('Blocked:')) throw e
+      throw new Error(`Could not verify Stripe to avoid duplicate sends: ${msg}`)
+    }
+  }
+
   if (isBrokenApproval) {
     await supabase.from('camp_applications').update({ status: 'payment_pending', updated_at: new Date().toISOString() }).eq('id', applicationId)
     await supabase.from('activity_log').insert({ admin_id: user.id, action: `Reset status from approved -> payment_pending (no PI on file, sending fresh payment link)`, entity_type: 'camp_application', entity_id: applicationId })
   }
-  const stripeKey = process.env.STRIPE_SECRET_KEY
-  if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
-  const stripe = new Stripe(stripeKey)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
   const campFeeGbp = Number(process.env.STRIPE_CAMP_FEE_GBP || '199')
   let initiativeSlug = 'singhs-camp'
@@ -417,7 +435,10 @@ export async function reconcileApplicationWithStripe(applicationId: string) {
   return { success: true, message: `Linked PI ${foundPI.id} (${foundPI.status})`, piId: foundPI.id }
 }
 
-export async function sendAllPaymentLinks(allowedIds?: number[]): Promise<{ sent: number; failed: number; errors: string[]; sent_to: string[] }> {
+export async function sendAllPaymentLinks(
+  allowedIds?: number[],
+  opts?: { force?: boolean }
+): Promise<{ sent: number; failed: number; errors: string[]; sent_to: string[]; skipped_already_contacted: string[] }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -435,13 +456,27 @@ export async function sendAllPaymentLinks(allowedIds?: number[]): Promise<{ sent
     .or('status.eq.payment_pending,and(status.eq.approved,stripe_payment_intent_id.is.null)')
     .order('created_at', { ascending: true })
 
-  if (!apps || apps.length === 0) return { sent: 0, failed: 0, errors: [], sent_to: [] }
+  if (!apps || apps.length === 0) return { sent: 0, failed: 0, errors: [], sent_to: [], skipped_already_contacted: [] }
 
   const eligible = allowedIds && allowedIds.length > 0
     ? apps.filter(a => allowedIds.includes(a.id))
     : apps
 
-  if (eligible.length === 0) return { sent: 0, failed: 0, errors: [], sent_to: [] }
+  if (eligible.length === 0) return { sent: 0, failed: 0, errors: [], sent_to: [], skipped_already_contacted: [] }
+
+  // HARD GUARD: re-fetch Stripe manual-contact map server-side so even if the
+  // UI is stale or bypassed we cannot double-email someone already invoiced
+  // by hand. Pass opts.force=true to override.
+  const skipped_already_contacted: string[] = []
+  let contactMap = new Map<string, StripeManualContact>()
+  if (!opts?.force) {
+    try {
+      contactMap = await fetchStripeManualContactMap(stripe)
+    } catch (e) {
+      console.warn('[sendAllPaymentLinks] Stripe dedupe lookup failed; bailing for safety:', (e as Error).message)
+      throw new Error('Could not verify Stripe to avoid duplicate sends. Aborted.')
+    }
+  }
 
   const { data: initiatives } = await supabase.from('initiatives').select('id, slug')
   const slugMap = new Map((initiatives ?? []).map(i => [i.id, i.slug]))
@@ -451,6 +486,17 @@ export async function sendAllPaymentLinks(allowedIds?: number[]): Promise<{ sent
 
   const sent_to: string[] = []
   for (const app of eligible) {
+    const email = (app.email || '').toLowerCase().trim()
+    const manual = contactMap.get(email)
+    if (manual && !opts?.force) {
+      skipped_already_contacted.push(`${app.first_name} ${app.last_name} <${app.email}> -- Stripe ${manual.kind} ${manual.identifier} (${manual.status})`)
+      await supabase.from('activity_log').insert({
+        admin_id: user.id,
+        action: `Bulk send: SKIPPED ${app.first_name} ${app.last_name} <${app.email}> -- already contacted via Stripe ${manual.kind} ${manual.identifier} (${manual.status}, GBP ${manual.amount_gbp.toFixed(2)})`,
+        entity_type: 'camp_application', entity_id: app.id,
+      })
+      continue
+    }
     try {
       const initiativeSlug = (app.initiative_id && slugMap.get(app.initiative_id)) || 'singhs-camp'
       const initiativePath = `/initiatives/${initiativeSlug}`
@@ -492,7 +538,15 @@ export async function sendAllPaymentLinks(allowedIds?: number[]): Promise<{ sent
   }
 
   revalidatePath('/dashboard/submissions')
-  return { sent, failed: errors.length, errors, sent_to }
+  return { sent, failed: errors.length, errors, sent_to, skipped_already_contacted }
+}
+
+export type StripeManualContact = {
+  kind: 'invoice' | 'session'
+  identifier: string
+  status: string
+  amount_gbp: number
+  created_iso: string
 }
 
 export type SendableApplicant = {
@@ -504,6 +558,78 @@ export type SendableApplicant = {
   stripe_checkout_amount_pence: number | null
   payment_reminder_sent_at: string | null
   initiative_id: number | null
+  /**
+   * Populated by getSendableApplicants() when a manual Stripe outreach
+   * (invoice or non-app checkout session) exists for this applicant's email
+   * within the last 30 days. The UI uses this to flag duplicates and the
+   * bulk-send action uses it as a hard guard (unless force=true is passed).
+   */
+  stripe_manual_contact: StripeManualContact | null
+}
+
+/**
+ * Build email -> most-recent-manual-contact map by scanning recent Stripe
+ * invoices and checkout sessions that were NOT created by the app
+ * (i.e. they lack metadata.camp_application_id). Used to dedupe bulk-resend
+ * vs invoices that admins issued by hand in the Stripe dashboard.
+ */
+async function fetchStripeManualContactMap(stripe: Stripe): Promise<Map<string, StripeManualContact>> {
+  const map = new Map<string, StripeManualContact>()
+  const since = Math.floor(Date.now() / 1000) - 30 * 24 * 3600
+
+  try {
+    let startingAfter: string | undefined
+    for (let i = 0; i < 5; i++) {
+      const pg = await stripe.invoices.list({ limit: 100, created: { gte: since }, ...(startingAfter ? { starting_after: startingAfter } : {}) })
+      for (const inv of pg.data) {
+        if (inv.status === 'void') continue
+        const email = (inv.customer_email || '').toLowerCase().trim()
+        if (!email) continue
+        const created_iso = new Date(inv.created * 1000).toISOString()
+        const existing = map.get(email)
+        if (existing && existing.created_iso > created_iso) continue
+        map.set(email, {
+          kind: 'invoice',
+          identifier: inv.number || inv.id,
+          status: inv.status || 'unknown',
+          amount_gbp: (inv.amount_due || 0) / 100,
+          created_iso,
+        })
+      }
+      if (!pg.has_more) break
+      startingAfter = pg.data[pg.data.length - 1].id
+    }
+  } catch (e) {
+    console.warn('[fetchStripeManualContactMap] invoice scan failed:', (e as Error).message)
+  }
+
+  try {
+    let startingAfter: string | undefined
+    for (let i = 0; i < 5; i++) {
+      const pg = await stripe.checkout.sessions.list({ limit: 100, created: { gte: since }, ...(startingAfter ? { starting_after: startingAfter } : {}) })
+      for (const s of pg.data) {
+        if (s.metadata && s.metadata.camp_application_id) continue
+        const email = (s.customer_email || s.customer_details?.email || '').toLowerCase().trim()
+        if (!email) continue
+        const created_iso = new Date(s.created * 1000).toISOString()
+        const existing = map.get(email)
+        if (existing && existing.created_iso > created_iso) continue
+        map.set(email, {
+          kind: 'session',
+          identifier: s.id,
+          status: s.status || 'unknown',
+          amount_gbp: (s.amount_total || 0) / 100,
+          created_iso,
+        })
+      }
+      if (!pg.has_more) break
+      startingAfter = pg.data[pg.data.length - 1].id
+    }
+  } catch (e) {
+    console.warn('[fetchStripeManualContactMap] session scan failed:', (e as Error).message)
+  }
+
+  return map
 }
 
 export async function getSendableApplicants(): Promise<SendableApplicant[]> {
@@ -518,7 +644,23 @@ export async function getSendableApplicants(): Promise<SendableApplicant[]> {
     .order('created_at', { ascending: true })
 
   if (error) throw new Error(error.message)
-  return (data ?? []) as SendableApplicant[]
+  const rows = (data ?? []) as Omit<SendableApplicant, 'stripe_manual_contact'>[]
+
+  let contactMap = new Map<string, StripeManualContact>()
+  const stripeKey = process.env.STRIPE_SECRET_KEY
+  if (stripeKey) {
+    try {
+      const stripe = new Stripe(stripeKey)
+      contactMap = await fetchStripeManualContactMap(stripe)
+    } catch (e) {
+      console.warn('[getSendableApplicants] Stripe dedupe lookup failed:', (e as Error).message)
+    }
+  }
+
+  return rows.map(r => ({
+    ...r,
+    stripe_manual_contact: contactMap.get((r.email || '').toLowerCase().trim()) ?? null,
+  }))
 }
 
 export type ActivityLogEntry = {

@@ -626,13 +626,14 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [sendAllModal, setSendAllModal] = useState(false)
   const [sendableApplicants, setSendableApplicants] = useState<SendableApplicant[]>([])
   const [selectedSendIds, setSelectedSendIds] = useState<Set<number>>(new Set())
-  const [sendAllResults, setSendAllResults] = useState<{ sent: number; failed: number; sent_to: string[]; errors: string[] } | null>(null)
+  const [sendAllResults, setSendAllResults] = useState<{ sent: number; failed: number; sent_to: string[]; errors: string[]; skipped_already_contacted: string[] } | null>(null)
 
   const openSendAllPreview = async () => {
     try {
       const applicants = await getSendableApplicants()
       setSendableApplicants(applicants)
-      setSelectedSendIds(new Set(applicants.map(a => a.id)))
+      // Pre-select only applicants NOT already invoiced manually via Stripe
+      setSelectedSendIds(new Set(applicants.filter(a => !a.stripe_manual_contact).map(a => a.id)))
       setSendAllResults(null)
       setSendAllModal(true)
     } catch (err) {
@@ -648,15 +649,22 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     })
   }
 
-  const confirmBulkSend = async () => {
+  const confirmBulkSend = async (force = false) => {
     const ids = Array.from(selectedSendIds)
     if (ids.length === 0) return
+    if (force) {
+      const flaggedCount = sendableApplicants.filter(a => a.stripe_manual_contact && selectedSendIds.has(a.id)).length
+      if (flaggedCount > 0 && !window.confirm(`Force send will email ${flaggedCount} applicant(s) who were ALREADY invoiced manually via Stripe. Continue?`)) return
+    }
     setIsSendingAll(true)
     try {
-      const result = await sendAllPaymentLinks(ids)
+      const result = await sendAllPaymentLinks(ids, force ? { force: true } : undefined)
       setSendAllResults(result)
+      const skipNote = result.skipped_already_contacted.length > 0 ? `, ${result.skipped_already_contacted.length} skipped (already invoiced)` : ''
       if (result.failed > 0) {
-        toast.error(`Sent ${result.sent}, ${result.failed} failed — see details below`)
+        toast.error(`Sent ${result.sent}, ${result.failed} failed${skipNote} — see details below`)
+      } else if (result.skipped_already_contacted.length > 0) {
+        toast.warning(`Sent ${result.sent}${skipNote}`)
       } else {
         toast.success(`Payment emails sent to ${result.sent} applicant${result.sent !== 1 ? 's' : ''}`)
         setSendAllModal(false)
@@ -679,7 +687,15 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     if (!window.confirm(msg)) return
     startTransition(async () => {
       try { await resendPaymentLink(sub.id); toast.success('Payment link sent to ' + sub.email) }
-      catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to send payment link') }
+      catch (err) {
+        const errMsg = err instanceof Error ? err.message : 'Failed to send payment link'
+        if (errMsg.startsWith('Blocked:') && window.confirm(errMsg + '\n' + '\n' + 'Send anyway?')) {
+          try { await resendPaymentLink(sub.id, { force: true }); toast.success('Payment link force-sent to ' + sub.email) }
+          catch (e2) { toast.error(e2 instanceof Error ? e2.message : 'Failed to send payment link') }
+        } else {
+          toast.error(errMsg)
+        }
+      }
     })
   }
 
@@ -1061,9 +1077,16 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
               Each applicant below has been approved for a camp seat by an admin.
               Sending issues them a <strong>unique, personal payment link</strong> via email.
               A seat is reserved when their payment is authorised by Stripe.
-              Uncheck anyone you are !yet ready to send to.
+              Uncheck anyone you are not yet ready to send to.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Banner explaining auto-exclusions */}
+          {sendableApplicants.some(a => a.stripe_manual_contact) && (
+            <div className="rounded-md border border-red-300 bg-red-50 dark:bg-red-950/30 dark:border-red-800 px-3 py-2 text-xs text-red-800 dark:text-red-200 mt-2">
+              <strong>{sendableApplicants.filter(a => a.stripe_manual_contact).length} applicant(s) already invoiced manually via Stripe</strong> &mdash; pre-excluded from this send. These are blocked server-side and will be skipped even if ticked, unless you use Force Send below.
+            </div>
+          )}
 
           {/* Select all bar */}
           <div className="flex items-center justify-between px-1 py-2 border-b text-xs text-muted-foreground">
@@ -1076,8 +1099,10 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
           {/* Applicant list */}
           <div className="overflow-y-auto flex-1 divide-y">
-            {sendableApplicants.map(app => (
-              <label key={app.id} className="flex items-center gap-3 px-1 py-3 cursor-pointer hover:bg-muted/40 rounded">
+            {sendableApplicants.map(app => {
+              const manual = app.stripe_manual_contact
+              return (
+              <label key={app.id} className={"flex items-center gap-3 px-1 py-3 cursor-pointer hover:bg-muted/40 rounded " + (manual ? "bg-red-50 dark:bg-red-950/30 border-l-4 border-red-500 pl-2" : "")}>
                 <Checkbox
                   checked={selectedSendIds.has(app.id)}
                   onCheckedChange={(v) => toggleSendId(app.id, Boolean(v))}
@@ -1085,6 +1110,11 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{app.first_name} {app.last_name}</p>
                   <p className="text-xs text-muted-foreground">{app.email}</p>
+                  {manual && (
+                    <p className="text-xs font-semibold text-red-700 dark:text-red-300 mt-0.5">
+                      ⚠ Already contacted manually: Stripe {manual.kind} {manual.identifier} ({manual.status}, £{manual.amount_gbp.toFixed(2)})
+                    </p>
+                  )}
                   {app.payment_reminder_sent_at && (
                     <p className="text-xs text-amber-600 dark:text-amber-400">
                       Previously sent {new Date(app.payment_reminder_sent_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
@@ -1100,7 +1130,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                   </p>
                 </div>
               </label>
-            ))}
+              )
+            })}
           </div>
 
           {/* Post-send results */}
@@ -1112,6 +1143,14 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
               {sendAllResults.sent_to.map((name, i) => (
                 <p key={i} className="text-xs text-muted-foreground">• {name}</p>
               ))}
+              {sendAllResults.skipped_already_contacted && sendAllResults.skipped_already_contacted.length > 0 && (
+                <div className="pt-1 border-t">
+                  <p className="font-semibold text-red-700 dark:text-red-300">{sendAllResults.skipped_already_contacted.length} skipped (already invoiced manually):</p>
+                  {sendAllResults.skipped_already_contacted.map((e, i) => (
+                    <p key={i} className="text-xs text-red-600 dark:text-red-400">• {e}</p>
+                  ))}
+                </div>
+              )}
               {sendAllResults.errors.length > 0 && (
                 <div className="pt-1 border-t">
                   <p className="font-semibold text-red-600">{sendAllResults.errors.length} failed:</p>
@@ -1128,10 +1167,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
               {sendAllResults ? 'Close' : 'Cancel'}
             </Button>
             {!sendAllResults && (
-              <Button onClick={confirmBulkSend} disabled={selectedSendIds.size === 0 || isSendingAll} className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
-                <Send className="h-4 w-4" />
-                {isSendingAll ? 'Sending...' : `Send to ${selectedSendIds.size} applicant${selectedSendIds.size !== 1 ? 's' : ''}`}
-              </Button>
+              <>
+                <Button onClick={() => confirmBulkSend(false)} disabled={selectedSendIds.size === 0 || isSendingAll} className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
+                  <Send className="h-4 w-4" />
+                  {isSendingAll ? 'Sending...' : `Send to ${selectedSendIds.size} applicant${selectedSendIds.size !== 1 ? 's' : ''}`}
+                </Button>
+                {sendableApplicants.some(a => a.stripe_manual_contact && selectedSendIds.has(a.id)) && (
+                  <Button onClick={() => confirmBulkSend(true)} disabled={selectedSendIds.size === 0 || isSendingAll} variant="destructive" className="gap-2" title="Override dedupe guard and send even to applicants already invoiced manually">
+                    <Send className="h-4 w-4" />
+                    Force send (override)
+                  </Button>
+                )}
+              </>
             )}
           </DialogFooter>
         </DialogContent>
