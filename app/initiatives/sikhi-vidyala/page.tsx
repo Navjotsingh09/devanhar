@@ -202,16 +202,16 @@ export default function SikhiVidyalaPage() {
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { name: "Bhai Maan Singh", org: "Sikh History Series", desc: "Experienced speaker in the UK on Sikh history & politics. Founder of Sikh History Series podcast." },
-                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", desc: "Former student of the Basics of Sikhi Vidyala. Qualified teacher with private and grammar school experience." },
-                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", desc: "World renowned speaker on Sikhi. 20+ years teaching Gurbani Santhiya, Kirtan, Sikh History, philosophy & Gurbani arth." },
-                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths." },
-                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history." },
+                { name: "Bhai Maan Singh", org: "Sikh History Series", desc: "Experienced speaker in the UK on Sikh history & politics. Founder of Sikh History Series podcast.", photo: "/initiatives/vidyala-teacher-mann-singh.png" },
+                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", desc: "Former student of the Basics of Sikhi Vidyala. Qualified teacher with private and grammar school experience.", photo: "/initiatives/vidyala-teacher-mandeep-singh.jpg" },
+                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", desc: "World renowned speaker on Sikhi. 20+ years teaching Gurbani Santhiya, Kirtan, Sikh History, philosophy & Gurbani arth.", photo: "/initiatives/vidyala-teacher-sukhwinder-singh.jpg" },
+                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths.", photo: "/initiatives/vidyala-teacher-baljinder-singh.png" },
+                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history.", photo: "/initiatives/vidyala-teacher-amnadeep-singh.png" },
               ].map((t) => (
                 <div key={t.name} className="rounded-xl p-6 border border-border/50 hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0" style={{ backgroundColor: NAVY }}>
-                      {t.name.split(" ").slice(-1)[0][0]}
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2" style={{ borderColor: `${GOLD}55` }}>
+                      <Image src={t.photo} alt={t.name} fill className="object-cover object-top" />
                     </div>
                     <div>
                       <p className="font-semibold text-foreground text-sm">{t.name}</p>
@@ -239,6 +239,26 @@ export default function SikhiVidyalaPage() {
                 Hear from <em className="italic" style={{ color: GOLD }}>Previous Students</em>
               </h2>
             </div>
+            {/* Video testimonials */}
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+              {[
+                { src: "/vidyala-testimonial.mp4", label: "Vidyala Testimonial" },
+                { src: "/vidyala-student-testimonial.mp4", label: "Student Testimonial" },
+              ].map(({ src, label }) => (
+                <div key={src} className="rounded-xl overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  <video
+                    controls
+                    preload="metadata"
+                    className="w-full aspect-video object-cover"
+                    aria-label={label}
+                  >
+                    <source src={src} type="video/mp4" />
+                  </video>
+                </div>
+              ))}
+            </div>
+
+            {/* Text quotes */}
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 { quote: "The opportunities have been the best part of the Sikhi Vidyala for me.", name: "Hukam Singh", role: "Previous Student" },
@@ -272,14 +292,17 @@ export default function SikhiVidyalaPage() {
                 Life at the <em className="italic" style={{ color: NAVY }}>Vidyala</em>
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {[
-                "/initiatives/sikhi-vidyala-1.jpg",
-                "/initiatives/sikhi-vidyala-2.jpg",
-                "/initiatives/sikhi-vidyala-3.jpg",
+                "/initiatives/vidyala-highlight-1.jpg",
+                "/initiatives/vidyala-highlight-2.jpg",
+                "/initiatives/vidyala-highlight-4.jpg",
+                "/initiatives/vidyala-highlight-5.jpg",
+                "/initiatives/vidyala-highlight-6.jpg",
+                "/initiatives/sikhi-vidyala-top.jpg",
               ].map((src, i) => (
                 <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden">
-                  <Image src={src} alt={`Sikhi Vidyala ${i + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-500" />
+                  <Image src={src} alt={`Sikhi Vidyala highlight ${i + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-500" />
                 </div>
               ))}
             </div>
@@ -287,8 +310,15 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── BOTTOM CTA ── */}
-        <section className="py-20 text-center" style={{ backgroundColor: NAVY }}>
-          <div className="container mx-auto px-6">
+        <section className="relative py-24 text-center overflow-hidden">
+          <Image
+            src="/initiatives/vidyala-outro.png"
+            alt="Sikhi Vidyala"
+            fill
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(30,52,97,0.88) 0%, rgba(10,15,30,0.94) 100%)" }} />
+          <div className="relative z-10 container mx-auto px-6">
             <span
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
               style={{ backgroundColor: `${GOLD}33`, color: GOLD }}
