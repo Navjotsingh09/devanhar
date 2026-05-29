@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server-admin"
+import { createClient } from "@supabase/supabase-js"
+
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('Missing Supabase service role credentials')
+  return createClient(url, key)
+}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -21,7 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 })
     }
 
-    const supabase = createClient()
+    const supabase = getSupabaseAdmin()
 
     // Look up initiative ID for sikhi-vidyala
     const { data: initiative } = await supabase
