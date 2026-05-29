@@ -12,12 +12,12 @@ export async function POST(req: NextRequest) {
       "emergency_contact_1_name", "emergency_contact_1_relationship", "emergency_contact_1_phone",
     ]
     for (const field of required) {
-      if (\!body[field] || String(body[field]).trim() === "") {
+      if (!body[field] || String(body[field]).trim() === "") {
         return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })
       }
     }
 
-    if (\!EMAIL_REGEX.test(String(body.email).trim())) {
+    if (!EMAIL_REGEX.test(String(body.email).trim())) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 })
     }
 
