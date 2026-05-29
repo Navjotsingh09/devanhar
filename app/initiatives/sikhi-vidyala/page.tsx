@@ -245,11 +245,11 @@ export default function SikhiVidyalaPage() {
                 { src: "/vidyala-testimonial.mp4", label: "Vidyala Testimonial" },
                 { src: "/vidyala-student-testimonial.mp4", label: "Student Testimonial" },
               ].map(({ src, label }) => (
-                <div key={src} className="rounded-xl overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                <div key={src} className="rounded-xl overflow-hidden aspect-video bg-black" style={{ border: "1px solid rgba(255,255,255,0.12)" }}>
                   <video
                     controls
                     preload="metadata"
-                    className="w-full"
+                    className="w-full h-full object-contain"
                     aria-label={label}
                   >
                     <source src={src} type="video/mp4" />
