@@ -28,7 +28,7 @@ interface Submission {
   internal_notes: string | null
   created_at: string
   initiatives: { name: string; slug: string } | null
-  source_table: 'form_submissions' | 'camp_applications'
+  source_table: 'form_submissions' | 'camp_applications' | 'vidyala_applications'
   stripe_payment_intent_id?: string | null
   stripe_checkout_session_id?: string | null
   stripe_checkout_expires_at?: string | null
@@ -577,7 +577,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     toast.success(`Exported ${filteredSubmissions.length} row${filteredSubmissions.length === 1 ? '' : 's'}`)
   }
 
-  const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' = 'form_submissions') => {
+  const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' | 'vidyala_applications' = 'form_submissions') => {
     startTransition(async () => {
       try {
         // For camp applications, approve/decline must go through Stripe so the

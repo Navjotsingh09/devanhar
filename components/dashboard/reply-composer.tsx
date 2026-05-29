@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 interface ReplyComposerProps {
   submissionId?: string
   emergencyId?: string
-  sourceTable?: 'form_submissions' | 'camp_applications'
+  sourceTable?: 'form_submissions' | 'camp_applications' | 'vidyala_applications'
   recipientName: string
   recipientEmail: string | null
 }

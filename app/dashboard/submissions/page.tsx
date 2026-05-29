@@ -22,7 +22,7 @@ type DashboardSubmission = {
   internal_notes: string | null
   created_at: string
   initiatives: { name: string; slug: string } | null
-  source_table: 'form_submissions' | 'camp_applications'
+  source_table: 'form_submissions' | 'camp_applications' | 'vidyala_applications'
   stripe_payment_intent_id: string | null
   stripe_checkout_session_id: string | null
   stripe_checkout_expires_at: string | null
@@ -121,6 +121,21 @@ function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> 
   return Object.fromEntries(ordered)
 }
 
+function buildVidyalaFormData(c: Record<string, unknown>): Record<string, unknown> {
+  const excludedKeys = new Set([
+    'id', 'initiative_id', 'created_at', 'updated_at', 'status', 'internal_notes', 'initiatives',
+  ])
+  return Object.fromEntries(
+    Object.entries(c).filter(([key, value]) => {
+      if (excludedKeys.has(key)) return false
+      if (value == null) return false
+      if (typeof value === 'string' && value.trim() === '') return false
+      return true
+    })
+  )
+}
+
+
 async function fetchStripeStatusMap(
   apps: Array<{ id: string; stripe_payment_intent_id: string | null; stripe_checkout_session_id: string | null; email: string }>
 ): Promise<Map<string, string>> {
@@ -205,6 +220,11 @@ async function getSubmissions() {
     .select('*, initiatives(name, slug)')
     .order('created_at', { ascending: false })
 
+  const { data: vidyalaApplications } = await supabase
+    .from('vidyala_applications')
+    .select('*, initiatives(name, slug)')
+    .order('created_at', { ascending: false })
+
   const stripeStatusMap = await fetchStripeStatusMap(
     (campApplications ?? []).map(c => ({
       id: String(c.id),
@@ -261,7 +281,33 @@ async function getSubmissions() {
     }
   )
 
-  const unifiedSubmissions = [...formSubmissions, ...normalizedCampApps].sort(
+
+  const normalizedVidyalaApps: DashboardSubmission[] = (vidyalaApplications ?? []).map(
+    (v: Record<string, unknown>) => {
+      const fullName = [String(v.first_name ?? '').trim(), String(v.last_name ?? '').trim()]
+        .filter(Boolean).join(' ') || 'Unknown'
+      return {
+        id: String(v.id),
+        full_name: fullName,
+        email: String(v.email ?? ''),
+        phone: (v.phone as string | null) ?? null,
+        message: 'Vidyala application submitted',
+        form_data: buildVidyalaFormData(v),
+        status: String(v.status ?? 'pending'),
+        internal_notes: (v.internal_notes as string | null) ?? null,
+        created_at: String(v.created_at ?? new Date().toISOString()),
+        initiatives: (v.initiatives as { name: string; slug: string } | null) ?? null,
+        source_table: 'vidyala_applications' as const,
+        stripe_payment_intent_id: null,
+        stripe_checkout_session_id: null,
+        stripe_checkout_expires_at: null,
+        stripe_pi_status: null,
+        stripe_review_state: null,
+      }
+    }
+  )
+
+  const unifiedSubmissions = [...formSubmissions, ...normalizedCampApps, ...normalizedVidyalaApps].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
 

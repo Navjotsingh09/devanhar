@@ -12,7 +12,8 @@ export default function SikhiVidyalaPage() {
       title="Sikhi Vidyala"
       tagline="Develop your Sikhi and learn how to do parchaar."
       heroImage="/initiatives/sikhi-vidyala-top.jpg"
-      hideCtaSection
+      ctaText="Apply for the Vidyala"
+      ctaHref="/initiatives/sikhi-vidyala/apply"
       description={[
         "The Vidyala is an educational institution where knowledge is provided on Sikh history, philosophy, and teachings. Our aim is to equip participants with the skills necessary to spread the message of Sikhi and inspire others.",
         "The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. We continue this vital Seva, hosting weekly global guest speakers.",

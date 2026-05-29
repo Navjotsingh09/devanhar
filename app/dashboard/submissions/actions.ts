@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
 import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from '@/lib/camp-applicant-emails'
 
-type SourceTable = 'form_submissions' | 'camp_applications'
+type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications'
 
 /**
  * Locate the Stripe PaymentIntent that belongs to a camp_application even
