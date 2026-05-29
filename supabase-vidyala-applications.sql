@@ -57,7 +57,7 @@ create table if not exists vidyala_applications (
   medium                          text,
 
   -- Admin
-  status                          text not null default ''pending'',
+  status                          text not null default 'pending',
   internal_notes                  text,
   created_at                      timestamptz not null default now(),
   updated_at                      timestamptz not null default now()
