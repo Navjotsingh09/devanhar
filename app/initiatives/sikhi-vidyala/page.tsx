@@ -1,4 +1,9 @@
-import { InitiativePageLayout } from "@/components/initiative-page-layout"
+import Image from "next/image"
+import Link from "next/link"
+import { Navbar } from "@/components/navbar"
+import { FooterSection } from "@/components/footer-section"
+import { ScrollAnimations } from "@/components/scroll-animations"
+import { ArrowRight, MapPin, Clock, Calendar, Users, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
 
 export const metadata = {
   title: "Sikhi Vidyala | Devanhaar",
@@ -6,73 +11,309 @@ export const metadata = {
     "An educational institution providing knowledge on Sikh history, philosophy, and teachings to equip participants with parchaar skills.",
 }
 
+const NAVY = "#1E3461"
+const GOLD = "#F5A623"
+
 export default function SikhiVidyalaPage() {
   return (
-    <InitiativePageLayout
-      title="Sikhi Vidyala"
-      tagline="Develop your Sikhi and learn how to do parchaar."
-      heroImage="/initiatives/sikhi-vidyala-top.jpg"
-      ctaText="Apply for the Vidyala"
-      ctaHref="/initiatives/sikhi-vidyala/apply"
-      description={[
-        "The Vidyala is an educational institution where knowledge is provided on Sikh history, philosophy, and teachings. Our aim is to equip participants with the skills necessary to spread the message of Sikhi and inspire others.",
-        "The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. We continue this vital Seva, hosting weekly global guest speakers.",
-        "This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a full-time parchaarik. Global applicants must be aged 18+ and live in the UK for six months. It is based at a Gurdwara in Birmingham, UK, with strong local sangat and support.",
-        "Recognising the need for increased Parchaar, many like-minded organisations came together to help inspire and provide the skills necessary for the next generation to spread the message of Sikhi. Teachers come from organisations such as Basics of Sikhi, Journey of Compassion and Shaheedi Bunga UK.",
-      ]}
-      highlights={[
-        "Regular commitment: Mon-Fri, 9am - 5pm, September to February",
-        "Courses in Gurbani, Santhiya, Sikh history, katha and community skills",
-        "Started in 2015 by Bhai Jagraj Singh of Basics of Sikhi",
-        "Weekly global guest speakers",
-        "Teachers from Basics of Sikhi, Journey of Compassion, Shaheedi Bunga UK",
-        "All accommodation and staff vetted with around-the-clock support",
-      ]}
-      testimonials={[
-        {
-          quote: "The opportunities have been the best part of the Sikhi Vidyala for me.",
-          name: "Hukam Singh",
-          role: "Previous Student",
-        },
-        {
-          quote: "The highlight for me has been the Sangat of Gurmukhs.",
-          name: "Gurveen Kaur",
-          role: "Previous Student",
-        },
-        {
-          quote: "Learning about the Rehatname and the puratan Singhs has been my highlight.",
-          name: "Luvpreet Singh",
-          role: "Previous Student",
-        },
-      ]}
-      galleryImages={[
-        "/initiatives/sikhi-vidyala-1.jpg",
-        "/initiatives/sikhi-vidyala-2.jpg",
-        "/initiatives/sikhi-vidyala-3.jpg",
-      ]}
-      additionalSections={
-        <section className="py-16 lg:py-24 bg-[#f8f8f8]">
+    <>
+      <Navbar />
+      <ScrollAnimations />
+      <main>
+
+        {/* ── HERO ── */}
+        <section className="relative min-h-[520px] flex items-center justify-center overflow-hidden">
+          <Image
+            src="/initiatives/sikhi-vidyala-top.jpg"
+            alt="Sikhi Vidyala"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(30,52,97,0.82) 0%, rgba(30,52,97,0.65) 60%, rgba(10,15,30,0.92) 100%)" }} />
+          <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+            <span
+              className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.18em] mb-6"
+              style={{ backgroundColor: GOLD, color: NAVY }}
+            >
+              Applications Open
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+              Sikhi <em className="not-italic" style={{ color: GOLD }}>Vidyala</em>
+            </h1>
+            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-xl mx-auto">
+              Develop your Sikhi and learn how to do parchaar.
+            </p>
+            <Link
+              href="/initiatives/sikhi-vidyala/apply"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
+              style={{ backgroundColor: GOLD, color: NAVY }}
+            >
+              Apply for the Vidyala <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+
+        {/* ── QUICK INFO STRIP ── */}
+        <section className="py-8 border-b border-border" style={{ backgroundColor: "#f9f7f4" }}>
           <div className="container mx-auto px-6 lg:px-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
-              Meet the Teachers
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
-                { name: "Bhai Maan Singh", desc: "Experienced speaker in the UK on Sikh history & politics. Founder of Sikh History Series podcast." },
-                { name: "Bhai Mandeep Singh", desc: "Former student of the Basics of Sikhi Vidyala. Qualified teacher with private and grammar school experience." },
-                { name: "Bhai Sukhwinder Singh", desc: "World renowned speaker on Sikhi. 20+ years teaching Gurbani Santhiya, Kirtan, Sikh History, philosophy & Gurbani arth." },
-                { name: "Giani Baljinder Singh", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths." },
-                { name: "Bhai Amandeep Singh", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history." },
-              ].map((teacher, i) => (
-                <div key={i} className="bg-background rounded-xl p-6 border border-border/50">
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{teacher.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{teacher.desc}</p>
+                { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm" },
+                { icon: MapPin, label: "Location", value: "Birmingham, UK (Gurdwara-based)" },
+                { icon: Clock, label: "Duration", value: "September to February (6 months)" },
+              ].map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${NAVY}15` }}>
+                    <Icon className="h-5 w-5" style={{ color: NAVY }} />
+                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
+                  <p className="text-sm font-medium text-foreground">{value}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
-      }
-    />
+
+        {/* ── COURSE OVERVIEW ── */}
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+
+              {/* Left: description */}
+              <div>
+                <span
+                  className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-5"
+                  style={{ backgroundColor: `${GOLD}22`, color: NAVY }}
+                >
+                  About the Course
+                </span>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight">
+                  A full-time course in <em className="italic" style={{ color: NAVY }}>Sikhi & Parchaar</em>
+                </h2>
+                <div className="space-y-4 text-muted-foreground leading-relaxed">
+                  <p>
+                    The Vidyala is an educational institution where knowledge is provided on Sikh history, philosophy, and teachings. Our aim is to equip participants with the skills necessary to spread the message of Sikhi and inspire others.
+                  </p>
+                  <p>
+                    The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. We continue this vital Seva, hosting weekly global guest speakers.
+                  </p>
+                  <p>
+                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a full-time parchaarik. Global applicants must be aged 18+ and live in the UK for six months.
+                  </p>
+                  <p>
+                    Recognising the need for increased Parchaar, many like-minded organisations came together to help inspire and provide the skills necessary for the next generation to spread the message of Sikhi. Teachers come from organisations such as Basics of Sikhi, Journey of Compassion and Shaheedi Bunga UK.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: apply card */}
+              <div className="rounded-2xl overflow-hidden shadow-xl" style={{ backgroundColor: NAVY }}>
+                <div className="p-8">
+                  <span
+                    className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                    style={{ backgroundColor: GOLD, color: NAVY }}
+                  >
+                    Students
+                  </span>
+                  <h3 className="text-2xl font-bold text-white mb-3">Apply for the Vidyala</h3>
+                  <p className="text-white/70 mb-6 text-sm leading-relaxed">
+                    Applications are reviewed by our team. We welcome anyone with a sincere desire to learn and do parchaar. Applicants must be 18+ and based in the UK for the full six months.
+                  </p>
+                  <ul className="space-y-2 mb-8">
+                    {[
+                      "Open to ages 18+",
+                      "Must be UK-based for 6 months",
+                      "Full-time commitment required",
+                      "Accommodation & support provided",
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-white/80">
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: GOLD }} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/initiatives/sikhi-vidyala/apply"
+                    className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm transition hover:opacity-90"
+                    style={{ backgroundColor: GOLD, color: NAVY }}
+                  >
+                    Apply Now <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="px-8 pb-8">
+                  <p className="text-xs text-white/40 text-center">
+                    All applications are considered by our admin team
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── WHAT YOU WILL LEARN ── */}
+        <section className="py-16 lg:py-24" style={{ backgroundColor: "#f9f7f4" }}>
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="text-center mb-12">
+              <span
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                style={{ backgroundColor: `${GOLD}22`, color: NAVY }}
+              >
+                Curriculum
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                What You&apos;ll <em className="italic" style={{ color: NAVY }}>Learn</em>
+              </h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { icon: BookOpen, title: "Gurbani & Santhiya", desc: "Deep study of Gurbani with correct pronunciation and understanding of arth." },
+                { icon: Globe, title: "Sikh History", desc: "Comprehensive study of Sikh history from Guru Nanak Dev Ji to the present day." },
+                { icon: Mic2, title: "Katha & Public Speaking", desc: "Learn to deliver katha and communicate Sikhi clearly to diverse audiences." },
+                { icon: Users, title: "Community Skills", desc: "Practical skills for running Sikh camps, events and community outreach." },
+                { icon: Heart, title: "Sikhi Philosophy", desc: "In-depth exploration of Sikh philosophy, Rehatname and puratan sources." },
+                { icon: Shield, title: "Parchaar Skills", desc: "Real-world tools to inspire and guide others toward Sikhi in everyday life." },
+              ].map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="bg-white rounded-xl p-6 border border-border/40 hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${NAVY}10` }}>
+                    <Icon className="h-5 w-5" style={{ color: NAVY }} />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── MEET THE TEACHERS ── */}
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="mb-10">
+              <span
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                style={{ backgroundColor: `${GOLD}22`, color: NAVY }}
+              >
+                Faculty
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Meet the <em className="italic" style={{ color: NAVY }}>Teachers</em>
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { name: "Bhai Maan Singh", org: "Sikh History Series", desc: "Experienced speaker in the UK on Sikh history & politics. Founder of Sikh History Series podcast." },
+                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", desc: "Former student of the Basics of Sikhi Vidyala. Qualified teacher with private and grammar school experience." },
+                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", desc: "World renowned speaker on Sikhi. 20+ years teaching Gurbani Santhiya, Kirtan, Sikh History, philosophy & Gurbani arth." },
+                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths." },
+                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history." },
+              ].map((t) => (
+                <div key={t.name} className="rounded-xl p-6 border border-border/50 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white flex-shrink-0" style={{ backgroundColor: NAVY }}>
+                      {t.name.split(" ").slice(-1)[0][0]}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">{t.name}</p>
+                      <p className="text-xs font-medium" style={{ color: GOLD }}>{t.org}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── TESTIMONIALS ── */}
+        <section className="py-16 lg:py-24" style={{ backgroundColor: NAVY }}>
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="text-center mb-12">
+              <span
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                style={{ backgroundColor: `${GOLD}33`, color: GOLD }}
+              >
+                Student Voices
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white">
+                Hear from <em className="italic" style={{ color: GOLD }}>Previous Students</em>
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                { quote: "The opportunities have been the best part of the Sikhi Vidyala for me.", name: "Hukam Singh", role: "Previous Student" },
+                { quote: "The highlight for me has been the Sangat of Gurmukhs.", name: "Gurveen Kaur", role: "Previous Student" },
+                { quote: "Learning about the Rehatname and the puratan Singhs has been my highlight.", name: "Luvpreet Singh", role: "Previous Student" },
+              ].map((t) => (
+                <div key={t.name} className="rounded-xl p-6" style={{ backgroundColor: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  <Star className="h-5 w-5 mb-4" style={{ color: GOLD }} />
+                  <p className="text-white/85 italic leading-relaxed mb-6">&ldquo;{t.quote}&rdquo;</p>
+                  <div>
+                    <p className="font-semibold text-white text-sm">{t.name}</p>
+                    <p className="text-xs" style={{ color: GOLD }}>{t.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── GALLERY ── */}
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="mb-10">
+              <span
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                style={{ backgroundColor: `${GOLD}22`, color: NAVY }}
+              >
+                Gallery
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Life at the <em className="italic" style={{ color: NAVY }}>Vidyala</em>
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[
+                "/initiatives/sikhi-vidyala-1.jpg",
+                "/initiatives/sikhi-vidyala-2.jpg",
+                "/initiatives/sikhi-vidyala-3.jpg",
+              ].map((src, i) => (
+                <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden">
+                  <Image src={src} alt={`Sikhi Vidyala ${i + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-500" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── BOTTOM CTA ── */}
+        <section className="py-20 text-center" style={{ backgroundColor: NAVY }}>
+          <div className="container mx-auto px-6">
+            <span
+              className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
+              style={{ backgroundColor: `${GOLD}33`, color: GOLD }}
+            >
+              Applications Open
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Be part of the next <em className="italic" style={{ color: GOLD }}>Vidyala cohort</em>
+            </h2>
+            <p className="text-white/70 mb-8 max-w-lg mx-auto">
+              Join a community of students dedicated to learning Sikhi and spreading Guru Ji&apos;s message.
+            </p>
+            <Link
+              href="/initiatives/sikhi-vidyala/apply"
+              className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
+              style={{ backgroundColor: GOLD, color: NAVY }}
+            >
+              Apply Now <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="text-white/40 text-xs mt-4">All applications are reviewed by our admin team</p>
+          </div>
+        </section>
+
+      </main>
+      <FooterSection />
+    </>
   )
 }
