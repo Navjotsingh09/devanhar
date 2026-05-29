@@ -249,7 +249,7 @@ export default function SikhiVidyalaPage() {
                   <video
                     controls
                     preload="metadata"
-                    className="w-full aspect-video object-cover"
+                    className="w-full"
                     aria-label={label}
                   >
                     <source src={src} type="video/mp4" />
