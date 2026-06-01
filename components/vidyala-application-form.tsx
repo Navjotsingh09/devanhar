@@ -108,8 +108,8 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
         type === "id" ? setIdUploadError(msg) : setDbsUploadError(msg)
         return null
       }
-      const { path } = await res.json()
-      return path as string
+      const json = await res.json()
+      return (json.file_path ?? json.path) as string
     } finally {
       type === "id" ? setUploadingId(false) : setUploadingDbs(false)
     }
