@@ -294,3 +294,76 @@ export async function sendVidyalaInternalNotification(params: {
     return false
   }
 }
+
+export async function sendWebinarRegistrationNotification(params: {
+  name: string
+  email: string
+  country?: string | null
+  notes?: string | null
+}): Promise<boolean> {
+  if (\!process.env.RESEND_API_KEY) {
+    console.warn('[Vidyala Email] Skipping webinar notification - RESEND_API_KEY not configured')
+    return false
+  }
+
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const eName  = escapeHtml(params.name)
+  const eEmail = escapeHtml(params.email)
+  const eCountry = params.country ? escapeHtml(params.country) : ''
+  const eNotes   = params.notes   ? escapeHtml(params.notes)   : ''
+
+  const countryRow = eCountry
+    ? `<tr><td style="padding:8px 12px;background:#f9fafb;font-weight:600;width:120px;">Country</td><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${eCountry}</td></tr>`
+    : ''
+  const notesRow = eNotes
+    ? `<tr><td style="padding:8px 12px;background:#f9fafb;font-weight:600;">Notes</td><td style="padding:8px 12px;">${eNotes}</td></tr>`
+    : ''
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
+      <div style="background:#1E3461;border-radius:12px 12px 0 0;padding:32px;text-align:center;">
+        <h1 style="color:#F5A623;margin:0;font-size:20px;letter-spacing:1px;">SIKHI VIDYALA</h1>
+        <p style="color:#ffffff99;margin:8px 0 0;font-size:13px;">Webinar Registration</p>
+      </div>
+      <div style="background:#ffffff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:36px;">
+        <h2 style="margin:0 0 16px;color:#1E3461;">New Webinar Signup</h2>
+        <p>Someone has registered for the Sikhi Vidyala <strong>"Find Out More" webinar</strong> (Wednesday 24th June, 5:30pm UK).</p>
+        <table style="border-collapse:collapse;width:100%;margin:16px 0;">
+          <tr><td style="padding:8px 12px;background:#f9fafb;font-weight:600;width:120px;">Name</td><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${eName}</td></tr>
+          <tr><td style="padding:8px 12px;background:#f9fafb;font-weight:600;">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${eEmail}</td></tr>
+          ${countryRow}
+          ${notesRow}
+        </table>
+        <p style="font-size:13px;color:#6b7280;">Remember to add this person to your webinar invite list.</p>
+        <p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh<br/><strong>Sikhi Vidyala Team</strong></p>
+      </div>
+    </div>
+  `
+
+  const textParts = [
+    'New Vidyala Webinar Signup',
+    '',
+    `Name: ${params.name}`,
+    `Email: ${params.email}`,
+  ]
+  if (params.country) textParts.push(`Country: ${params.country}`)
+  if (params.notes)   textParts.push(`Notes: ${params.notes}`)
+  textParts.push('', 'Remember to add this person to your webinar invite list.')
+
+  const { data, error } = await resend.emails.send({
+    from: VIDYALA_SYSTEM_FROM,
+    to: VIDYALA_INTERNAL_EMAIL,
+    subject: `Webinar Signup: ${params.name}`,
+    html,
+    text: textParts.join('\n'),
+  })
+
+  if (error) {
+    console.error('[Vidyala Email] Webinar notification failed:', error)
+    return false
+  }
+  console.log('[Vidyala Email] Webinar notification sent, id:', data?.id)
+  return true
+}
