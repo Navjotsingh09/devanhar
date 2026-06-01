@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
+import { sendWebinarRegistrationNotification } from "@/lib/vidyala-emails"
 import { createClient } from "@supabase/supabase-js"
 
-const ALLOWED_CAMPS = new Set(["singhs-camp-eu", "kaurs-camp-eu"])
+const ALLOWED_CAMPS = new Set(["singhs-camp-eu", "kaurs-camp-eu", "vidyala-webinar"])
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -61,6 +62,15 @@ export async function POST(req: NextRequest) {
         { error: "Could not save your details. Please try again." },
         { status: 500 }
       )
+    }
+
+    if (camp === "vidyala-webinar") {
+      await sendWebinarRegistrationNotification({
+        name: name.trim(),
+        email: email.trim(),
+        country: country?.trim() || null,
+        notes: notes?.trim() || null,
+      }).catch(() => {})
     }
 
     return NextResponse.json({ ok: true })

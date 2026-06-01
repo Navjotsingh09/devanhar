@@ -307,6 +307,12 @@ async function getSubmissions() {
     }
   )
 
+  const { data: webinarSignups } = await supabase
+    .from('register_interest')
+    .select('*')
+    .eq('camp', 'vidyala-webinar')
+    .order('created_at', { ascending: false })
+
   const unifiedSubmissions = [...formSubmissions, ...normalizedCampApps, ...normalizedVidyalaApps].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
@@ -314,11 +320,14 @@ async function getSubmissions() {
   return {
     initiatives: initiatives ?? [],
     submissions: unifiedSubmissions,
+    webinarSignups: (webinarSignups ?? []) as Array<{
+      id: string; name: string; email: string; country: string | null; notes: string | null; created_at: string
+    }>,
   }
 }
 
 export default async function SubmissionsPage() {
-  const [{ initiatives, submissions }, recentActivity] = await Promise.all([
+  const [{ initiatives, submissions, webinarSignups }, recentActivity] = await Promise.all([
     getSubmissions(),
     getRecentCampActivity(60).catch(() => [] as ActivityLogEntry[]),
   ])
@@ -355,6 +364,9 @@ export default async function SubmissionsPage() {
               General / Contact ({generalSubmissions.length})
             </TabsTrigger>
           )}
+          <TabsTrigger value="__webinar" className="text-xs">
+            Webinar Signups ({webinarSignups.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
@@ -372,6 +384,41 @@ export default async function SubmissionsPage() {
             <SubmissionsTable submissions={generalSubmissions} />
           </TabsContent>
         )}
+
+        <TabsContent value="__webinar" className="mt-4">
+          {webinarSignups.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">No webinar signups yet.</p>
+          ) : (
+            <div className="rounded-xl border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 text-left">
+                    <th className="px-4 py-3 font-semibold text-foreground">Name</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">Email</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">Country</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">Notes</th>
+                    <th className="px-4 py-3 font-semibold text-foreground">Signed Up</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {webinarSignups.map((s) => (
+                    <tr key={s.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
+                      <td className="px-4 py-3">
+                        <a href={`mailto:${s.email}`} className="text-blue-600 hover:underline">{s.email}</a>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{s.country ?? '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{s.notes ?? '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs tabular-nums">
+                        {new Date(s.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {recentActivity.length > 0 && (
