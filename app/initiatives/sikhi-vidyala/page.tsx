@@ -72,7 +72,7 @@ export default function SikhiVidyalaPage() {
               {[
                 { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm" },
                 { icon: MapPin, label: "Location", value: "Birmingham, UK (Gurdwara-based)" },
-                { icon: Clock, label: "Duration", value: "September to February (6 months)" },
+                { icon: Clock, label: "Duration", value: "October to February (6 months)" },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${NAVY}15` }}>
@@ -213,21 +213,24 @@ export default function SikhiVidyalaPage() {
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { name: "Bhai Maan Singh", org: "Sikh History Series", photo: "/initiatives/vidyala-teacher-mann-singh.png" },
-                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", photo: "/initiatives/vidyala-teacher-mandeep-singh.jpg" },
-                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", photo: "/initiatives/vidyala-teacher-sukhwinder-singh.jpg" },
-                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", photo: "/initiatives/vidyala-teacher-baljinder-singh.png" },
-                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", photo: "/initiatives/vidyala-teacher-amnadeep-singh.png" },
+                { name: "Bhai Maan Singh", org: "Sikh History Series", photo: "/initiatives/vidyala-teacher-mann-singh.png", desc: "Experienced speaker in the UK on Sikh history & politics. Founder of Sikh History Series podcast." },
+                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", photo: "/initiatives/vidyala-teacher-mandeep-singh.jpg", desc: "Former student of the Basics of Sikhi Vidyala. Qualified teacher with private and grammar school experience." },
+                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", photo: "/initiatives/vidyala-teacher-sukhwinder-singh.jpg", desc: "World renowned speaker on Sikhi. 20+ years teaching Gurbani Santhiya, Kirtan, Sikh History, philosophy & Gurbani arth." },
+                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", photo: "/initiatives/vidyala-teacher-baljinder-singh.png", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths." },
+                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", photo: "/initiatives/vidyala-teacher-amnadeep-singh.png", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history." },
               ].map((t) => (
                 <div key={t.name} className="rounded-2xl overflow-hidden border border-border/40 hover:shadow-lg transition-shadow group">
                   {/* Portrait photo */}
-                  <div className="relative w-full aspect-[3/4] bg-muted">
+                  <div className="relative w-full aspect-[3/4] bg-muted overflow-hidden">
                     <Image
                       src={t.photo}
                       alt={t.name}
                       fill
                       className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)" }}>
+                      <p className="text-white text-sm leading-snug">{t.desc}</p>
+                    </div>
                   </div>
                   {/* Name + org strip */}
                   <div className="flex items-center justify-between px-4 py-3 border-t border-border/40">
