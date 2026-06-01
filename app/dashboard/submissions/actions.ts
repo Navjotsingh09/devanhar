@@ -5,8 +5,9 @@ import Stripe from 'stripe'
 import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
 import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from '@/lib/camp-applicant-emails'
+import { sendVidyalaApprovalEmail, sendVidyalaDeclineEmail } from '@/lib/vidyala-emails'
 
-type SourceTable = 'form_submissions' | 'camp_applications'
+type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications'
 
 /**
  * Locate the Stripe PaymentIntent that belongs to a camp_application even
@@ -788,4 +789,72 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
   revalidatePath('/dashboard/submissions')
   const debug = `scanned ${apps.length} apps, ${onHold.length} PIs on hold, captured ${captured}, unmatched ${unmatched.length}${unmatched.length ? `: ${unmatched.slice(0,3).join(', ')}` : ''}`
   return { captured, failed: errors.length, errors, debug }
+}
+
+export async function approveVidyalaApplication(applicationId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data: app } = await supabase
+    .from('vidyala_applications')
+    .select('id, first_name, last_name, email, status')
+    .eq('id', applicationId)
+    .single()
+  if (!app) throw new Error('Application not found')
+  if (app.status === 'approved') throw new Error('Already approved')
+
+  const { error } = await supabase
+    .from('vidyala_applications')
+    .update({ status: 'approved', updated_at: new Date().toISOString() })
+    .eq('id', applicationId)
+  if (error) throw new Error(error.message)
+
+  await supabase.from('activity_log').insert({
+    admin_id: user.id,
+    action: "Approved Vidyala application: " + (app.first_name || '') + ' ' + (app.last_name || ''),
+    entity_type: 'vidyala_application',
+    entity_id: String(applicationId),
+  })
+
+  if (app.email) {
+    sendVidyalaApprovalEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
+      .catch(err => console.error('[Vidyala] Approval email failed (non-blocking):', err))
+  }
+
+  revalidatePath('/dashboard/submissions')
+}
+
+export async function declineVidyalaApplication(applicationId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data: app } = await supabase
+    .from('vidyala_applications')
+    .select('id, first_name, last_name, email, status')
+    .eq('id', applicationId)
+    .single()
+  if (!app) throw new Error('Application not found')
+  if (app.status === 'declined') throw new Error('Already declined')
+
+  const { error } = await supabase
+    .from('vidyala_applications')
+    .update({ status: 'declined', updated_at: new Date().toISOString() })
+    .eq('id', applicationId)
+  if (error) throw new Error(error.message)
+
+  await supabase.from('activity_log').insert({
+    admin_id: user.id,
+    action: "Declined Vidyala application: " + (app.first_name || '') + ' ' + (app.last_name || ''),
+    entity_type: 'vidyala_application',
+    entity_id: String(applicationId),
+  })
+
+  if (app.email) {
+    sendVidyalaDeclineEmail({ to: app.email, firstName: app.first_name || 'Applicant' })
+      .catch(err => console.error('[Vidyala] Decline email failed (non-blocking):', err))
+  }
+
+  revalidatePath('/dashboard/submissions')
 }
