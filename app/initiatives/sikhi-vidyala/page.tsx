@@ -185,12 +185,12 @@ export default function SikhiVidyalaPage() {
                 { icon: Heart, title: "Sikhi Philosophy", desc: "In-depth exploration of Sikh philosophy, Rehatname and puratan sources." },
                 { icon: Shield, title: "Parchaar Skills", desc: "Real-world tools to inspire and guide others toward Sikhi in everyday life." },
               ].map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="bg-white rounded-xl p-6 border border-border/40 hover:shadow-md transition-shadow">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${NAVY}10` }}>
-                    <Icon className="h-5 w-5" style={{ color: NAVY }} />
+                <div key={title} className="rounded-xl p-6 hover:shadow-lg transition-shadow" style={{ backgroundColor: NAVY }}>
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${GOLD}33` }}>
+                    <Icon className="h-5 w-5" style={{ color: GOLD }} />
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  <h3 className="font-semibold text-white mb-2">{title}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>{desc}</p>
                 </div>
               ))}
             </div>
