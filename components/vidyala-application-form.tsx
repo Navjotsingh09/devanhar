@@ -5,13 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, X } from "lucide-react"
 import Image from "next/image"
 
@@ -288,16 +281,16 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>First Name *</Label>
-                  <Input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} placeholder="Gurpreet" />
+                  <Input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} placeholder="Enter your first name" />
                 </div>
                 <div>
                   <Label>Middle Name</Label>
-                  <Input value={form.middle_name} onChange={(e) => set("middle_name", e.target.value)} placeholder="Singh / Kaur" />
+                  <Input value={form.middle_name} onChange={(e) => set("middle_name", e.target.value)} placeholder="Enter your middle name" />
                 </div>
               </div>
               <div>
                 <Label>Last Name *</Label>
-                <Input value={form.last_name} onChange={(e) => set("last_name", e.target.value)} placeholder="Khalsa" />
+                <Input value={form.last_name} onChange={(e) => set("last_name", e.target.value)} placeholder="Enter your last name" />
               </div>
               <div>
                 <Label>Date of Birth *</Label>
@@ -313,7 +306,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
               </div>
               <div>
                 <Label>Address *</Label>
-                <Textarea value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Full address including postcode and country" rows={3} />
+                <Textarea value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Address, City, County, Post/Zip Code, Country" rows={3} />
               </div>
             </div>
           )}
@@ -347,7 +340,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
             <div className="space-y-4">
               <p className="text-sm text-gray-600">A valid DBS (Disclosure and Barring Service) check is welcomed. If you have one, please indicate and upload a copy.</p>
               <div>
-                <Label>Do you have a valid DBS check certificate? *</Label>
+                <Label>Do you have a valid DBS within the last 2 years? (If you are not a UK citizen, this would be your country's equivalent of a criminal record background check)? *</Label>
                 <div className="flex gap-4 mt-2">
                   {["yes", "no"].map((v) => (
                     <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -366,7 +359,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
               </div>
               {form.has_dbs_check === "yes" && (
                 <div>
-                  <Label>Upload DBS Certificate *</Label>
+                  <Label>If you answered 'Yes' to the previous question, please attach a copy of your valid DBS / foreign background check certificate below *</Label>
                   <Input
                     type="file"
                     accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.pdf"
@@ -394,11 +387,11 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                 <div className="space-y-3">
                   <div>
                     <Label>Full Name *</Label>
-                    <Input value={form.emergency_contact_1_name} onChange={(e) => set("emergency_contact_1_name", e.target.value)} placeholder="Full name" />
+                    <Input value={form.emergency_contact_1_name} onChange={(e) => set("emergency_contact_1_name", e.target.value)} placeholder="Enter name" />
                   </div>
                   <div>
                     <Label>Relationship *</Label>
-                    <Input value={form.emergency_contact_1_relationship} onChange={(e) => set("emergency_contact_1_relationship", e.target.value)} placeholder="e.g. Parent, Spouse" />
+                    <Input value={form.emergency_contact_1_relationship} onChange={(e) => set("emergency_contact_1_relationship", e.target.value)} placeholder="Enter relationship" />
                   </div>
                   <div>
                     <Label>Phone Number *</Label>
@@ -411,11 +404,11 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                 <div className="space-y-3 mt-3">
                   <div>
                     <Label>Full Name</Label>
-                    <Input value={form.emergency_contact_2_name} onChange={(e) => set("emergency_contact_2_name", e.target.value)} placeholder="Full name" />
+                    <Input value={form.emergency_contact_2_name} onChange={(e) => set("emergency_contact_2_name", e.target.value)} placeholder="Enter name" />
                   </div>
                   <div>
                     <Label>Relationship</Label>
-                    <Input value={form.emergency_contact_2_relationship} onChange={(e) => set("emergency_contact_2_relationship", e.target.value)} placeholder="e.g. Sibling, Friend" />
+                    <Input value={form.emergency_contact_2_relationship} onChange={(e) => set("emergency_contact_2_relationship", e.target.value)} placeholder="Enter relationship" />
                   </div>
                   <div>
                     <Label>Phone Number</Label>
@@ -441,33 +434,40 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                 </div>
               </div>
               <div>
-                <Label>Tell us about your Sikhi journey</Label>
-                <Textarea value={form.sikhi_journey} onChange={(e) => set("sikhi_journey", e.target.value)} placeholder="Share your Sikhi journey, background, and practice..." rows={4} />
+                <Label>Please briefly tell us where you are in your journey of Sikhi. *</Label>
+                <Textarea value={form.sikhi_journey} onChange={(e) => set("sikhi_journey", e.target.value)} placeholder="Enter text here" rows={4} />
               </div>
               <div>
-                <Label>English ability *</Label>
-                <Select value={form.english_ability} onValueChange={(v) => set("english_ability", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="native">Native / fluent</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>What is your English speaking ability? *</Label>
+                <div className="flex flex-col gap-2 mt-2">
+                  {[
+                    { v: "elementary", l: "Elementary" },
+                    { v: "limited", l: "Limited" },
+                    { v: "professional", l: "Professional" },
+                    { v: "native", l: "Native/tongue" },
+                  ].map(({ v, l }) => (
+                    <label key={v} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="english_ability" value={v} checked={form.english_ability === v} onChange={() => set("english_ability", v)} className="accent-[#F5A623]" />
+                      <span className="text-sm">{l}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
-                <Label>Panjabi ability *</Label>
-                <Select value={form.panjabi_ability} onValueChange={(v) => set("panjabi_ability", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="native">Native / fluent</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="none">None</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>What is your Panjabi/Gurmukhi reading ability? *</Label>
+                <div className="flex flex-col gap-2 mt-2">
+                  {[
+                    { v: "elementary", l: "Elementary" },
+                    { v: "limited", l: "Limited" },
+                    { v: "professional", l: "Professional" },
+                    { v: "native", l: "Native/tongue" },
+                  ].map(({ v, l }) => (
+                    <label key={v} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="panjabi_ability" value={v} checked={form.panjabi_ability === v} onChange={() => set("panjabi_ability", v)} className="accent-[#F5A623]" />
+                      <span className="text-sm">{l}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -476,7 +476,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
           {step === 6 && (
             <div className="space-y-4">
               <div>
-                <Label>Can you commit to the full Vidyala programme? *</Label>
+                <Label>The Vidyala requires you to commit 6 months of seva and activities to attend in-farm as well as some weekends and weekend evenings. Are you able to make this commitment? *</Label>
                 <div className="flex gap-4 mt-2">
                   {["yes", "no"].map((v) => (
                     <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -487,26 +487,33 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                 </div>
               </div>
               <div>
-                <Label>Funding *</Label>
-                <Select value={form.funding_option} onValueChange={(v) => set("funding_option", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select funding option..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="self_funded">I will fund myself</SelectItem>
-                    <SelectItem value="partial_support">I may need partial financial support</SelectItem>
-                    <SelectItem value="full_support">I require full financial support</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Are you able to fund the fee of £795 or will you require financial support from the Vidyala? *</Label>
+                <div className="flex flex-col gap-2 mt-2">
+                  {[
+                    { v: "self_funded", l: "I will be able to fund it myself" },
+                    { v: "full_support", l: "I will require financial support from Devanhaar" },
+                  ].map(({ v, l }) => (
+                    <label key={v} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="funding_option" value={v} checked={form.funding_option === v} onChange={() => set("funding_option", v)} className="accent-[#F5A623]" />
+                      <span className="text-sm">{l}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
-                <Label>Accommodation *</Label>
-                <Select value={form.accommodation_option} onValueChange={(v) => set("accommodation_option", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select accommodation option..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="provided">I will use provided accommodation</SelectItem>
-                    <SelectItem value="own">I will arrange my own accommodation</SelectItem>
-                    <SelectItem value="local">I am local and will commute</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>For those living outside of Birmingham (UK), will you require accommodation? *</Label>
+                <div className="flex flex-col gap-2 mt-2">
+                  {[
+                    { v: "provided", l: "Yes, I will need accommodation arranged/funded" },
+                    { v: "local", l: "No, I live in Birmingham" },
+                    { v: "own", l: "No, I will arrange/fund my own accommodation" },
+                  ].map(({ v, l }) => (
+                    <label key={v} className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="accommodation_option" value={v} checked={form.accommodation_option === v} onChange={() => set("accommodation_option", v)} className="accent-[#F5A623]" />
+                      <span className="text-sm">{l}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -515,7 +522,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
           {step === 7 && (
             <div className="space-y-4">
               <div>
-                <Label>Do you require a visa to travel to the UK? *</Label>
+                <Label>Are you making a trip to attend the Vidyala? (Note that the Vidyala cannot sponsor students but can send a supporting letter if required.) *</Label>
                 <div className="flex gap-4 mt-2">
                   {["yes", "no"].map((v) => (
                     <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -527,7 +534,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
               </div>
               {form.requires_visa === "yes" && (
                 <div>
-                  <Label>Do you need visa application support from us? *</Label>
+                  <Label>Do you require support from the Vidyala to apply for your visa application? *</Label>
                   <div className="flex gap-4 mt-2">
                     {["yes", "no"].map((v) => (
                       <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -548,19 +555,19 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
           {step === 8 && (
             <div className="space-y-4">
               <div>
-                <Label>Why do you want to attend the Sikhi Vidyala? *</Label>
-                <Textarea value={form.motivation} onChange={(e) => set("motivation", e.target.value)} placeholder="Tell us your motivation and what you hope to gain..." rows={3} />
+                <Label>What is your main motivation for joining the Vidyala? *</Label>
+                <Textarea value={form.motivation} onChange={(e) => set("motivation", e.target.value)} placeholder="Enter text here" rows={3} />
               </div>
               <div>
-                <Label>What seva do you currently do?</Label>
-                <Textarea value={form.current_seva} onChange={(e) => set("current_seva", e.target.value)} placeholder="Describe any current seva you are involved in..." rows={2} />
+                <Label>What current seva/s are you involved in? (If any) *</Label>
+                <Textarea value={form.current_seva} onChange={(e) => set("current_seva", e.target.value)} placeholder="Enter text here" rows={2} />
               </div>
               <div>
-                <Label>What do you most want to learn?</Label>
-                <Textarea value={form.what_to_learn} onChange={(e) => set("what_to_learn", e.target.value)} placeholder="e.g. Gurbani katha, parchaar techniques, Sikh history..." rows={2} />
+                <Label>Is there anything specific you are looking to learn or takeaway from the Vidyala?</Label>
+                <Textarea value={form.what_to_learn} onChange={(e) => set("what_to_learn", e.target.value)} placeholder="Enter text here" rows={2} />
               </div>
               <div>
-                <Label>Do you intend to continue doing parchaar after the programme?</Label>
+                <Label>Would you be looking to continue more seva after the Vidyala finished?</Label>
                 <div className="flex gap-4 mt-2">
                   {["yes", "no"].map((v) => (
                     <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -571,8 +578,8 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                 </div>
               </div>
               <div>
-                <Label>How did you hear about the Sikhi Vidyala? *</Label>
-                <Input value={form.how_heard} onChange={(e) => set("how_heard", e.target.value)} placeholder="e.g. Social media, friend, Devanhaar website..." />
+                <Label>How did you hear about the Vidyala?</Label>
+                <Input value={form.how_heard} onChange={(e) => set("how_heard", e.target.value)} placeholder="Enter text here" />
               </div>
             </div>
           )}
