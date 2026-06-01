@@ -200,25 +200,34 @@ export default function SikhiVidyalaPage() {
                 Meet the <em className="italic" style={{ color: NAVY }}>Teachers</em>
               </h2>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { name: "Bhai Maan Singh", org: "Sikh History Series", desc: "Experienced speaker in the UK on Sikh history & politics. Founder of Sikh History Series podcast.", photo: "/initiatives/vidyala-teacher-mann-singh.png" },
-                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", desc: "Former student of the Basics of Sikhi Vidyala. Qualified teacher with private and grammar school experience.", photo: "/initiatives/vidyala-teacher-mandeep-singh.jpg" },
-                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", desc: "World renowned speaker on Sikhi. 20+ years teaching Gurbani Santhiya, Kirtan, Sikh History, philosophy & Gurbani arth.", photo: "/initiatives/vidyala-teacher-sukhwinder-singh.jpg" },
-                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths.", photo: "/initiatives/vidyala-teacher-baljinder-singh.png" },
-                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history.", photo: "/initiatives/vidyala-teacher-amnadeep-singh.png" },
+                { name: "Bhai Maan Singh", org: "Sikh History Series", photo: "/initiatives/vidyala-teacher-mann-singh.png" },
+                { name: "Bhai Mandeep Singh", org: "Basics of Sikhi", photo: "/initiatives/vidyala-teacher-mandeep-singh.jpg" },
+                { name: "Bhai Sukhwinder Singh", org: "Guest Speaker", photo: "/initiatives/vidyala-teacher-sukhwinder-singh.jpg" },
+                { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", photo: "/initiatives/vidyala-teacher-baljinder-singh.png" },
+                { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", photo: "/initiatives/vidyala-teacher-amnadeep-singh.png" },
               ].map((t) => (
-                <div key={t.name} className="rounded-xl p-6 border border-border/50 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2" style={{ borderColor: `${GOLD}55` }}>
-                      <Image src={t.photo} alt={t.name} fill className="object-cover object-top" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">{t.name}</p>
-                      <p className="text-xs font-medium" style={{ color: GOLD }}>{t.org}</p>
-                    </div>
+                <div key={t.name} className="rounded-2xl overflow-hidden border border-border/40 hover:shadow-lg transition-shadow group">
+                  {/* Portrait photo */}
+                  <div className="relative w-full aspect-[3/4] bg-muted">
+                    <Image
+                      src={t.photo}
+                      alt={t.name}
+                      fill
+                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
+                  {/* Name + org strip */}
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-border/40">
+                    <div>
+                      <p className="font-semibold text-foreground text-sm leading-tight">{t.name}</p>
+                      <p className="text-xs mt-0.5" style={{ color: GOLD }}>{t.org}</p>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 flex-shrink-0 text-muted-foreground">
+                      <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                 </div>
               ))}
             </div>
