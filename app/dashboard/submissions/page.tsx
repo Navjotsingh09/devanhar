@@ -296,7 +296,7 @@ async function getSubmissions() {
         status: String(v.status ?? 'pending'),
         internal_notes: (v.internal_notes as string | null) ?? null,
         created_at: String(v.created_at ?? new Date().toISOString()),
-        initiatives: (v.initiatives as { name: string; slug: string } | null) ?? null,
+        initiatives: (v.initiatives as { name: string; slug: string } | null) ?? { name: 'Sikhi Vidyala', slug: 'sikhi-vidyala' },
         source_table: 'vidyala_applications' as const,
         stripe_payment_intent_id: null,
         stripe_checkout_session_id: null,
