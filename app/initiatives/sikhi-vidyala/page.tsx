@@ -219,28 +219,22 @@ export default function SikhiVidyalaPage() {
                 { name: "Giani Baljinder Singh", org: "Shaheedi Bunga", photo: "/initiatives/vidyala-teacher-baljinder-singh.png", desc: "Founder of Shaheedi Bunga. Currently teaches Gurbani Santhiya, Kirtan, Sikh History & Katha Granths." },
                 { name: "Bhai Amandeep Singh", org: "Friday Night Sikhi", photo: "/initiatives/vidyala-teacher-amnadeep-singh.png", desc: "Founder of Friday Night Sikhi. Experienced in Sikh philosophy, Gurbani Santhiya, and history." },
               ].map((t) => (
-                <div key={t.name} className="rounded-2xl overflow-hidden border border-border/40 hover:shadow-lg transition-shadow group">
-                  {/* Portrait photo */}
-                  <div className="relative w-full aspect-[3/4] bg-muted overflow-hidden">
+                <div key={t.name} className="rounded-2xl overflow-hidden group cursor-default">
+                  <div className="relative w-full aspect-[3/4] bg-muted">
                     <Image
                       src={t.photo}
                       alt={t.name}
                       fill
                       className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 flex items-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)" }}>
-                      <p className="text-white text-sm leading-snug">{t.desc}</p>
+                    {/* Permanent gradient overlay — name always visible, bio fades in on hover */}
+                    <div className="absolute inset-0 flex flex-col justify-end" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 45%, transparent 75%)" }}>
+                      <div className="px-4 pb-4">
+                        <p className="text-white/90 text-sm leading-snug mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{t.desc}</p>
+                        <p className="font-bold text-white text-base leading-tight">{t.name}</p>
+                        <p className="text-xs mt-0.5" style={{ color: GOLD }}>{t.org}</p>
+                      </div>
                     </div>
-                  </div>
-                  {/* Name + org strip */}
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-border/40">
-                    <div>
-                      <p className="font-semibold text-foreground text-sm leading-tight">{t.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: GOLD }}>{t.org}</p>
-                    </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 flex-shrink-0 text-muted-foreground">
-                      <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
-                    </svg>
                   </div>
                 </div>
               ))}
