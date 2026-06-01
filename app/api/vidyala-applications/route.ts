@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { sendVidyalaConfirmationEmail, sendVidyalaInternalNotification } from "@/lib/vidyala-emails"
+
+const APPLICATION_DEADLINE = new Date('2026-08-01T00:00:00Z')
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -12,6 +15,14 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: NextRequest) {
   try {
+    // Hard close after 31 July 2026
+    if (new Date() >= APPLICATION_DEADLINE) {
+      return NextResponse.json(
+        { error: 'Applications for Sikhi Vidyala are now closed. Thank you for your interest.' },
+        { status: 410 }
+      )
+    }
+
     const body = await req.json()
 
     const required = [
@@ -106,6 +117,12 @@ export async function POST(req: NextRequest) {
         action: `New Vidyala application from ${String(body.first_name).trim()} ${String(body.last_name).trim()} <${String(body.email).trim()}>`,
       })
     } catch {}
+
+    // Fire emails non-blocking
+    const firstName = String(body.first_name).trim()
+    const email = String(body.email).trim().toLowerCase()
+    sendVidyalaConfirmationEmail({ to: email, firstName }).catch(() => {})
+    sendVidyalaInternalNotification({ applicationId: data.id, data: body }).catch(() => {})
 
     return NextResponse.json({ success: true, id: data.id }, { status: 201 })
   } catch (err) {

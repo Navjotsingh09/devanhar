@@ -23,6 +23,7 @@ const STEPS = [
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "heic", "heif", "pdf"]
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const APPLICATION_DEADLINE = new Date('2026-08-01T00:00:00Z')
 
 interface VidyalaApplicationFormProps {
   onClose: () => void
@@ -213,6 +214,27 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
   }
 
   const progressPct = Math.round((step / (STEPS.length - 1)) * 100)
+
+  if (new Date() >= APPLICATION_DEADLINE) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: `${NAVY}15` }}>
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: NAVY }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Applications Closed</h2>
+          <p className="text-gray-600 mb-6">
+            The application window for Sikhi Vidyala has now closed (31 July 2026). Please keep an eye out for future cohorts.
+          </p>
+          <Button onClick={onClose} className="w-full text-white font-semibold" style={{ backgroundColor: NAVY }}>
+            Close
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   if (submitted) {
     return (
