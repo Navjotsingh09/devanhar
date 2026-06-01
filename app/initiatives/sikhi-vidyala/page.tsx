@@ -44,13 +44,24 @@ export default function SikhiVidyalaPage() {
             <p className="text-lg md:text-xl text-white/80 mb-8 max-w-xl mx-auto">
               Develop your Sikhi and learn how to do parchaar.
             </p>
-            <Link
-              href="/initiatives/sikhi-vidyala/apply"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
-              style={{ backgroundColor: GOLD, color: NAVY }}
-            >
-              Apply for the Vidyala <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/initiatives/sikhi-vidyala/apply"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
+                style={{ backgroundColor: GOLD, color: NAVY }}
+              >
+                Apply for the Vidyala <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="/vidyala-handbook-2026.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition hover:opacity-90 border-2"
+                style={{ borderColor: GOLD, color: GOLD, backgroundColor: 'transparent' }}
+              >
+                View Vidyala Handbook 2026 <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         </section>
 
