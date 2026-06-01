@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants, captureAllPayments } from '@/app/dashboard/submissions/actions'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants, captureAllPayments, approveVidyalaApplication, declineVidyalaApplication } from '@/app/dashboard/submissions/actions'
 import type { SendableApplicant } from '@/app/dashboard/submissions/actions'
 import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
@@ -593,6 +593,16 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           toast.success('Declined — funds released')
           return
         }
+        if (sourceTable === 'vidyala_applications' && status === 'approved') {
+          await approveVidyalaApplication(id)
+          toast.success('Approved — approval email sent')
+          return
+        }
+        if (sourceTable === 'vidyala_applications' && status === 'declined') {
+          await declineVidyalaApplication(id)
+          toast.success('Declined — decline email sent')
+          return
+        }
         await updateSubmissionStatus(id, status, sourceTable)
         toast.success('Status updated')
       } catch (err) {
@@ -610,6 +620,19 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const handleDecline = (id: string) => {
     startTransition(async () => {
       try { await cancelApplicationPayment(id); toast.success('Declined - funds released') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
+    })
+  }
+
+  const handleVidyalaApprove = (id: string) => {
+    startTransition(async () => {
+      try { await approveVidyalaApplication(id); toast.success('Approved — approval email sent') }
+      catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
+    })
+  }
+  const handleVidyalaDecline = (id: string) => {
+    startTransition(async () => {
+      try { await declineVidyalaApplication(id); toast.success('Declined — decline email sent') }
+      catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
     })
   }
 
@@ -864,8 +887,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 </TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{sub.email}</TableCell>
                 <TableCell>
-                  {sub.source_table === 'camp_applications' && (sub.status === 'approved' || sub.status === 'declined') ? (
-                    <span title={sub.status === 'approved' ? 'Status locked - payment captured. Use Delete to reverse.' : 'Status locked - declined and refunded.'}>
+                  {(sub.source_table === 'camp_applications' || sub.source_table === 'vidyala_applications') && (sub.status === 'approved' || sub.status === 'declined') ? (
+                    <span title={sub.status === 'approved' ? 'Status locked — approved.' : 'Status locked — declined.'}>
                       <StatusPill status={sub.status} />
                     </span>
                   ) : (
@@ -886,6 +909,14 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                           <SelectItem value="payment_authorized"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-indigo-500" />Payment Authorized</span></SelectItem>
                           <SelectItem value="payment_support_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-purple-500" />Payment Support</span></SelectItem>
                           <SelectItem value="paid"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" />Paid</span></SelectItem>
+                          <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
+                          <SelectItem value="declined"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Declined</span></SelectItem>
+                          <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
+                        </>
+                      ) : sub.source_table === 'vidyala_applications' ? (
+                        <>
+                          <SelectItem value="pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500" />Pending</span></SelectItem>
+                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
                           <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
                           <SelectItem value="declined"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Declined</span></SelectItem>
                           <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
@@ -947,6 +978,32 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         }
                         return null
                       })()}
+                    </>
+                  )}
+                  {sub.source_table === 'vidyala_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => handleVidyalaApprove(sub.id)}
+                        disabled={isPending}
+                        title="Approve — sends approval email"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="sr-only">Approve</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleVidyalaDecline(sub.id)}
+                        disabled={isPending}
+                        title="Decline — sends decline email"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        <span className="sr-only">Decline</span>
+                      </Button>
                     </>
                   )}
                     <Button
@@ -1022,6 +1079,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                                   Decline & Release Funds
                                 </Button>
                               )}
+                            </div>
+                          )}
+                          {sub.source_table === 'vidyala_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (
+                            <div className="flex gap-2 pt-2">
+                              <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleVidyalaApprove(sub.id)} disabled={isPending}>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Approve — Send Email
+                              </Button>
+                              <Button variant="destructive" className="flex-1" onClick={() => handleVidyalaDecline(sub.id)} disabled={isPending}>
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Decline — Send Email
+                              </Button>
                             </div>
                           )}
                         </div>
