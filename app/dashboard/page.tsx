@@ -1,23 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Inbox, Phone, BriefcaseBusiness, AlertTriangle, Clock } from 'lucide-react'
+import { Inbox, Phone, BriefcaseBusiness, AlertTriangle, Clock, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 
 async function getStats() {
   const supabase = await createClient()
-  const [submissions, emergencies, vacancies, recentSubmissions, criticalEmergencies] = await Promise.all([
+  const [submissions, emergencies, vacancies, recentSubmissions, criticalEmergencies, vidyalaPending, recentVidyala] = await Promise.all([
     supabase.from('form_submissions').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     supabase.from('emergency_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'acknowledged', 'in_progress']),
     supabase.from('vacancy_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('form_submissions').select('id, full_name, email, status, created_at, initiatives(name)').order('created_at', { ascending: false }).limit(5),
     supabase.from('emergency_requests').select('*').in('status', ['new', 'acknowledged']).order('created_at', { ascending: false }).limit(5),
+    supabase.from('vidyala_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('vidyala_applications').select('id, first_name, last_name, email, status, created_at').order('created_at', { ascending: false }).limit(5),
   ])
 
   return {
     newSubmissions: submissions.count ?? 0,
     activeEmergencies: emergencies.count ?? 0,
     pendingApplications: vacancies.count ?? 0,
+    vidyalaPending: vidyalaPending.count ?? 0,
+    recentVidyala: recentVidyala.data ?? [],
     recentSubmissions: recentSubmissions.data ?? [],
     criticalEmergencies: criticalEmergencies.data ?? [],
   }
@@ -34,7 +38,7 @@ export default async function DashboardOverview() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/dashboard/submissions">
           <Card className="transition-shadow hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -73,7 +77,56 @@ export default async function DashboardOverview() {
             </CardContent>
           </Card>
         </Link>
+
+        <Link href="/dashboard/vidyala">
+          <Card className="transition-shadow hover:shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Vidyala Applications</CardTitle>
+              <BookOpen className="h-4 w-4 text-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-foreground">{stats.vidyalaPending}</div>
+              <p className="text-xs text-muted-foreground mt-1">Pending review</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
+
+      {/* Vidyala Recent Applications */}
+      {stats.recentVidyala.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-amber-500" />
+              <CardTitle className="text-foreground">Recent Vidyala Applications</CardTitle>
+            </div>
+            <CardDescription>Latest Sikhi Vidyala 2026 applicants</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3">
+              {stats.recentVidyala.map((v: Record<string, string>) => (
+                <div key={v.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{v.first_name} {v.last_name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{v.email}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant={v.status === 'pending' ? 'secondary' : v.status === 'approved' ? 'default' : 'destructive'} className="text-xs">
+                      {v.status}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(v.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/dashboard/vidyala" className="mt-4 block text-xs text-center text-muted-foreground hover:text-foreground transition-colors">
+              View all applications →
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Critical Emergencies + Recent Submissions */}
       <div className="grid gap-6 lg:grid-cols-2">
