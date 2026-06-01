@@ -68,7 +68,7 @@ export default function VidyalaApplyPage() {
           className="font-semibold px-10 py-4 text-lg rounded-full hover:opacity-90 transition"
           style={{ backgroundColor: "#F5A623", color: "#1E3461" }}
         >
-          Apply Now
+          Start your application for 2026-2027 Cohort
         </Button>
       </section>
 

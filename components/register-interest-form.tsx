@@ -10,6 +10,8 @@ interface RegisterInterestFormProps {
   camp: "singhs-camp-eu" | "kaurs-camp-eu" | "vidyala-webinar"
   heading?: string
   description?: string
+  successMessage?: string
+  duplicateMessage?: string
 }
 
 type Status = "idle" | "submitting" | "success" | "error" | "duplicate"
@@ -18,6 +20,8 @@ export function RegisterInterestForm({
   camp,
   heading = "Register your interest",
   description = "Drop your details below and we will let you know as soon as applications open.",
+  successMessage = "You are on the list. We will be in touch as soon as applications open.",
+  duplicateMessage = "You are already on the list — we will be in touch as soon as applications open.",
 }: RegisterInterestFormProps) {
   const [status, setStatus] = useState<Status>("idle")
   const [error, setError] = useState<string | null>(null)
@@ -60,9 +64,7 @@ export function RegisterInterestForm({
           Thank you
         </h3>
         <p className="text-muted-foreground">
-          {status === "duplicate"
-            ? "You are already on the list — we will be in touch as soon as applications open."
-            : "You are on the list. We will be in touch as soon as applications open."}
+          {status === "duplicate" ? duplicateMessage : successMessage}
         </p>
       </div>
     )

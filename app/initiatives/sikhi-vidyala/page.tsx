@@ -203,6 +203,8 @@ export default function SikhiVidyalaPage() {
                 camp="vidyala-webinar"
                 heading="Register for the Webinar"
                 description="Enter your details below and we will send you the webinar link."
+                successMessage="You are registered\! We will send you the webinar link closer to the date."
+                duplicateMessage="You are already registered for the webinar — we will send you the link closer to the date."
               />
             </div>
           </div>
