@@ -118,11 +118,13 @@ export async function POST(req: NextRequest) {
       })
     } catch {}
 
-    // Fire emails non-blocking
+    // Fire emails - await both before returning
     const firstName = String(body.first_name).trim()
     const email = String(body.email).trim().toLowerCase()
-    sendVidyalaConfirmationEmail({ to: email, firstName }).catch(() => {})
-    sendVidyalaInternalNotification({ applicationId: data.id, data: body }).catch(() => {})
+    await Promise.allSettled([
+      sendVidyalaConfirmationEmail({ to: email, firstName }),
+      sendVidyalaInternalNotification({ applicationId: data.id, data: body }),
+    ])
 
     return NextResponse.json({ success: true, id: data.id }, { status: 201 })
   } catch (err) {
