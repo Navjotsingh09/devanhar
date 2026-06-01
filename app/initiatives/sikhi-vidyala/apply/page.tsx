@@ -22,9 +22,9 @@ export default function VidyalaApplyPage() {
               className="rounded-full object-cover"
             />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">Apply for the Sikhi Vidyala</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">Sikhi Vidyala 2026-2027 Program</h1>
           <p className="text-lg mb-8" style={{ color: "#F5A623" }}>
-            Develop your Sikhi knowledge and learn how to do parchaar.
+            Develop your Sikhi Knowledge and spread the essence of Sikhi.
           </p>
           <Button
             onClick={() => setOpen(true)}
@@ -32,7 +32,7 @@ export default function VidyalaApplyPage() {
             className="text-white font-semibold px-10 py-4 text-lg rounded-full shadow-lg hover:opacity-90 transition"
             style={{ backgroundColor: "#F5A623", color: "#1E3461" }}
           >
-            Start Your Application
+            Start your application for 2026-2027 Cohort
           </Button>
         </div>
       </section>

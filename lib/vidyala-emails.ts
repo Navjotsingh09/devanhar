@@ -161,6 +161,7 @@ export async function sendVidyalaConfirmationEmail(params: {
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">
       <div style="background:#1E3461;border-radius:12px 12px 0 0;padding:32px;text-align:center;">
+        <img src="https://devanhaar.vercel.app/logos/vidyala-logo.jpg" alt="Sikhi Vidyala" width="90" height="90" style="border-radius:50%;object-fit:cover;display:block;margin:0 auto 16px;" />
         <h1 style="color:#F5A623;margin:0;font-size:20px;letter-spacing:1px;">SIKHI VIDYALA</h1>
         <p style="color:#ffffff99;margin:8px 0 0;font-size:13px;">by Devanhaar</p>
       </div>
@@ -171,7 +172,7 @@ export async function sendVidyalaConfirmationEmail(params: {
         <div style="background:#fefce8;border-left:4px solid #F5A623;border-radius:4px;padding:16px;margin:24px 0;">
           <p style="margin:0;color:#78350f;font-weight:600;">What happens next?</p>
           <ul style="color:#78350f;font-size:14px;margin:8px 0 0;padding-left:20px;">
-            <li>Applications close on <strong>31 July 2026</strong></li>
+            <li>Applications close on <strong>31st July 2026</strong></li>
             <li>We will review all applications and be in touch with a decision after that date</li>
             <li>If you have any questions in the meantime, reply to this email</li>
           </ul>
@@ -188,7 +189,7 @@ Dear ${params.firstName},
 
 Thank you for submitting your application to the Sikhi Vidyala. We have received your application and it is now under review.
 
-Applications close on 31 July 2026. We will review all applications and be in touch with a decision after that date.
+Applications close on 31st July 2026. We will review all applications and be in touch with a decision after that date.
 
 If you have any questions, please reply to this email.
 

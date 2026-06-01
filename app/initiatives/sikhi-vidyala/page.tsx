@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
+import { RegisterInterestForm } from "@/components/register-interest-form"
 import { ArrowRight, MapPin, Clock, Calendar, Users, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
 
 export const metadata = {
@@ -42,7 +43,7 @@ export default function SikhiVidyalaPage() {
               Sikhi <em className="not-italic" style={{ color: GOLD }}>Vidyala</em>
             </h1>
             <p className="text-lg md:text-xl text-white/80 mb-8 max-w-xl mx-auto">
-              Develop your Sikhi and learn how to do parchaar.
+              Develop your Sikhi Knowledge and spread the essence of Sikhi.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
@@ -50,7 +51,7 @@ export default function SikhiVidyalaPage() {
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
                 style={{ backgroundColor: GOLD, color: NAVY }}
               >
-                Apply for the Vidyala <ArrowRight className="h-4 w-4" />
+                Apply for Vidyala 2026-2027 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="/vidyala-handbook-2026.pdf"
@@ -72,7 +73,7 @@ export default function SikhiVidyalaPage() {
               {[
                 { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm" },
                 { icon: MapPin, label: "Location", value: "Birmingham, UK (Gurdwara-based)" },
-                { icon: Clock, label: "Duration", value: "October to February (6 months)" },
+                { icon: Clock, label: "Duration", value: "October 2026 to February 2027" },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${NAVY}15` }}>
@@ -107,13 +108,26 @@ export default function SikhiVidyalaPage() {
                     The Vidyala is an educational institution where knowledge is provided on Sikh history, philosophy, and teachings. Our aim is to equip participants with the skills necessary to spread the message of Sikhi and inspire others.
                   </p>
                   <p>
-                    The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. We continue this vital Seva, hosting weekly global guest speakers.
+                    The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. The course is run by a core team of speakers, workshop leads and facilitators with regular appearances with guests across the panth.
                   </p>
                   <p>
-                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a full-time parchaarik. Global applicants must be aged 18+ and live in the UK for six months.
+                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a full-time parchaarik. Global applicants must be aged 18+ and be willing to stay full-time in the UK for six months.
                   </p>
                   <p>
-                    Recognising the need for increased Parchaar, many like-minded organisations came together to help inspire and provide the skills necessary for the next generation to spread the message of Sikhi. Teachers come from organisations such as Basics of Sikhi, Journey of Compassion and Shaheedi Bunga UK.
+                    We have captured the best speakers and trainers from various organisations within the UK and beyond to help inspire and provide the skills necessary for the next generation to spread the message of Sikhi.
+                  </p>
+                  <p>
+                    Anyone interested in learning more, please read{" "}
+                    <a
+                      href="/vidyala-handbook-2026.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold underline"
+                      style={{ color: NAVY }}
+                    >
+                      this handbook
+                    </a>{" "}
+                    for further details about the course including a FAQ section.
                   </p>
                 </div>
               </div>
@@ -127,7 +141,7 @@ export default function SikhiVidyalaPage() {
                   >
                     Students
                   </span>
-                  <h3 className="text-2xl font-bold text-white mb-3">Apply for the Vidyala</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">Apply for Vidyala 2026-2027</h3>
                   <p className="text-white/70 mb-6 text-sm leading-relaxed">
                     Applications are reviewed by our team. We welcome anyone with a sincere desire to learn and do parchaar. Applicants must be 18+ and based in the UK for the full six months.
                   </p>
@@ -158,6 +172,38 @@ export default function SikhiVidyalaPage() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+                {/* -- WEBINAR -- */}
+        <section className="py-16 lg:py-20 border-b border-border">
+          <div className="container mx-auto px-6 lg:px-12">
+            <div className="max-w-3xl mx-auto text-center mb-10">
+              <span
+                className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
+                style={{ backgroundColor: `${GOLD}22`, color: NAVY }}
+              >
+                Free Event
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Find Out More &mdash; <em className="italic" style={{ color: NAVY }}>Join our Webinar</em>
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-2">
+                We are hosting a <strong>free &ldquo;Find Out More&rdquo; webinar</strong> on{" "}
+                <strong>Wednesday 24th June at 5:30pm UK time</strong>. This is a great opportunity
+                to ask questions and learn more about the Sikhi Vidyala before applying.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Register below to receive your invite. The recording of the webinar will be uploaded here after it has taken place.
+              </p>
+            </div>
+            <div className="max-w-lg mx-auto rounded-2xl p-8 shadow-md" style={{ backgroundColor: "#f9f7f4", border: `1px solid ${GOLD}44` }}>
+              <RegisterInterestForm
+                camp="vidyala-webinar"
+                heading="Register for the Webinar"
+                description="Enter your details below and we will send you the webinar link."
+              />
             </div>
           </div>
         </section>

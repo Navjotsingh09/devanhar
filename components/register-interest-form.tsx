@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
 interface RegisterInterestFormProps {
-  camp: "singhs-camp-eu" | "kaurs-camp-eu"
+  camp: "singhs-camp-eu" | "kaurs-camp-eu" | "vidyala-webinar"
   heading?: string
   description?: string
 }
