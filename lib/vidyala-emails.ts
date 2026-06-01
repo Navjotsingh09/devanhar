@@ -301,7 +301,7 @@ export async function sendWebinarRegistrationNotification(params: {
   country?: string | null
   notes?: string | null
 }): Promise<boolean> {
-  if (\!process.env.RESEND_API_KEY) {
+  if (!process.env.RESEND_API_KEY) {
     console.warn('[Vidyala Email] Skipping webinar notification - RESEND_API_KEY not configured')
     return false
   }
