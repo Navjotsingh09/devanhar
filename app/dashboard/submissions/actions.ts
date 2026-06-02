@@ -49,14 +49,18 @@ async function findStripePiForApp(
     }
   }
 
-  // 3 + 4) Scan recent PIs for metadata match or email match. We page through
-  // up to 5 pages (~500 PIs) which covers any realistic backlog for camp ops.
+  // 3 + 4) Scan recent PIs for metadata match or email match. Page through
+  // up to 5 pages (~500 PIs) within the last 18 months. The created filter
+  // is essential — without it Stripe can stream forever and hit Vercel's
+  // function timeout.
   const email = (app.email || '').toLowerCase().trim()
   const appIdStr = String(app.id)
+  const eighteenMonthsAgoSec = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30 * 18
   let startingAfter: string | undefined
   for (let pageIdx = 0; pageIdx < 5; pageIdx++) {
     const pg: Stripe.ApiList<Stripe.PaymentIntent> = await stripe.paymentIntents.list({
       limit: 100,
+      created: { gte: eighteenMonthsAgoSec },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     })
     // metadata match wins
