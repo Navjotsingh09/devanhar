@@ -728,9 +728,12 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
 
   const onHold: Stripe.PaymentIntent[] = []
   let startingAfter: string | undefined
-  while (true) {
+  // Hard caps: max 10 pages (1000 PIs) and only PIs from last 18 months.
+  const eighteenMonthsAgoSec = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30 * 18
+  for (let pageNum = 0; pageNum < 10; pageNum++) {
     const pg: Stripe.ApiList<Stripe.PaymentIntent> = await stripe.paymentIntents.list({
       limit: 100,
+      created: { gte: eighteenMonthsAgoSec },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     })
     for (const pi of pg.data) {

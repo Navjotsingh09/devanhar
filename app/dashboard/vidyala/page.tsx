@@ -8,6 +8,7 @@ async function getVidyalaData() {
     .select('*')
     .eq('camp', 'vidyala-webinar')
     .order('created_at', { ascending: false })
+    .limit(5000)
 
   return {
     webinarSignups: (webinarSignups ?? []) as Array<{

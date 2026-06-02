@@ -5,10 +5,10 @@ async function getVacanciesData() {
   const supabase = await createClient()
 
   const [{ data: vacancies }, { data: applications }, { data: initiatives }, { data: messages }] = await Promise.all([
-    supabase.from("vacancies").select("*, initiatives(name)").order("created_at", { ascending: false }),
-    supabase.from("vacancy_applications").select("*, vacancies(title)").order("created_at", { ascending: false }),
+    supabase.from("vacancies").select("*, initiatives(name)").order("created_at", { ascending: false }).limit(1000),
+    supabase.from("vacancy_applications").select("*, vacancies(title)").order("created_at", { ascending: false }).limit(2000),
     supabase.from("initiatives").select("id, name").eq("is_active", true).order("sort_order"),
-    supabase.from("vacancy_messages").select("*").order("created_at", { ascending: true }),
+    supabase.from("vacancy_messages").select("*").order("created_at", { ascending: true }).limit(5000),
   ])
 
   return {
