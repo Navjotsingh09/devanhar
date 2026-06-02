@@ -11,6 +11,7 @@ async function getEmergencyData() {
     .from('emergency_requests')
     .select('*')
     .order('created_at', { ascending: false })
+    .limit(5000)
 
   const requests = allRequests ?? []
   const activeCount = requests.filter(r => ['new', 'acknowledged', 'in_progress'].includes(r.status)).length

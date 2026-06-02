@@ -8,8 +8,8 @@ async function getWolfRunStats() {
   const supabase = await createClient()
 
   const [fundraisersResult, donationsResult, singhsResult, kaursResult] = await Promise.all([
-    supabase.from('wolfrun_fundraisers').select('id, first_name, last_name, email, phone, pack, slug, fundraising_goal, total_raised, status, created_at').order('created_at', { ascending: false }),
-    supabase.from('wolfrun_donations').select('id, fundraiser_id, donor_name, donor_email, amount, gift_aid, message, status, created_at').eq('status', 'completed').order('created_at', { ascending: false }),
+    supabase.from('wolfrun_fundraisers').select('id, first_name, last_name, email, phone, pack, slug, fundraising_goal, total_raised, status, created_at').order('created_at', { ascending: false }).limit(2000),
+    supabase.from('wolfrun_donations').select('id, fundraiser_id, donor_name, donor_email, amount, gift_aid, message, status, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(2000),
     supabase.from('wolfrun_fundraisers').select('id', { count: 'exact', head: true }).eq('pack', 'singhs').eq('status', 'active'),
     supabase.from('wolfrun_fundraisers').select('id', { count: 'exact', head: true }).eq('pack', 'kaurs').eq('status', 'active'),
   ])

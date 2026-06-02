@@ -10,7 +10,8 @@ async function getRunnerStats() {
     supabase
       .from('wolfrun_runners')
       .select('id, first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, status, created_at')
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(5000),
     supabase
       .from('wolfrun_runners')
       .select('id', { count: 'exact', head: true })

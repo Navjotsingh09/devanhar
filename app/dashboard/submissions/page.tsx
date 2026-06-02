@@ -145,8 +145,15 @@ async function fetchStripeStatusMap(
     const stripe = new Stripe(stripeKey)
     const allPIs: Stripe.PaymentIntent[] = []
     let startingAfter: string | undefined
-    while (true) {
-      const page = await stripe.paymentIntents.list({ limit: 100, ...(startingAfter ? { starting_after: startingAfter } : {}) })
+    // Hard caps: max 10 pages (1000 PIs) and only PIs from last 18 months.
+    // Prevents unbounded scans from blowing Vercel's function timeout.
+    const eighteenMonthsAgoSec = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30 * 18
+    for (let pageNum = 0; pageNum < 10; pageNum++) {
+      const page = await stripe.paymentIntents.list({
+        limit: 100,
+        created: { gte: eighteenMonthsAgoSec },
+        ...(startingAfter ? { starting_after: startingAfter } : {}),
+      })
       allPIs.push(...page.data)
       if (!page.has_more) break
       startingAfter = page.data[page.data.length - 1].id
@@ -196,7 +203,8 @@ async function fetchStripeStatusMap(
       if (pi) result.set(app.id, pi.status)
     }
     return result
-  } catch {
+  } catch (e) {
+    console.error('[submissions/fetchStripeStatusMap] Stripe lookup failed - returning empty map. Cause:', e)
     return new Map()
   }
 }
@@ -204,35 +212,41 @@ async function fetchStripeStatusMap(
 async function getSubmissions() {
   const supabase = await createClient()
 
-  const { data: initiatives } = await supabase
-    .from('initiatives')
-    .select('id, name, slug')
-    .eq('is_active', true)
-    .order('sort_order')
+  // Fire all four DB queries in parallel; .limit() caps act as safety nets.
+  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes] = await Promise.all([
+    supabase.from('initiatives').select('id, name, slug').eq('is_active', true).order('sort_order'),
+    supabase.from('form_submissions').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
+    supabase.from('camp_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
+    supabase.from('vidyala_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
+  ])
+  const initiatives = initiativesRes.data
+  const submissions = submissionsRes.data
+  const campApplications = campAppsRes.data
+  const vidyalaApplications = vidyalaAppsRes.data
 
-  const { data: submissions } = await supabase
-    .from('form_submissions')
-    .select('*, initiatives(name, slug)')
-    .order('created_at', { ascending: false })
-
-  const { data: campApplications } = await supabase
-    .from('camp_applications')
-    .select('*, initiatives(name, slug)')
-    .order('created_at', { ascending: false })
-
-  const { data: vidyalaApplications } = await supabase
-    .from('vidyala_applications')
-    .select('*, initiatives(name, slug)')
-    .order('created_at', { ascending: false })
-
-  const stripeStatusMap = await fetchStripeStatusMap(
-    (campApplications ?? []).map(c => ({
-      id: String(c.id),
-      stripe_payment_intent_id: (c.stripe_payment_intent_id as string | null) ?? null,
-      stripe_checkout_session_id: (c.stripe_checkout_session_id as string | null) ?? null,
-      email: String(c.email ?? ''),
-    }))
-  )
+  // Only ask Stripe about apps with unknown status AND still active.
+  // Approved/declined/archived already have final state in DB.
+  const TERMINAL_STATUSES = new Set(['approved', 'declined', 'archived'])
+  const appsNeedingStripe = (campApplications ?? []).filter((c: Record<string, unknown>) => {
+    if ((c.stripe_pi_status as string | null) != null) return false
+    if (TERMINAL_STATUSES.has(String(c.status ?? ''))) return false
+    return !!(c.stripe_payment_intent_id || c.stripe_checkout_session_id || c.email)
+  })
+  // 5s budget. If Stripe is slow, render using DB-stored stripe_pi_status (webhook keeps it current).
+  const stripeStatusMap = await Promise.race([
+    fetchStripeStatusMap(
+      appsNeedingStripe.map((c: Record<string, unknown>) => ({
+        id: String(c.id),
+        stripe_payment_intent_id: (c.stripe_payment_intent_id as string | null) ?? null,
+        stripe_checkout_session_id: (c.stripe_checkout_session_id as string | null) ?? null,
+        email: String(c.email ?? ''),
+      }))
+    ),
+    new Promise<Map<string, string>>(resolve => setTimeout(() => {
+      console.warn('[submissions] Stripe status lookup exceeded 5s budget - rendering with DB-only data')
+      resolve(new Map())
+    }, 5000)),
+  ])
 
   const formSubmissions: DashboardSubmission[] = (submissions ?? []).map(
     (s: Record<string, unknown>) => ({
@@ -312,6 +326,7 @@ async function getSubmissions() {
     .select('*')
     .eq('camp', 'vidyala-webinar')
     .order('created_at', { ascending: false })
+    .limit(5000)
 
   const unifiedSubmissions = [...formSubmissions, ...normalizedCampApps, ...normalizedVidyalaApps].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -329,7 +344,10 @@ async function getSubmissions() {
 export default async function SubmissionsPage() {
   const [{ initiatives, submissions, webinarSignups }, recentActivity] = await Promise.all([
     getSubmissions(),
-    getRecentCampActivity(60).catch(() => [] as ActivityLogEntry[]),
+    getRecentCampActivity(60).catch((e) => {
+      console.error('[submissions] getRecentCampActivity failed - hiding activity panel:', e)
+      return [] as ActivityLogEntry[]
+    }),
   ])
 
   const allSubmissions = submissions

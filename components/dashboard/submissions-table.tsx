@@ -941,43 +941,47 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                   <div className="flex items-center justify-end gap-1">
                   {sub.source_table === 'camp_applications' && sub.status !== 'declined' && (
                     <>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                        onClick={() => handleApprove(sub.id)}
-                        disabled={isPending}
-                        title={sub.status === 'approved' ? 'Re-run Stripe capture' : 'Approve - capture payment'}
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                        <span className="sr-only">{sub.status === 'approved' ? 'Re-capture payment' : 'Approve'}</span>
-                      </Button>
-                      {sub.status !== 'approved' && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDecline(sub.id)} disabled={isPending} title="Decline - release funds">
+                      {/* Capture button — only shown when card is on hold (authorized) or already approved (re-capture) */}
+                      {(getPaymentHealth(sub) === 'authorized' || sub.status === 'approved') && (
+                        <Button
+                          size="sm"
+                          className="h-7 gap-1 px-2.5 text-xs font-semibold bg-green-600 hover:bg-green-700 text-white shadow-sm"
+                          onClick={() => handleApprove(sub.id)}
+                          disabled={isPending}
+                          title={sub.status === 'approved' ? 'Re-run Stripe capture' : 'Card is on hold — click to take the money'}
+                        >
+                          <CheckCircle className="h-3.5 w-3.5" />
+                          {sub.status === 'approved' ? 'Re-capture' : 'Capture'}
+                        </Button>
+                      )}
+                      {/* Decline / release button — shown for authorized (release hold) or awaiting_payment (reject application) */}
+                      {(getPaymentHealth(sub) === 'authorized' || getPaymentHealth(sub) === 'awaiting_payment') && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDecline(sub.id)}
+                          disabled={isPending}
+                          title={getPaymentHealth(sub) === 'authorized' ? 'Release hold — decline and return funds to applicant' : 'Decline application'}
+                        >
                           <XCircle className="h-4 w-4" />
                           <span className="sr-only">Decline</span>
                         </Button>
                       )}
-                      {(() => {
-                        const h = getPaymentHealth(sub)
-                        if (h === 'awaiting_payment') {
-                          const isBroken = sub.status === 'approved' && !sub.stripe_payment_intent_id
-                          return (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className={'h-8 w-8 ' + (isBroken ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50')}
-                              onClick={() => handleSendRepaymentLink(sub)}
-                              disabled={isPending}
-                              title={isBroken ? 'Approved with NO payment - reset and send fresh Stripe link' : 'Send fresh Stripe payment link to applicant'}
-                            >
-                              <Mail className="h-4 w-4" />
-                              <span className="sr-only">Send repayment link</span>
-                            </Button>
-                          )
-                        }
-                        return null
-                      })()}
+                      {/* Send / resend payment link — only for awaiting_payment */}
+                      {getPaymentHealth(sub) === 'awaiting_payment' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={'h-8 w-8 ' + (sub.status === 'approved' && !sub.stripe_payment_intent_id ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50')}
+                          onClick={() => handleSendRepaymentLink(sub)}
+                          disabled={isPending}
+                          title={sub.status === 'approved' && !sub.stripe_payment_intent_id ? 'Approved with NO payment — reset and send fresh Stripe link' : 'Send fresh Stripe payment link to applicant'}
+                        >
+                          <Mail className="h-4 w-4" />
+                          <span className="sr-only">Send payment link</span>
+                        </Button>
+                      )}
                     </>
                   )}
                   {sub.source_table === 'vidyala_applications' && sub.status !== 'approved' && sub.status !== 'declined' && (

@@ -18,11 +18,12 @@ export default async function UsersPage() {
     redirect('/dashboard')
   }
 
-  // Fetch all users
+  // Fetch all users (capped at 500 - safety net; admin team is small)
   const { data: profiles } = await supabase
     .from('admin_profiles')
     .select('id, full_name, role, created_at')
     .order('created_at', { ascending: true })
+    .limit(500)
 
   return (
     <div className="flex flex-col gap-6">
