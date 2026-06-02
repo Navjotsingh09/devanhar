@@ -6,7 +6,6 @@ import {
   Phone,
   BriefcaseBusiness,
   Users,
-  Activity,
   Settings,
   LogOut,
   ChevronDown,
@@ -74,7 +73,6 @@ const vidyalaNav: NavItem[] = [
   { title: 'Webinar Signups', url: '/dashboard/vidyala', icon: Video },
 ]
 const systemNav: NavItem[] = [
-  { title: 'Activity Log', url: '/dashboard/activity', icon: Activity },
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
 ]
 

@@ -52,15 +52,15 @@ export function ContactContent() {
     const message = data.get("message") as string
 
     try {
-      // Save to Supabase if available
+      // Save to Supabase (form_submissions = the table the dashboard reads)
       if (supabase) {
         await supabase
-          .from("contact_submissions")
+          .from("form_submissions")
           .insert([{ full_name: name, email, message, form_data: { subject }, status: "new" }])
       }
 
       // Send email notification via API
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -72,12 +72,16 @@ export function ContactContent() {
         }),
       })
 
+      if (!res.ok) {
+        throw new Error("Email notification failed (" + res.status + ")")
+      }
+
       setSubmitted(true)
       form.reset()
       setTimeout(() => setSubmitted(false), 5000)
     } catch (err) {
       console.error("Error:", err)
-      setError("Something went wrong. Please try again.")
+      setError("Something went wrong. Please try again or email us directly at contact@devanhaar.com.")
     } finally {
       setLoading(false)
     }
