@@ -25,7 +25,7 @@ export default function SikhiVidyalaPage() {
         {/* ── HERO ── */}
         <section className="relative min-h-[520px] flex items-center justify-center overflow-hidden">
           <Image
-            src="/initiatives/sikhi-vidyala-top.jpg"
+            src="/vidyala-classroom.png"
             alt="Sikhi Vidyala"
             fill
             className="object-cover object-center"
@@ -205,6 +205,8 @@ export default function SikhiVidyalaPage() {
                 description="Enter your details below and we will send you the webinar link."
                 successMessage="You are registered\! We will send you the webinar link closer to the date."
                 duplicateMessage="You are already registered for the webinar — we will send you the link closer to the date."
+                showCountry={false}
+                notesLabel="Please submit any questions you'd like us to cover in the webinar session. (optional)"
               />
             </div>
           </div>

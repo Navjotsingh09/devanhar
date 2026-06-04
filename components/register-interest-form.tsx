@@ -12,6 +12,8 @@ interface RegisterInterestFormProps {
   description?: string
   successMessage?: string
   duplicateMessage?: string
+  showCountry?: boolean
+  notesLabel?: string
 }
 
 type Status = "idle" | "submitting" | "success" | "error" | "duplicate"
@@ -22,6 +24,8 @@ export function RegisterInterestForm({
   description = "Drop your details below and we will let you know as soon as applications open.",
   successMessage = "You are on the list. We will be in touch as soon as applications open.",
   duplicateMessage = "You are already on the list — we will be in touch as soon as applications open.",
+  showCountry = true,
+  notesLabel = "Anything you would like us to know? (optional)",
 }: RegisterInterestFormProps) {
   const [status, setStatus] = useState<Status>("idle")
   const [error, setError] = useState<string | null>(null)
@@ -41,7 +45,7 @@ export function RegisterInterestForm({
         body: JSON.stringify({ camp, name, email, country, notes }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
+      if (\!res.ok) {
         setStatus("error")
         setError(data?.error || "Something went wrong. Please try again.")
         return
@@ -106,18 +110,20 @@ export function RegisterInterestForm({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="ri-country">Country (optional)</Label>
-        <Input
-          id="ri-country"
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          placeholder="Where will you be travelling from?"
-        />
-      </div>
+      {showCountry && (
+        <div className="space-y-2">
+          <Label htmlFor="ri-country">Country (optional)</Label>
+          <Input
+            id="ri-country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            placeholder="Where will you be travelling from?"
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
-        <Label htmlFor="ri-notes">Anything you would like us to know? (optional)</Label>
+        <Label htmlFor="ri-notes">{notesLabel}</Label>
         <Textarea
           id="ri-notes"
           value={notes}

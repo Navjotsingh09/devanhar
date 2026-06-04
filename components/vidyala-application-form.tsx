@@ -243,7 +243,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
           <CheckCircle2 className="mx-auto mb-4 h-16 w-16" style={{ color: GOLD }} />
           <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Application Submitted</h2>
           <p className="text-gray-600 mb-6">
-            Thank you for applying to the Sikhi Vidyala. Our team will review your application and be in touch.
+            Thank you for applying to the Sikhi Vidyala. Our team will review your application and be in touch. We aim to review applications as soon as possible. Please allow 2–3 weeks for correspondence regarding the status of your application.
           </p>
           <Button onClick={onClose} className="w-full text-white font-semibold" style={{ backgroundColor: NAVY }}>
             Close
