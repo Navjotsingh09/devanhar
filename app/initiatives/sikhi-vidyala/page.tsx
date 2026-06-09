@@ -5,6 +5,7 @@ import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { RegisterInterestForm } from "@/components/register-interest-form"
 import { ArrowRight, MapPin, Clock, Calendar, Users, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
+import { VidyalaGallery } from "@/components/vidyala-gallery"
 
 export const metadata = {
   title: "Sikhi Vidyala | Devanhaar",
@@ -359,20 +360,7 @@ export default function SikhiVidyalaPage() {
                 Life at the <em className="italic" style={{ color: NAVY }}>Vidyala</em>
               </h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {[
-                "/initiatives/vidyala-highlight-1.jpg",
-                "/initiatives/vidyala-highlight-2.jpg",
-                "/initiatives/vidyala-highlight-4.jpg",
-                "/initiatives/vidyala-highlight-5.jpg",
-                "/initiatives/vidyala-highlight-6.jpg",
-                "/initiatives/sikhi-vidyala-top.jpg",
-              ].map((src, i) => (
-                <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden">
-                  <Image src={src} alt={`Sikhi Vidyala highlight ${i + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-500" />
-                </div>
-              ))}
-            </div>
+            <VidyalaGallery />
           </div>
         </section>
 
