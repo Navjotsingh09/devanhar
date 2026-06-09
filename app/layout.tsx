@@ -5,6 +5,7 @@ import { Inter } from "next/font/google"
 import { DonationProvider } from "@/components/donation-provider"
 import { CartProvider } from "@/components/cart-provider"
 import { CartDrawer } from "@/components/cart-drawer"
+import { CookieBanner } from "@/components/cookie-banner"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -28,6 +29,12 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://igkpvudaqxkncxgslbvb.supabase.co" />
+        {/* GTM Consent Mode v2 — default denied, must be before GTM script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{'analytics_storage':'denied','ad_storage':'denied','ad_user_data':'denied','ad_personalization':'denied'});`,
+          }}
+        />
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
@@ -59,6 +66,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <CartDrawer />
           </CartProvider>
         </DonationProvider>
+        <CookieBanner />
       </body>
     </html>
   )
