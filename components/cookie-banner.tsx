@@ -106,10 +106,10 @@ export function CookieBanner() {
         onClick={() => setVisible(true)}
         aria-label="Cookie preferences"
         title="Cookie preferences"
-        className="fixed bottom-4 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-white/10 transition-transform hover:scale-105 active:scale-95"
-        style={{ background: GOLD }}
+        className="fixed bottom-4 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg border border-black/10 transition-transform hover:scale-105 active:scale-95"
+        style={{ background: "#ffffff" }}
       >
-        <CookieIcon size={24} color={NAVY} />
+        <CookieIcon size={24} color={GOLD} />
       </button>
     )
   }
