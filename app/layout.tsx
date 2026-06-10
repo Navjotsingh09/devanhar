@@ -5,7 +5,6 @@ import { Inter } from "next/font/google"
 import { DonationProvider } from "@/components/donation-provider"
 import { CartProvider } from "@/components/cart-provider"
 import { CartDrawer } from "@/components/cart-drawer"
-import { CookieBanner } from "@/components/cookie-banner"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -66,7 +65,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <CartDrawer />
           </CartProvider>
         </DonationProvider>
-        <CookieBanner />
       </body>
     </html>
   )
