@@ -67,7 +67,7 @@ export function CookieBanner() {
   useEffect(() => {
     const saved = localStorage.getItem("cookie_consent")
     if (!saved) {
-      setVisible(true)
+      setDecided(true)
     } else {
       setDecided(true)
       pushConsent(saved as "granted" | "denied")
@@ -122,9 +122,6 @@ export function CookieBanner() {
         className="rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
         style={{ background: NAVY }}
       >
-        {/* Gold top accent bar */}
-        <div className="h-1 w-full" style={{ background: GOLD }} />
-
         <div className="p-5">
           {/* Icon + heading */}
           <div className="flex items-center gap-3 mb-3">
