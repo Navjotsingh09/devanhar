@@ -423,25 +423,42 @@ export default async function SubmissionsPage() {
       </div>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="flex flex-wrap h-auto gap-1">
-          <TabsTrigger value="all" className="text-xs">
-            All ({allSubmissions.length})
+        <TabsList className="h-auto bg-transparent p-0 flex flex-wrap gap-3 mb-2">
+          <TabsTrigger
+            value="all"
+            className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60"
+          >
+            <span className="text-lg font-bold leading-none">{allSubmissions.length}</span>
+            <span className="text-[11px] font-medium leading-none opacity-70">All</span>
           </TabsTrigger>
           {initiatives.map((init) => {
             const count = groupedByInitiative[init.slug]?.length || 0
             return (
-              <TabsTrigger key={init.slug} value={init.slug} className="text-xs">
-                {init.name} ({count})
+              <TabsTrigger
+                key={init.slug}
+                value={init.slug}
+                className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60"
+              >
+                <span className="text-lg font-bold leading-none">{count}</span>
+                <span className="text-[11px] font-medium leading-none opacity-70 line-clamp-1 max-w-[120px]">{init.name}</span>
               </TabsTrigger>
             )
           })}
           {generalSubmissions.length > 0 && (
-            <TabsTrigger value="__general" className="text-xs">
-              General / Contact ({generalSubmissions.length})
+            <TabsTrigger
+              value="__general"
+              className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60"
+            >
+              <span className="text-lg font-bold leading-none">{generalSubmissions.length}</span>
+              <span className="text-[11px] font-medium leading-none opacity-70">General / Contact</span>
             </TabsTrigger>
           )}
-          <TabsTrigger value="__webinar" className="text-xs">
-            Webinar Signups ({webinarSignups.length})
+          <TabsTrigger
+            value="__webinar"
+            className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60"
+          >
+            <span className="text-lg font-bold leading-none">{webinarSignups.length}</span>
+            <span className="text-[11px] font-medium leading-none opacity-70">Webinar Signups</span>
           </TabsTrigger>
         </TabsList>
 
