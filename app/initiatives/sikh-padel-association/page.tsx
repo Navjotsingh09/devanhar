@@ -29,13 +29,20 @@ export default function SikhPadelAssociationPage() {
       <main className="min-h-screen">
         <PadelHeroWithRegister />
 
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
+        {/* Brand identity band */}
+        <div className="w-full bg-[#0d2b1a] py-10 md:py-14 flex flex-col items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/initiatives/sikh-padel-association-logo.png"
-            alt="Sikh Padel Association"
-            className="h-20 w-20 md:h-24 md:w-24 object-contain mb-8"
+            alt="Sikh Padel Association crest"
+            className="h-32 w-32 md:h-40 md:w-40 object-contain drop-shadow-xl"
           />
+          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-amber-300/80">
+            Sikh Padel Association
+          </p>
+        </div>
+
+        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
             About the Sikh Padel Association
           </h2>
