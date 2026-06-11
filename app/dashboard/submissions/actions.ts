@@ -7,7 +7,7 @@ import { buildResumeUrl } from '@/lib/camp-resume-token'
 import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from '@/lib/camp-applicant-emails'
 import { sendVidyalaApprovalEmail, sendVidyalaDeclineEmail } from '@/lib/vidyala-emails'
 
-type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications'
+type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations'
 
 /**
  * Locate the Stripe PaymentIntent that belongs to a camp_application even

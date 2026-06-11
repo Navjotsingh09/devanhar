@@ -22,7 +22,7 @@ type DashboardSubmission = {
   internal_notes: string | null
   created_at: string
   initiatives: { name: string; slug: string } | null
-  source_table: 'form_submissions' | 'camp_applications' | 'vidyala_applications'
+  source_table: 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations'
   stripe_payment_intent_id: string | null
   stripe_checkout_session_id: string | null
   stripe_checkout_expires_at: string | null
@@ -136,6 +136,36 @@ function buildVidyalaFormData(c: Record<string, unknown>): Record<string, unknow
 }
 
 
+function buildPadelFormData(c: Record<string, unknown>): Record<string, unknown> {
+  const excludedKeys = new Set([
+    'id', 'initiative_id', 'created_at', 'updated_at', 'status', 'internal_notes', 'initiatives',
+    'captain_phone_normalized',
+  ])
+  const orderedKeys = [
+    'team_name', 'skill_level', 'event_name',
+    'captain_first_name', 'captain_last_name', 'captain_email', 'captain_phone',
+    'player2_first_name', 'player2_last_name', 'player2_email', 'player2_phone',
+    'consent_email', 'consent_phone', 'consent_sms', 'consent_whatsapp',
+    'gift_aid', 'entry_fee_pence', 'final_amount_pence',
+    'page_url', 'source', 'medium',
+  ]
+  const entries = Object.entries(c).filter(([key, value]) => {
+    if (excludedKeys.has(key)) return false
+    if (key.startsWith('stripe_')) return false
+    if (value == null) return false
+    if (typeof value === 'string' && value.trim() === '') return false
+    return true
+  })
+  const byKey = new Map(entries)
+  const ordered: [string, unknown][] = []
+  for (const key of orderedKeys) {
+    if (byKey.has(key)) { ordered.push([key, byKey.get(key)]); byKey.delete(key) }
+  }
+  for (const entry of byKey.entries()) ordered.push(entry)
+  return Object.fromEntries(ordered)
+}
+
+
 async function fetchStripeStatusMap(
   apps: Array<{ id: string; stripe_payment_intent_id: string | null; stripe_checkout_session_id: string | null; email: string }>
 ): Promise<Map<string, string>> {
@@ -213,16 +243,18 @@ async function getSubmissions() {
   const supabase = await createClient()
 
   // Fire all four DB queries in parallel; .limit() caps act as safety nets.
-  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes] = await Promise.all([
+  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes, padelRegsRes] = await Promise.all([
     supabase.from('initiatives').select('id, name, slug').eq('is_active', true).order('sort_order'),
     supabase.from('form_submissions').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('camp_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('vidyala_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
+    supabase.from('padel_registrations').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
   ])
   const initiatives = initiativesRes.data
   const submissions = submissionsRes.data
   const campApplications = campAppsRes.data
   const vidyalaApplications = vidyalaAppsRes.data
+  const padelRegistrations = padelRegsRes.data
 
   // Only ask Stripe about apps with unknown status AND still active.
   // Approved/declined/archived already have final state in DB.
@@ -321,6 +353,31 @@ async function getSubmissions() {
     }
   )
 
+  const normalizedPadelRegs: DashboardSubmission[] = (padelRegistrations ?? []).map(
+    (p: Record<string, unknown>) => {
+      const fullName = [String(p.captain_first_name ?? '').trim(), String(p.captain_last_name ?? '').trim()]
+        .filter(Boolean).join(' ') || 'Unknown'
+      return {
+        id: String(p.id),
+        full_name: fullName,
+        email: String(p.captain_email ?? ''),
+        phone: (p.captain_phone as string | null) ?? null,
+        message: `Padel team registration${p.team_name ? `: ${String(p.team_name)}` : ''}`,
+        form_data: buildPadelFormData(p),
+        status: String(p.status ?? 'pending'),
+        internal_notes: (p.internal_notes as string | null) ?? null,
+        created_at: String(p.created_at ?? new Date().toISOString()),
+        initiatives: (p.initiatives as { name: string; slug: string } | null) ?? { name: 'Sikh Padel Association', slug: 'sikh-padel-association' },
+        source_table: 'padel_registrations' as const,
+        stripe_payment_intent_id: (p.stripe_payment_intent_id as string | null) ?? null,
+        stripe_checkout_session_id: (p.stripe_checkout_session_id as string | null) ?? null,
+        stripe_checkout_expires_at: (p.stripe_checkout_expires_at as string | null) ?? null,
+        stripe_pi_status: (p.stripe_pi_status as string | null) ?? null,
+        stripe_review_state: (p.stripe_review_state as string | null) ?? null,
+      }
+    }
+  )
+
   const { data: webinarSignups } = await supabase
     .from('register_interest')
     .select('*')
@@ -328,7 +385,7 @@ async function getSubmissions() {
     .order('created_at', { ascending: false })
     .limit(5000)
 
-  const unifiedSubmissions = [...formSubmissions, ...normalizedCampApps, ...normalizedVidyalaApps].sort(
+  const unifiedSubmissions = [...formSubmissions, ...normalizedCampApps, ...normalizedVidyalaApps, ...normalizedPadelRegs].sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
 

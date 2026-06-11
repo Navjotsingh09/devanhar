@@ -3,7 +3,7 @@
 import { useSiteImages } from "@/hooks/use-site-images"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Users, Heart, Sparkles, BookOpen, GraduationCap, School, Shield } from "lucide-react"
+import { ArrowRight, Users, Heart, Sparkles, BookOpen, GraduationCap, School, Shield, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Project {
@@ -79,11 +79,19 @@ const projects: Project[] = [
     tag: "Professional",
     icon: Users,
   },
+  {
+    title: "Sikh Padel Association",
+    description: "Bringing the Sikh community together through padel — team tournaments, friendly competition and a live leaderboard.",
+    image: "/initiatives/sikh-padel-association-top.jpg",
+    href: "/initiatives/sikh-padel-association",
+    tag: "Sports",
+    icon: Trophy,
+  },
 ]
 
 const stats = [
   { value: "Est. 2019", label: "UK Based with Global Reach." },
-  { value: "8", label: "Live Projects" },
+  { value: "9", label: "Live Projects" },
   { value: "800+", label: "Adult Campers Annually" },
   { value: "3000+", label: "People Impacted Annually" },
 ]
