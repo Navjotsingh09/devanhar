@@ -9,8 +9,9 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
-// Per-team entry fee in GBP. PLACEHOLDER default — set STRIPE_PADEL_FEE_GBP in env to the confirmed amount.
-const padelFeeGbp = Number(process.env.STRIPE_PADEL_FEE_GBP || '60')
+// Entry fee is per player; a team has two players. Override per-player amount via STRIPE_PADEL_FEE_PER_PERSON_GBP.
+const padelFeePerPersonGbp = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || '50')
+const PADEL_PLAYERS_PER_TEAM = 2
 const paymentMode = (process.env.PADEL_PAYMENT_MODE || process.env.CAMP_PAYMENT_MODE || 'stripe').trim().toLowerCase()
 const eventName = process.env.PADEL_EVENT_NAME || 'Sikh Padel Association — 4th July'
 
@@ -40,9 +41,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const required = [
-      'team_name',
-      'captain_first_name', 'captain_last_name', 'captain_email', 'captain_phone',
-      'player2_first_name', 'player2_last_name',
+      'captain_first_name', 'captain_last_name', 'captain_date_of_birth', 'captain_email', 'captain_phone',
+      'city_country', 'playtomic_id', 'occupation', 'id_document_type', 'id_document_url',
+      'player2_first_name', 'player2_last_name', 'player2_date_of_birth',
     ]
     const missing = required.filter((field) => {
       const value = body[field]
@@ -55,10 +56,7 @@ export async function POST(request: NextRequest) {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(body.captain_email)) {
-      return NextResponse.json({ error: 'Invalid captain email address' }, { status: 400 })
-    }
-    if (body.player2_email && body.player2_email.trim() && !emailRegex.test(body.player2_email)) {
-      return NextResponse.json({ error: 'Invalid player 2 email address' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
     const supabase = getSupabaseAdmin()
@@ -82,7 +80,7 @@ export async function POST(request: NextRequest) {
         const { data: existing } = await dupeQuery.maybeSingle()
         if (existing) {
           return NextResponse.json(
-            { error: 'This phone number has already been used to register a team. If you believe this is an error, please contact the team.' },
+            { error: 'This mobile number has already been used to register. If you believe this is an error, please contact the team.' },
             { status: 409 }
           )
         }
@@ -91,28 +89,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const requestedAmount = Number(body.entry_fee_gbp) || padelFeeGbp
-    const entryFeePence = Math.max(requestedAmount, padelFeeGbp) * 100
+    const entryFeePence = padelFeePerPersonGbp * PADEL_PLAYERS_PER_TEAM * 100
+    const teamLabel = `${String(body.captain_first_name).trim()} & ${String(body.player2_first_name).trim()}`
 
     const payload: Record<string, unknown> = {
       initiative_id: initiative?.id || null,
-      team_name: body.team_name.trim(),
-      skill_level: body.skill_level?.trim() || null,
       event_name: eventName,
       captain_first_name: body.captain_first_name.trim(),
       captain_last_name: body.captain_last_name.trim(),
+      captain_date_of_birth: body.captain_date_of_birth || null,
       captain_email: body.captain_email.trim().toLowerCase(),
       captain_phone: body.captain_phone.trim(),
       captain_phone_normalized: phoneNormalized,
+      city_country: body.city_country?.trim() || null,
+      playtomic_id: body.playtomic_id?.trim() || null,
+      occupation: body.occupation?.trim() || null,
+      id_document_type: body.id_document_type?.trim() || null,
+      id_document_url: body.id_document_url?.trim() || null,
       player2_first_name: body.player2_first_name.trim(),
       player2_last_name: body.player2_last_name.trim(),
-      player2_email: body.player2_email?.trim().toLowerCase() || null,
-      player2_phone: body.player2_phone?.trim() || null,
+      player2_date_of_birth: body.player2_date_of_birth || null,
       consent_email: body.consent_email === 'yes',
       consent_phone: body.consent_phone === 'yes',
       consent_sms: body.consent_sms === 'yes',
       consent_whatsapp: body.consent_whatsapp === 'yes',
-      gift_aid: body.gift_aid === 'yes',
       entry_fee_pence: entryFeePence,
       page_url: typeof body.page_url === 'string' && body.page_url.trim() ? body.page_url.trim().slice(0, 2048) : null,
       source: typeof body.source === 'string' && body.source.trim() ? body.source.trim().slice(0, 255) : null,
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       console.error('[Padel Registration] Supabase insert error:', error)
       if (error.code === '23505' && error.message?.includes('phone')) {
         return NextResponse.json(
-          { error: 'This phone number has already been used to register a team. If you believe this is an error, please contact the team.' },
+          { error: 'This mobile number has already been used to register. If you believe this is an error, please contact the team.' },
           { status: 409 }
         )
       }
@@ -145,12 +145,12 @@ export async function POST(request: NextRequest) {
     })
 
     await supabase.from('activity_log').insert({
-      action: 'New padel team registration submitted',
+      action: 'New padel registration submitted',
       entity_type: 'padel_registration',
       entity_id: data.id,
       metadata: {
-        team_name: body.team_name,
         captain: `${body.captain_first_name} ${body.captain_last_name}`,
+        partner: `${body.player2_first_name} ${body.player2_last_name}`,
         email: body.captain_email,
       },
     }).then(undefined, () => {})
@@ -159,14 +159,14 @@ export async function POST(request: NextRequest) {
       sendPadelRegistrationReceivedEmail({
         to: payload.captain_email as string,
         firstName: body.captain_first_name.trim(),
-        teamName: body.team_name.trim(),
+        teamName: teamLabel,
       }).catch(() => {})
       return NextResponse.json(
         {
           success: true,
           payment_mode: 'deferred',
-          title: 'Team registered',
-          message: 'Your team has been registered. The team will contact you with payment instructions.',
+          title: 'Registration received',
+          message: 'Your registration has been received. The team will contact you with payment instructions.',
         },
         { status: 201 }
       )
@@ -191,19 +191,17 @@ export async function POST(request: NextRequest) {
           {
             price_data: {
               currency: 'gbp',
-              unit_amount: entryFeePence,
+              unit_amount: padelFeePerPersonGbp * 100,
               product_data: {
-                name: `${eventName} — Team Entry`,
-                description: `Team entry for ${body.team_name}`,
+                name: `${eventName} — Entry`,
+                description: `Entry fee per player (${PADEL_PLAYERS_PER_TEAM} players)`,
               },
             },
-            quantity: 1,
+            quantity: PADEL_PLAYERS_PER_TEAM,
           },
         ],
         metadata: {
           padel_registration_id: data.id,
-          team_name: body.team_name,
-          gift_aid: body.gift_aid === 'yes' ? 'true' : 'false',
         },
         allow_promotion_codes: true,
         success_url: `${siteUrl}${initiativePath}?payment=success`,
@@ -231,7 +229,7 @@ export async function POST(request: NextRequest) {
         await sendPadelPaymentPendingEmail({
           to: payload.captain_email as string,
           firstName: body.captain_first_name.trim(),
-          teamName: body.team_name.trim(),
+          teamName: teamLabel,
           resumeUrl: `${siteUrl}/api/padel-registrations/resume-payment?registration_id=${data.id}&token=${encodeURIComponent(signPadelResumeToken(String(data.id)))}`,
         })
       } catch (emailErr) {
@@ -244,14 +242,14 @@ export async function POST(request: NextRequest) {
       sendPadelRegistrationReceivedEmail({
         to: payload.captain_email as string,
         firstName: body.captain_first_name.trim(),
-        teamName: body.team_name.trim(),
+        teamName: teamLabel,
       }).catch(() => {})
       return NextResponse.json(
         {
           success: true,
           payment_mode: 'deferred',
-          title: 'Team registered',
-          message: 'Your team has been registered. The team will contact you with payment instructions.',
+          title: 'Registration received',
+          message: 'Your registration has been received. The team will contact you with payment instructions.',
         },
         { status: 201 }
       )

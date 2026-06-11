@@ -142,11 +142,12 @@ function buildPadelFormData(c: Record<string, unknown>): Record<string, unknown>
     'captain_phone_normalized',
   ])
   const orderedKeys = [
-    'team_name', 'skill_level', 'event_name',
-    'captain_first_name', 'captain_last_name', 'captain_email', 'captain_phone',
-    'player2_first_name', 'player2_last_name', 'player2_email', 'player2_phone',
+    'event_name',
+    'captain_first_name', 'captain_last_name', 'captain_date_of_birth', 'captain_email', 'captain_phone',
+    'city_country', 'playtomic_id', 'occupation', 'id_document_type', 'id_document_url',
+    'player2_first_name', 'player2_last_name', 'player2_date_of_birth',
     'consent_email', 'consent_phone', 'consent_sms', 'consent_whatsapp',
-    'gift_aid', 'entry_fee_pence', 'final_amount_pence',
+    'entry_fee_pence', 'final_amount_pence',
     'page_url', 'source', 'medium',
   ]
   const entries = Object.entries(c).filter(([key, value]) => {
@@ -362,7 +363,7 @@ async function getSubmissions() {
         full_name: fullName,
         email: String(p.captain_email ?? ''),
         phone: (p.captain_phone as string | null) ?? null,
-        message: `Padel team registration${p.team_name ? `: ${String(p.team_name)}` : ''}`,
+        message: `Padel registration — partner: ${[String(p.player2_first_name ?? ''), String(p.player2_last_name ?? '')].filter(Boolean).join(' ') || 'N/A'}`,
         form_data: buildPadelFormData(p),
         status: String(p.status ?? 'pending'),
         internal_notes: (p.internal_notes as string | null) ?? null,

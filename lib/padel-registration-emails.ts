@@ -169,14 +169,17 @@ export async function sendPadelRegistrationOwnerNotification(params: {
     'info@devanhaar.com'
   const p = params.payload as Record<string, string>
   const rows = [
-    ['Team name', p.team_name],
-    ['Skill level', p.skill_level],
-    ['Captain', `${p.captain_first_name ?? ''} ${p.captain_last_name ?? ''}`],
-    ['Captain email', p.captain_email],
-    ['Captain phone', p.captain_phone],
-    ['Player 2', `${p.player2_first_name ?? ''} ${p.player2_last_name ?? ''}`],
-    ['Player 2 email', p.player2_email],
-    ['Player 2 phone', p.player2_phone],
+    ['Player', `${p.captain_first_name ?? ''} ${p.captain_last_name ?? ''}`],
+    ['Date of birth', p.captain_date_of_birth],
+    ['Email', p.captain_email],
+    ['Mobile', p.captain_phone],
+    ['City / Country', p.city_country],
+    ['Playtomic ID', p.playtomic_id],
+    ['Occupation', p.occupation],
+    ['Form of ID', p.id_document_type],
+    ['ID document', p.id_document_url],
+    ['Partner', `${p.player2_first_name ?? ''} ${p.player2_last_name ?? ''}`],
+    ['Partner date of birth', p.player2_date_of_birth],
     ['Registration ID', params.registrationId],
   ]
     .map(
@@ -186,7 +189,7 @@ export async function sendPadelRegistrationOwnerNotification(params: {
     .join('')
   const html = `
     <div style="font-family:sans-serif;font-size:14px;">
-      <p>A new padel team has registered.</p>
+      <p>A new padel registration has been received.</p>
       <table style="border-collapse:collapse;">${rows}</table>
     </div>
   `
@@ -194,7 +197,7 @@ export async function sendPadelRegistrationOwnerNotification(params: {
     await resend.emails.send({
       from: 'Devanhaar Alerts <noreply@devanhaar.com>',
       to: adminEmail,
-      subject: `New padel team registration — ${p.team_name ?? 'Unknown team'}`,
+      subject: `New padel registration — ${p.captain_first_name ?? ''} ${p.captain_last_name ?? ''}`,
       html,
     })
     return true

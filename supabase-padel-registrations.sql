@@ -1,32 +1,36 @@
--- Sikh Padel Association — team registrations table
+-- Sikh Padel Association — player registrations table
 -- Run this in the Supabase SQL Editor.
 --
--- Padel is played in pairs, so each registration is a TEAM of two players.
+-- Padel is played in pairs. The primary player completes full details and
+-- provides photo ID; the partner provides name + date of birth only.
 -- Payments are processed via Stripe with capture_method = 'manual' (the funds
 -- are AUTHORISED/held, not captured, until an admin approves the team — the
 -- same hold-and-capture flow used by camp_applications).
+-- Entry fee: £50 per player → £100 per team of two.
 
 CREATE TABLE IF NOT EXISTS padel_registrations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   initiative_id UUID REFERENCES initiatives(id),
 
-  -- Team
-  team_name TEXT NOT NULL,
-  skill_level TEXT,                       -- self-declared: beginner / intermediate / advanced
-  event_name TEXT,                        -- e.g. "Sikh Padel Association — 4th July 2026"
+  event_name TEXT,
 
-  -- Captain (player 1) — primary contact
+  -- Primary player (captain) — full details + photo ID
   captain_first_name TEXT NOT NULL,
   captain_last_name  TEXT NOT NULL,
+  captain_date_of_birth DATE,
   captain_email      TEXT NOT NULL,
   captain_phone      TEXT NOT NULL,
-  captain_phone_normalized TEXT,          -- digits + "+" only, for duplicate detection
+  captain_phone_normalized TEXT,
+  city_country       TEXT,
+  playtomic_id       TEXT,
+  occupation         TEXT,
+  id_document_type   TEXT,
+  id_document_url    TEXT,
 
-  -- Player 2
+  -- Partner (player 2) — name + date of birth only
   player2_first_name TEXT NOT NULL,
   player2_last_name  TEXT NOT NULL,
-  player2_email      TEXT,
-  player2_phone      TEXT,
+  player2_date_of_birth DATE,
 
   -- Contact consent
   consent_email    BOOLEAN DEFAULT false,
@@ -34,11 +38,8 @@ CREATE TABLE IF NOT EXISTS padel_registrations (
   consent_sms      BOOLEAN DEFAULT false,
   consent_whatsapp BOOLEAN DEFAULT false,
 
-  -- Gift Aid
-  gift_aid BOOLEAN DEFAULT false,
-
   -- Payment
-  entry_fee_pence  INTEGER,               -- amount charged per team (in pence)
+  entry_fee_pence  INTEGER,
   final_amount_pence INTEGER,
 
   -- Stripe state (mirrors camp_applications)
@@ -77,7 +78,7 @@ CREATE INDEX IF NOT EXISTS idx_padel_registrations_email ON padel_registrations(
 CREATE INDEX IF NOT EXISTS idx_padel_registrations_status ON padel_registrations(status);
 CREATE INDEX IF NOT EXISTS idx_padel_registrations_initiative ON padel_registrations(initiative_id);
 
--- Prevent the same captain phone registering twice for an active team
+-- Prevent the same primary player phone registering twice for an active team
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_padel_captain_phone_active
   ON padel_registrations (captain_phone_normalized, initiative_id)
   WHERE status NOT IN ('rejected', 'cancelled', 'declined')

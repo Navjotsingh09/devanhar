@@ -156,13 +156,13 @@ export async function POST(request: NextRequest) {
             .update({ status: "payment_authorized", updated_at: new Date().toISOString() })
             .eq("id", padelRegistrationId)
             .eq("status", "payment_pending")
-            .select("id, captain_email, captain_first_name, team_name")
+            .select("id, captain_email, captain_first_name, player2_first_name")
             .maybeSingle()
           if (padelTransitioned?.captain_email) {
             sendPadelRegistrationUnderReviewEmail({
               to: padelTransitioned.captain_email,
               firstName: padelTransitioned.captain_first_name || "Player",
-              teamName: padelTransitioned.team_name || undefined,
+              teamName: padelTransitioned.player2_first_name ? `${padelTransitioned.captain_first_name} & ${padelTransitioned.player2_first_name}` : undefined,
             }).catch((err) => console.error("[Padel Email] Under-review email failed:", err))
           }
         }
@@ -285,11 +285,11 @@ export async function POST(request: NextRequest) {
           .update({ status: "approved", stripe_pi_status: "succeeded", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() })
           .eq("id", padelPid)
           .neq("status", "approved")
-          .select("captain_email, captain_first_name, team_name")
+          .select("captain_email, captain_first_name, player2_first_name")
           .maybeSingle()
         await supabase.from("activity_log").insert({ action: "Padel payment captured - team approved", entity_type: "padel_registration", entity_id: padelPid, metadata: { stripe_pi: padelPi.id, amount: padelPi.amount_received } }).then(undefined, () => {})
         if (padelApproved?.captain_email) {
-          sendPadelRegistrationApprovedEmail({ to: padelApproved.captain_email, firstName: padelApproved.captain_first_name || "Player", teamName: padelApproved.team_name || undefined }).catch(err => console.error("[Padel Email] Approved email failed:", err))
+          sendPadelRegistrationApprovedEmail({ to: padelApproved.captain_email, firstName: padelApproved.captain_first_name || "Player", teamName: padelApproved.player2_first_name ? `${padelApproved.captain_first_name} & ${padelApproved.player2_first_name}` : undefined }).catch(err => console.error("[Padel Email] Approved email failed:", err))
         }
       }
     }
@@ -322,11 +322,11 @@ export async function POST(request: NextRequest) {
           .update({ status: "declined", stripe_pi_status: "canceled", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() })
           .eq("id", padelPidC)
           .neq("status", "declined")
-          .select("captain_email, captain_first_name, team_name")
+          .select("captain_email, captain_first_name, player2_first_name")
           .maybeSingle()
         await supabase.from("activity_log").insert({ action: "Padel payment released - team declined", entity_type: "padel_registration", entity_id: padelPidC, metadata: { stripe_pi: padelPiC.id } }).then(undefined, () => {})
         if (padelDeclined?.captain_email) {
-          sendPadelRegistrationDeclinedEmail({ to: padelDeclined.captain_email, firstName: padelDeclined.captain_first_name || "Player", teamName: padelDeclined.team_name || undefined }).catch(err => console.error("[Padel Email] Declined email failed:", err))
+          sendPadelRegistrationDeclinedEmail({ to: padelDeclined.captain_email, firstName: padelDeclined.captain_first_name || "Player", teamName: padelDeclined.player2_first_name ? `${padelDeclined.captain_first_name} & ${padelDeclined.player2_first_name}` : undefined }).catch(err => console.error("[Padel Email] Declined email failed:", err))
         }
       }
     }

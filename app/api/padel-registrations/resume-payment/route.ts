@@ -11,7 +11,8 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
-const padelFeeGbp = Number(process.env.STRIPE_PADEL_FEE_GBP || "60")
+const padelFeePerPersonGbp = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || "50")
+const PADEL_PLAYERS_PER_TEAM = 2
 const eventName = process.env.PADEL_EVENT_NAME || "Sikh Padel Association — 4th July"
 
 function getSupabaseAdmin() {
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabaseAdmin()
     const { data: reg, error } = await supabase
       .from("padel_registrations")
-      .select("id, status, captain_email, team_name, stripe_checkout_url, stripe_checkout_expires_at, stripe_checkout_amount_pence")
+      .select("id, status, captain_email, stripe_checkout_url, stripe_checkout_expires_at, stripe_checkout_amount_pence")
       .eq("id", registrationId)
       .maybeSingle()
 
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
     const entryFeePence =
       reg.stripe_checkout_amount_pence && reg.stripe_checkout_amount_pence > 0
         ? reg.stripe_checkout_amount_pence
-        : padelFeeGbp * 100
+        : padelFeePerPersonGbp * PADEL_PLAYERS_PER_TEAM * 100
     const returnTo = encodeURIComponent(initiativePath)
 
     const session = await stripe.checkout.sessions.create({
@@ -91,14 +92,14 @@ export async function GET(request: NextRequest) {
             currency: "gbp",
             unit_amount: entryFeePence,
             product_data: {
-              name: `${eventName} — Team Entry`,
-              description: `Team entry for ${reg.team_name}`,
+              name: `${eventName} — Entry`,
+              description: `Entry fee for ${PADEL_PLAYERS_PER_TEAM} players`,
             },
           },
           quantity: 1,
         },
       ],
-      metadata: { padel_registration_id: reg.id, team_name: reg.team_name || "" },
+      metadata: { padel_registration_id: reg.id },
       allow_promotion_codes: true,
       success_url: `${siteUrl}${initiativePath}?payment=success`,
       cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}&registrationId=${reg.id}&token=${token}`,
