@@ -5,7 +5,6 @@ import { FAQSection } from "@/components/faq-section"
 import { PadelHeroWithRegister } from "@/components/padel/padel-hero-with-register"
 import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
 import { ScrollingGallery } from "@/components/camps/scrolling-gallery"
-import { PadelVideoGallery } from "@/components/padel/padel-video-gallery"
 import { ApplicationProcessTimeline } from "@/components/camps/application-process-timeline"
 import {
   padelPillars,
@@ -82,9 +81,7 @@ export default function SikhPadelAssociationPage() {
           subheading="The Sikh Padel Association is built on community, sport and friendly competition."
         />
 
-        <PadelVideoGallery />
-
-        <ScrollingGallery images={padelGalleryImages} />
+        <ScrollingGallery images={padelGalleryImages} heading="On the court" />
 
         <ApplicationProcessTimeline
           steps={padelSteps}
