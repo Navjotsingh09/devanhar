@@ -98,9 +98,6 @@ export const padelDescription: string[] = [
 
 export const padelGalleryImages: string[] = [
   "/initiatives/sikh-padel-gallery-01.jpg",
-  "/initiatives/sikh-padel-gallery-02.jpg",
-  "/initiatives/sikh-padel-gallery-03.jpg",
-  "/initiatives/sikh-padel-gallery-04.jpg",
   "/initiatives/sikh-padel-gallery-05.jpg",
   "/initiatives/sikh-padel-gallery-06.jpg",
   "/initiatives/sikh-padel-gallery-07.jpg",
@@ -111,11 +108,9 @@ export const padelGalleryImages: string[] = [
   "/initiatives/sikh-padel-gallery-12.jpg",
   "/initiatives/sikh-padel-gallery-13.jpg",
   "/initiatives/sikh-padel-gallery-14.jpg",
-  "/initiatives/sikh-padel-gallery-15.jpg",
   "/initiatives/sikh-padel-gallery-16.jpg",
   "/initiatives/sikh-padel-gallery-17.jpg",
   "/initiatives/sikh-padel-gallery-18.jpg",
-  "/initiatives/sikh-padel-gallery-19.jpg",
   "/initiatives/sikh-padel-gallery-20.jpg",
   "/initiatives/sikh-padel-gallery-21.jpg",
   "/initiatives/sikh-padel-gallery-22.jpg",
