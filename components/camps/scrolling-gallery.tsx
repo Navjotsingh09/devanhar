@@ -17,7 +17,7 @@ export function ScrollingGallery({ images, heading }: ScrollingGalleryProps) {
         ) : null}
       </div>
       <div className="relative w-full">
-        <div className="flex gap-5 animate-[scroll-x_40s_linear_infinite] w-max">
+        <div className="flex gap-5 animate-[scroll-x_120s_linear_infinite] w-max">
           {loop.map((src, i) => (
             <div
               key={`${src}-${i}`}
