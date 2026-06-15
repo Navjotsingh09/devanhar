@@ -42,8 +42,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const required = [
       'captain_first_name', 'captain_last_name', 'captain_date_of_birth', 'captain_email', 'captain_phone',
-      'city_country', 'playtomic_id', 'occupation', 'id_document_type', 'id_document_url',
+      'city_country', 'playtomic_id', 'occupation', 'captain_gender', 'id_document_type', 'id_document_url',
       'player2_first_name', 'player2_last_name', 'player2_date_of_birth',
+      'player2_phone', 'player2_playtomic_id', 'player2_occupation', 'player2_gender',
     ]
     const missing = required.filter((field) => {
       const value = body[field]
@@ -104,11 +105,18 @@ export async function POST(request: NextRequest) {
       city_country: body.city_country?.trim() || null,
       playtomic_id: body.playtomic_id?.trim() || null,
       occupation: body.occupation?.trim() || null,
+      captain_gender: body.captain_gender?.trim() || null,
+      captain_playtomic_ranking: body.captain_playtomic_ranking?.trim() || null,
       id_document_type: body.id_document_type?.trim() || null,
       id_document_url: body.id_document_url?.trim() || null,
       player2_first_name: body.player2_first_name.trim(),
       player2_last_name: body.player2_last_name.trim(),
       player2_date_of_birth: body.player2_date_of_birth || null,
+      player2_phone: body.player2_phone?.trim() || null,
+      player2_playtomic_id: body.player2_playtomic_id?.trim() || null,
+      player2_occupation: body.player2_occupation?.trim() || null,
+      player2_gender: body.player2_gender?.trim() || null,
+      player2_playtomic_ranking: body.player2_playtomic_ranking?.trim() || null,
       consent_email: body.consent_email === true || body.consent_email === 'yes',
       consent_phone: body.consent_phone === true || body.consent_phone === 'yes',
       consent_sms: body.consent_sms === true || body.consent_sms === 'yes',

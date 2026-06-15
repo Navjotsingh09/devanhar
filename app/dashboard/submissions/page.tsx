@@ -144,8 +144,9 @@ function buildPadelFormData(c: Record<string, unknown>): Record<string, unknown>
   const orderedKeys = [
     'event_name',
     'captain_first_name', 'captain_last_name', 'captain_date_of_birth', 'captain_email', 'captain_phone',
-    'city_country', 'playtomic_id', 'occupation', 'id_document_type', 'id_document_url',
+    'city_country', 'playtomic_id', 'occupation', 'captain_gender', 'captain_playtomic_ranking', 'id_document_type', 'id_document_url',
     'player2_first_name', 'player2_last_name', 'player2_date_of_birth',
+    'player2_phone', 'player2_playtomic_id', 'player2_occupation', 'player2_gender', 'player2_playtomic_ranking',
     'consent_email', 'consent_phone', 'consent_sms', 'consent_whatsapp',
     'entry_fee_pence', 'final_amount_pence',
     'page_url', 'source', 'medium',

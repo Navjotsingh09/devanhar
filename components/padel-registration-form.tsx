@@ -23,6 +23,13 @@ const ID_DOCUMENT_TYPES = [
   { value: "driving-licence", label: "Driving Licence" },
 ]
 
+const GENDER_OPTIONS = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+  { value: "prefer-not-to-say", label: "Prefer not to say" },
+]
+
 interface PadelRegistrationFormProps {
   initiativeSlug?: string
   onClose: () => void
@@ -51,11 +58,18 @@ export function PadelRegistrationForm({
     city_country: "",
     playtomic_id: "",
     occupation: "",
+    captain_gender: "",
+    captain_playtomic_ranking: "",
     id_document_type: "",
     id_document_url: "",
     player2_first_name: "",
     player2_last_name: "",
     player2_date_of_birth: "",
+    player2_phone: "",
+    player2_playtomic_id: "",
+    player2_occupation: "",
+    player2_gender: "",
+    player2_playtomic_ranking: "",
     consent_email: "yes",
     consent_phone: "yes",
     consent_sms: "yes",
@@ -91,11 +105,16 @@ export function PadelRegistrationForm({
     if (form.city_country.trim().length < 2) return false
     if (form.playtomic_id.trim().length < 1) return false
     if (form.occupation.trim().length < 2) return false
+    if (!form.captain_gender) return false
     if (!form.id_document_type) return false
     if (!form.id_document_url) return false
     if (!NAME_REGEX.test(form.player2_first_name.trim())) return false
     if (!NAME_REGEX.test(form.player2_last_name.trim())) return false
     if (!form.player2_date_of_birth) return false
+    if (!PHONE_REGEX.test(form.player2_phone.trim())) return false
+    if (form.player2_playtomic_id.trim().length < 1) return false
+    if (form.player2_occupation.trim().length < 2) return false
+    if (!form.player2_gender) return false
     return true
   }
 
@@ -255,6 +274,25 @@ export function PadelRegistrationForm({
                 <Input id="occupation" value={form.occupation} onChange={(e) => update("occupation", e.target.value)} />
               </div>
             </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="captain_gender">Gender *</Label>
+                <Select value={form.captain_gender} onValueChange={(v) => update("captain_gender", v)}>
+                  <SelectTrigger id="captain_gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GENDER_OPTIONS.map((g) => (
+                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="captain_playtomic_ranking">Playtomic ranking</Label>
+                <Input id="captain_playtomic_ranking" value={form.captain_playtomic_ranking} onChange={(e) => update("captain_playtomic_ranking", e.target.value)} placeholder="e.g. 2.5" />
+              </div>
+            </div>
           </div>
 
           {/* Photo ID */}
@@ -303,7 +341,7 @@ export function PadelRegistrationForm({
           {/* Partner */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-foreground">Your partner</h3>
-            <p className="text-sm text-muted-foreground">We only need your partner&apos;s name and date of birth.</p>
+            <p className="text-sm text-muted-foreground">Please provide your partner&apos;s details below.</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="player2_first_name">Partner first name *</Label>
@@ -319,7 +357,39 @@ export function PadelRegistrationForm({
                 <Label htmlFor="player2_date_of_birth">Partner date of birth *</Label>
                 <Input id="player2_date_of_birth" type="date" value={form.player2_date_of_birth} onChange={(e) => update("player2_date_of_birth", e.target.value)} />
               </div>
-              <div />
+              <div>
+                <Label htmlFor="player2_phone">Partner mobile number *</Label>
+                <Input id="player2_phone" type="tel" value={form.player2_phone} onChange={(e) => update("player2_phone", e.target.value)} />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="player2_playtomic_id">Partner Playtomic ID *</Label>
+                <Input id="player2_playtomic_id" value={form.player2_playtomic_id} onChange={(e) => update("player2_playtomic_id", e.target.value)} placeholder="Partner Playtomic username / ID" />
+              </div>
+              <div>
+                <Label htmlFor="player2_occupation">Partner occupation *</Label>
+                <Input id="player2_occupation" value={form.player2_occupation} onChange={(e) => update("player2_occupation", e.target.value)} />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="player2_gender">Partner gender *</Label>
+                <Select value={form.player2_gender} onValueChange={(v) => update("player2_gender", v)}>
+                  <SelectTrigger id="player2_gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GENDER_OPTIONS.map((g) => (
+                      <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="player2_playtomic_ranking">Partner Playtomic ranking</Label>
+                <Input id="player2_playtomic_ranking" value={form.player2_playtomic_ranking} onChange={(e) => update("player2_playtomic_ranking", e.target.value)} placeholder="e.g. 2.5" />
+              </div>
             </div>
           </div>
 
