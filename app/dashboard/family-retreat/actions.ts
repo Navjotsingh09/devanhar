@@ -10,6 +10,9 @@ function getSupabaseAdmin() {
   return createServiceClient(url, key)
 }
 
+const FAMILY_RETREAT_PAYMENT_LINK =
+  process.env.FAMILY_RETREAT_PAYMENT_LINK || 'https://buy.stripe.com/7sY14pddk8qWdyB1EVbEA02'
+
 const TEAM_SIGNATURE = [
   'Best wishes,',
   '',
@@ -56,6 +59,7 @@ export async function updateFamilyRetreatStatus(
           const accommodation = formatAccommodation(booking.accommodation_preference as string | null)
           const adults = details?.adults?.trim() || 'To be confirmed'
           const amount = (details?.amount || '').toString().trim().replace(/^\u00a3/, '') || 'To be confirmed'
+          const paymentUrl = `${FAMILY_RETREAT_PAYMENT_LINK}?client_reference_id=${id}&prefilled_email=${encodeURIComponent(booking.email)}`
           await resend.emails.send({
             from: 'Sikh Family Retreat <noreply@devanhaar.com>',
             to: booking.email,
@@ -74,6 +78,9 @@ export async function updateFamilyRetreatStatus(
               `Number of children/young people: ${childrenCount}`,
               `Accommodation type: ${accommodation}`,
               `Total amount agreed: \u00a3${amount}`,
+              '',
+              'To secure your family\'s place, please complete your payment using the secure link below:',
+              paymentUrl,
               '',
               'Please note that your place is only fully secured once payment has been received. If payment has already been made, please accept this email as confirmation of your family\'s place at the retreat.',
               '',
