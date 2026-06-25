@@ -236,3 +236,89 @@ export async function updateFamilyRetreatNotes(id: string, notes: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/dashboard/family-retreat')
 }
+
+async function sendFamilyRetreatPaymentReceivedEmail(email: string, firstName: string, amountPaid: number) {
+  if (!process.env.RESEND_API_KEY) return
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  await resend.emails.send({
+    from: 'Sikh Family Retreat <noreply@devanhaar.com>',
+    to: email,
+    subject: 'Payment received \u2014 your Sikh Family Retreat place is secured',
+    text: [
+      `Dear ${firstName},`,
+      '',
+      'Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.',
+      '',
+      `Thank you \u2014 we are pleased to confirm that we have received your payment of \u00a3${amountPaid.toFixed(2)} for the Sikh Family Retreat. Your family\'s place is now fully secured.`,
+      '',
+      'We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.',
+      '',
+      'We are really looking forward to welcoming your family.',
+      '',
+      'Warm regards,',
+      'The Sikh Family Initiative Team',
+      '',
+      'Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.',
+      '',
+      TEAM_SIGNATURE,
+    ].join('\n'),
+    html: [
+      `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1f2937;line-height:1.6">`,
+      `<p>Dear ${firstName},</p>`,
+      `<p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
+      `<p>Thank you &mdash; we are pleased to confirm that we have received your payment of <strong>\u00a3${amountPaid.toFixed(2)}</strong> for the Sikh Family Retreat. Your family&rsquo;s place is now fully secured.</p>`,
+      `<p>We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.</p>`,
+      `<p>We are really looking forward to welcoming your family.</p>`,
+      `<p>Warm regards,<br>The Sikh Family Initiative Team</p>`,
+      `<p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
+      SIGNATURE_HTML,
+      `</div>`,
+    ].join(''),
+  })
+}
+
+export async function syncFamilyRetreatPayment(id: string) {
+  const sessionClient = await createClient()
+  const { data: { user } } = await sessionClient.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const supabase = getSupabaseAdmin()
+  const { data: booking } = await supabase
+    .from('family_retreat_bookings')
+    .select('id, email, first_name, payment_status, stripe_payment_link_id')
+    .eq('id', id)
+    .single()
+  if (!booking) throw new Error('Booking not found')
+  if (booking.payment_status === 'paid') return { status: 'already_paid' as const }
+  if (!booking.stripe_payment_link_id) return { status: 'no_link' as const }
+
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) throw new Error('Stripe is not configured')
+  const stripe = new Stripe(key)
+  const sessions = await stripe.checkout.sessions.list({
+    payment_link: booking.stripe_payment_link_id as string,
+    limit: 20,
+  })
+  const paidSession = sessions.data.find(
+    (sn) => sn.payment_status === 'paid' || sn.status === 'complete',
+  )
+  if (!paidSession) return { status: 'not_paid_yet' as const }
+
+  const amountPaid = (paidSession.amount_total ?? 0) / 100
+  await supabase
+    .from('family_retreat_bookings')
+    .update({ payment_status: 'paid', amount_paid: amountPaid, paid_at: new Date().toISOString() })
+    .eq('id', booking.id)
+
+  if (booking.email) {
+    try {
+      await sendFamilyRetreatPaymentReceivedEmail(booking.email as string, (booking.first_name as string) || 'there', amountPaid)
+    } catch (e) {
+      console.error('[family-retreat] payment-received email failed:', e)
+    }
+  }
+
+  revalidatePath('/dashboard/family-retreat')
+  return { status: 'paid' as const, amount: amountPaid }
+}

@@ -201,7 +201,12 @@ export async function POST(request: NextRequest) {
 
       // Sikh Family Retreat payment completed
       const isOtherFlow = session.metadata?.camp_application_id || session.metadata?.padel_registration_id || session.metadata?.type
-      const familyRetreatBookingId = session.metadata?.family_retreat_booking_id || (!isOtherFlow ? session.client_reference_id : null) || null
+      let familyRetreatBookingId = session.metadata?.family_retreat_booking_id || (!isOtherFlow ? session.client_reference_id : null) || null
+      if (!familyRetreatBookingId && session.payment_link) {
+        const plinkId = typeof session.payment_link === "string" ? session.payment_link : session.payment_link.id
+        const { data: byLink } = await supabase.from("family_retreat_bookings").select("id").eq("stripe_payment_link_id", plinkId).maybeSingle()
+        if (byLink) familyRetreatBookingId = byLink.id as string
+      }
       if (familyRetreatBookingId) {
         const { data: frBooking } = await supabase
           .from("family_retreat_bookings")

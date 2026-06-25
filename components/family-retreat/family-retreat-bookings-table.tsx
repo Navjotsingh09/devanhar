@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { ChevronDown, ChevronUp, Check, X, Clock, Loader2, Download } from 'lucide-react'
-import { updateFamilyRetreatStatus, updateFamilyRetreatNotes } from '@/app/dashboard/family-retreat/actions'
+import { updateFamilyRetreatStatus, updateFamilyRetreatNotes, syncFamilyRetreatPayment } from '@/app/dashboard/family-retreat/actions'
 import { toast } from 'sonner'
 
 type ChildEntry = { first_name: string; last_name: string; date_of_birth: string }
@@ -62,6 +62,22 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
   const [confirming, setConfirming] = useState(false)
   const [adults, setAdults] = useState('')
   const [amount, setAmount] = useState('')
+  const [syncing, setSyncing] = useState(false)
+
+  const handleSyncPayment = async () => {
+    setSyncing(true)
+    try {
+      const res = await syncFamilyRetreatPayment(booking.id)
+      if (res.status === 'paid') toast.success(`Payment confirmed \u2014 \u00a3${res.amount} \u00b7 receipt email sent`)
+      else if (res.status === 'already_paid') toast.success('Already marked as paid')
+      else if (res.status === 'not_paid_yet') toast('No completed payment found yet')
+      else toast('No payment link on this booking')
+    } catch {
+      toast.error('Could not sync payment. Please try again.')
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   const handleStatus = (status: string) => {
     startTransition(async () => {
@@ -247,6 +263,11 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
                 {booking.amount_paid != null && <p className="text-muted-foreground">Amount paid: £{booking.amount_paid}</p>}
                 {booking.stripe_payment_link && (
                   <a href={booking.stripe_payment_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs">Open payment link</a>
+                )}
+                {booking.status === 'confirmed' && booking.payment_status !== 'paid' && (
+                  <button onClick={handleSyncPayment} disabled={syncing} className="mt-1 block text-xs text-blue-600 hover:underline disabled:opacity-50">
+                    {syncing ? 'Checking\u2026' : 'Check / sync payment'}
+                  </button>
                 )}
               </div>
             </div>
