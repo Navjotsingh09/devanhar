@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -66,6 +66,7 @@ function Checkbox({ checked, onToggle }: { checked: boolean; onToggle: () => voi
 export function FamilyRetreatBookingForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const successRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState("")
   const [children, setChildren] = useState<ChildEntry[]>([emptyChild()])
   const [form, setForm] = useState({
@@ -80,6 +81,12 @@ export function FamilyRetreatBookingForm() {
     consent_privacy: false,
     page_url: "", source: "", medium: "",
   })
+
+  useEffect(() => {
+    if (submitted && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+  }, [submitted])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -135,11 +142,6 @@ export function FamilyRetreatBookingForm() {
       const json = await res.json()
       if (!res.ok) { setError(json.error || "Something went wrong. Please try again."); return }
       setSubmitted(true)
-      if (typeof window !== "undefined") {
-        setTimeout(() => {
-          document.getElementById("booking-form")?.scrollIntoView({ behavior: "smooth", block: "start" })
-        }, 80)
-      }
     } catch {
       setError("Something went wrong. Please try again or contact the team directly.")
     } finally {
@@ -149,7 +151,7 @@ export function FamilyRetreatBookingForm() {
 
   if (submitted) {
     return (
-      <div className="py-12 text-center">
+      <div ref={successRef} className="py-12 text-center scroll-mt-24">
         <CheckCircle2 className="mx-auto h-14 w-14 text-[hsl(43,100%,29%)] mb-6" />
         <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Booking request received</h3>
         <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto">
