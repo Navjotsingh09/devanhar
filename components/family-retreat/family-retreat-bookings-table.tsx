@@ -152,23 +152,31 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
         </td>
         <td className="px-4 py-3">
           <div className="flex items-center gap-1.5 flex-wrap">
-            {booking.status !== 'confirmed' && (
-              <Button size="sm" variant="outline" onClick={() => setConfirming(true)} disabled={isPending}
-                className="h-7 px-2 text-xs text-green-700 border-green-200 hover:bg-green-50 gap-1">
-                {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Confirm
-              </Button>
-            )}
-            {booking.status !== 'waitlist' && (
-              <Button size="sm" variant="outline" onClick={() => handleStatus('waitlist')} disabled={isPending}
-                className="h-7 px-2 text-xs text-blue-700 border-blue-200 hover:bg-blue-50 gap-1">
-                <Clock className="h-3 w-3" /> Waitlist
-              </Button>
-            )}
-            {booking.status !== 'declined' && (
-              <Button size="sm" variant="outline" onClick={() => handleStatus('declined')} disabled={isPending}
-                className="h-7 px-2 text-xs text-red-700 border-red-200 hover:bg-red-50 gap-1">
-                <X className="h-3 w-3" /> Decline
-              </Button>
+            {booking.payment_status === 'paid' ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+                <Check className="h-3 w-3" /> Paid
+              </span>
+            ) : (
+              <>
+                {booking.status !== 'confirmed' && (
+                  <Button size="sm" variant="outline" onClick={() => setConfirming(true)} disabled={isPending}
+                    className="h-7 px-2 text-xs text-green-700 border-green-200 hover:bg-green-50 gap-1">
+                    {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Confirm
+                  </Button>
+                )}
+                {booking.status !== 'waitlist' && (
+                  <Button size="sm" variant="outline" onClick={() => handleStatus('waitlist')} disabled={isPending}
+                    className="h-7 px-2 text-xs text-blue-700 border-blue-200 hover:bg-blue-50 gap-1">
+                    <Clock className="h-3 w-3" /> Waitlist
+                  </Button>
+                )}
+                {booking.status !== 'declined' && (
+                  <Button size="sm" variant="outline" onClick={() => handleStatus('declined')} disabled={isPending}
+                    className="h-7 px-2 text-xs text-red-700 border-red-200 hover:bg-red-50 gap-1">
+                    <X className="h-3 w-3" /> Decline
+                  </Button>
+                )}
+              </>
             )}
             <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)} className="h-7 px-2 text-muted-foreground">
               {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
