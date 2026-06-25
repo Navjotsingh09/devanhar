@@ -156,6 +156,10 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
               <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
                 <Check className="h-3 w-3" /> Paid
               </span>
+            ) : booking.status === 'declined' ? (
+              <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">
+                <X className="h-3 w-3" /> Declined
+              </span>
             ) : (
               <>
                 {booking.status !== 'confirmed' && (
@@ -170,12 +174,19 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
                     <Clock className="h-3 w-3" /> Waitlist
                   </Button>
                 )}
-                {booking.status !== 'declined' && (
-                  <Button size="sm" variant="outline" onClick={() => handleStatus('declined')} disabled={isPending}
-                    className="h-7 px-2 text-xs text-red-700 border-red-200 hover:bg-red-50 gap-1">
-                    <X className="h-3 w-3" /> Decline
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.confirm(`Decline ${booking.first_name} ${booking.last_name}'s booking? They will be emailed that they were not successful. This is a hard decline and cannot be undone from the dashboard.`)) {
+                      handleStatus('declined')
+                    }
+                  }}
+                  disabled={isPending}
+                  className="h-7 px-2 text-xs text-red-700 border-red-200 hover:bg-red-50 gap-1"
+                >
+                  <X className="h-3 w-3" /> Decline
+                </Button>
               </>
             )}
             <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)} className="h-7 px-2 text-muted-foreground">
