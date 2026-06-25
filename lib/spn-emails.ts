@@ -18,8 +18,9 @@
 const SPN_FROM_EMAIL = process.env.SPN_FROM_EMAIL || 'Sikh Professionals Network <spn@devanhaar.com>'
 // System sender for internal notifications. Override with SPN_SYSTEM_FROM.
 const SPN_SYSTEM_FROM = process.env.SPN_SYSTEM_FROM || 'SPN Website <spn@devanhaar.com>'
-// Where new-submission alerts go. Override with SPN_INTERNAL_EMAIL.
-const SPN_INTERNAL_EMAIL = process.env.SPN_INTERNAL_EMAIL || 'hello@sikhpn.org'
+// Where new-submission alerts go. Hardcoded to the SPN inbox — do NOT rely on
+// SPN_INTERNAL_EMAIL env var which may be stale from a previous deployment.
+const SPN_INTERNAL_EMAIL = 'hello@sikhpn.org'
 // Reply-to for applicant emails. Override with SPN_REPLY_TO.
 const SPN_REPLY_TO = process.env.SPN_REPLY_TO || 'hello@sikhpn.org'
 
