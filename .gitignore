@@ -1,0 +1,28 @@
+# v0 runtime files (should only exist in preview, not in git)
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+instrumentation-client.js
+instrumentation-client.ts
+
+# Common ignores
+node_modules/
+.next/
+.env*.local
+.DS_Store
+.vercel
+pnpm-lock.yaml
+
+# Root logo source files (copies live in public/logos/)
+/Devanhaar*.png
+/Devanhaar*.jpg
+/Hero Section.png
+b_EsEQ3oDfo0U-1771666929007.zip
+nextjs-starter-medusa-main/
+nextjs-starter-medusa-main.zip
+
+.env.local
+
+# Internal compliance review documents (not for public distribution)
+/public/Re_ Devanhaar*
+/app/preview/
