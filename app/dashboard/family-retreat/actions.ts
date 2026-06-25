@@ -50,7 +50,7 @@ async function createExactAmountPaymentLink(
       payment_intent_data: { metadata: { family_retreat_booking_id: bookingId } },
       after_completion: {
         type: 'redirect',
-        redirect: { url: `${SITE_URL}/initiatives/sikh-family-retreat?paid=1` },
+        redirect: { url: `${SITE_URL}/initiatives/sikh-family-retreat?paid=1&session_id={CHECKOUT_SESSION_ID}` },
       },
       restrictions: { completed_sessions: { limit: 1 } },
     })

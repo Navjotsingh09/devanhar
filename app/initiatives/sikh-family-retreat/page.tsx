@@ -15,6 +15,7 @@ import {
   retreatDescription,
 } from "@/components/family-retreat/family-retreat-shared-data"
 import { Button } from "@/components/ui/button"
+import { reconcileFamilyRetreatBySession } from "@/lib/family-retreat-payment"
 
 export const metadata = {
   title: "Sikh Family Retreat | Devanhaar",
@@ -22,12 +23,38 @@ export const metadata = {
     "A family-focused Sikh retreat bringing parents, children and young people together through Gurbani, Sikh history, seva and time in sangat.",
 }
 
-export default function SikhFamilyRetreatPage() {
+export default async function SikhFamilyRetreatPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ paid?: string; session_id?: string }>
+}) {
+  const sp = await searchParams
+  const justPaid = sp?.paid === "1"
+  if (justPaid && sp?.session_id) {
+    try {
+      await reconcileFamilyRetreatBySession(sp.session_id)
+    } catch {
+      // best-effort; the dashboard sync button is a fallback
+    }
+  }
   return (
     <>
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen">
+        {justPaid && (
+          <section className="border-b border-green-200 bg-green-50">
+            <div className="container mx-auto px-6 lg:px-12 max-w-3xl py-8 text-center">
+              <h2 className="text-xl md:text-2xl font-bold text-green-800">
+                Payment received &mdash; thank you!
+              </h2>
+              <p className="mt-2 text-sm md:text-base text-green-700 leading-relaxed">
+                Your family&rsquo;s place at the Sikh Family Retreat is now secured. A payment
+                confirmation email has been sent to you. We look forward to welcoming your family.
+              </p>
+            </div>
+          </section>
+        )}
         <FamilyRetreatHero />
 
         {/* Intro Booking Card */}
