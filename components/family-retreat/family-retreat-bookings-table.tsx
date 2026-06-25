@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { ChevronDown, ChevronUp, Check, X, Clock, Loader2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, X, Clock, Loader2, Download } from 'lucide-react'
 import { updateFamilyRetreatStatus, updateFamilyRetreatNotes } from '@/app/dashboard/family-retreat/actions'
 import { toast } from 'sonner'
 
@@ -191,6 +191,56 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
   )
 }
 
+function csvCell(v: unknown): string {
+  const s = v == null ? '' : String(v)
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+}
+
+function bookingsToCsv(bookings: FamilyRetreatBooking[]): string {
+  const headers = [
+    'Booking #', 'Submitted', 'Status',
+    'First name', 'Last name', 'Email', 'Phone',
+    'City', 'Postcode', 'Country',
+    'Children count', 'Children (name + DOB)',
+    'Accommodation preference', 'Dietary requirements', 'Medical requirements',
+    'Emergency contact name', 'Emergency contact relationship', 'Emergency contact phone',
+    'Heard about retreat', 'Additional notes',
+    'Consent email', 'Consent WhatsApp', 'Internal notes',
+  ]
+  const rows = bookings.map((b, i) => [
+    i + 1,
+    b.created_at ? new Date(b.created_at).toLocaleString('en-GB') : '',
+    b.status,
+    b.first_name, b.last_name, b.email, b.phone,
+    b.city, b.postcode, b.country,
+    b.children_attending?.length ?? 0,
+    (b.children_attending ?? []).map(c => `${c.first_name} ${c.last_name} (DOB ${c.date_of_birth})`).join('; '),
+    b.accommodation_preference ?? '',
+    b.dietary_requirements ?? '',
+    b.medical_requirements ?? '',
+    b.emergency_contact_name, b.emergency_contact_relationship, b.emergency_contact_phone,
+    b.heard_about_retreat ?? '',
+    b.additional_notes ?? '',
+    b.consent_email ? 'Yes' : 'No',
+    b.consent_whatsapp ? 'Yes' : 'No',
+    b.internal_notes ?? '',
+  ])
+  return [headers, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n')
+}
+
+function downloadBookingsCsv(bookings: FamilyRetreatBooking[]) {
+  const csv = '\uFEFF' + bookingsToCsv(bookings)
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `family-retreat-bookings-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetreatBooking[] }) {
   const pending   = bookings.filter(b => b.status === 'pending').length
   const confirmed = bookings.filter(b => b.status === 'confirmed').length
@@ -199,6 +249,20 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          {bookings.length} booking{bookings.length === 1 ? '' : 's'} total
+        </p>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => downloadBookingsCsv(bookings)}
+          disabled={bookings.length === 0}
+          className="gap-1.5"
+        >
+          <Download className="h-4 w-4" /> Export CSV
+        </Button>
+      </div>
       <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
         {[
           { label: 'Total',     value: bookings.length, cls: '' },
