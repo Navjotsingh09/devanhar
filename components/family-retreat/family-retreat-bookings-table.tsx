@@ -36,6 +36,7 @@ export type FamilyRetreatBooking = {
   payment_status?: string | null
   amount_due?: number | null
   amount_paid?: number | null
+  stripe_payment_link?: string | null
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -238,6 +239,15 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Contact consent</p>
                 <p className="text-muted-foreground">Email: {booking.consent_email ? '✓ Yes' : '✗ No'}</p>
                 <p className="text-muted-foreground">WhatsApp: {booking.consent_whatsapp ? '✓ Yes' : '✗ No'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Payment</p>
+                <p className="text-muted-foreground">Status: <span className={booking.payment_status === 'paid' ? 'text-green-700 font-medium' : booking.status === 'confirmed' ? 'text-amber-600 font-medium' : ''}>{booking.payment_status === 'paid' ? 'Paid' : booking.status === 'confirmed' ? 'Awaiting payment' : 'Not yet invoiced'}</span></p>
+                {booking.amount_due != null && <p className="text-muted-foreground">Amount due: £{booking.amount_due}</p>}
+                {booking.amount_paid != null && <p className="text-muted-foreground">Amount paid: £{booking.amount_paid}</p>}
+                {booking.stripe_payment_link && (
+                  <a href={booking.stripe_payment_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs">Open payment link</a>
+                )}
               </div>
             </div>
             <div className="mt-5 border-t border-border pt-4">
