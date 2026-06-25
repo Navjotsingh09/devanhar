@@ -135,6 +135,11 @@ export function FamilyRetreatBookingForm() {
       const json = await res.json()
       if (!res.ok) { setError(json.error || "Something went wrong. Please try again."); return }
       setSubmitted(true)
+      if (typeof window !== "undefined") {
+        setTimeout(() => {
+          document.getElementById("booking-form")?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }, 80)
+      }
     } catch {
       setError("Something went wrong. Please try again or contact the team directly.")
     } finally {
