@@ -6,6 +6,19 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const NOTIFICATION_EMAIL =
   process.env.FAMILY_RETREAT_NOTIFICATION_EMAIL || 'TheSikhFI@devanhaar.com'
 
+const TEAM_SIGNATURE = [
+  'Best wishes,',
+  '',
+  'Daljit Kaur',
+  'Specialist Lead',
+  'Mob: 07780 334 940',
+  'Email: Daljit.Kaur@devanhaar.com',
+  'LinkedIn: daljitkaurstem',
+  '',
+  'Follow The Sikh Family Initiative on Instagram:',
+  'https://www.instagram.com/thesikhfamilyinitiative',
+].join('\n')
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function getSupabaseAdmin() {
@@ -164,19 +177,20 @@ export async function POST(request: NextRequest) {
           text: [
             `Dear ${payload.first_name},`,
             '',
-            'Thank you for submitting your family\'s booking request for the Sikh Family Retreat.',
+            'Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.',
             '',
-            'Your application is now being processed. A member of the team will be in touch with you shortly to discuss availability, costs and next steps.',
+            'Thank you for submitting your booking request for The Sikh Family Initiative: Sikh Family Retreat.',
             '',
-            'Should you have any questions in the meantime, please do not hesitate to get in touch:',
+            'We have received your family\'s details and a sevadaar from the team will now review your form. They will contact you directly to confirm availability, discuss the cost for your family, explain how to make payment and answer any questions you may have.',
             '',
-            'Email: TheSikhFI@devanhaar.com',
-            'Phone / WhatsApp: 07780 334 940',
+            'Please remember that submitting the booking form does not automatically confirm your family\'s place. Your place will only be confirmed once The Sikh Family Initiative team has contacted you and the next steps have been agreed.',
             '',
-            'Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh!',
+            'We are grateful for your interest and look forward to sharing more information with you soon.',
             '',
-            'Sikh Family Retreat Team',
-            'Devanhaar',
+            'Warm regards,',
+            'The Sikh Family Initiative Team',
+            '',
+            TEAM_SIGNATURE,
           ].join('\n'),
         })
       } catch (confirmEmailErr) {

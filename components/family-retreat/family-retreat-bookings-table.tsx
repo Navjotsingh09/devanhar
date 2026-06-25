@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
 import { ChevronDown, ChevronUp, Check, X, Clock, Loader2, Download } from 'lucide-react'
 import { updateFamilyRetreatStatus, updateFamilyRetreatNotes } from '@/app/dashboard/family-retreat/actions'
 import { toast } from 'sonner'
@@ -54,6 +55,9 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
   const [notes, setNotes] = useState(booking.internal_notes ?? '')
   const [savingNotes, setSavingNotes] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [confirming, setConfirming] = useState(false)
+  const [adults, setAdults] = useState('')
+  const [amount, setAmount] = useState('')
 
   const handleStatus = (status: string) => {
     startTransition(async () => {
@@ -62,6 +66,18 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
         toast.success(`Booking ${status}${status === 'confirmed' ? ' — confirmation email sent' : status === 'declined' ? ' — decline email sent' : ''}`)
       } catch {
         toast.error('Failed to update status. Please try again.')
+      }
+    })
+  }
+
+  const handleConfirm = () => {
+    startTransition(async () => {
+      try {
+        await updateFamilyRetreatStatus(booking.id, 'confirmed', { adults: adults.trim(), amount: amount.trim() })
+        toast.success('Booking confirmed \u2014 confirmation email sent')
+        setConfirming(false)
+      } catch {
+        toast.error('Failed to confirm. Please try again.')
       }
     })
   }
@@ -108,7 +124,7 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
         <td className="px-4 py-3">
           <div className="flex items-center gap-1.5 flex-wrap">
             {booking.status !== 'confirmed' && (
-              <Button size="sm" variant="outline" onClick={() => handleStatus('confirmed')} disabled={isPending}
+              <Button size="sm" variant="outline" onClick={() => setConfirming(true)} disabled={isPending}
                 className="h-7 px-2 text-xs text-green-700 border-green-200 hover:bg-green-50 gap-1">
                 {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Confirm
               </Button>
@@ -131,6 +147,41 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
           </div>
         </td>
       </tr>
+
+      {confirming && (
+        <tr className="bg-green-50/40 border-b border-border">
+          <td />
+          <td colSpan={7} className="px-4 py-4">
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <p className="text-sm font-medium text-foreground">
+                Confirm {booking.first_name} {booking.last_name}&apos;s booking
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Family name, number of children and accommodation are taken from the form. Enter the number of adults and the total amount agreed on the call &mdash; these are merged into the confirmation email.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-foreground">Number of adults</label>
+                  <Input value={adults} onChange={(e) => setAdults(e.target.value)} placeholder="e.g. 2" inputMode="numeric" className="h-8 text-sm" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-foreground">Total amount agreed (&pound;)</label>
+                  <Input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g. 350" inputMode="decimal" className="h-8 text-sm" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={handleConfirm} disabled={isPending || !adults.trim() || !amount.trim()}
+                  className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white gap-1.5">
+                  {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Send confirmation email
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} disabled={isPending} className="h-8 px-3 text-xs">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
 
       {expanded && (
         <tr className="bg-muted/10 border-b border-border">
