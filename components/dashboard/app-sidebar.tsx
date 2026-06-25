@@ -18,6 +18,7 @@ import {
   Trophy,
   BookOpen,
   Video,
+  Home,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -71,6 +72,10 @@ const eventsNav: NavItem[] = [
 
 const vidyalaNav: NavItem[] = [
   { title: 'Webinar Signups', url: '/dashboard/vidyala', icon: Video },
+]
+
+const familyRetreatNav: NavItem[] = [
+  { title: 'Family Bookings', url: '/dashboard/family-retreat', icon: Home },
 ]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -182,6 +187,29 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {eventsNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                    <Link href={item.url}>
+                      <item.icon className="h4 w4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        )}
+
+        {!isVacanciesOnly && (
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <Home className="h3 w3 mr-1" />
+            Sikh Family Retreat
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {familyRetreatNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
