@@ -198,6 +198,86 @@ export async function POST(request: NextRequest) {
           },
         }).then(undefined, (err: unknown) => console.error("[Wolf Run Webhook] Activity log failed:", err))
       }
+
+      // Sikh Family Retreat payment completed
+      const isOtherFlow = session.metadata?.camp_application_id || session.metadata?.padel_registration_id || session.metadata?.type
+      const familyRetreatBookingId = session.metadata?.family_retreat_booking_id || (!isOtherFlow ? session.client_reference_id : null) || null
+      if (familyRetreatBookingId) {
+        const { data: frBooking } = await supabase
+          .from("family_retreat_bookings")
+          .select("id, email, first_name, payment_status")
+          .eq("id", familyRetreatBookingId)
+          .maybeSingle()
+        if (frBooking && frBooking.payment_status !== "paid") {
+          const amountPaid = (session.amount_total ?? 0) / 100
+          await supabase.from("family_retreat_bookings").update({
+            payment_status: "paid",
+            amount_paid: amountPaid,
+            paid_at: new Date().toISOString(),
+          }).eq("id", frBooking.id)
+
+          if (frBooking.email && process.env.RESEND_API_KEY) {
+            try {
+              const { Resend } = await import("resend")
+              const resend = new Resend(process.env.RESEND_API_KEY)
+              await resend.emails.send({
+                from: "Sikh Family Retreat <noreply@devanhaar.com>",
+                to: frBooking.email,
+                subject: "Payment received \u2014 your Sikh Family Retreat place is secured",
+                text: [
+                  `Dear ${frBooking.first_name},`,
+                  "",
+                  "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.",
+                  "",
+                  `Thank you \u2014 we are pleased to confirm that we have received your payment of \u00a3${amountPaid.toFixed(2)} for the Sikh Family Retreat. Your family's place is now fully secured.`,
+                  "",
+                  "We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.",
+                  "",
+                  "We are really looking forward to welcoming your family.",
+                  "",
+                  "Warm regards,",
+                  "The Sikh Family Initiative Team",
+                  "",
+                  "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.",
+                  "",
+                  "Best wishes,",
+                  "",
+                  "Daljit Kaur",
+                  "Specialist Lead",
+                  "Mob: 07780 334 940",
+                  "Email: Daljit.Kaur@devanhaar.com",
+                  "LinkedIn: daljitkaurstem",
+                  "",
+                  "Follow The Sikh Family Initiative on Instagram:",
+                  "https://www.instagram.com/thesikhfamilyinitiative",
+                ].join("\n"),
+                html: [
+                  `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1f2937;line-height:1.6">`,
+                  `<p>Dear ${frBooking.first_name},</p>`,
+                  `<p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
+                  `<p>Thank you &mdash; we are pleased to confirm that we have received your payment of <strong>\u00a3${amountPaid.toFixed(2)}</strong> for the Sikh Family Retreat. Your family&rsquo;s place is now fully secured.</p>`,
+                  `<p>We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.</p>`,
+                  `<p>We are really looking forward to welcoming your family.</p>`,
+                  `<p>Warm regards,<br>The Sikh Family Initiative Team</p>`,
+                  `<p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
+                  `<p style="margin-top:24px">Best wishes,<br><br><strong>Daljit Kaur</strong><br>Specialist Lead<br>Mob: 07780 334 940<br>Email: <a href="mailto:Daljit.Kaur@devanhaar.com">Daljit.Kaur@devanhaar.com</a><br>LinkedIn: daljitkaurstem</p>`,
+                  `<p>Follow The Sikh Family Initiative on Instagram:<br><a href="https://www.instagram.com/thesikhfamilyinitiative">https://www.instagram.com/thesikhfamilyinitiative</a></p>`,
+                  `</div>`,
+                ].join(""),
+              })
+            } catch (frEmailErr) {
+              console.error("[family-retreat] Payment-received email failed:", frEmailErr)
+            }
+          }
+
+          await supabase.from("activity_log").insert({
+            action: "Sikh Family Retreat payment received",
+            entity_type: "family_retreat_booking",
+            entity_id: frBooking.id,
+            metadata: { stripe_session_id: session.id, amount_total: session.amount_total, currency: session.currency },
+          }).then(undefined, () => {})
+        }
+      }
     }
     if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session

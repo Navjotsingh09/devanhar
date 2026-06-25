@@ -33,6 +33,9 @@ export type FamilyRetreatBooking = {
   consent_email: boolean
   consent_whatsapp: boolean
   internal_notes: string | null
+  payment_status?: string | null
+  amount_due?: number | null
+  amount_paid?: number | null
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -117,7 +120,16 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
         <td className="px-4 py-3 text-sm text-muted-foreground capitalize whitespace-nowrap">
           {booking.accommodation_preference?.replace(/-/g, ' ') ?? '—'}
         </td>
-        <td className="px-4 py-3"><StatusBadge status={booking.status} /></td>
+        <td className="px-4 py-3">
+          <StatusBadge status={booking.status} />
+          {booking.status === 'confirmed' && (
+            <span className={`mt-1 block text-xs font-medium ${booking.payment_status === 'paid' ? 'text-green-700' : 'text-amber-600'}`}>
+              {booking.payment_status === 'paid'
+                ? `\u2713 Paid${booking.amount_paid ? ` \u00a3${booking.amount_paid}` : ''}`
+                : 'Awaiting payment'}
+            </span>
+          )}
+        </td>
         <td className="px-4 py-3 text-xs text-muted-foreground tabular-nums whitespace-nowrap">
           {new Date(booking.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </td>
