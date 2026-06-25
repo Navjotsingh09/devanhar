@@ -52,6 +52,14 @@ function getSupabaseAdmin() {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const VALID_TYPES = new Set(['join', 'advisor', 'grad_award', 'event'])
 
+// Reject strings that contain 2+ consecutive junk characters — same rule as
+// the browser-side check in forms.js so the server is the authoritative gate.
+const JUNK_RE = /[!@#$%^*~|<>{}\[\]]{2,}/
+function isJunk(val: unknown): boolean {
+  if (typeof val !== 'string') return false
+  return JUNK_RE.test(val)
+}
+
 // Keys we map to dedicated columns or that are Web3Forms plumbing — everything
 // else goes into form_data so nothing the SPN forms send is ever lost.
 const RESERVED = new Set([
@@ -94,6 +102,18 @@ export async function POST(req: NextRequest) {
     }
 
     const phone = body.phone ? String(body.phone).trim() : null
+
+    // Reject junk/garbage input (e.g. "!@#$%^&*") in any text field.
+    const textFieldsToCheck: unknown[] = [firstName, lastName, phone,
+      body.sector, body.role, body.location, body.areaSupport,
+      body.shortBio, body.motivation, body.message,
+    ]
+    if (textFieldsToCheck.some(isJunk)) {
+      return NextResponse.json(
+        { error: 'Submission contains invalid characters. Please use letters and numbers only.' },
+        { status: 422, headers },
+      )
+    }
 
     // Everything else -> form_data
     const formData: Record<string, unknown> = {}
