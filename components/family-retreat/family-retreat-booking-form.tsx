@@ -277,7 +277,7 @@ export function FamilyRetreatBookingForm() {
 
       <div className="pt-2">
         <Button onClick={handleSubmit} disabled={submitting || !isValid()} className="rounded-full px-8 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white">
-          {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting\u2026</> : "Submit booking request"}
+          {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting…</> : "Submit booking request"}
         </Button>
         <p className="mt-4 text-xs text-muted-foreground">Submitting this form does not automatically confirm your place. A sevadaar will review your details and contact you directly.</p>
       </div>

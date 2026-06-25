@@ -59,7 +59,7 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
     startTransition(async () => {
       try {
         await updateFamilyRetreatStatus(booking.id, status)
-        toast.success(`Booking ${status}${status === 'confirmed' ? ' \u2014 confirmation email sent' : status === 'declined' ? ' \u2014 decline email sent' : ''}`)
+        toast.success(`Booking ${status}${status === 'confirmed' ? ' — confirmation email sent' : status === 'declined' ? ' — decline email sent' : ''}`)
       } catch {
         toast.error('Failed to update status. Please try again.')
       }
@@ -99,7 +99,7 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
           )}
         </td>
         <td className="px-4 py-3 text-sm text-muted-foreground capitalize whitespace-nowrap">
-          {booking.accommodation_preference?.replace(/-/g, ' ') ?? '\u2014'}
+          {booking.accommodation_preference?.replace(/-/g, ' ') ?? '—'}
         </td>
         <td className="px-4 py-3"><StatusBadge status={booking.status} /></td>
         <td className="px-4 py-3 text-xs text-muted-foreground tabular-nums whitespace-nowrap">
@@ -139,7 +139,7 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 text-sm">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Children attending</p>
-                {(booking.children_attending?.length ?? 0) === 0 ? <p className="text-muted-foreground">\u2014</p> : (
+                {(booking.children_attending?.length ?? 0) === 0 ? <p className="text-muted-foreground">—</p> : (
                   <ul className="space-y-1">
                     {booking.children_attending.map((c, i) => (
                       <li key={i} className="text-foreground">
@@ -168,20 +168,20 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Additional info</p>
-                <p className="text-foreground mb-1"><span className="font-medium">Heard via: </span><span className="text-muted-foreground">{booking.heard_about_retreat || '\u2014'}</span></p>
+                <p className="text-foreground mb-1"><span className="font-medium">Heard via: </span><span className="text-muted-foreground">{booking.heard_about_retreat || '—'}</span></p>
                 <p className="text-foreground"><span className="font-medium">Notes: </span><span className="text-muted-foreground">{booking.additional_notes || 'None'}</span></p>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Contact consent</p>
-                <p className="text-muted-foreground">Email: {booking.consent_email ? '\u2713 Yes' : '\u2717 No'}</p>
-                <p className="text-muted-foreground">WhatsApp: {booking.consent_whatsapp ? '\u2713 Yes' : '\u2717 No'}</p>
+                <p className="text-muted-foreground">Email: {booking.consent_email ? '✓ Yes' : '✗ No'}</p>
+                <p className="text-muted-foreground">WhatsApp: {booking.consent_whatsapp ? '✓ Yes' : '✗ No'}</p>
               </div>
             </div>
             <div className="mt-5 border-t border-border pt-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Internal notes</p>
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="text-sm mb-2" placeholder="Add internal notes visible only to the team\u2026" />
+              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="text-sm mb-2" placeholder="Add internal notes visible only to the team…" />
               <Button size="sm" variant="outline" onClick={handleSaveNotes} disabled={savingNotes} className="h-7 px-3 text-xs">
-                {savingNotes ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Saving\u2026</> : 'Save notes'}
+                {savingNotes ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Saving…</> : 'Save notes'}
               </Button>
             </div>
           </td>
