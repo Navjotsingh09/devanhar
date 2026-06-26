@@ -19,16 +19,7 @@ const FAMILY_RETREAT_STRIPE_PRODUCT =
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://devanhaar.com'
 
-const SIGNATURE_HTML = [
-  '<p style="margin-top:24px">Best wishes,<br><br>',
-  '<strong>Daljit Kaur</strong><br>',
-  'Specialist Lead<br>',
-  'Mob: 07780 334 940<br>',
-  'Email: <a href="mailto:Daljit.Kaur@devanhaar.com">Daljit.Kaur@devanhaar.com</a><br>',
-  'LinkedIn: daljitkaurstem</p>',
-  '<p>Follow The Sikh Family Initiative on Instagram:<br>',
-  '<a href="https://www.instagram.com/thesikhfamilyinitiative">https://www.instagram.com/thesikhfamilyinitiative</a></p>',
-].join('')
+const SIGNATURE_HTML = ''
 
 async function createExactAmountPaymentLink(
   amountPence: number,
@@ -64,18 +55,7 @@ async function createExactAmountPaymentLink(
   }
 }
 
-const TEAM_SIGNATURE = [
-  'Best wishes,',
-  '',
-  'Daljit Kaur',
-  'Specialist Lead',
-  'Mob: 07780 334 940',
-  'Email: Daljit.Kaur@devanhaar.com',
-  'LinkedIn: daljitkaurstem',
-  '',
-  'Follow The Sikh Family Initiative on Instagram:',
-  'https://www.instagram.com/thesikhfamilyinitiative',
-].join('\n')
+const TEAM_SIGNATURE = ''
 
 function formatAccommodation(value: string | null | undefined): string {
   if (!value) return 'To be confirmed'

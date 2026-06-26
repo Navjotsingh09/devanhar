@@ -8,18 +8,7 @@ const NOTIFICATION_EMAILS = [
   'SikhFI@devanhaar.com',
 ]
 
-const TEAM_SIGNATURE = [
-  'Best wishes,',
-  '',
-  'Daljit Kaur',
-  'Specialist Lead',
-  'Mob: 07780 334 940',
-  'Email: Daljit.Kaur@devanhaar.com',
-  'LinkedIn: daljitkaurstem',
-  '',
-  'Follow The Sikh Family Initiative on Instagram:',
-  'https://www.instagram.com/thesikhfamilyinitiative',
-].join('\n')
+const TEAM_SIGNATURE = ''
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

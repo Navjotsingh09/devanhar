@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
-import { ChevronDown, ChevronUp, Check, X, Clock, Loader2, Download } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, X, Clock, Loader2, Download, Users, CheckCircle2, ListChecks, Baby } from 'lucide-react'
 import { updateFamilyRetreatStatus, updateFamilyRetreatNotes, syncFamilyRetreatPayment } from '@/app/dashboard/family-retreat/actions'
 import { toast } from 'sonner'
 
@@ -378,14 +378,17 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
       </div>
       <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
         {[
-          { label: 'Total',     value: bookings.length, cls: '' },
-          { label: 'Pending',   value: pending,   cls: 'text-yellow-700' },
-          { label: 'Confirmed', value: confirmed, cls: 'text-green-700' },
-          { label: 'Waitlist',  value: waitlist,  cls: 'text-blue-700' },
-          { label: 'Children',  value: totalChildren, cls: '' },
+          { label: 'Total',     value: bookings.length, cls: '', icon: Users,        iconCls: 'text-muted-foreground' },
+          { label: 'Pending',   value: pending,   cls: 'text-yellow-700', icon: Clock,        iconCls: 'text-yellow-600' },
+          { label: 'Confirmed', value: confirmed, cls: 'text-green-700',  icon: CheckCircle2, iconCls: 'text-green-600' },
+          { label: 'Waitlist',  value: waitlist,  cls: 'text-blue-700',   icon: ListChecks,   iconCls: 'text-blue-600' },
+          { label: 'Children',  value: totalChildren, cls: '', icon: Baby,         iconCls: 'text-muted-foreground' },
         ].map(s => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground mb-1">{s.label}</p>
+            <div className="mb-1 flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+              <s.icon className={`h-4 w-4 ${s.iconCls}`} />
+            </div>
             <p className={`text-2xl font-bold text-foreground ${s.cls}`}>{s.value}</p>
           </div>
         ))}

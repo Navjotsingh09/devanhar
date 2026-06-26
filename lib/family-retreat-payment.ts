@@ -1,22 +1,9 @@
 import Stripe from "stripe"
 import { createClient } from "@supabase/supabase-js"
 
-const SIGNATURE_LINES = [
-  "Best wishes,",
-  "",
-  "Daljit Kaur",
-  "Specialist Lead",
-  "Mob: 07780 334 940",
-  "Email: Daljit.Kaur@devanhaar.com",
-  "LinkedIn: daljitkaurstem",
-  "",
-  "Follow The Sikh Family Initiative on Instagram:",
-  "https://www.instagram.com/thesikhfamilyinitiative",
-]
+const SIGNATURE_LINES: string[] = []
 
-const SIGNATURE_HTML =
-  '<p style="margin-top:24px">Best wishes,<br><br><strong>Daljit Kaur</strong><br>Specialist Lead<br>Mob: 07780 334 940<br>Email: <a href="mailto:Daljit.Kaur@devanhaar.com">Daljit.Kaur@devanhaar.com</a><br>LinkedIn: daljitkaurstem</p>' +
-  '<p>Follow The Sikh Family Initiative on Instagram:<br><a href="https://www.instagram.com/thesikhfamilyinitiative">https://www.instagram.com/thesikhfamilyinitiative</a></p>'
+const SIGNATURE_HTML = ""
 
 async function sendPaymentReceivedEmail(email: string, firstName: string, amountPaid: number) {
   if (!process.env.RESEND_API_KEY) return

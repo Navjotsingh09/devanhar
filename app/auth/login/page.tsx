@@ -21,13 +21,19 @@ export default function LoginPage() {
 
   const handleReset = async () => {
     if (!email) { setError("Please enter your email address first."); return }
+    if (!email.toLowerCase().endsWith("@devanhaar.com")) {
+      setError("Access is restricted to Devanhaar staff. Please use your @devanhaar.com email address.")
+      return
+    }
     setResetLoading(true); setError(null)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://devanhaar.com/auth/update-password",
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       })
-      if (error) throw error
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "Failed to send reset email")
       setResetSent(true)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to send reset email")
