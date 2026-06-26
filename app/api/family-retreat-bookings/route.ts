@@ -3,8 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const NOTIFICATION_EMAIL =
-  process.env.FAMILY_RETREAT_NOTIFICATION_EMAIL || 'TheSikhFI@devanhaar.com'
+const NOTIFICATION_EMAILS = [
+  process.env.FAMILY_RETREAT_NOTIFICATION_EMAIL || 'TheSikhFI@devanhaar.com',
+  'SikhFI@devanhaar.com',
+]
 
 const TEAM_SIGNATURE = [
   'Best wishes,',
@@ -156,7 +158,7 @@ export async function POST(request: NextRequest) {
         ].join('\n')
         await resend.emails.send({
           from: 'Devanhaar <noreply@devanhaar.com>',
-          to: NOTIFICATION_EMAIL,
+          to: NOTIFICATION_EMAILS,
           subject: `Family Retreat booking - ${payload.first_name} ${payload.last_name} (${body.children.length} child${body.children.length !== 1 ? 'ren' : ''})`,
           text: textBody,
         })
