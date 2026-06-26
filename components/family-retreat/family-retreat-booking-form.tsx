@@ -329,7 +329,6 @@ export function FamilyRetreatBookingForm() {
         <p className="mt-4 text-xs text-muted-foreground">Submitting this form does not automatically confirm your place. A sevadaar will review your details and contact you directly.</p>
       </div>
     </div>
-    </div>
     </>
   )
 }
