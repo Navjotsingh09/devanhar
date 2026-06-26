@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
         what_to_learn: body.what_to_learn ?? null,
         continue_parchaar: body.continue_parchaar ?? null,
         how_heard: body.how_heard ?? null,
+        preferred_schedule: body.preferred_schedule ?? null,
+        preferred_schedule_other: body.preferred_schedule_other ?? null,
         page_url: body.page_url ?? null,
         source: body.source ?? null,
         medium: body.medium ?? null,

@@ -72,9 +72,9 @@ export default function SikhiVidyalaPage() {
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
-                { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm" },
+                { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm*" },
                 { icon: MapPin, label: "Location", value: "Birmingham, UK (Gurdwara-based)" },
-                { icon: Clock, label: "Duration", value: "October 2026 to February 2027" },
+                { icon: Clock, label: "Duration", value: "October 2026 to February 2027*" },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${NAVY}15` }}>
@@ -85,6 +85,7 @@ export default function SikhiVidyalaPage() {
                 </div>
               ))}
             </div>
+            <p className="text-center text-xs text-muted-foreground mt-4">* This may be subject to change</p>
           </div>
         </section>
 
