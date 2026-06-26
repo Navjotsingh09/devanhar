@@ -109,6 +109,14 @@ export function FamilyRetreatBookingForm() {
   const addChild = () => { if (children.length < 10) setChildren((prev) => [...prev, emptyChild()]) }
   const removeChild = (index: number) => { if (children.length > 1) setChildren((prev) => prev.filter((_, i) => i !== index)) }
 
+  const resetForm = () => {
+    setSubmitted(false)
+    setForm({ first_name:"",last_name:"",email:"",phone:"",city:"",postcode:"",country:"",accommodation_preference:"",dietary_requirements:"",medical_requirements:"",emergency_contact_name:"",emergency_contact_relationship:"",emergency_contact_phone:"",heard_about_retreat:"",additional_notes:"",consent_email:"no",consent_whatsapp:"no",consent_privacy:false,page_url:"",source:"",medium:"" })
+    setChildren([emptyChild()])
+    setError("")
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   const getValidationError = (): string | null => {
     if (!NAME_REGEX.test(form.first_name.trim())) return "Please enter your first name."
     if (!NAME_REGEX.test(form.last_name.trim())) return "Please enter your last name."
@@ -170,7 +178,7 @@ export function FamilyRetreatBookingForm() {
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            onClick={() => setSubmitted(false)}
+            onClick={resetForm}
             aria-hidden="true"
           />
           {/* Modal card */}
@@ -180,7 +188,7 @@ export function FamilyRetreatBookingForm() {
           >
             {/* Close button */}
             <button
-              onClick={() => setSubmitted(false)}
+              onClick={resetForm}
               aria-label="Close"
               className="absolute top-4 right-4 rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors"
             >
@@ -194,7 +202,7 @@ export function FamilyRetreatBookingForm() {
               Thank you. Your family booking request has been submitted. A sevadaar will review your details and contact you directly to discuss availability, costs and next steps.
             </p>
             <button
-              onClick={() => setSubmitted(false)}
+              onClick={resetForm}
               className="inline-flex items-center justify-center rounded-full px-8 py-2.5 text-sm font-medium bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white transition-colors"
             >
               Close
