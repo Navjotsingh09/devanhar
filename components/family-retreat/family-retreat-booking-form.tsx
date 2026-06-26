@@ -158,20 +158,51 @@ export function FamilyRetreatBookingForm() {
     }
   }
 
-  if (submitted) {
-    return (
-      <div ref={successRef} className="py-12 text-center scroll-mt-24">
-        <CheckCircle2 className="mx-auto h-14 w-14 text-[hsl(43,100%,29%)] mb-6" />
-        <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">Booking request received</h3>
-        <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto">
-          Thank you. Your family booking request has been submitted. A sevadaar will review your details and contact you directly to discuss availability, costs and next steps.
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-10">
+    <>
+      {submitted && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="booking-success-title"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+        >
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setSubmitted(false)}
+            aria-hidden="true"
+          />
+          {/* Modal card */}
+          <div
+            ref={successRef}
+            className="relative z-10 w-full max-w-lg rounded-2xl border border-border bg-card shadow-xl p-8 md:p-10 text-center"
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setSubmitted(false)}
+              aria-label="Close"
+              className="absolute top-4 right-4 rounded-full p-1.5 text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <CheckCircle2 className="mx-auto h-14 w-14 text-[hsl(43,100%,29%)] mb-5" />
+            <h3 id="booking-success-title" className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+              Booking request received
+            </h3>
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
+              Thank you. Your family booking request has been submitted. A sevadaar will review your details and contact you directly to discuss availability, costs and next steps.
+            </p>
+            <button
+              onClick={() => setSubmitted(false)}
+              className="inline-flex items-center justify-center rounded-full px-8 py-2.5 text-sm font-medium bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      <div className="space-y-10">
       {/* About you */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">About you</h3>
@@ -298,5 +329,7 @@ export function FamilyRetreatBookingForm() {
         <p className="mt-4 text-xs text-muted-foreground">Submitting this form does not automatically confirm your place. A sevadaar will review your details and contact you directly.</p>
       </div>
     </div>
+    </div>
+    </>
   )
 }
