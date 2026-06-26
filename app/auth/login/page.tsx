@@ -99,6 +99,14 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+              <div className="flex justify-end -mt-2">
+                <button type="button" onClick={handleReset} disabled={resetLoading} className="text-amber-400/70 hover:text-amber-400 text-xs transition-colors disabled:opacity-50">
+                  {resetLoading ? "Sending…" : "Forgot password?"}
+                </button>
+              </div>
+              {resetSent && (
+                <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 rounded-lg text-center">Password reset email sent — check your inbox.</div>
+              )}
               <Button type="submit" disabled={isLoading} className="w-full h-12 bg-amber-400 hover:bg-amber-500 text-black font-semibold rounded-xl transition-all duration-200">
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
