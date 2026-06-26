@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Eye, EyeOff, Lock, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
 
@@ -16,11 +16,41 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [sessionReady, setSessionReady] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    // Supabase appends #access_token=...&refresh_token=...&type=recovery to the redirect URL
+    const hash = window.location.hash.substring(1)
+    const params = new URLSearchParams(hash)
+    const accessToken = params.get("access_token")
+    const refreshToken = params.get("refresh_token")
+    const type = params.get("type")
+
+    if (accessToken && refreshToken && type === "recovery") {
+      const supabase = createClient()
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ error }) => {
+          if (error) {
+            setError("Link has expired or is invalid. Please request a new password reset.")
+          } else {
+            setSessionReady(true)
+          }
+        })
+    } else {
+      // Check if already have a session (e.g. navigating back)
+      const supabase = createClient()
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) setSessionReady(true)
+        else setError("Link has expired or is invalid. Please request a new password reset.")
+      })
+    }
+  }, [])
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    if (!sessionReady) { setError("Session not ready. Please try clicking the link again."); return }
     if (password.length < 8) { setError("Password must be at least 8 characters."); return }
     if (password !== confirm) { setError("Passwords do not match."); return }
     setIsLoading(true)
@@ -76,7 +106,7 @@ export default function UpdatePasswordPage() {
                   <Label htmlFor="confirm" className="text-white/70 text-sm">Confirm password</Label>
                   <Input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12" />
                 </div>
-                <Button type="submit" disabled={isLoading} className="w-full h-12 bg-amber-400 hover:bg-amber-500 text-black font-semibold rounded-xl transition-all duration-200">
+                <Button type="submit" disabled={isLoading || !sessionReady} className="w-full h-12 bg-amber-400 hover:bg-amber-500 text-black font-semibold rounded-xl transition-all duration-200 disabled:opacity-60">
                   {isLoading ? "Updating…" : "Set password & sign in"}
                 </Button>
               </form>
