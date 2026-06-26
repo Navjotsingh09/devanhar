@@ -39,6 +39,10 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
+    if (!email.toLowerCase().endsWith("@devanhaar.com")) {
+      setError("Access is restricted to Devanhaar staff. Please use your @devanhaar.com email address.")
+      return
+    }
     setIsLoading(true)
     setError(null)
     try {
