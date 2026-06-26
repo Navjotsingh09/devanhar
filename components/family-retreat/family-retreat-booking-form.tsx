@@ -15,7 +15,7 @@ import {
 import { CheckCircle2, Loader2, Plus, Trash2 } from "lucide-react"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const NAME_REGEX = /^[a-zA-Z\s'\-]{2,50}$/
+const NAME_REGEX = /^[\p{L}\p{M}\s'.\-]{1,60}$/u
 const PHONE_REGEX = /^[\d\s\+\-()]{7,20}$/
 
 interface ChildEntry {
@@ -67,6 +67,7 @@ export function FamilyRetreatBookingForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const successRef = useRef<HTMLDivElement>(null)
+  const errorRef = useRef<HTMLParagraphElement>(null)
   const [error, setError] = useState("")
   const [children, setChildren] = useState<ChildEntry[]>([emptyChild()])
   const [form, setForm] = useState({
@@ -108,30 +109,38 @@ export function FamilyRetreatBookingForm() {
   const addChild = () => { if (children.length < 10) setChildren((prev) => [...prev, emptyChild()]) }
   const removeChild = (index: number) => { if (children.length > 1) setChildren((prev) => prev.filter((_, i) => i !== index)) }
 
-  const isValid = () => {
-    if (!NAME_REGEX.test(form.first_name.trim())) return false
-    if (!NAME_REGEX.test(form.last_name.trim())) return false
-    if (!EMAIL_REGEX.test(form.email.trim())) return false
-    if (!PHONE_REGEX.test(form.phone.trim())) return false
-    if (form.city.trim().length < 2) return false
-    if (form.postcode.trim().length < 2) return false
-    if (form.country.trim().length < 2) return false
-    for (const child of children) {
-      if (!NAME_REGEX.test(child.first_name.trim())) return false
-      if (!NAME_REGEX.test(child.last_name.trim())) return false
-      if (!child.date_of_birth) return false
+  const getValidationError = (): string | null => {
+    if (!NAME_REGEX.test(form.first_name.trim())) return "Please enter your first name."
+    if (!NAME_REGEX.test(form.last_name.trim())) return "Please enter your last name."
+    if (!EMAIL_REGEX.test(form.email.trim())) return "Please enter a valid email address."
+    if (!PHONE_REGEX.test(form.phone.trim())) return "Please enter a valid phone number (e.g. 07700 900123)."
+    if (form.city.trim().length < 2) return "Please enter your city or town."
+    if (form.postcode.trim().length < 2) return "Please enter your postcode."
+    if (form.country.trim().length < 2) return "Please enter your country."
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i]
+      if (!NAME_REGEX.test(child.first_name.trim())) return `Please enter a first name for child ${i + 1}.`
+      if (!NAME_REGEX.test(child.last_name.trim())) return `Please enter a last name for child ${i + 1}.`
+      if (!child.date_of_birth) return `Please enter the date of birth for child ${i + 1}.`
     }
-    if (!NAME_REGEX.test(form.emergency_contact_name.trim())) return false
-    if (form.emergency_contact_relationship.trim().length < 2) return false
-    if (!PHONE_REGEX.test(form.emergency_contact_phone.trim())) return false
-    if (!form.heard_about_retreat) return false
-    if (!form.consent_privacy) return false
-    return true
+    if (!NAME_REGEX.test(form.emergency_contact_name.trim())) return "Please enter the emergency contact's full name."
+    if (form.emergency_contact_relationship.trim().length < 2) return "Please enter the emergency contact's relationship to you."
+    if (!PHONE_REGEX.test(form.emergency_contact_phone.trim())) return "Please enter a valid emergency contact phone number."
+    if (!form.heard_about_retreat) return "Please tell us how you heard about the Sikh Family Retreat."
+    if (!form.consent_privacy) return "Please tick the box to agree to the Privacy Policy before submitting."
+    return null
   }
 
   const handleSubmit = async () => {
     setError("")
-    if (!isValid()) { setError("Please complete all required fields before submitting."); return }
+    const validationError = getValidationError()
+    if (validationError) {
+      setError(validationError)
+      if (typeof window !== "undefined") {
+        requestAnimationFrame(() => errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }))
+      }
+      return
+    }
     setSubmitting(true)
     try {
       const res = await fetch("/api/family-retreat-bookings", {
@@ -280,10 +289,10 @@ export function FamilyRetreatBookingForm() {
         </label>
       </div>
 
-      {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
+      {error ? <p ref={errorRef} className="text-sm font-medium text-red-600 scroll-mt-24">{error}</p> : null}
 
       <div className="pt-2">
-        <Button onClick={handleSubmit} disabled={submitting || !isValid()} className="rounded-full px-8 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white">
+        <Button onClick={handleSubmit} disabled={submitting} className="rounded-full px-8 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white">
           {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting…</> : "Submit booking request"}
         </Button>
         <p className="mt-4 text-xs text-muted-foreground">Submitting this form does not automatically confirm your place. A sevadaar will review your details and contact you directly.</p>
