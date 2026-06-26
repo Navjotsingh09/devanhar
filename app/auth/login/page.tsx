@@ -15,7 +15,26 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
   const router = useRouter()
+
+  const handleReset = async () => {
+    if (!email) { setError("Please enter your email address first."); return }
+    setResetLoading(true); setError(null)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://devanhaar.com/auth/update-password",
+      })
+      if (error) throw error
+      setResetSent(true)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to send reset email")
+    } finally {
+      setResetLoading(false)
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,7 +58,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#0d1120] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://placehold.co/1200x800/1a1a2e/e0e0e0.png?text=Login+Background"
+            src="/hero-community.jpg"
             alt="Sikh community"
             fill
             className="object-cover opacity-20"
