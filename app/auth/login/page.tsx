@@ -56,15 +56,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#0d1120] overflow-hidden">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 flex items-center justify-center">
           <Image
-            src="/hero-community.jpg"
-            alt="Sikh community"
-            fill
-            className="object-cover opacity-20"
+            src="/logos/main-white-transparent.png"
+            alt="Devanhaar"
+            width={320}
+            height={320}
+            className="object-contain opacity-10"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0d1120] via-[#0d1120]/90 to-amber-900/20" />
         </div>
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           <div>
