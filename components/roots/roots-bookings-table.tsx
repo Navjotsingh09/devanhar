@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { format, differenceInYears, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Download, CheckCircle, XCircle, RefreshCw } from "lucide-react"
 import {
   confirmRootsBooking,
@@ -102,7 +101,6 @@ function StatusBadge({ status }: { status: string }) {
 
 export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   const [confirming, setConfirming] = useState<string | null>(null)
-  const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState<string | null>(null)
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
 
@@ -115,14 +113,11 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   }
 
   async function handleConfirm(b: Booking) {
-    const amt = Number(amount)
-    if (!amount || isNaN(amt) || amt <= 0) return
     setLoading(b.id)
     try {
       await confirmRootsBooking(b.id, amt)
       setMsg(b.id, "success", `Confirmed. Payment email sent to ${b.parent_email}.`)
       setConfirming(null)
-      setAmount("")
     } catch {
       setMsg(b.id, "error", "Something went wrong. Please try again.")
     }
@@ -244,7 +239,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                             size="sm"
                             variant="outline"
                             className="text-green-700 border-green-300 hover:bg-green-50 text-xs"
-                            onClick={() => { setConfirming(b.id); setAmount("") }}
+                            onClick={() => setConfirming(b.id)}
                             disabled={isLoading}
                           >
                             <CheckCircle className="h-3 w-3 mr-1" />
@@ -285,21 +280,13 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                       <td colSpan={7} className="px-4 py-4 bg-green-50 border-b border-green-200">
                         <div className="flex flex-wrap items-center gap-3">
                           <span className="text-sm font-medium text-green-800">
-                            Confirm place for {b.camper_first_name}:
+                            Confirm place for {b.camper_first_name} at £125?
                           </span>
-                          <Input
-                            type="number"
-                            placeholder="Amount £ (e.g. 125)"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="w-48 h-8 text-sm"
-                            min="1"
-                          />
                           <Button
                             size="sm"
                             className="bg-green-700 hover:bg-green-800 text-white"
                             onClick={() => handleConfirm(b)}
-                            disabled={!amount || isLoading}
+                            disabled={isLoading}
                           >
                             Send confirmation &amp; payment email
                           </Button>
