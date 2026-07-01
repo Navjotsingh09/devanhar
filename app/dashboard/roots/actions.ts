@@ -15,8 +15,8 @@ function escHtml(s: string | null | undefined): string {
 }
 
 const FROM = "Roots Residential <noreply@devanhaar.com>"
-const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882<br/><a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> on Instagram</p>`
-const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
+const SIG = `<p style="margin-top:24px;font-style:italic;">Adventure. Friendship. Identity.</p><p>Kind regards,<br/><strong>The Roots Team</strong></p>`
+const SIG_TEXT = "\n\nAdventure. Friendship. Identity.\n\nKind regards,\nThe Roots Team"
 
 async function getBooking(id: string) {
   const supabase = getSupabase()
@@ -114,23 +114,31 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
         ? `\nTo secure the place, please complete your payment of £${amount}:\n${paymentLink}\n`
         : `\nOur team will be in touch with payment details shortly.\n`
 
-      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Place confirmed — Roots Residential</h2><p>Dear ${parentName},</p><p>We are delighted to confirm that <strong>${camperName}</strong> has been offered a place on Roots Residential.</p><p>To secure the place, please complete your payment of <strong>&pound;${amount}</strong> using the button below:</p>${paymentButton}<p>If you have any questions, please contact us at <a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> or <a href="https://wa.me/447735048882">+44 7735 048882</a>.</p><p>We look forward to welcoming ${escHtml(booking.camper_first_name)} to the Roots family.</p>${SIG}</div>`
+      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>We&rsquo;re delighted to let you know that your application for <strong>Roots</strong> has been approved.</p><p>We can&rsquo;t wait to welcome you to what promises to be an unforgettable experience filled with adventure, new friendships, exciting challenges and opportunities for personal growth.</p><p>To secure your place, please follow the payment instructions provided below. Once payment has been received, your booking will be confirmed.</p>${paymentButton}<p>Over the coming weeks, we&rsquo;ll send you everything you need to know, including:</p><ul style="padding-left:20px;"><li>Camp information</li><li>Kit list</li><li>Arrival and departure details</li><li>Accommodation information</li><li>Important parent information</li></ul><p>If you have any questions before the programme begins, please don&rsquo;t hesitate to get in touch.</p><p>We&rsquo;re looking forward to welcoming you to the Roots community.</p>${SIG}</div>`
 
-      const text = `Place confirmed — Roots Residential
+      const text = `Hi,
 
-Dear ${booking.parent_first_name} ${booking.parent_last_name},
+We're delighted to let you know that your application for Roots has been approved.
 
-We are delighted to confirm that ${booking.camper_first_name} ${booking.camper_last_name} has been offered a place on Roots Residential.
+We can't wait to welcome you to what promises to be an unforgettable experience filled with adventure, new friendships, exciting challenges and opportunities for personal growth.
 
-To secure the place, please complete your payment of £${amount}.${paymentText}
-If you have any questions, contact us at Roots@Devanhaar.com or +44 7735 048882.
+To secure your place, please follow the payment instructions provided below. Once payment has been received, your booking will be confirmed.
+${paymentText}
+Over the coming weeks, we'll send you everything you need to know, including:
+- Camp information
+- Kit list
+- Arrival and departure details
+- Accommodation information
+- Important parent information
 
-We look forward to welcoming ${booking.camper_first_name} to the Roots family.${SIG_TEXT}`
+If you have any questions before the programme begins, please don't hesitate to get in touch.
+
+We're looking forward to welcoming you to the Roots community.${SIG_TEXT}`
 
       await resend.emails.send({
         from: FROM,
         to: booking.parent_email,
-        subject: `Place confirmed — Roots Residential (${booking.camper_first_name} ${booking.camper_last_name})`,
+        subject: "Welcome to Roots\! Your Place Has Been Confirmed",
         html,
         text,
       })
@@ -163,24 +171,28 @@ export async function declineRootsBooking(id: string): Promise<void> {
       const parentName = `${escHtml(booking.parent_first_name)} ${escHtml(booking.parent_last_name)}`
       const camperName = `${escHtml(booking.camper_first_name)} ${escHtml(booking.camper_last_name)}`
 
-      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Roots Residential — booking update</h2><p>Dear ${parentName},</p><p>Thank you for your interest in Roots Residential for <strong>${camperName}</strong>.</p><p>Unfortunately, we are unable to offer a place at this time. Places for this residential are limited and we have been unable to accommodate your booking request on this occasion.</p><p>We would love to stay in touch and share future opportunities with you. Please follow us on Instagram <a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> for updates on upcoming programmes.</p><p>If you have any questions, please do not hesitate to contact us at <a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a>.${SIG}</div>`
+      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>Thank you for taking the time to apply for <strong>Roots</strong>.</p><p>Unfortunately, on this occasion we are unable to offer a place.</p><p>This decision may be due to limited availability or other considerations during the application process, and is not a reflection of the individual applicant.</p><p>We truly appreciate your interest in joining Roots and hope to welcome you at a future programme.</p><p>If spaces become available, or if future Roots programmes are announced, we would be delighted to invite you to apply again.</p><p>Thank you once again for your interest, and we wish you all the very best.</p><p>Follow us on Instagram: <a href="https://www.instagram.com/rootsresidentials?igsh=MWtxMTgyZ210NnllNw%3D%3D">https://www.instagram.com/rootsresidentials?igsh=MWtxMTgyZ210NnllNw%3D%3D</a></p>${SIG}</div>`
 
-      const text = `Roots Residential — booking update
+      const text = `Hi,
 
-Dear ${booking.parent_first_name} ${booking.parent_last_name},
+Thank you for taking the time to apply for Roots.
 
-Thank you for your interest in Roots Residential for ${booking.camper_first_name} ${booking.camper_last_name}.
+Unfortunately, on this occasion we are unable to offer a place.
 
-Unfortunately, we are unable to offer a place at this time. Places are limited and we have been unable to accommodate your booking request on this occasion.
+This decision may be due to limited availability or other considerations during the application process, and is not a reflection of the individual applicant.
 
-We would love to stay in touch — please follow us on Instagram @rootsuk13 for updates on upcoming programmes.
+We truly appreciate your interest in joining Roots and hope to welcome you at a future programme.
 
-If you have any questions, contact us at Roots@Devanhaar.com.${SIG_TEXT}`
+If spaces become available, or if future Roots programmes are announced, we would be delighted to invite you to apply again.
+
+Thank you once again for your interest, and we wish you all the very best.${SIG_TEXT}
+
+Instagram: https://www.instagram.com/rootsresidentials?igsh=MWtxMTgyZ210NnllNw%3D%3D`
 
       await resend.emails.send({
         from: FROM,
         to: booking.parent_email,
-        subject: `Roots Residential — update on your booking for ${booking.camper_first_name}`,
+        subject: "Your Roots Application",
         html,
         text,
       })

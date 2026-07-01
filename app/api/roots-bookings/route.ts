@@ -118,26 +118,29 @@ async function sendEmails(p: {
   const camperName = `${escHtml(p.camperFirst)} ${escHtml(p.camperLast)}`
   const parentName = `${escHtml(p.parentFirst)} ${escHtml(p.parentLast)}`
 
-  const sig = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882</p>`
+  const sig = `<p style="margin-top:24px;font-style:italic;">Adventure. Friendship. Identity.</p><p>Kind regards,<br/><strong>The Roots Team</strong></p>`
 
   // Email to parent/guardian
-  const parentHtml = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Booking request received</h2><p>Dear ${parentName},</p><p>Thank you for submitting a booking request for <strong>${camperName}</strong> to attend Roots Residential.</p><p>Your request has been received and a member of the Roots team will be in touch with you shortly to discuss availability, the cost and how to make payment.</p><p><strong>Please note:</strong> submitting this form does not automatically confirm your camper's place. Your booking is only confirmed once the team has been in touch and all steps have been completed.</p><p>If you have any questions in the meantime, please contact us at <a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> or call <a href="https://wa.me/447735048882">+44 7735 048882</a>.</p>${sig}</div>`
+  const parentHtml = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>Thank you for submitting your application for <strong>Roots</strong>.</p><p>We&rsquo;re excited that you&rsquo;re interested in joining us for an unforgettable residential adventure.</p><p>Your application has been received successfully and is now being reviewed by the Roots team.</p><p>Over the coming days, we will review your submission and be in touch to confirm the next steps, including availability, booking details and payment information.</p><p>If we require any additional information, a member of our team will contact you directly.</p><p>Thank you once again for your interest in Roots. We look forward to speaking with you soon.</p>${sig}</div>`
 
-  const parentText = `Booking request received
+  const parentText = `Hi,
 
-Dear ${p.parentFirst} ${p.parentLast},
+Thank you for submitting your application for Roots.
 
-Thank you for submitting a booking request for ${p.camperFirst} ${p.camperLast} to attend Roots Residential.
+We're excited that you're interested in joining us for an unforgettable residential adventure.
 
-Your request has been received and a member of the Roots team will be in touch with you shortly to discuss availability, the cost and how to make payment.
+Your application has been received successfully and is now being reviewed by the Roots team.
 
-Please note: submitting this form does not automatically confirm your camper's place. Your booking is only confirmed once the team has been in touch and all steps have been completed.
+Over the coming days, we will review your submission and be in touch to confirm the next steps, including availability, booking details and payment information.
 
-If you have any questions, contact us at Roots@Devanhaar.com or +44 7735 048882.
+If we require any additional information, a member of our team will contact you directly.
 
-Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,
-Roots Residential Team
-Devanhaar`
+Thank you once again for your interest in Roots. We look forward to speaking with you soon.
+
+Adventure. Friendship. Identity.
+
+Kind regards,
+The Roots Team`
 
   // Team notification
   const rows = [
@@ -163,7 +166,7 @@ Devanhaar`
     resend.emails.send({
       from: FROM,
       to: p.parentEmail,
-      subject: "Roots Residential — booking request received",
+      subject: "Thank You for Applying to Roots\!",
       html: parentHtml,
       text: parentText,
     }),
