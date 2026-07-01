@@ -45,61 +45,17 @@ async function addActivityLog(id: string, entry: object) {
 // ------- CONFIRM -------
 export async function confirmRootsBooking(id: string, amount: number): Promise<void> {
   const supabase = getSupabase()
-  const booking = await getBooking(id)
-  if (!booking) throw new Error("Booking not found")
-
-  // Use the static payment link — fixed price, no per-booking Stripe price needed
-  const staticLink = process.env.ROOTS_PAYMENT_LINK || null
-  const paymentLink = staticLink
-    ? `${staticLink}?client_reference_id=${id}&prefilled_email=${encodeURIComponent(booking.parent_email)}`
-    : null
-
-  await supabase
+  const { error } = await supabase
     .from("roots_bookings")
-    .update({
-      status: "confirmed",
-      amount_due: amount,
-      payment_status: "unpaid",
-      stripe_payment_link: paymentLink,
-      stripe_payment_link_id: null,
-    })
+    .update({ status: "confirmed", amount_due: amount, payment_status: "unpaid" })
     .eq("id", id)
-
-  await addActivityLog(id, { action: "confirmed", amount, by: "admin" })
-
-  // Send confirmation email to parent
-  if (process.env.RESEND_API_KEY) {
-    try {
-      const { Resend } = await import("resend")
-      const resend = new Resend(process.env.RESEND_API_KEY)
-
-      const parentName = `${escHtml(booking.parent_first_name)} ${escHtml(booking.parent_last_name)}`
-
-      const paymentButton = paymentLink
-        ? `<p style="text-align:center;margin:28px 0;"><a href="${paymentLink}" style="display:inline-block;background:#8a6200;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Pay &pound;${amount} now</a></p><p style="font-size:13px;color:#666;text-align:center;">Secure your place today.</p>`
-        : `<p>Our team will be in touch with payment details shortly.</p>`
-
-      const paymentText = paymentLink
-        ? `\nTo complete your booking, please pay £${amount} here:\n${paymentLink}\n`
-        : `\nOur team will be in touch with payment details shortly.\n`
-
-      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>We&rsquo;re delighted to let you know that your application for <strong>Roots</strong> has been approved.</p><p>We can&rsquo;t wait to welcome you to what promises to be an unforgettable experience filled with adventure, new friendships, exciting challenges and opportunities for personal growth.</p><p>To secure your place, please follow the payment instructions provided below. Once payment has been received, your booking will be confirmed.</p>${paymentButton}<p>Over the coming weeks, we&rsquo;ll send you everything you need to know, including:</p><ul style="padding-left:20px;"><li>Camp information</li><li>Kit list</li><li>Arrival and departure details</li><li>Accommodation information</li><li>Important parent information</li></ul><p>If you have any questions before the programme begins, please don&rsquo;t hesitate to get in touch.</p><p>We&rsquo;re looking forward to welcoming you to the Roots community.</p>${SIG}</div>`
-
-      const text = `Hi,\n\nWe're delighted to let you know that your application for Roots has been approved.\n\nWe can't wait to welcome you to what promises to be an unforgettable experience filled with adventure, new friendships, exciting challenges and opportunities for personal growth.\n\nTo secure your place, please follow the payment instructions provided below. Once payment has been received, your booking will be confirmed.${paymentText}\nOver the coming weeks, we'll send you everything you need to know, including:\n- Camp information\n- Kit list\n- Arrival and departure details\n- Accommodation information\n- Important parent information\n\nIf you have any questions before the programme begins, please don't hesitate to get in touch.\n\nWe're looking forward to welcoming you to the Roots community.${SIG_TEXT}`
-
-      await resend.emails.send({
-        from: FROM,
-        to: booking.parent_email,
-        subject: "Welcome to Roots! Your Place Has Been Confirmed",
-        html,
-        text,
-      })
-    } catch (emailErr) {
-      console.error("[roots/confirm] Email error:", emailErr)
-    }
+  if (error) {
+    console.error("[roots/confirm] Supabase error:", JSON.stringify(error))
+    throw new Error("DB update failed: " + error.message)
   }
-
+  await addActivityLog(id, { action: "confirmed", amount, by: "admin" })
   revalidatePath("/dashboard/roots")
+  console.log("[roots/confirm] OK id=" + id)
 }
 
 
