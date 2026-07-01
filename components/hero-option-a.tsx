@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { useSiteImages } from "@/hooks/use-site-images"
 
 const slides = [
   { subtitle: "Empowering Communities" },
@@ -22,10 +23,11 @@ const BLUR_PLACEHOLDERS = [
 export function HeroOptionA() {
   const [cur, setCur] = useState(0)
   const [ready, setReady] = useState(false)
+  const { images: hi } = useSiteImages("hero")
   const imgs = [
-    "/hero-community.jpg",
-    "/community-event.jpg",
-    "/foundation.jpg",
+    hi.find(i => i.category === "slide-1")?.url || "/hero-community.jpg",
+    hi.find(i => i.category === "slide-2")?.url || "/community-event.jpg",
+    hi.find(i => i.category === "slide-3")?.url || "/foundation.jpg",
   ]
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function HeroOptionA() {
             src={src}
             alt={slides[i]?.subtitle || ""}
             fill
-            sizes="(max-width: 1024px) 100vw, 1024px"
+            sizes="100vw"
             priority
             quality={75}
             placeholder="blur"
