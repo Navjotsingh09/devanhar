@@ -121,19 +121,20 @@ export function RootsBookingForm() {
     }
   }
 
-  if (submitted) {
-    return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-8 md:p-10 text-center">
-        <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-green-900 mb-3">Booking request received</h3>
-        <p className="text-sm text-green-800 leading-relaxed max-w-md mx-auto">
-          Thank you for submitting your booking request. A member of the Roots team will be in touch with you shortly to discuss availability, costs and next steps. Please check your inbox for a confirmation email.
-        </p>
-      </div>
-    )
-  }
-
   return (
+    <>
+      {/* Success overlay */}
+      {submitted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="rounded-2xl border border-green-200 bg-white p-10 md:p-14 text-center max-w-md mx-6 shadow-2xl">
+            <CheckCircle className="h-14 w-14 text-green-600 mx-auto mb-5" />
+            <h3 className="text-2xl font-bold text-green-900 mb-3">Booking request received</h3>
+            <p className="text-sm text-green-800 leading-relaxed">
+              Thank you for submitting your booking request. A member of the Roots team will be in touch with you shortly to discuss availability, costs and next steps. Please check your inbox for a confirmation email.
+            </p>
+          </div>
+        </div>
+      )}
     <form onSubmit={handleSubmit} className="space-y-10" noValidate>
       {/* Camper details */}
       <div>
@@ -296,5 +297,6 @@ export function RootsBookingForm() {
         </p>
       </div>
     </form>
+    </>
   )
 }
