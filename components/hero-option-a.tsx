@@ -13,10 +13,17 @@ const slides = [
   { subtitle: "Creating Change" },
 ]
 
+// Tiny 8x8 blurred thumbnails — show instantly while full images download
+const BLUR_PLACEHOLDERS = [
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAaEAEAAQUAAAAAAAAAAAAAAAABAgMGMqH/8QAFAEBAAAAAAAAAAAAAAAAAAAAA//EABYRAAMAAAAAAAAAAAAAAAAAAAABEF/aAAwDAQACEQMRAD8AqrmWzTG/QCRA1n//2Q==",
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAZEAEAAgMAAAAAAAAAAAAAAAABAwUSMv/8QAFAEBAAAAAAAAAAAAAAAAAAADBP/EABYRAQEBAAAAAAAAAAAAAAAAAAABEf/aAAwDAQACEQMRAD8Al2ZTeOgEUhdf/9k=",
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAT/xAAZEAEAAgMAAAAAAAAAAAAAAAAAAgETMf/8QAFAEBAAAAAAAAAAAAAAAAAAAABP/EABYRAQEBAAAAAAAAAAAAAAAAAAABEf/aAAwDAQACEQMRAD8Auc++roAbIWf/Z",
+]
+
 export function HeroOptionA() {
   const [cur, setCur] = useState(0)
   const [ready, setReady] = useState(false)
-  const { images: hi, loading } = useSiteImages("hero")
+  const { images: hi } = useSiteImages("hero")
   const imgs = [
     hi.find(i => i.category === "slide-1")?.url || "/hero-community.jpg",
     hi.find(i => i.category === "slide-2")?.url || "/community-event.jpg",
@@ -31,15 +38,17 @@ export function HeroOptionA() {
 
   return (
     <section className="relative w-full h-screen overflow-hidden">
-      {!loading && imgs.map((src, i) => (
-        <div key={i} className="absolute inset-0 transition-opacity duration-[2s]" style={{ opacity: i === cur ? 1 : 0 }}>
+      {imgs.map((src, i) => (
+        <div key={i} className="absolute inset-0 transition-opacity duration-[1500ms]" style={{ opacity: i === cur ? 1 : 0 }}>
           <Image
             src={src}
             alt={slides[i]?.subtitle || ""}
             fill
             sizes="100vw"
-            priority={i === 0}
+            priority
             quality={75}
+            placeholder="blur"
+            blurDataURL={BLUR_PLACEHOLDERS[i]}
             className="object-cover transition-transform duration-[10s]"
             style={{ transform: i === cur ? "scale(1.05)" : "scale(1)" }}
           />
