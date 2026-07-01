@@ -18,6 +18,7 @@ import {
   Trophy,
   BookOpen,
   Video,
+  Home,
   TreePine,
 } from 'lucide-react'
 import {
@@ -76,6 +77,10 @@ const vidyalaNav: NavItem[] = [
 
 const rootsNav: NavItem[] = [
   { title: 'Roots Bookings', url: '/dashboard/roots', icon: TreePine },
+]
+
+const familyRetreatNav: NavItem[] = [
+  { title: 'Family Bookings', url: '/dashboard/family-retreat', icon: Home },
 ]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -204,6 +209,29 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
+            <Home className="h3 w3 mr-1" />
+            Sikh Family Retreat
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {familyRetreatNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                    <Link href={item.url}>
+                      <item.icon className="h4 w4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        )}
+
+        {!isVacanciesOnly && (
+        <SidebarGroup>
+          <SidebarGroupLabel>
             <BookOpen className="h3 w3 mr-1" />
             Sikhi Vidyala
           </SidebarGroupLabel>
@@ -223,6 +251,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
         )}
+
 
         {!isVacanciesOnly && (
         <SidebarGroup>
@@ -247,7 +276,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
         )}
 
-        {filteredSystemNav.length > 0 && (
+                {filteredSystemNav.length > 0 && (
         <SidebarGroup>
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
