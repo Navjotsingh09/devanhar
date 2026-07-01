@@ -43,19 +43,22 @@ async function addActivityLog(id: string, entry: object) {
 }
 
 // ------- CONFIRM -------
-export async function confirmRootsBooking(id: string, amount: number): Promise<void> {
-  const supabase = getSupabase()
-  const { error } = await supabase
-    .from("roots_bookings")
-    .update({ status: "confirmed", amount_due: amount, payment_status: "unpaid" })
-    .eq("id", id)
-  if (error) {
-    console.error("[roots/confirm] Supabase error:", JSON.stringify(error))
-    throw new Error("DB update failed: " + error.message)
+export async function confirmRootsBooking(id: string, amount: number): Promise<{ok: boolean; error?: string}> {
+  try {
+    const supabase = getSupabase()
+    const booking = await getBooking(id)
+    if (!booking) return { ok: false, error: "Booking not found id=" + id }
+    const { error: dbErr } = await supabase
+      .from("roots_bookings")
+      .update({ status: "confirmed", amount_due: amount, payment_status: "unpaid" })
+      .eq("id", id)
+    if (dbErr) return { ok: false, error: "DB error: " + dbErr.message + " code=" + dbErr.code }
+    await addActivityLog(id, { action: "confirmed", amount, by: "admin" })
+    revalidatePath("/dashboard/roots")
+    return { ok: true }
+  } catch (err: any) {
+    return { ok: false, error: "Threw: " + (err?.message || String(err)) }
   }
-  await addActivityLog(id, { action: "confirmed", amount, by: "admin" })
-  revalidatePath("/dashboard/roots")
-  console.log("[roots/confirm] OK id=" + id)
 }
 
 

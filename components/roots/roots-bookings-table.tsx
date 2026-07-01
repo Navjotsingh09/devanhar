@@ -115,8 +115,8 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   async function handleConfirm(b: Booking) {
     setLoading(b.id)
     try {
-      await confirmRootsBooking(b.id, amt)
-      setMsg(b.id, "success", `Confirmed. Payment email sent to ${b.parent_email}.`)
+      const result = await confirmRootsBooking(b.id, 125)
+      if (result && result.ok) { setMsg(b.id, "success", `Confirmed. Payment email sent to ${b.parent_email}.`) } else { setMsg(b.id, "error", "Error: " + (result?.error || "unknown")) }
       setConfirming(null)
     } catch {
       setMsg(b.id, "error", "Something went wrong. Please try again.")
