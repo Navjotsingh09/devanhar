@@ -3,6 +3,7 @@
 import { ArrowRight, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 
 const slides = [
@@ -11,15 +12,22 @@ const slides = [
   { subtitle: "Creating Change" },
 ]
 
+const imgs = [
+  "/hero-slide-1.jpg",
+  "/hero-slide-2.jpg",
+  "/hero-slide-3.jpg",
+]
+
+// Tiny blurred previews so the hero paints instantly while full images load
+const BLUR_PLACEHOLDERS = [
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWGRgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/2wBDAQcICAsJCxULCxUsHRkdLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCz/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAZEAEAAgMAAAAAAAAAAAAAAAAAAwQSFEL/xAAVAQEBAAAAAAAAAAAAAAAAAAABAv/EABYRAQEBAAAAAAAAAAAAAAAAAAEAAv/aAAwDAQACEQMRAD8AjFq3txZdAF0rSF//2Q==",
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWGRgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/2wBDAQcICAsJCxULCxUsHRkdLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCz/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAZEAACAwEAAAAAAAAAAAAAAAAAAwEEEUH/xAAVAQEBAAAAAAAAAAAAAAAAAAABA//EABcRAQADAAAAAAAAAAAAAAAAAAABETH/2gAMAwEAAhEDEQA/ALVuw9CZQqd4ACVGMf/Z",
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWGRgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/wAALCAAIAAgBASIA/8QAFAABAAAAAAAAAAAAAAAAAAAABv/EABoQAAICAwAAAAAAAAAAAAAAAAECAwQABiH/2gAIAQEAAD8ANxbi1OgqxcBGf//Z",
+]
 
 export function HeroOptionA() {
   const [cur, setCur] = useState(0)
   const [ready, setReady] = useState(false)
-  const gradients = [
-    "radial-gradient(120% 120% at 20% 20%, #2a2118 0%, #171310 45%, #0a0807 100%)",
-    "radial-gradient(120% 120% at 80% 20%, #1f2937 0%, #14181f 45%, #08090c 100%)",
-    "radial-gradient(120% 120% at 50% 30%, #33260f 0%, #1a1408 45%, #0b0805 100%)",
-  ]
 
   useEffect(() => {
     setReady(true)
@@ -29,12 +37,21 @@ export function HeroOptionA() {
 
   return (
     <section className="relative w-full h-screen overflow-hidden">
-      {gradients.map((bg, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 transition-opacity duration-[1500ms]"
-          style={{ opacity: i === cur ? 1 : 0, background: bg }}
-        />
+      {imgs.map((src, i) => (
+        <div key={i} className="absolute inset-0 transition-opacity duration-[1500ms]" style={{ opacity: i === cur ? 1 : 0 }}>
+          <Image
+            src={src}
+            alt={slides[i]?.subtitle || ""}
+            fill
+            sizes="100vw"
+            priority
+            quality={78}
+            placeholder="blur"
+            blurDataURL={BLUR_PLACEHOLDERS[i]}
+            className="object-cover transition-transform duration-[10s]"
+            style={{ transform: i === cur ? "scale(1.05)" : "scale(1)" }}
+          />
+        </div>
       ))}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent z-10" />
       <div className="absolute inset-x-0 bottom-0 z-20 px-8 lg:px-16 pb-16 pt-32">
