@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, X } from "lucide-react"
 
 type FormData = {
   camper_first_name: string
@@ -125,8 +125,21 @@ export function RootsBookingForm() {
     <>
       {/* Success overlay */}
       {submitted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="rounded-2xl border border-green-200 bg-white p-10 md:p-14 text-center max-w-md mx-6 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setSubmitted(false)}
+        >
+          <div
+            className="relative rounded-2xl border border-green-200 bg-white p-10 md:p-14 text-center max-w-md mx-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSubmitted(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
             <CheckCircle className="h-14 w-14 text-green-600 mx-auto mb-5" />
             <h3 className="text-2xl font-bold text-green-900 mb-3">Booking request received</h3>
             <p className="text-sm text-green-800 leading-relaxed">
