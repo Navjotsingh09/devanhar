@@ -55,7 +55,7 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
   if (process.env.STRIPE_SECRET_KEY && amount > 0) {
     try {
       const { default: Stripe } = await import("stripe")
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" as any })
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
       // Create a one-off Price
       const price = await stripe.prices.create({
@@ -214,7 +214,7 @@ export async function syncRootsPayment(id: string): Promise<{ paid: boolean }> {
 
   try {
     const { default: Stripe } = await import("stripe")
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" as any })
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
     const sessions = await stripe.checkout.sessions.list({
       payment_link: booking.stripe_payment_link_id,
