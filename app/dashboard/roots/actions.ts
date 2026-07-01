@@ -61,7 +61,7 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
       const price = await stripe.prices.create({
         currency: "gbp",
         unit_amount: Math.round(amount * 100),
-        product_data: { name: "Roots Residential — Camp Fee" },
+        product: "prod_UnzxbOxa5Zxkaw",
       })
 
       // Create a Payment Link (single-use)
