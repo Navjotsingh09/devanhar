@@ -18,7 +18,7 @@ import {
   Trophy,
   BookOpen,
   Video,
-  Home,
+  TreePine,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -74,8 +74,8 @@ const vidyalaNav: NavItem[] = [
   { title: 'Webinar Signups', url: '/dashboard/vidyala', icon: Video },
 ]
 
-const familyRetreatNav: NavItem[] = [
-  { title: 'Family Bookings', url: '/dashboard/family-retreat', icon: Home },
+const rootsNav: NavItem[] = [
+  { title: 'Roots Bookings', url: '/dashboard/roots', icon: TreePine },
 ]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -204,12 +204,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Home className="h3 w3 mr-1" />
-            Sikh Family Retreat
+            <BookOpen className="h3 w3 mr-1" />
+            Sikhi Vidyala
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {familyRetreatNav.map((item) => (
+              {vidyalaNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
@@ -227,12 +227,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <BookOpen className="h3 w3 mr-1" />
-            Sikhi Vidyala
+            <TreePine className="h3 w3 mr-1" />
+            Roots Residential
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {vidyalaNav.map((item) => (
+              {rootsNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
