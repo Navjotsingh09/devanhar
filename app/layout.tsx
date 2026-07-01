@@ -32,7 +32,7 @@ export default function RootLayout({
         <link
           rel="preload"
           as="image"
-          href="/_next/image?url=%2Fhero-community.jpg&w=1920&q=75"
+          href="/_next/image?url=%2Fhero-slide-1.jpg&w=1920&q=78"
           fetchPriority="high"
         />
         {/* GTM Consent Mode v2 — default denied, must be before GTM script */}
