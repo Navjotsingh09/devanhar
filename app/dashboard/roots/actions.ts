@@ -44,6 +44,8 @@ async function addActivityLog(id: string, entry: object) {
 
 // ------- CONFIRM -------
 export async function confirmRootsBooking(id: string, amount: number): Promise<void> {
+  console.log("[roots/confirm] START id=", id, "amount=", amount)
+  try {
   const supabase = getSupabase()
   const booking = await getBooking(id)
   if (!booking) throw new Error("Booking not found")
@@ -148,6 +150,11 @@ We're looking forward to welcoming you to the Roots community.${SIG_TEXT}`
   }
 
   revalidatePath("/dashboard/roots")
+  console.log("[roots/confirm] DONE id=", id)
+  } catch (err) {
+    console.error("[roots/confirm] THREW:", err)
+    throw err
+  }
 }
 
 // ------- DECLINE -------
