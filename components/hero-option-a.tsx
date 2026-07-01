@@ -3,9 +3,7 @@
 import { ArrowRight, CalendarDays } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import Image from "next/image"
 import { useEffect, useState } from "react"
-import { useSiteImages } from "@/hooks/use-site-images"
 
 const slides = [
   { subtitle: "Empowering Communities" },
@@ -13,21 +11,14 @@ const slides = [
   { subtitle: "Creating Change" },
 ]
 
-// Tiny 8x8 blurred thumbnails — show instantly while full images download
-const BLUR_PLACEHOLDERS = [
-  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAaEAEAAQUAAAAAAAAAAAAAAAABAgMGMqH/8QAFAEBAAAAAAAAAAAAAAAAAAAAA//EABYRAAMAAAAAAAAAAAAAAAAAAAABEF/aAAwDAQACEQMRAD8AqrmWzTG/QCRA1n//2Q==",
-  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5Ojf/2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/xAAZEAEAAgMAAAAAAAAAAAAAAAABAwUSMv/8QAFAEBAAAAAAAAAAAAAAAAAAADBP/EABYRAQEBAAAAAAAAAAAAAAAAAAABEf/aAAwDAQACEQMRAD8Al2ZTeOgEUhdf/9k=",
-  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAT/xAAZEAEAAgMAAAAAAAAAAAAAAAAAAgETMf/8QAFAEBAAAAAAAAAAAAAAAAAAAABP/EABYRAQEBAAAAAAAAAAAAAAAAAAABEf/aAAwDAQACEQMRAD8Auc++roAbIWf/Z",
-]
 
 export function HeroOptionA() {
   const [cur, setCur] = useState(0)
   const [ready, setReady] = useState(false)
-  const { images: hi } = useSiteImages("hero")
-  const imgs = [
-    hi.find(i => i.category === "slide-1")?.url || "/hero-community.jpg",
-    hi.find(i => i.category === "slide-2")?.url || "/community-event.jpg",
-    hi.find(i => i.category === "slide-3")?.url || "/foundation.jpg",
+  const gradients = [
+    "radial-gradient(120% 120% at 20% 20%, #2a2118 0%, #171310 45%, #0a0807 100%)",
+    "radial-gradient(120% 120% at 80% 20%, #1f2937 0%, #14181f 45%, #08090c 100%)",
+    "radial-gradient(120% 120% at 50% 30%, #33260f 0%, #1a1408 45%, #0b0805 100%)",
   ]
 
   useEffect(() => {
@@ -38,21 +29,12 @@ export function HeroOptionA() {
 
   return (
     <section className="relative w-full h-screen overflow-hidden">
-      {imgs.map((src, i) => (
-        <div key={i} className="absolute inset-0 transition-opacity duration-[1500ms]" style={{ opacity: i === cur ? 1 : 0 }}>
-          <Image
-            src={src}
-            alt={slides[i]?.subtitle || ""}
-            fill
-            sizes="100vw"
-            priority
-            quality={75}
-            placeholder="blur"
-            blurDataURL={BLUR_PLACEHOLDERS[i]}
-            className="object-cover transition-transform duration-[10s]"
-            style={{ transform: i === cur ? "scale(1.05)" : "scale(1)" }}
-          />
-        </div>
+      {gradients.map((bg, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 transition-opacity duration-[1500ms]"
+          style={{ opacity: i === cur ? 1 : 0, background: bg }}
+        />
       ))}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent z-10" />
       <div className="absolute inset-x-0 bottom-0 z-20 px-8 lg:px-16 pb-16 pt-32">
