@@ -28,13 +28,6 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://igkpvudaqxkncxgslbvb.supabase.co" />
-        {/* Preload first hero slide — fetched immediately, no API wait */}
-        <link
-          rel="preload"
-          as="image"
-          href="/_next/image?url=%2Fhero-community.jpg&w=1920&q=75"
-          fetchPriority="high"
-        />
         {/* GTM Consent Mode v2 — default denied, must be before GTM script */}
         <script
           dangerouslySetInnerHTML={{
