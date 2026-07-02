@@ -22,11 +22,11 @@ import { Button } from "@/components/ui/button"
 export const metadata = {
   title: "Roots Residential | Devanhaar",
   description:
-    "A five-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values — all in one unforgettable experience.",
+    "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values — all in one unforgettable experience.",
   keywords: ["Roots Residential", "Sikh youth camp", "Sikh residential", "Devanhaar", "young Sikhs UK"],
   openGraph: {
     title: "Roots Residential | Devanhaar",
-    description: "A five-day residential adventure for young Sikhs aged 13-16.",
+    description: "A four-day residential adventure for young Sikhs aged 13-16.",
     url: "https://devanhaar.com/initiatives/roots-residential",
   },
   alternates: { canonical: "https://devanhaar.com/initiatives/roots-residential" },
@@ -55,7 +55,7 @@ export default function RootsResidentialPage() {
                   Please complete one booking form per camper. The form will ask for camper details, parent or guardian contact information, accommodation preferences, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential.
                 </p>
                 <p>
-                  Once submitted, your booking request will be reviewed by the Roots team. A sevadaar will then contact you directly to confirm availability, discuss the cost, and explain how to make payment.
+                  Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment.
                 </p>
               </div>
               <Button
@@ -98,7 +98,7 @@ export default function RootsResidentialPage() {
               Adventure. Friendship. Identity.
             </h2>
             <p className="text-base md:text-xl font-medium text-foreground/70 mb-8">
-              A five-day residential for young people aged 13&ndash;16.
+              A four-day residential for young people aged 13&ndash;16.
             </p>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               {rootsAboutShort.map((p, i) => (
@@ -112,7 +112,7 @@ export default function RootsResidentialPage() {
         <CorePillarsGrid
           pillars={rootsExperienceCards}
           heading="Five Days Full of Adventure"
-          subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires, team competitions and inspiring conversations, no two days are the same — but every day leaves a lasting impression."
+          subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires, team competitions, inspiring conversations, no two days are the same — but every day leaves a lasting impression."
         />
 
         {/* Who Roots Is For */}
@@ -163,7 +163,7 @@ export default function RootsResidentialPage() {
             </h2>
             <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
               <p>
-                Roots takes place at Hilston Park, a stunning residential activity centre set in beautiful grounds. The site provides the perfect backdrop for five days of adventure, reflection and community — with facilities, outdoor spaces and accommodation all in one place.
+                Roots takes place at Hilston Park, a stunning residential activity centre set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community — with facilities, outdoor spaces and accommodation all in one place.
               </p>
               <p>
                 From the grounds to the accommodation, every part of the site is designed to support an immersive residential experience.
@@ -188,7 +188,7 @@ export default function RootsResidentialPage() {
               <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per camper</span>
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Price is subject to change. The exact cost will be confirmed by a sevadaar when they contact you following your booking submission.
+              Price is subject to change. The exact cost will be confirmed by an organiser when they contact you following your booking submission.
             </p>
             <Button
               asChild
@@ -238,7 +238,7 @@ export default function RootsResidentialPage() {
               Book your camper&apos;s place
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10">
-              Please complete one form per camper. After submitting, a sevadaar from the Roots team will contact you to discuss availability, costs and how to make payment.
+              Please complete one form per camper. After submitting, an organiser from the Roots team will contact you to discuss availability, costs and how to make payment.
             </p>
             <RootsBookingForm />
           </div>
@@ -261,7 +261,7 @@ export default function RootsResidentialPage() {
               Have a question before booking?
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
-              If you would like to speak to someone before completing the booking form, please contact the Roots team. A sevadaar can help with questions about the residential, accommodation, costs or the booking process.
+              If you would like to speak to someone before completing the booking form, please contact the Roots team. An organiser can help with questions about the residential, accommodation, costs or the booking process.
             </p>
             <div className="space-y-2 mb-8 text-base text-muted-foreground">
               <p>
@@ -289,7 +289,7 @@ export default function RootsResidentialPage() {
               asChild
               className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
             >
-              <Link href="/contact">Contact a sevadaar</Link>
+              <Link href="/contact">Contact an organiser</Link>
             </Button>
           </div>
         </section>

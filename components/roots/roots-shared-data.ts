@@ -14,7 +14,7 @@ export const rootsAboutLong: string[] = [
 export const rootsAboutShort: string[] = [
   "Roots is a four-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every camper feels welcomed, challenged and supported.",
   "Throughout the week, campers will climb, explore, compete, laugh, reflect and grow together. From exciting outdoor activities and team challenges to inspiring discussions and workshops, everything is designed to help young people build confidence, resilience and lifelong friendships.",
-  "Roots is not simply about the activities — it is about discovering potential, developing character and building a stronger connection with Roots. Whether your child is already actively involved in the local community or taking their very first steps, every camper leaves with unforgettable memories, new friendships and the confidence to embrace whatever comes next.",
+  "Roots is not simply about the activities — it is about discovering potential, developing character and building a stronger connection with their Roots. Whether your child is already actively involved in the local community or taking their very first steps, every camper leaves with unforgettable memories, new friendships and the confidence to embrace whatever comes next.",
 ]
 
 export const rootsExperienceCards: CorePillar[] = [
@@ -94,11 +94,11 @@ export const rootsBookingSteps: ApplicationStep[] = [
 export const rootsFAQs: FAQItem[] = [
   {
     question: "Is my camper's place confirmed once I submit the form?",
-    answer: "No. Submitting the form is the first step. The Roots team will review your request and a sevadaar will contact you directly to confirm availability, discuss the cost and explain how to make payment. Your place is only confirmed once the team has been in touch.",
+    answer: "No. Submitting the form is the first step. The Roots team will review your request and an organiser will contact you directly to confirm availability, discuss the cost and explain how to make payment. Your place is only confirmed once the team has been in touch.",
   },
   {
     question: "How much does Roots cost?",
-    answer: "The current price is £125 per camper, subject to change. The exact cost will be confirmed by a sevadaar when they contact you following your booking submission.",
+    answer: "The current price is £125 per camper, subject to change. The exact cost will be confirmed by an organiser when they contact you following your booking submission.",
   },
   {
     question: "Who can attend Roots?",

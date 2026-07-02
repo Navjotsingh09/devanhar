@@ -17,13 +17,13 @@ export function RootsHero() {
         {
           label: "Book your camper's place",
           description:
-            "Places are limited. A sevadaar will follow up after your form is submitted to discuss availability, costs and payment.",
+            "Places are limited. An organiser will follow up after your form is submitted to discuss availability, costs and payment.",
           onClick: scrollToForm,
           ctaLabel: "Complete the booking form",
           primary: true,
         },
         {
-          label: "Speak to a sevadaar",
+          label: "Speak to an organiser",
           description:
             "Have a question before booking? Get in touch and the Roots team will be happy to help.",
           href: "/contact",
