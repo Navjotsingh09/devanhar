@@ -46,7 +46,7 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<{
   try {
     const supabase = getSupabase()
     const booking = await getBooking(id)
-    if (\!booking) return { ok: false, error: "Booking not found id=" + id }
+    if (!booking) return { ok: false, error: "Booking not found id=" + id }
     const staticLink = process.env.ROOTS_PAYMENT_LINK || null
     const paymentLink = staticLink
       ? `${staticLink}?client_reference_id=${id}&prefilled_email=${encodeURIComponent(booking.parent_email)}`
@@ -67,7 +67,7 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<{
         const paymentText = paymentLink ? `\nPay £125 here: ${paymentLink}\n` : "\nOur team will be in touch with payment details.\n"
         const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>We&rsquo;re delighted to let you know that your application for <strong>Roots</strong> has been approved.</p><p>To secure your place, please complete payment below.</p>${paymentButton}<p>We&rsquo;re looking forward to welcoming you to the Roots community.</p>${SIG}</div>`
         const text = `Hi,\n\nYour Roots application has been approved.${paymentText}\nKind regards,\nThe Roots Team`
-        await resend.emails.send({ from: FROM, to: booking.parent_email, subject: "Welcome to Roots\! Your Place Has Been Confirmed", html, text })
+        await resend.emails.send({ from: FROM, to: booking.parent_email, subject: "Welcome to Roots! Your Place Has Been Confirmed", html, text })
       } catch (e) { console.error("[roots/confirm] email error:", e) }
     }
     revalidatePath("/dashboard/roots")
@@ -80,7 +80,7 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<{
 export async function declineRootsBooking(id: string): Promise<void> {
   const supabase = getSupabase()
   const booking = await getBooking(id)
-  if (\!booking) throw new Error("Booking not found")
+  if (!booking) throw new Error("Booking not found")
   await supabase.from("roots_bookings").update({ status: "declined" }).eq("id", id)
   await addActivityLog(id, { action: "declined", by: "admin" })
   if (process.env.RESEND_API_KEY) {
