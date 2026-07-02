@@ -188,6 +188,8 @@ function getPaymentHealth(sub: Submission): PaymentHealth {
     case 'approved':
     case 'paid':
       return sub.stripe_payment_intent_id ? 'captured' : 'awaiting_payment' // no PI = silent approve, needs payment
+    case 'withdrawn':
+      return 'captured' // payment was captured when approved; withdrawal is a post-payment dropout
     case 'payment_authorized':
       return 'authorized'
     case 'payment_pending':
@@ -478,6 +480,7 @@ const statusConfig: Record<string, { label: string; dot: string; bg: string; tex
   payment_support_review:  { label: 'Payment Support',  dot: 'bg-purple-500',  bg: 'bg-purple-50 dark:bg-purple-950',   text: 'text-purple-700 dark:text-purple-300', badge: 'secondary' },
   paid:                    { label: 'Paid',             dot: 'bg-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950', text: 'text-emerald-700 dark:text-emerald-300', badge: 'outline' },
   approved:                { label: 'Approved',         dot: 'bg-green-500',   bg: 'bg-green-50 dark:bg-green-950',     text: 'text-green-700 dark:text-green-300',  badge: 'outline' },
+  withdrawn:               { label: 'Withdrawn',        dot: 'bg-slate-500',   bg: 'bg-slate-100 dark:bg-slate-900',    text: 'text-slate-600 dark:text-slate-400',  badge: 'secondary' },
   declined:                { label: 'Declined',         dot: 'bg-red-500',     bg: 'bg-red-50 dark:bg-red-950',         text: 'text-red-700 dark:text-red-300',      badge: 'destructive' },
 }
 
@@ -591,6 +594,11 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
         if (sourceTable === 'camp_applications' && status === 'declined') {
           await cancelApplicationPayment(id)
           toast.success('Declined — funds released')
+          return
+        }
+        if (sourceTable === 'camp_applications' && status === 'withdrawn') {
+          await updateSubmissionStatus(id, 'withdrawn', sourceTable)
+          toast.success('Marked as withdrawn — applicant dropped out after approval')
           return
         }
         if (sourceTable === 'vidyala_applications' && status === 'approved') {
@@ -937,7 +945,28 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">{sub.email}</TableCell>
                 <TableCell>
                   {(sub.source_table === 'camp_applications' || sub.source_table === 'vidyala_applications' || sub.source_table === 'padel_registrations' || sub.source_table === 'spn_submissions') && (sub.status === 'approved' || sub.status === 'declined') ? (
-                    <span title={sub.status === 'approved' ? 'Status locked — approved.' : 'Status locked — declined.'}>
+                    sub.source_table === 'camp_applications' && sub.status === 'approved' ? (
+                      // Approved camp app: allow withdrawal only — no other backwards transitions
+                      <Select
+                        value={sub.status}
+                        onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
+                        disabled={isPending}
+                      >
+                        <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:ml-1 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:opacity-50">
+                          <StatusPill status={sub.status} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
+                          <SelectItem value="withdrawn"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-slate-500" />Withdrawn (dropped out)</span></SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span title={sub.status === 'approved' ? 'Status locked — approved.' : 'Status locked — declined.'}>
+                        <StatusPill status={sub.status} />
+                      </span>
+                    )
+                  ) : (sub.status === 'withdrawn') ? (
+                    <span title="Status locked — withdrawn.">
                       <StatusPill status={sub.status} />
                     </span>
                   ) : (
@@ -1005,7 +1034,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
-                  {sub.source_table === 'camp_applications' && sub.status !== 'declined' && (
+                  {sub.source_table === 'camp_applications' && sub.status !== 'declined' && sub.status !== 'withdrawn' && (
                     <>
                       {/* Capture button — only shown when card is on hold (authorized) or already approved (re-capture) */}
                       {(getPaymentHealth(sub) === 'authorized' || sub.status === 'approved') && (
@@ -1188,7 +1217,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                               <p className="text-sm text-foreground bg-accent/20 rounded-lg p-3">{sub.internal_notes}</p>
                             </div>
                           )}
-                          {sub.source_table === 'camp_applications' && sub.status !== 'declined' && (
+                          {sub.source_table === 'camp_applications' && sub.status !== 'declined' && sub.status !== 'withdrawn' && (
                             <div className="flex gap-2 pt-2">
                               <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleApprove(sub.id)} disabled={isPending}>
                                 <CheckCircle className="h-4 w-4 mr-2" />
