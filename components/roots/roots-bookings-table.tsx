@@ -63,7 +63,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   }
 
   async function handleDecline(b: Booking) {
-    if (\!window.confirm(`Decline booking for ${b.camper_first_name} ${b.camper_last_name}?`)) return
+    if (!window.confirm(`Decline booking for ${b.camper_first_name} ${b.camper_last_name}?`)) return
     setLoading(b.id)
     try {
       await declineRootsBooking(b.id)
@@ -106,7 +106,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                 <>
                   <tr key={b.id} className="hover:bg-secondary/20 transition-colors align-top">
                     <td className="px-4 py-3"><div className="font-medium whitespace-nowrap">{b.camper_first_name} {b.camper_last_name}</div><div className="text-xs text-muted-foreground">{b.camper_dob}</div></td>
-                    <td className="px-4 py-3 text-muted-foreground">{age \!= null ? `${age}y` : "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{age != null ? `${age}y` : "—"}</td>
                     <td className="px-4 py-3"><div className="whitespace-nowrap">{b.parent_first_name} {b.parent_last_name} <span className="text-muted-foreground text-xs">({b.parent_relationship})</span></div><div className="text-xs text-muted-foreground">{b.parent_email}</div></td>
                     <td className="px-4 py-3"><StatusBadge status={b.status} /></td>
                     <td className="px-4 py-3">{b.payment_status === "paid" ? <span className="text-green-700 text-xs font-medium">Paid £{b.amount_due}</span> : b.status === "confirmed" ? <span className="text-amber-700 text-xs">Awaiting payment</span> : <span className="text-muted-foreground text-xs">—</span>}</td>
