@@ -12,9 +12,9 @@ export const rootsAboutLong: string[] = [
 ]
 
 export const rootsAboutShort: string[] = [
-  "Roots is a five-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every camper feels welcomed, challenged and supported.",
-  "Throughout the week, campers will climb, explore, compete, laugh, reflect and grow together. From exciting outdoor activities and team challenges to inspiring discussions and workshops, every part of the programme is designed to help young people build confidence, resilience and lifelong friendships.",
-  "Roots is not simply about the activities — it is about discovering potential, developing character and building a stronger connection with Sikhi, community and themselves. Whether your child is already actively involved in the Sikh community or taking their very first steps, every camper leaves with unforgettable memories, new friendships and the confidence to embrace whatever comes next.",
+  "Roots is a four-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every camper feels welcomed, challenged and supported.",
+  "Throughout the week, campers will climb, explore, compete, laugh, reflect and grow together. From exciting outdoor activities and team challenges to inspiring discussions and workshops, everything is designed to help young people build confidence, resilience and lifelong friendships.",
+  "Roots is not simply about the activities — it is about discovering potential, developing character and building a stronger connection with Roots. Whether your child is already actively involved in the local community or taking their very first steps, every camper leaves with unforgettable memories, new friendships and the confidence to embrace whatever comes next.",
 ]
 
 export const rootsExperienceCards: CorePillar[] = [
@@ -60,14 +60,14 @@ export const rootsForParents: string[] = [
   "Imagine your child returning home with greater confidence, stronger friendships and stories they will be telling for years.",
   "Away from everyday routines and constant screen time, they will discover new abilities, overcome challenges, work together as a team and develop independence in a safe and encouraging environment.",
   "More importantly, they will experience the joy of being surrounded by positive role models, inspiring mentors and other young Sikhs who encourage one another to grow.",
-  "Roots is not simply five days away from home — it is the beginning of a lifelong journey. For many, it is the highlight of their summer and the beginning of friendships and experiences that continue long after camp ends.",
+  "Roots is not simply four days away from home — it is the beginning of a lifelong journey. For many, it is the highlight of their summer and the beginning of friendships and experiences that continue long after camp ends.",
 ]
 
 export const rootsBookingSteps: ApplicationStep[] = [
   {
     step: "01",
     title: "Complete the booking form",
-    description: "Tell us about your camper, including their details, parent or guardian contact information, accommodation preferences, medical and dietary needs, emergency contact and anything else that will help us support them during the residential.",
+    description: "Tell us about your camper, including their details, parent or guardian contact information, medical and dietary needs, emergency contact and anything else that will help us support them during the residential.",
   },
   {
     step: "02",
@@ -76,8 +76,8 @@ export const rootsBookingSteps: ApplicationStep[] = [
   },
   {
     step: "03",
-    title: "A sevadaar will contact you",
-    description: "A sevadaar will follow up directly to confirm availability, discuss the cost and explain how to make payment.",
+    title: "An organiser will contact you",
+    description: "An organiser will follow up directly to confirm availability, discuss the cost and explain how to make payment.",
   },
   {
     step: "04",
@@ -101,17 +101,14 @@ export const rootsFAQs: FAQItem[] = [
     answer: "The current price is £125 per camper, subject to change. The exact cost will be confirmed by a sevadaar when they contact you following your booking submission.",
   },
   {
-    question: "What age is Roots for?",
-    answer: "Roots is designed for young people aged 13–16. If your child is outside this age range and you would like to discuss their suitability, please contact the team before submitting.",
+    question: "Who can attend Roots?",
+    answer: "Anyone aged 13–16. No pre-requisites required.",
   },
   {
     question: "Can my child attend if they do not know anyone?",
     answer: "Absolutely. Many campers arrive on their own and leave with lifelong friends. The Roots programme is designed to bring young people together, and the team works hard to ensure every camper feels welcomed from the moment they arrive.",
   },
-  {
-    question: "Does my child need to be a practising Sikh?",
-    answer: "No. Roots welcomes young people from every stage of their Sikhi journey. Whether your child is deeply connected to the faith or exploring their identity for the first time, they will be welcomed and supported.",
-  },
+
   {
     question: "What information do I need before completing the form?",
     answer: "You will need your camper's details including date of birth, any medical or dietary information, emergency contact details and your parent or guardian contact information. Having this ready will help you complete the form in one sitting.",

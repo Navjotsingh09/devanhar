@@ -184,7 +184,7 @@ export default function RootsResidentialPage() {
               Pricing
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="text-5xl md:text-6xl text-[hsl(43,100%,29%)]">&pound;125</span>
+              <span className="text-5xl md:text-6xl text-[hsl(43,100%,29%)]">&pound;125.00</span>
               <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per camper</span>
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
@@ -213,7 +213,7 @@ export default function RootsResidentialPage() {
             </p>
             <Button asChild variant="outline" className="rounded-full px-7 gap-2">
               <Link
-                href="https://www.instagram.com/rootsuk13"
+                href="https://www.instagram.com/rootsprojectuk"
                 target="_blank"
                 rel="noopener noreferrer"
               >

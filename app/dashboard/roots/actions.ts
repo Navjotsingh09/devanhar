@@ -83,7 +83,7 @@ export async function declineRootsBooking(id: string): Promise<void> {
       const parentName = `${escHtml(booking.parent_first_name)} ${escHtml(booking.parent_last_name)}`
       const camperName = `${escHtml(booking.camper_first_name)} ${escHtml(booking.camper_last_name)}`
 
-      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>Thank you for taking the time to apply for <strong>Roots</strong>.</p><p>Unfortunately, on this occasion we are unable to offer a place.</p><p>This decision may be due to limited availability or other considerations during the application process, and is not a reflection of the individual applicant.</p><p>We truly appreciate your interest in joining Roots and hope to welcome you at a future programme.</p><p>If spaces become available, or if future Roots programmes are announced, we would be delighted to invite you to apply again.</p><p>Thank you once again for your interest, and we wish you all the very best.</p><p>Follow us on Instagram: <a href="https://www.instagram.com/rootsresidentials?igsh=MWtxMTgyZ210NnllNw%3D%3D">https://www.instagram.com/rootsresidentials?igsh=MWtxMTgyZ210NnllNw%3D%3D</a></p>${SIG}</div>`
+      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><p>Hi,</p><p>Thank you for taking the time to apply for <strong>Roots</strong>.</p><p>Unfortunately, on this occasion we are unable to offer a place.</p><p>This decision may be due to limited availability or other considerations during the application process, and is not a reflection of the individual applicant.</p><p>We truly appreciate your interest in joining Roots and hope to welcome you at a future programme.</p><p>If spaces become available, or if future Roots programmes are announced, we would be delighted to invite you to apply again.</p><p>Thank you once again for your interest, and we wish you all the very best.</p><p>Follow us on Instagram: <a href="https://www.instagram.com/rootsprojectuk?igsh=MWtxMTgyZ210NnllNw%3D%3D">https://www.instagram.com/rootsprojectuk?igsh=MWtxMTgyZ210NnllNw%3D%3D</a></p>${SIG}</div>`
 
       const text = `Hi,
 
@@ -99,7 +99,7 @@ If spaces become available, or if future Roots programmes are announced, we woul
 
 Thank you once again for your interest, and we wish you all the very best.${SIG_TEXT}
 
-Instagram: https://www.instagram.com/rootsresidentials?igsh=MWtxMTgyZ210NnllNw%3D%3D`
+Instagram: https://www.instagram.com/rootsprojectuk?igsh=MWtxMTgyZ210NnllNw%3D%3D`
 
       await resend.emails.send({
         from: FROM,
