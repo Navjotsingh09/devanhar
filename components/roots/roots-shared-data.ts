@@ -12,7 +12,7 @@ export const rootsAboutLong: string[] = [
 ]
 
 export const rootsAboutShort: string[] = [
-  "Roots is a five-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 12–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every camper feels welcomed, challenged and supported.",
+  "Roots is a five-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every camper feels welcomed, challenged and supported.",
   "Throughout the week, campers will climb, explore, compete, laugh, reflect and grow together. From exciting outdoor activities and team challenges to inspiring discussions and workshops, every part of the programme is designed to help young people build confidence, resilience and lifelong friendships.",
   "Roots is not simply about the activities — it is about discovering potential, developing character and building a stronger connection with Sikhi, community and themselves. Whether your child is already actively involved in the Sikh community or taking their very first steps, every camper leaves with unforgettable memories, new friendships and the confidence to embrace whatever comes next.",
 ]
@@ -51,7 +51,7 @@ export const rootsExperienceCards: CorePillar[] = [
 ]
 
 export const rootsWhoIsItFor: string[] = [
-  "Roots welcomes young Sikhs aged 12–16 from every background and every stage of their Sikhi journey — whether that is a continuation of existing practices or the very first step.",
+  "Roots welcomes young Sikhs aged 13–16 from every background and every stage of their Sikhi journey — whether that is a continuation of existing practices or the very first step.",
   "Some campers arrive knowing lots of people. Others come on their own. Some regularly attend Gurdwara. Others are exploring their Sikh identity for the first time.",
   "No matter where they begin, everyone becomes part of one supportive community where they are encouraged to learn, grow and be themselves.",
 ]
@@ -102,7 +102,7 @@ export const rootsFAQs: FAQItem[] = [
   },
   {
     question: "What age is Roots for?",
-    answer: "Roots is designed for young people aged 12–16. If your child is outside this age range and you would like to discuss their suitability, please contact the team before submitting.",
+    answer: "Roots is designed for young people aged 13–16. If your child is outside this age range and you would like to discuss their suitability, please contact the team before submitting.",
   },
   {
     question: "Can my child attend if they do not know anyone?",

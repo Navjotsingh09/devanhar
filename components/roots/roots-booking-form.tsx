@@ -14,7 +14,6 @@ type FormData = {
   parent_relationship: string
   parent_email: string
   parent_phone: string
-  accommodation_preference: string
   dietary_requirements: string
   medical_info: string
   emergency_name: string
@@ -29,7 +28,7 @@ const EMPTY: FormData = {
   camper_first_name: "", camper_last_name: "", camper_dob: "", camper_gender: "",
   parent_first_name: "", parent_last_name: "", parent_relationship: "",
   parent_email: "", parent_phone: "",
-  accommodation_preference: "", dietary_requirements: "", medical_info: "",
+  dietary_requirements: "", medical_info: "",
   emergency_name: "", emergency_relationship: "", emergency_phone: "",
   how_did_you_hear: "", additional_info: "",
   privacy_agreed: false,
@@ -201,22 +200,7 @@ export function RootsBookingForm() {
         </div>
       </div>
 
-      {/* Accommodation */}
-      <div>
-        <SectionHeading>Accommodation preference</SectionHeading>
-        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-          Accommodation will be allocated by the Roots team based on availability. Specific accommodation cannot be guaranteed unless confirmed directly.
-        </p>
-        <Field label="Preference">
-          <select className={selectCls} value={form.accommodation_preference} onChange={set("accommodation_preference")}>
-            <option value="">No preference</option>
-            <option value="standard">Standard accommodation</option>
-            <option value="ensuite">Ensuite accommodation (if available)</option>
-          </select>
-        </Field>
-      </div>
-
-      {/* Dietary and medical */}
+            {/* Dietary and medical */}
       <div>
         <SectionHeading>Dietary and medical information</SectionHeading>
         <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
@@ -224,7 +208,7 @@ export function RootsBookingForm() {
         </p>
         <div className="grid gap-5">
           <Field label="Dietary requirements">
-            <textarea className={textareaCls} rows={3} value={form.dietary_requirements} onChange={set("dietary_requirements")} placeholder="e.g. vegetarian, vegan, nut allergy, halal..." />
+            <textarea className={textareaCls} rows={3} value={form.dietary_requirements} onChange={set("dietary_requirements")} placeholder="Please list any dietary requirements..." />
           </Field>
           <Field label="Medical / health information">
             <textarea className={textareaCls} rows={3} value={form.medical_info} onChange={set("medical_info")} placeholder="e.g. asthma, medication, physical restrictions..." />

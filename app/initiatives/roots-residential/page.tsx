@@ -22,11 +22,11 @@ import { Button } from "@/components/ui/button"
 export const metadata = {
   title: "Roots Residential | Devanhaar",
   description:
-    "A five-day residential adventure for young Sikhs aged 12-16. Outdoor activities, leadership, personal development and Sikh values — all in one unforgettable experience.",
+    "A five-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values — all in one unforgettable experience.",
   keywords: ["Roots Residential", "Sikh youth camp", "Sikh residential", "Devanhaar", "young Sikhs UK"],
   openGraph: {
     title: "Roots Residential | Devanhaar",
-    description: "A five-day residential adventure for young Sikhs aged 12-16.",
+    description: "A five-day residential adventure for young Sikhs aged 13-16.",
     url: "https://devanhaar.com/initiatives/roots-residential",
   },
   alternates: { canonical: "https://devanhaar.com/initiatives/roots-residential" },
@@ -98,7 +98,7 @@ export default function RootsResidentialPage() {
               Adventure. Friendship. Identity.
             </h2>
             <p className="text-base md:text-xl font-medium text-foreground/70 mb-8">
-              A five-day residential for young people aged 12&ndash;16.
+              A five-day residential for young people aged 13&ndash;16.
             </p>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               {rootsAboutShort.map((p, i) => (

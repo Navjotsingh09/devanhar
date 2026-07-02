@@ -49,7 +49,6 @@ export async function POST(req: NextRequest) {
         parent_relationship: body.parent_relationship,
         parent_email: body.parent_email,
         parent_phone: body.parent_phone,
-        accommodation_preference: body.accommodation_preference || null,
         dietary_requirements: body.dietary_requirements || null,
         medical_info: body.medical_info || null,
         emergency_name: body.emergency_name,
@@ -79,7 +78,6 @@ export async function POST(req: NextRequest) {
         parentEmail: body.parent_email,
         parentPhone: body.parent_phone,
         parentRelationship: body.parent_relationship,
-        accommodation: body.accommodation_preference,
         dietary: body.dietary_requirements,
         medical: body.medical_info,
         emergencyName: body.emergency_name,
@@ -103,7 +101,7 @@ async function sendEmails(p: {
   camperFirst: string; camperLast: string; camperDob: string
   parentFirst: string; parentLast: string; parentEmail: string
   parentPhone: string; parentRelationship: string
-  accommodation: string | null; dietary: string | null; medical: string | null
+  dietary: string | null; medical: string | null
   emergencyName: string; emergencyPhone: string
   howHeard: string | null; additional: string | null
 }) {
@@ -150,7 +148,6 @@ The Roots Team`
     ["Parent/guardian", `${p.parentFirst} ${p.parentLast} (${p.parentRelationship})`],
     ["Parent email", p.parentEmail],
     ["Parent phone", p.parentPhone],
-    ["Accommodation pref", p.accommodation || "None"],
     ["Dietary", p.dietary || "None"],
     ["Medical", p.medical || "None"],
     ["Emergency contact", `${p.emergencyName} — ${p.emergencyPhone}`],
@@ -160,7 +157,7 @@ The Roots Team`
   const tableRows = rows.map(([k, v]) => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;white-space:nowrap">${escHtml(k)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escHtml(v ?? "")}</td></tr>`).join("")
   const teamHtml = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">New Roots booking submission</h2><table style="border-collapse:collapse;width:100%;font-size:14px">${tableRows}</table><p style="margin-top:20px;"><a href="${dashUrl}" style="display:inline-block;background:#8a6200;color:white;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">View in dashboard</a></p></div>`
 
-  const teamText = `New Roots booking submission\n\nCamper: ${p.camperFirst} ${p.camperLast}\nDOB: ${p.camperDob}\nParent: ${p.parentFirst} ${p.parentLast} (${p.parentRelationship})\nEmail: ${p.parentEmail}\nPhone: ${p.parentPhone}\nAccommodation: ${p.accommodation || "None"}\nDietary: ${p.dietary || "None"}\nMedical: ${p.medical || "None"}\nEmergency: ${p.emergencyName} - ${p.emergencyPhone}\nHow heard: ${p.howHeard || "Not specified"}\nAdditional: ${p.additional || "None"}\n\nView in dashboard: ${dashUrl}`
+  const teamText = `New Roots booking submission\n\nCamper: ${p.camperFirst} ${p.camperLast}\nDOB: ${p.camperDob}\nParent: ${p.parentFirst} ${p.parentLast} (${p.parentRelationship})\nEmail: ${p.parentEmail}\nPhone: ${p.parentPhone}\\nDietary: ${p.dietary || "None"}\nMedical: ${p.medical || "None"}\nEmergency: ${p.emergencyName} - ${p.emergencyPhone}\nHow heard: ${p.howHeard || "Not specified"}\nAdditional: ${p.additional || "None"}\n\nView in dashboard: ${dashUrl}`
 
   await Promise.allSettled([
     resend.emails.send({
