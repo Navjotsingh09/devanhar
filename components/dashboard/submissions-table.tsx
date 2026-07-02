@@ -580,13 +580,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     toast.success(`Exported ${filteredSubmissions.length} row${filteredSubmissions.length === 1 ? '' : 's'}`)
   }
 
-  const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations' | 'spn_submissions' = 'form_submissions') => {
+  const handleStatusChange = (id: string, status: string, sourceTable: 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations' | 'spn_submissions' = 'form_submissions', currentStatus?: string) => {
     startTransition(async () => {
       try {
         // For camp applications, approve/decline must go through Stripe so the
         // payment is actually captured (or the auth released). A plain status
         // update would leave the payment in an authorized-but-uncaptured state.
         if (sourceTable === 'camp_applications' && status === 'approved') {
+          if (currentStatus === 'paid') {
+            await updateSubmissionStatus(id, 'approved', sourceTable)
+            toast.success('Marked as approved')
+            return
+          }
           await captureApplicationPayment(id)
           toast.success('Approved — payment captured')
           return
@@ -949,7 +954,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                       // Approved camp app: allow withdrawal only — no other backwards transitions
                       <Select
                         value={sub.status}
-                        onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
+                        onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table, sub.status)}
                         disabled={isPending}
                       >
                         <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:ml-1 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:opacity-50">
@@ -972,7 +977,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                   ) : (
                   <Select
                     value={sub.status}
-                    onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table)}
+                    onValueChange={(v) => handleStatusChange(sub.id, v, sub.source_table, sub.status)}
                     disabled={isPending}
                   >
                     <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 shadow-none focus:ring-0 [&>svg]:ml-1 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:opacity-50">
