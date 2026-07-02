@@ -74,6 +74,10 @@ const vidyalaNav: NavItem[] = [
   { title: 'Webinar Signups', url: '/dashboard/vidyala', icon: Video },
 ]
 
+const rootsNav: NavItem[] = [
+  { title: 'Roots Bookings', url: '/dashboard/roots', icon: TreePine },
+]
+
 const familyRetreatNav: NavItem[] = [
   { title: 'Family Bookings', url: '/dashboard/family-retreat', icon: Home },
 ]
@@ -247,7 +251,31 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
         )}
 
-                {filteredSystemNav.length > 0 && (
+        
+        {\!isVacanciesOnly && (
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <TreePine className="h3 w3 mr-1" />
+            Roots Residential
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {rootsNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                    <Link href={item.url}>
+                      <item.icon className="h4 w4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        )}
+
+        {filteredSystemNav.length > 0 && (
         <SidebarGroup>
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
