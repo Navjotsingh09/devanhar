@@ -19,6 +19,7 @@ import {
   BookOpen,
   Video,
   Home,
+  TreePine,
 } from 'lucide-react'
 import {
   Sidebar,
