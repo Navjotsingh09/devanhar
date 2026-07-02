@@ -261,8 +261,8 @@ async function getSubmissions() {
   const spnSubmissions = spnSubsRes.data
 
   // Only ask Stripe about apps with unknown status AND still active.
-  // Approved/declined/archived already have final state in DB.
-  const TERMINAL_STATUSES = new Set(['approved', 'declined', 'archived'])
+  // Approved/declined/withdrawn/archived already have final state in DB.
+  const TERMINAL_STATUSES = new Set(['approved', 'withdrawn', 'declined', 'archived'])
   const appsNeedingStripe = (campApplications ?? []).filter((c: Record<string, unknown>) => {
     if ((c.stripe_pi_status as string | null) != null) return false
     if (TERMINAL_STATUSES.has(String(c.status ?? ''))) return false
