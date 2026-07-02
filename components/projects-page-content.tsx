@@ -3,7 +3,7 @@
 import { useSiteImages } from "@/hooks/use-site-images"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Users, Heart, Sparkles, BookOpen, GraduationCap, School, Shield, Trophy, Home, TreePine } from "lucide-react"
+import { ArrowRight, Users, Heart, Sparkles, BookOpen, GraduationCap, School, Shield, Trophy, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Project {
@@ -93,15 +93,7 @@ const projects: Project[] = [
     icon: Users,
     comingSoon: true,
   },
-  {
-    title: "Roots Residential",
-    description: "A five-day residential adventure for young Sikhs aged 12–16. Outdoor activities, leadership, personal development and Sikh values in one unforgettable experience.",
-    image: "/initiatives/roots-top.jpg",
-    href: "/initiatives/roots-residential",
-    tag: "Youth",
-    icon: TreePine,
-  },
-  {
+{
     title: "Sikh Padel Association",
     description: "Bringing the Sikh community together through padel — team tournaments, friendly competition and a live leaderboard.",
     image: "/initiatives/sikh-padel-association-top.jpg",
