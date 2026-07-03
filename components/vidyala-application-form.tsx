@@ -530,7 +530,6 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                     <Label>Other</Label>
                     <Input value={form.preferred_schedule_other as string} onChange={(e) => set("preferred_schedule_other", e.target.value)} placeholder="Please specify your availability..." className="mt-1" />
                   </div>
-                </div>
               </div>
               <div>
                 <Label>Are you able to fund the fee of £795 or will you require financial support from the Vidyala? *</Label>
