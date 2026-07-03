@@ -72,9 +72,9 @@ export default function SikhiVidyalaPage() {
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
-                { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm*" },
+                { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm" },
                 { icon: MapPin, label: "Location", value: "Birmingham, UK (Gurdwara-based)" },
-                { icon: Clock, label: "Duration", value: "October 2026 to February 2027*" },
+                { icon: Clock, label: "Duration", value: "October 2026 to February 2027" },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${NAVY}15` }}>
@@ -85,7 +85,15 @@ export default function SikhiVidyalaPage() {
                 </div>
               ))}
             </div>
-            <p className="text-center text-xs text-muted-foreground mt-4">* This may be subject to change</p>
+            <div className="mt-6 rounded-xl px-5 py-4 text-center text-sm" style={{ backgroundColor: `${GOLD}18`, border: `1px solid ${GOLD}55` }}>
+              <p className="text-foreground leading-relaxed">
+                We&apos;re exploring a part-time, one day a week option.{" "}
+                <Link href="/initiatives/sikhi-vidyala/apply" className="font-semibold underline" style={{ color: NAVY }}>Apply now</Link>{" "}
+                to see your study options or{" "}
+                <a href="#webinar" className="font-semibold underline" style={{ color: NAVY }}>join our free webinar</a>{" "}
+                to learn more.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -179,7 +187,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
                 {/* -- WEBINAR -- */}
-        <section className="py-16 lg:py-20 border-b border-border">
+        <section id="webinar" className="py-16 lg:py-20 border-b border-border">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="max-w-3xl mx-auto text-center mb-10">
               <span

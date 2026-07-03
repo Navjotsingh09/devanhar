@@ -160,7 +160,6 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
         break
       case 6:
         if (!form.can_commit) return "Please indicate whether you can commit to the full programme."
-        if (form.can_commit === "no" && (form.preferred_schedule as string[]).length === 0 && !(form.preferred_schedule_other as string).trim()) return "Please select at least one preferred schedule option or describe your availability."
         if (!form.funding_option) return "Please select a funding option."
         if (!form.accommodation_option) return "Please select an accommodation option."
         break
@@ -517,9 +516,8 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                   ))}
                 </div>
               </div>
-              {form.can_commit === "no" && (
-                <div>
-                  <Label>If no, what schedule would suit you? (select all that apply)</Label>
+              <div>
+                  <Label>If No, which of the following options would you prefer if Vidyala were offered on a part-time, one-day-a-week basis? (Select all that apply.)</Label>
                   <div className="flex flex-col gap-2 mt-2">
                     {["Mon 6–9pm", "Tue 6–9pm", "Wed 6–9pm", "Thu 6–9pm", "Fri 6–9pm", "Sat 9am–3pm", "Sun 9am–3pm"].map((slot) => (
                       <label key={slot} className="flex items-center gap-2 cursor-pointer">
@@ -533,7 +531,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                     <Input value={form.preferred_schedule_other as string} onChange={(e) => set("preferred_schedule_other", e.target.value)} placeholder="Please specify your availability..." className="mt-1" />
                   </div>
                 </div>
-              )}
+              </div>
               <div>
                 <Label>Are you able to fund the fee of £795 or will you require financial support from the Vidyala? *</Label>
                 <div className="flex flex-col gap-2 mt-2">
