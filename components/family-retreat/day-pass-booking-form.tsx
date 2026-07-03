@@ -288,7 +288,7 @@ export default function DayPassBookingForm() {
             <span className="text-2xl font-bold text-foreground">&pound;{totalStr}</span>
           </div>
           <Button type="submit" disabled={submitting} className="w-full h-12 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-base">
-            {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2"/>Processing&hellip;</> : `Pay \u00a3${totalStr} &amp; Confirm`}
+            {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2"/>Processing&hellip;</> : `Pay \u00a3${totalStr} & Confirm`}
           </Button>
           <p className="text-xs text-muted-foreground text-center">You will be taken to our secure payment page. Your place is confirmed once payment is complete.</p>
         </div>
