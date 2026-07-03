@@ -20,6 +20,7 @@ import {
   Video,
   Home,
   TreePine,
+  CalendarDays,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -81,6 +82,7 @@ const rootsNav: NavItem[] = [
 
 const familyRetreatNav: NavItem[] = [
   { title: 'Family Bookings', url: '/dashboard/family-retreat', icon: Home },
+  { title: 'Day Pass Bookings', url: '/dashboard/family-retreat/day-pass', icon: CalendarDays },
 ]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
