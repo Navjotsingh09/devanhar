@@ -129,6 +129,9 @@ export function Navbar() {
   const isActive = (link: NavLink) =>
     pathname === link.href || (link.children?.some((c) => pathname === c.href) ?? false)
 
+  const featuredProject = MEGA_MENU_PROJECTS[0]
+  const compactProjects = MEGA_MENU_PROJECTS.slice(1)
+
   return (
     <>
       <nav
@@ -277,85 +280,118 @@ export function Navbar() {
 
         {openMenu === "Projects" && (
           <div
-            className="absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-2xl hidden md:block"
+            className="absolute top-full left-1/2 hidden w-[min(960px,calc(100vw-3rem))] -translate-x-1/2 pt-4 md:block"
             onMouseEnter={() => openDropdown("Projects")}
             onMouseLeave={closeDropdown}
           >
-            <div className="container mx-auto px-6 lg:px-12 py-7">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-amber-500 mb-0.5">
-                    Devanhaar
-                  </p>
-                  <h3 className="text-base font-bold text-gray-900">Our Initiatives</h3>
-                </div>
+            <div className="overflow-hidden rounded-[28px] border border-black/[0.08] bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.16)] backdrop-blur-xl">
+              <div className="grid grid-cols-12 gap-0">
                 <Link
-                  href="/projects"
+                  href={featuredProject.href}
                   onClick={() => setOpenMenu(null)}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+                  className="group relative col-span-4 min-h-[320px] overflow-hidden border-r border-black/[0.06]"
                 >
-                  View all projects
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {MEGA_MENU_PROJECTS.map((project) => (
-                  <Link
-                    key={project.href}
-                    href={project.href}
-                    onClick={() => setOpenMenu(null)}
-                    className="group block rounded-xl overflow-hidden border border-gray-100 hover:border-amber-200 hover:shadow-md transition-all duration-200"
-                  >
-                    <div className="relative aspect-video overflow-hidden bg-gray-100">
-                      <Image
-                        src={project.image}
-                        alt={project.title}
-                        fill
-                        sizes="25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/50 text-white backdrop-blur-sm">
-                        {project.tag}
-                      </span>
+                  <Image
+                    src={featuredProject.image}
+                    alt={featuredProject.title}
+                    fill
+                    sizes="320px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                    <span className="inline-flex rounded-full bg-white/14 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] backdrop-blur-sm">
+                      Featured
+                    </span>
+                    <h3 className="mt-3 text-xl font-semibold leading-tight">{featuredProject.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/80">
+                      {featuredProject.description}
+                    </p>
+                    <div className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-300 transition-colors group-hover:text-amber-200">
+                      Explore project
+                      <ArrowRight className="h-4 w-4" />
                     </div>
-                    <div className="p-3">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-amber-700 transition-colors leading-tight">
-                        {project.title}
-                      </h4>
-                      <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-                        {project.description}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-                <Link
-                  href="/projects"
-                  onClick={() => setOpenMenu(null)}
-                  className="group block rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="h-full flex flex-col items-center justify-center p-4 text-center min-h-[140px]">
-                    <div className="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200">
-                      <ArrowRight className="w-5 h-5 text-white" />
-                    </div>
-                    <h4 className="text-sm font-bold text-amber-900 mb-1">See All Projects</h4>
-                    <p className="text-xs text-amber-700/80">11 initiatives and growing</p>
                   </div>
                 </Link>
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3 flex-wrap">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 shrink-0">
-                  Coming Soon
-                </span>
-                {MEGA_MENU_COMING_SOON.map((p) => (
-                  <Link
-                    key={p.href}
-                    href={p.href}
-                    onClick={() => setOpenMenu(null)}
-                    className="text-xs px-3 py-1 rounded-full bg-gray-50 text-gray-500 border border-gray-200 hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50 transition-colors"
-                  >
-                    {p.title}
-                  </Link>
-                ))}
+
+                <div className="col-span-8 p-5">
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">
+                        Devanhaar Projects
+                      </p>
+                      <h3 className="mt-1 text-base font-bold text-gray-900">Browse by initiative</h3>
+                    </div>
+                    <Link
+                      href="/projects"
+                      onClick={() => setOpenMenu(null)}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-100"
+                    >
+                      View all
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {compactProjects.map((project) => (
+                      <Link
+                        key={project.href}
+                        href={project.href}
+                        onClick={() => setOpenMenu(null)}
+                        className="group flex items-center gap-3 rounded-2xl border border-black/[0.06] p-2.5 transition-all duration-200 hover:border-amber-200 hover:bg-amber-50/50"
+                      >
+                        <div className="relative h-16 w-20 flex-none overflow-hidden rounded-xl bg-gray-100">
+                          <Image
+                            src={project.image}
+                            alt={project.title}
+                            fill
+                            sizes="80px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="mb-1 flex items-center gap-2">
+                            <h4 className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-amber-700">
+                              {project.title}
+                            </h4>
+                            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                              {project.tag}
+                            </span>
+                          </div>
+                          <p className="line-clamp-2 text-xs leading-relaxed text-gray-500">
+                            {project.description}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-black/[0.06] pt-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                        Coming Soon
+                      </span>
+                      {MEGA_MENU_COMING_SOON.map((project) => (
+                        <Link
+                          key={project.href}
+                          href={project.href}
+                          onClick={() => setOpenMenu(null)}
+                          className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs text-gray-500 transition-colors hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+                        >
+                          {project.title}
+                        </Link>
+                      ))}
+                    </div>
+                    <Link
+                      href="/projects"
+                      onClick={() => setOpenMenu(null)}
+                      className="hidden text-sm font-semibold text-gray-700 transition-colors hover:text-amber-700 lg:inline-flex lg:items-center lg:gap-1"
+                    >
+                      All 11 initiatives
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
