@@ -39,7 +39,7 @@ const MEGA_MENU_PROJECTS = [
   {
     title: "Roots Residential",
     description: "Five-day outdoor adventure for ages 12–16 — leadership, Sikh values and unforgettable memories.",
-    image: "/initiatives/roots-top.jpg",
+    image: "/images/initiatives-hero.jpg",
     href: "/initiatives/roots-residential",
     tag: "Youth",
   },
