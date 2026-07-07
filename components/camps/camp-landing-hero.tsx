@@ -61,7 +61,7 @@ export function CampLandingHero({
             const button = (
               <Button
                 variant={cta.primary ? "secondary" : "default"}
-                className="rounded-full px-6"
+                className="rounded-full px-6 w-full"
                 onClick={cta.onClick}
               >
                 {cta.ctaLabel}
@@ -92,7 +92,7 @@ export function CampLandingHero({
                   {cta.description}
                 </p>
                 <div className="mt-6">
-                  {cta.href ? <Link href={cta.href}>{button}</Link> : button}
+                  {cta.href ? <Link href={cta.href} className="block">{button}</Link> : button}
                 </div>
               </div>
             )
