@@ -56,7 +56,7 @@ export function CampLandingHero({
       </div>
 
       <div className="container mx-auto px-6 lg:px-12 max-w-5xl -mt-12 md:-mt-16 relative z-20 pb-16 md:pb-24">
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className={`grid gap-5 ${ctas.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
           {ctas.map((cta, i) => {
             const button = (
               <Button
