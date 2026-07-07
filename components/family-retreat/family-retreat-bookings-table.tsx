@@ -206,7 +206,7 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
                 Confirm {booking.first_name} {booking.last_name}&apos;s booking
               </p>
               <p className="text-xs text-muted-foreground">
-                Family name, number of children and accommodation are taken from the form. Enter the number of adults and the total amount agreed on the call &mdash; these are merged into the confirmation email.
+                Family name, children and accommodation are taken from the form. The number of adults is pre-filled from the booking &mdash; verify on the call and adjust if needed. Then enter the total amount agreed.
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1">
