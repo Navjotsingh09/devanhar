@@ -192,6 +192,9 @@ export default function DayPassBookingForm() {
                 <Plus className="h-3 w-3" /> Add child
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2 mb-2">
+              Children under 2 are free &mdash; no need to add them to this form.
+            </p>
             {children.length === 0 && <p className="text-xs text-muted-foreground">No children added yet.</p>}
             {children.map((c, i) => (
               <div key={i} className="border border-border rounded-xl p-4 mb-3 space-y-3 bg-muted/20">
