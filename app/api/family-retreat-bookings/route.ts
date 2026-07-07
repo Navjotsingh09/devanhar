@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
       postcode: body.postcode.trim(),
       country: body.country.trim(),
       children_attending: body.children,
+      adults_attending: Array.isArray(body.adults_attending) ? body.adults_attending : [],
       accommodation_preference: body.accommodation_preference || null,
       dietary_requirements: body.dietary_requirements?.trim() || null,
       medical_requirements: body.medical_requirements?.trim() || null,
@@ -113,22 +114,31 @@ export async function POST(request: NextRequest) {
       try {
         const { Resend } = await import('resend')
         const resend = new Resend(process.env.RESEND_API_KEY)
+        const adultsArr = Array.isArray(body.adults_attending) ? body.adults_attending as Array<{ first_name: string; last_name: string }> : []
+        const totalAdults = 1 + adultsArr.length
         const childrenLines = (body.children as Array<{ first_name: string; last_name: string; date_of_birth: string }>)
           .map((c, i) => `  Child ${i + 1}: ${c.first_name} ${c.last_name} (DOB: ${c.date_of_birth})`)
           .join('\n')
+        const adultsLines = adultsArr.length > 0
+          ? ['  Adult 1 (Lead): ' + payload.first_name + ' ' + payload.last_name,
+             ...adultsArr.map((a, i) => `  Adult ${i + 2}: ${a.first_name} ${a.last_name}`)].join('\n')
+          : '  Adult 1 (Lead): ' + payload.first_name + ' ' + payload.last_name
         const textBody = [
           'New Sikh Family Retreat booking request.',
           '',
           `Submission ID : ${data.id}`,
           `Submitted at  : ${new Date().toISOString()}`,
           '',
-          '-- Adult contact',
+          '-- Lead contact',
           `Name     : ${payload.first_name} ${payload.last_name}`,
           `Email    : ${payload.email}`,
           `Phone    : ${payload.phone}`,
           `Location : ${payload.city}, ${payload.postcode}, ${payload.country}`,
           '',
-          '-- Children attending',
+          `-- Adults attending (${totalAdults} total)`,
+          adultsLines,
+          '',
+          `-- Children attending (${body.children.length} total)`,
           childrenLines,
           '',
           '-- Accommodation & needs',
@@ -148,7 +158,7 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
           from: 'Devanhaar <noreply@devanhaar.com>',
           to: NOTIFICATION_EMAILS,
-          subject: `Family Retreat booking - ${payload.first_name} ${payload.last_name} (${body.children.length} child${body.children.length !== 1 ? 'ren' : ''})`,
+          subject: `Family Retreat booking - ${payload.first_name} ${payload.last_name} (${totalAdults} adult${totalAdults !== 1 ? 's' : ''}, ${body.children.length} child${body.children.length !== 1 ? 'ren' : ''})`,
           text: textBody,
         })
       } catch (emailErr) {

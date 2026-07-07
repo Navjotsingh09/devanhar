@@ -22,6 +22,7 @@ export type FamilyRetreatBooking = {
   postcode: string
   country: string
   children_attending: ChildEntry[]
+  adults_attending?: Array<{ first_name: string; last_name: string }> | null
   accommodation_preference: string | null
   dietary_requirements: string | null
   medical_requirements: string | null
@@ -250,6 +251,17 @@ function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: 
                 )}
               </div>
               <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Adults attending</p>
+                <p className="text-sm text-foreground"><span className="font-medium">Lead:</span> {booking.first_name} {booking.last_name}</p>
+                {(booking.adults_attending?.length ?? 0) > 0 && (
+                  <ul className="mt-1 space-y-0.5">
+                    {booking.adults_attending!.map((a, i) => (
+                      <li key={i} className="text-sm text-foreground">{a.first_name} {a.last_name}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Dietary & medical</p>
                 <p className="text-foreground mb-1"><span className="font-medium">Dietary: </span><span className="text-muted-foreground">{booking.dietary_requirements || 'None stated'}</span></p>
                 <p className="text-foreground"><span className="font-medium">Medical: </span><span className="text-muted-foreground">{booking.medical_requirements || 'None stated'}</span></p>
@@ -314,7 +326,7 @@ function bookingsToCsv(bookings: FamilyRetreatBooking[]): string {
     'Booking #', 'Submitted', 'Status',
     'First name', 'Last name', 'Email', 'Phone',
     'City', 'Postcode', 'Country',
-    'Children count', 'Children (name + DOB)',
+    'Adults count', 'Adults (names)', 'Children count', 'Children (name + DOB)',
     'Accommodation preference', 'Dietary requirements', 'Medical requirements',
     'Emergency contact name', 'Emergency contact relationship', 'Emergency contact phone',
     'Heard about retreat', 'Additional notes',
@@ -326,6 +338,8 @@ function bookingsToCsv(bookings: FamilyRetreatBooking[]): string {
     b.status,
     b.first_name, b.last_name, b.email, b.phone,
     b.city, b.postcode, b.country,
+    1 + (b.adults_attending?.length ?? 0),
+    ['Lead: ' + b.first_name + ' ' + b.last_name, ...(b.adults_attending?.map((a, i) => 'Adult ' + (i+2) + ': ' + a.first_name + ' ' + a.last_name) ?? [])].join('; '),
     b.children_attending?.length ?? 0,
     (b.children_attending ?? []).map(c => `${c.first_name} ${c.last_name} (DOB ${c.date_of_birth})`).join('; '),
     b.accommodation_preference ?? '',

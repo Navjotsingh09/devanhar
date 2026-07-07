@@ -24,7 +24,13 @@ interface ChildEntry {
   date_of_birth: string
 }
 
+interface AdultEntry {
+  first_name: string
+  last_name: string
+}
+
 const emptyChild = (): ChildEntry => ({ first_name: "", last_name: "", date_of_birth: "" })
+const emptyAdult = (): AdultEntry => ({ first_name: "", last_name: "" })
 
 const ACCOMMODATION_OPTIONS = [
   { value: "standard", label: "Standard accommodation" },
@@ -70,6 +76,7 @@ export function FamilyRetreatBookingForm() {
   const errorRef = useRef<HTMLParagraphElement>(null)
   const [error, setError] = useState("")
   const [children, setChildren] = useState<ChildEntry[]>([emptyChild()])
+  const [adults, setAdults] = useState<AdultEntry[]>([])
   const [form, setForm] = useState({
     first_name: "", last_name: "", email: "", phone: "",
     city: "", postcode: "", country: "",
@@ -109,10 +116,16 @@ export function FamilyRetreatBookingForm() {
   const addChild = () => { if (children.length < 10) setChildren((prev) => [...prev, emptyChild()]) }
   const removeChild = (index: number) => { if (children.length > 1) setChildren((prev) => prev.filter((_, i) => i !== index)) }
 
+  const addAdult = () => { if (adults.length < 10) setAdults((prev) => [...prev, emptyAdult()]) }
+  const removeAdult = (index: number) => setAdults((prev) => prev.filter((_, i) => i !== index))
+  const updateAdult = (index: number, field: keyof AdultEntry, value: string) =>
+    setAdults((prev) => prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)))
+
   const resetForm = () => {
     setSubmitted(false)
     setForm({ first_name:"",last_name:"",email:"",phone:"",city:"",postcode:"",country:"",accommodation_preference:"",dietary_requirements:"",medical_requirements:"",emergency_contact_name:"",emergency_contact_relationship:"",emergency_contact_phone:"",heard_about_retreat:"",additional_notes:"",consent_email:"no",consent_whatsapp:"no",consent_privacy:false,page_url:"",source:"",medium:"" })
     setChildren([emptyChild()])
+    setAdults([])
     setError("")
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" })
   }
@@ -134,6 +147,11 @@ export function FamilyRetreatBookingForm() {
     if (!NAME_REGEX.test(form.emergency_contact_name.trim())) return "Please enter the emergency contact's full name."
     if (form.emergency_contact_relationship.trim().length < 2) return "Please enter the emergency contact's relationship to you."
     if (!PHONE_REGEX.test(form.emergency_contact_phone.trim())) return "Please enter a valid emergency contact phone number."
+    for (let i = 0; i < adults.length; i++) {
+      const a = adults[i]
+      if (!NAME_REGEX.test(a.first_name.trim())) return `Please enter a first name for additional adult ${i + 1}.`
+      if (!NAME_REGEX.test(a.last_name.trim())) return `Please enter a last name for additional adult ${i + 1}.`
+    }
     if (!form.heard_about_retreat) return "Please tell us how you heard about the Sikh Family Retreat."
     if (!form.consent_privacy) return "Please tick the box to agree to the Privacy Policy before submitting."
     return null
@@ -154,7 +172,7 @@ export function FamilyRetreatBookingForm() {
       const res = await fetch("/api/family-retreat-bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, children }),
+        body: JSON.stringify({ ...form, children, adults_attending: adults }),
       })
       const json = await res.json()
       if (!res.ok) { setError(json.error || "Something went wrong. Please try again."); return }
@@ -254,6 +272,33 @@ export function FamilyRetreatBookingForm() {
         {children.length < 10 && (
           <Button type="button" variant="outline" onClick={addChild} className="rounded-full px-5 text-sm gap-2">
             <Plus className="h-4 w-4" /> Add another child
+          </Button>
+        )}
+      </div>
+
+      {/* Additional adults */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Other adults attending</h3>
+        <p className="text-sm text-muted-foreground">
+          Please add the names of all other adults coming with you (e.g. partner, grandparents, friends). You are already included as the lead contact.
+        </p>
+        {adults.map((adult, i) => (
+          <div key={i} className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-foreground">Adult {i + 2}</p>
+              <button type="button" onClick={() => removeAdult(i)} className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1">
+                <Trash2 className="h-3.5 w-3.5" /> Remove
+              </button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div><Label>First name *</Label><Input value={adult.first_name} onChange={(e) => updateAdult(i, "first_name", e.target.value)} /></div>
+              <div><Label>Last name *</Label><Input value={adult.last_name} onChange={(e) => updateAdult(i, "last_name", e.target.value)} /></div>
+            </div>
+          </div>
+        ))}
+        {adults.length < 10 && (
+          <Button type="button" variant="outline" onClick={addAdult} className="rounded-full px-5 text-sm gap-2">
+            <Plus className="h-4 w-4" /> Add another adult
           </Button>
         )}
       </div>
