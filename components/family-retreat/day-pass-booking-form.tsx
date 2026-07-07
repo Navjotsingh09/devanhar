@@ -12,10 +12,8 @@ const NAME_REGEX = /^[\p{L}\p{M}\s'.\-]{1,60}$/u
 const PHONE_REGEX = /^[\d\s+\-()\u0028\u0029]{7,20}$/
 
 const DAY_OPTIONS = [
-  { value: '2026-07-23', label: 'Thursday 23 July 2026' },
   { value: '2026-07-24', label: 'Friday 24 July 2026' },
   { value: '2026-07-25', label: 'Saturday 25 July 2026' },
-  { value: '2026-07-26', label: 'Sunday 26 July 2026' },
 ]
 
 const HEARD_OPTIONS = [

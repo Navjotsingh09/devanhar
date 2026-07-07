@@ -8,7 +8,7 @@ const DAY_PASS_STRIPE_PRODUCT = process.env.DAY_PASS_STRIPE_PRODUCT || 'prod_Uoi
 const ADULT_PRICE_PENCE = 3500   // £35
 const CHILD_PRICE_PENCE = 1500   // £15
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const DAY_PASS_DATES = ['2026-07-23', '2026-07-24', '2026-07-25', '2026-07-26']
+const DAY_PASS_DATES = ['2026-07-24', '2026-07-25']
 
 function getSupabaseAdmin() {
   return createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } })
