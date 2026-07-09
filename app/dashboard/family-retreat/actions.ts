@@ -397,10 +397,10 @@ export async function sendFamilyRetreatAdditionalCharge(
   const amount = Number(payload.amount)
   const referenceNote = (payload.referenceNote || "").trim()
   if (!Number.isFinite(amount) || amount <= 0) {
-    throw new Error("Please enter a valid additional amount")
+    throw new Error("Please enter a valid amendment amount")
   }
   if (referenceNote.length < 10) {
-    throw new Error("Please provide a clear reference note for the additional charges")
+    throw new Error("Please provide a clear amendment note")
   }
 
   const booking = await getBooking(id)
@@ -436,7 +436,7 @@ export async function sendFamilyRetreatAdditionalCharge(
       paymentLink: url,
     })
   } catch (emailError) {
-    console.error("[family-retreat] additional charge email failed", emailError)
+    console.error("[family-retreat] amendment email failed", emailError)
   }
 
   await supabase.from("activity_log").insert({

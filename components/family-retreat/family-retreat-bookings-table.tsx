@@ -427,7 +427,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                               </>
                             )}
                             <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check payment</Button>
-                            <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>
+                            <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending}><Wallet className="h-3.5 w-3.5 mr-1" />Amendment</Button>
                             <Button size="sm" variant="outline" onClick={() => handleArchive(booking)} disabled={isPending}><Archive className="h-3.5 w-3.5 mr-1" />Archive</Button>
                             <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDelete(booking)} disabled={isPending}><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
                           </div>
@@ -437,10 +437,14 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                       {activeConfirmRow === booking.id && (
                         <TableRow>
                           <TableCell colSpan={6} className="bg-emerald-50/60">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                               <div>
                                 <p className="text-xs mb-1 text-muted-foreground">Adults attending</p>
                                 <Input type="number" min="1" value={confirmAdults[booking.id] ?? ""} onChange={(event) => setConfirmAdults((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="e.g. 2" />
+                              </div>
+                              <div>
+                                <p className="text-xs mb-1 text-muted-foreground">Children attending</p>
+                                <Input type="number" min="0" value={confirmChildren[booking.id] ?? ""} onChange={(event) => setConfirmChildren((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="e.g. 3" />
                               </div>
                               <div>
                                 <p className="text-xs mb-1 text-muted-foreground">Amount due now (£)</p>
@@ -460,15 +464,15 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                           <TableCell colSpan={6} className="bg-blue-50/60">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-start">
                               <div>
-                                <p className="text-xs mb-1 text-muted-foreground">Additional amount (£)</p>
+                                <p className="text-xs mb-1 text-muted-foreground">Amendment amount (£)</p>
                                 <Input type="number" min="1" step="0.01" value={extraAmount[booking.id] ?? ""} onChange={(event) => setExtraAmount((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="e.g. 40" />
                               </div>
                               <div className="md:col-span-2">
-                                <p className="text-xs mb-1 text-muted-foreground">Reference note (required)</p>
-                                <Textarea value={extraReason[booking.id] ?? ""} onChange={(event) => setExtraReason((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="Why these additional charges apply, what was paid earlier, and what is due now." rows={3} />
+                                <p className="text-xs mb-1 text-muted-foreground">Amendment note (required)</p>
+                                <Textarea value={extraReason[booking.id] ?? ""} onChange={(event) => setExtraReason((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="Why this amendment applies, what was paid earlier, and what is due now." rows={3} />
                               </div>
                               <div className="flex gap-2 pt-6">
-                                <Button onClick={() => handleAdditionalCharge(booking)} disabled={isPending}>Send link + email</Button>
+                                <Button onClick={() => handleAdditionalCharge(booking)} disabled={isPending}>Send amendment link + email</Button>
                                 <Button variant="ghost" onClick={() => setActiveAdditionalRow(null)} disabled={isPending}>Cancel</Button>
                               </div>
                             </div>
