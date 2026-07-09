@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 type NavItem = {
@@ -50,22 +50,30 @@ type NavItem = {
   url: string
   icon: React.ComponentType<{ className?: string }>
   adminOnly?: boolean
+  view?: string
 }
 
-const mainNav: NavItem[] = [
+const coreNav: NavItem[] = [
   { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
-  { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
   { title: 'User Management', url: '/dashboard/users', icon: Users, adminOnly: true },
   { title: 'Site Images', url: '/dashboard/images', icon: ImageIcon },
+]
+
+const submissionNav: NavItem[] = [
+  { title: 'All Submissions', url: '/dashboard/submissions', icon: Inbox },
+  { title: 'Camps', url: '/dashboard/submissions?view=__department_camps', icon: Shield, view: '__department_camps' },
+  { title: 'Courses', url: '/dashboard/submissions?view=__department_courses', icon: BookOpen, view: '__department_courses' },
+  { title: 'Events', url: '/dashboard/submissions?view=__department_events', icon: Trophy, view: '__department_events' },
+  { title: 'Projects', url: '/dashboard/submissions?view=__department_projects', icon: Inbox, view: '__department_projects' },
+  { title: 'General', url: '/dashboard/submissions?view=__general', icon: Inbox, view: '__general' },
+  { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
 ]
 
 const shopNav: NavItem[] = [
   { title: 'Orders', url: '/dashboard/orders', icon: ClipboardList },
   { title: 'Products', url: '/dashboard/products', icon: Package },
 ]
-
 
 const eventsNav: NavItem[] = [
   { title: 'Wolf Run Fundraisers', url: '/dashboard/wolfrun', icon: Trophy },
@@ -84,6 +92,7 @@ const familyRetreatNav: NavItem[] = [
   { title: 'Family Bookings', url: '/dashboard/family-retreat', icon: Home },
   { title: 'Day Pass Bookings', url: '/dashboard/family-retreat/day-pass', icon: CalendarDays },
 ]
+
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
 ]
@@ -98,16 +107,29 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const router = useRouter()
   const isAdmin = user.role === 'admin' || user.role === 'super_admin'
   const isVacanciesOnly = user.role === 'vacancies_only'
 
-  const filteredMainNav = isVacanciesOnly
-    ? mainNav.filter((item) => item.url === '/dashboard/vacancies')
-    : mainNav.filter((item) => !item.adminOnly || isAdmin)
+  const filteredCoreNav = isVacanciesOnly
+    ? []
+    : coreNav.filter((item) => !item.adminOnly || isAdmin)
+  const filteredSubmissionNav = isVacanciesOnly
+    ? submissionNav.filter((item) => item.title === 'Vacancies')
+    : submissionNav.filter((item) => !item.adminOnly || isAdmin)
   const filteredSystemNav = isVacanciesOnly
     ? []
     : systemNav.filter((item) => !item.adminOnly || isAdmin)
+
+  const activeSubmissionView = searchParams.get('view')
+
+  const isItemActive = (item: NavItem) => {
+    if (item.url === '/dashboard') return pathname === '/dashboard'
+    if (item.view) return pathname === '/dashboard/submissions' && activeSubmissionView === item.view
+    if (item.url === '/dashboard/submissions') return pathname === '/dashboard/submissions' && !activeSubmissionView
+    return pathname === item.url || pathname.startsWith(`${item.url}/`)
+  }
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -144,16 +166,34 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarGroupLabel>Core</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredMainNav.map((item) => (
+              {filteredCoreNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(item.url))}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                       {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Submission Taxonomy</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {filteredSubmissionNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
+                    <Link href={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -172,7 +212,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarMenu>
               {shopNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -189,13 +229,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>
             <Trophy className="h-3 w-3 mr-1" />
-            Events
+            Events & Residential
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {eventsNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -212,13 +252,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>
             <Home className="h-3 w-3 mr-1" />
-            Sikh Family Retreat
+            Camps & Retreats
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {familyRetreatNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -235,13 +275,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>
             <BookOpen className="h-3 w-3 mr-1" />
-            Sikhi Vidyala
+            Courses
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {vidyalaNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -254,18 +294,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
         )}
 
-        
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
             <TreePine className="h-3 w-3 mr-1" />
-            Roots Residential
+            Initiative Operations
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {rootsNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -285,7 +324,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarMenu>
               {filteredSystemNav.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                  <SidebarMenuButton asChild isActive={isItemActive(item)}>
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>

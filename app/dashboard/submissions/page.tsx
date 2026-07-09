@@ -724,7 +724,12 @@ async function getSubmissions() {
   }
 }
 
-export default async function SubmissionsPage() {
+export default async function SubmissionsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ view?: string }>
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
   const [{ initiatives, submissions, webinarSignups }, recentActivity] = await Promise.all([
     getSubmissions(),
     getRecentCampActivity(60).catch((e) => {
@@ -734,6 +739,9 @@ export default async function SubmissionsPage() {
   ])
 
   const { entries, groupedEntries } = buildSubmissionCatalog(initiatives as Initiative[], submissions, webinarSignups)
+  const requestedView = resolvedSearchParams?.view
+  const validViews = new Set(entries.map((entry) => entry.value))
+  const defaultView = requestedView && validViews.has(requestedView) ? requestedView : 'all'
 
   return (
     <div className="flex flex-col gap-6">
@@ -742,7 +750,7 @@ export default async function SubmissionsPage() {
         <p className="text-muted-foreground">Manage submissions by department, then drill into initiative-level queues and sub-categories.</p>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs defaultValue={defaultView} className="w-full">
         <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="xl:sticky xl:top-20 h-fit">
             <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
