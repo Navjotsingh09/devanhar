@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ExternalLink, Instagram, Shield, Users } from "lucide-react"
+import { ExternalLink, Instagram, Shield } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -99,18 +99,16 @@ export default function RootsResidentialPage() {
             </h2>
             <div className="grid gap-6 md:grid-cols-2 mb-8">
               <div className="rounded-2xl border border-border bg-background p-7">
-                <div className="w-12 h-12 rounded-full bg-[hsl(43,100%,29%)]/10 flex items-center justify-center mb-5">
-                  <Users className="w-6 h-6 text-[hsl(43,100%,29%)]" />
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/initiatives/roots-kaurs-logo.jpg" alt="Bibia Kaurs Roots — girls' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Girls&apos; Residential</h3>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-background p-7">
-                <div className="w-12 h-12 rounded-full bg-[hsl(43,100%,29%)]/10 flex items-center justify-center mb-5">
-                  <Users className="w-6 h-6 text-[hsl(43,100%,29%)]" />
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/initiatives/roots-singhs-logo.jpg" alt="Singhs Roots — boys' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Boys&apos; Residential</h3>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.
