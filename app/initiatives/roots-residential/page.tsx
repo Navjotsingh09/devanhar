@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ExternalLink, Instagram } from "lucide-react"
+import { ExternalLink, Instagram, Shield, Users } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button"
 export const metadata = {
   title: "Roots Residential | Devanhaar",
   description:
-    "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values — all in one unforgettable experience.",
+    "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values, all in one unforgettable experience.",
   keywords: ["Roots Residential", "Sikh youth camp", "Sikh residential", "Devanhaar", "young Sikhs UK"],
   openGraph: {
     title: "Roots Residential | Devanhaar",
@@ -48,11 +48,11 @@ export default function RootsResidentialPage() {
                 Bookings
               </p>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Camper bookings are now open
+                Applications are now open
               </h2>
               <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
                 <p>
-                  Please complete one booking form per camper. The form will ask for camper details, parent or guardian contact information, accommodation preferences, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential.
+                  Please complete one application per participant. The form will ask for the participant's details, parent or guardian contact information, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential.
                 </p>
                 <p>
                   Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment.
@@ -62,7 +62,7 @@ export default function RootsResidentialPage() {
                 asChild
                 className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
               >
-                <a href="#booking-form">Complete the booking form</a>
+                <a href="#booking-form">Complete the application</a>
               </Button>
               <p className="mt-6 text-xs text-muted-foreground leading-relaxed max-w-xl">
                 Submitting the form does not automatically confirm your place. Your booking is only confirmed once the Roots team has reviewed your details and contacted you directly.
@@ -71,7 +71,7 @@ export default function RootsResidentialPage() {
           </div>
         </section>
 
-        {/* About Roots I — More Than Just a Summer Camp */}
+        {/* About Roots I — A Residential Adventure Experience */}
         <section className="border-t border-border py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
@@ -88,7 +88,45 @@ export default function RootsResidentialPage() {
           </div>
         </section>
 
-        {/* About Roots II — Adventure. Friendship. Identity. */}
+        {/* Safe space — separate residentials */}
+        <section className="border-t border-border bg-secondary/30 py-16 md:py-24">
+          <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
+            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
+              A safe space for everyone
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+              Separate residentials for girls and boys
+            </h2>
+            <div className="grid gap-6 md:grid-cols-2 mb-8">
+              <div className="rounded-2xl border border-border bg-background p-7">
+                <div className="w-12 h-12 rounded-full bg-[hsl(43,100%,29%)]/10 flex items-center justify-center mb-5">
+                  <Users className="w-6 h-6 text-[hsl(43,100%,29%)]" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Girls&apos; Residential</h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                  A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-background p-7">
+                <div className="w-12 h-12 rounded-full bg-[hsl(43,100%,29%)]/10 flex items-center justify-center mb-5">
+                  <Users className="w-6 h-6 text-[hsl(43,100%,29%)]" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Boys&apos; Residential</h3>
+                <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                  A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.
+                </p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[hsl(43,100%,29%)]/30 bg-[hsl(43,100%,29%)]/5 p-6 md:p-7 flex items-start gap-4">
+              <Shield className="w-6 h-6 text-[hsl(43,100%,29%)] shrink-0 mt-0.5" />
+              <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+                Girls and boys attend separate residentials, giving every young person a safe, comfortable space to take part, build friendships and grow with confidence. Safeguarding and welfare are at the heart of everything we do.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* About Roots II */}
         <section className="border-t border-border bg-secondary/30 py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
@@ -97,9 +135,6 @@ export default function RootsResidentialPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Adventure. Friendship. Identity.
             </h2>
-            <p className="text-base md:text-xl font-medium text-foreground/70 mb-8">
-              A four-day residential for young people aged 13&ndash;16.
-            </p>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               {rootsAboutShort.map((p, i) => (
                 <p key={i}>{p}</p>
@@ -111,8 +146,8 @@ export default function RootsResidentialPage() {
         {/* The Experience — 6 cards */}
         <CorePillarsGrid
           pillars={rootsExperienceCards}
-          heading="Five Days Full of Adventure"
-          subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires, team competitions, inspiring conversations, no two days are the same — but every day leaves a lasting impression."
+          heading="Four Days Full of Adventure"
+          subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires and team competitions, no two days are the same, and every day leaves a lasting impression."
         />
 
         {/* Who Roots Is For */}
@@ -124,9 +159,6 @@ export default function RootsResidentialPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
               Everyone Belongs
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 font-medium">
-              Wherever they are on their journey.
-            </p>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               {rootsWhoIsItFor.map((p, i) => (
                 <p key={i}>{p}</p>
@@ -163,7 +195,7 @@ export default function RootsResidentialPage() {
             </h2>
             <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
               <p>
-                Roots takes place at Hilston Park, a stunning residential activity centre set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community — with facilities, outdoor spaces and accommodation all in one place.
+                Roots takes place at Hilston Park, a stunning residential activity centre set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.
               </p>
               <p>
                 From the grounds to the accommodation, every part of the site is designed to support an immersive residential experience.
@@ -185,16 +217,16 @@ export default function RootsResidentialPage() {
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               <span className="text-5xl md:text-6xl text-[hsl(43,100%,29%)]">&pound;125.00</span>
-              <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per camper</span>
+              <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per participant</span>
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Price is subject to change. The exact cost will be confirmed by an organiser when they contact you following your booking submission.
+              Price is subject to change. The exact cost will be confirmed when we contact you following your application.
             </p>
             <Button
               asChild
               className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
             >
-              <a href="#booking-form">Book your camper&apos;s place</a>
+              <a href="#booking-form">Book your place</a>
             </Button>
           </div>
         </section>
@@ -228,17 +260,17 @@ export default function RootsResidentialPage() {
         <ApplicationProcessTimeline
           steps={rootsBookingSteps}
           heading="How booking works"
-          subheading="From completing the form to confirming your camper's place, here is what to expect."
+          subheading="From completing the form to confirming your place, here is what to expect."
         />
 
         {/* Booking Form */}
         <section id="booking-form" className="border-t border-border py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Book your camper&apos;s place
+              Book your place
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10">
-              Please complete one form per camper. After submitting, an organiser from the Roots team will contact you to discuss availability, costs and how to make payment.
+              Please complete one application per participant. After submitting, we'll be in touch to discuss availability, costs and how to make payment.
             </p>
             <RootsBookingForm />
           </div>
@@ -261,7 +293,7 @@ export default function RootsResidentialPage() {
               Have a question before booking?
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
-              If you would like to speak to someone before completing the booking form, please contact the Roots team. An organiser can help with questions about the residential, accommodation, costs or the booking process.
+              If you would like to speak to someone before completing the form, please get in touch. We're happy to help with questions about the residential, accommodation, costs or the booking process.
             </p>
             <div className="space-y-2 mb-8 text-base text-muted-foreground">
               <p>
@@ -301,10 +333,10 @@ export default function RootsResidentialPage() {
               Join us for Roots Residential
             </h2>
             <p className="text-base md:text-lg text-white/85 leading-relaxed mb-8 max-w-xl mx-auto">
-              Adventure. Friendship. Identity. Complete the booking form today and the Roots team will follow up with you directly.
+              Adventure. Friendship. Identity. Complete the form today and we'll be in touch with you directly.
             </p>
             <Button asChild variant="secondary" className="rounded-full px-8 py-6 text-base">
-              <a href="#booking-form">Book your camper&apos;s place</a>
+              <a href="#booking-form">Book your place</a>
             </Button>
           </div>
         </section>

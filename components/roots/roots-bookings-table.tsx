@@ -51,7 +51,7 @@ function csvCell(v: unknown): string {
 
 function bookingsToCsv(bookings: Booking[]): string {
   const headers = [
-    "ID", "Camper First", "Camper Last", "DOB", "Age", "Gender",
+    "ID", "Participant First", "Participant Last", "DOB", "Age", "Gender",
     "Parent Name", "Parent Email", "Parent Phone",
     "Accommodation", "Dietary", "Medical",
     "Emergency Name", "Emergency Phone",
@@ -169,7 +169,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
         <table className="w-full text-sm">
           <thead className="bg-secondary/40 border-b border-border">
             <tr>
-              <th className="text-left px-4 py-3 font-medium whitespace-nowrap">Camper</th>
+              <th className="text-left px-4 py-3 font-medium whitespace-nowrap">Participant</th>
               <th className="text-left px-4 py-3 font-medium">Age</th>
               <th className="text-left px-4 py-3 font-medium whitespace-nowrap">Parent / Guardian</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>

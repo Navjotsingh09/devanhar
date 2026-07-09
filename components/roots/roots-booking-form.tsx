@@ -148,9 +148,9 @@ export function RootsBookingForm() {
         </div>
       )}
     <form onSubmit={handleSubmit} className="space-y-10" noValidate>
-      {/* Camper details */}
+      {/* Participant details */}
       <div>
-        <SectionHeading>Camper details</SectionHeading>
+        <SectionHeading>Participant details</SectionHeading>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="First name" required>
             <input className={inputCls} value={form.camper_first_name} onChange={set("camper_first_name")} placeholder="First name" />
@@ -182,7 +182,7 @@ export function RootsBookingForm() {
           <Field label="Last name" required>
             <input className={inputCls} value={form.parent_last_name} onChange={set("parent_last_name")} placeholder="Last name" />
           </Field>
-          <Field label="Relationship to camper" required>
+          <Field label="Relationship to participant" required>
             <select className={selectCls} value={form.parent_relationship} onChange={set("parent_relationship")}>
               <option value="">Select relationship</option>
               <option value="Parent">Parent</option>
@@ -204,7 +204,7 @@ export function RootsBookingForm() {
       <div>
         <SectionHeading>Dietary and medical information</SectionHeading>
         <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-          Please include any relevant information for your camper. Leave blank if none apply.
+          Please include any relevant information for the participant. Leave blank if none apply.
         </p>
         <div className="grid gap-5">
           <Field label="Dietary requirements">
@@ -226,7 +226,7 @@ export function RootsBookingForm() {
           <Field label="Full name" required>
             <input className={inputCls} value={form.emergency_name} onChange={set("emergency_name")} placeholder="Full name" />
           </Field>
-          <Field label="Relationship to camper" required>
+          <Field label="Relationship to participant" required>
             <input className={inputCls} value={form.emergency_relationship} onChange={set("emergency_relationship")} placeholder="e.g. parent, aunt..." />
           </Field>
           <Field label="Phone number" required>
@@ -251,8 +251,8 @@ export function RootsBookingForm() {
               <option value="Other">Other</option>
             </select>
           </Field>
-          <Field label="Anything else that will help us support your camper">
-            <textarea className={textareaCls} rows={4} value={form.additional_info} onChange={set("additional_info")} placeholder="Any other information that would help the Roots team support your camper during the residential..." />
+          <Field label="Anything else that will help us support the participant">
+            <textarea className={textareaCls} rows={4} value={form.additional_info} onChange={set("additional_info")} placeholder="Any other information that would help the Roots team support the participant during the residential..." />
           </Field>
         </div>
       </div>
@@ -290,7 +290,7 @@ export function RootsBookingForm() {
           {submitting ? "Submitting..." : "Submit booking request"}
         </Button>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Submitting this form does not automatically confirm your camper&apos;s place. The Roots team will review your details and contact you directly.
+          Submitting this form does not automatically confirm your place. The Roots team will review your details and contact you directly.
         </p>
       </div>
     </form>
