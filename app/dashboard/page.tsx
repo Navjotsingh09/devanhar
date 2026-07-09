@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Inbox, Phone, BriefcaseBusiness, AlertTriangle, Clock, BookOpen } from 'lucide-react'
+import { Inbox, Phone, BriefcaseBusiness, AlertTriangle, Clock, BookOpen, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 async function getStats() {
@@ -32,60 +32,72 @@ export default async function DashboardOverview() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of all Devanhaar operations</p>
+      <div className="flex flex-col gap-1.5">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-accent">
+          <Sparkles className="h-3 w-3" />
+          Staff Dashboard
+        </span>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
+        <p className="text-muted-foreground">Here&apos;s what&apos;s happening across Devanhaar operations today</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/dashboard/submissions">
-          <Card className="transition-shadow hover:shadow-md">
+          <Card className="dash-lift rounded-2xl border-border/60 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">New Submissions</CardTitle>
-              <Inbox className="h-4 w-4 text-muted-foreground" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+                <Inbox className="h-4 w-4 text-accent" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.newSubmissions}</div>
+              <div className="text-4xl font-extrabold tracking-tight text-foreground">{stats.newSubmissions}</div>
               <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/emergency">
-          <Card className="transition-shadow hover:shadow-md border-destructive/20">
+          <Card className="dash-lift rounded-2xl border-destructive/20 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Active Emergencies</CardTitle>
-              <Phone className="h-4 w-4 text-destructive" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/10">
+                <Phone className="h-4 w-4 text-destructive" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.activeEmergencies}</div>
+              <div className="text-4xl font-extrabold tracking-tight text-foreground">{stats.activeEmergencies}</div>
               <p className="text-xs text-muted-foreground mt-1">Require attention</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/vacancies">
-          <Card className="transition-shadow hover:shadow-md">
+          <Card className="dash-lift rounded-2xl border-border/60 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Pending Applications</CardTitle>
-              <BriefcaseBusiness className="h-4 w-4 text-muted-foreground" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+                <BriefcaseBusiness className="h-4 w-4 text-accent" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.pendingApplications}</div>
+              <div className="text-4xl font-extrabold tracking-tight text-foreground">{stats.pendingApplications}</div>
               <p className="text-xs text-muted-foreground mt-1">To be reviewed</p>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/dashboard/vidyala">
-          <Card className="transition-shadow hover:shadow-md">
+          <Card className="dash-lift rounded-2xl border-border/60 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Vidyala Applications</CardTitle>
-              <BookOpen className="h-4 w-4 text-amber-500" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10">
+                <BookOpen className="h-4 w-4 text-amber-500" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.vidyalaPending}</div>
+              <div className="text-4xl font-extrabold tracking-tight text-foreground">{stats.vidyalaPending}</div>
               <p className="text-xs text-muted-foreground mt-1">Pending review</p>
             </CardContent>
           </Card>
@@ -105,7 +117,7 @@ export default async function DashboardOverview() {
           <CardContent>
             <div className="flex flex-col gap-3">
               {stats.recentVidyala.map((v: Record<string, string>) => (
-                <div key={v.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                <div key={v.id} className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/40 p-3 transition-colors hover:bg-secondary/70">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{v.first_name} {v.last_name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{v.email}</p>
@@ -145,7 +157,7 @@ export default async function DashboardOverview() {
             ) : (
               <div className="flex flex-col gap-3">
                 {stats.criticalEmergencies.map((e: Record<string, string>) => (
-                  <div key={e.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
+                  <div key={e.id} className="flex items-start justify-between gap-3 rounded-xl border border-border/60 bg-secondary/40 p-3 transition-colors hover:bg-secondary/70">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{e.caller_name}</p>
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{e.description}</p>
@@ -180,7 +192,7 @@ export default async function DashboardOverview() {
             ) : (
               <div className="flex flex-col gap-3">
                 {stats.recentSubmissions.map((s: Record<string, unknown>) => (
-                  <div key={s.id as string} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
+                  <div key={s.id as string} className="flex items-start justify-between gap-3 rounded-xl border border-border/60 bg-secondary/40 p-3 transition-colors hover:bg-secondary/70">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{s.full_name as string}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">

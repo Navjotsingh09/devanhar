@@ -28,7 +28,7 @@ export function DashboardHeader() {
   const isSubRoute = pathname !== '/dashboard'
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+    <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border/70 bg-background/80 px-4 backdrop-blur-sm">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-1 h-5" />
       <Breadcrumb>

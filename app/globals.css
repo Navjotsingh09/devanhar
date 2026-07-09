@@ -82,6 +82,57 @@ body {
     --sidebar-border: 220 12% 22%;
     --sidebar-ring: 225 55% 55%;
   }
+
+  /* Staff dashboard scoped theme - warm cream canvas, dark charcoal sidebar */
+  .dash-theme {
+    --background: 40 35% 97%;
+    --foreground: 220 15% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 14%;
+    --primary: 43 99% 50%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 40 30% 94%;
+    --secondary-foreground: 220 15% 14%;
+    --muted: 40 22% 92%;
+    --muted-foreground: 220 8% 42%;
+    --accent: 43 99% 45%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 16% 88%;
+    --input: 40 16% 88%;
+    --ring: 43 99% 45%;
+    --radius: 1rem;
+    --sidebar-background: 222 18% 13%;
+    --sidebar-foreground: 40 15% 92%;
+    --sidebar-primary: 43 99% 50%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 222 15% 20%;
+    --sidebar-accent-foreground: 40 15% 92%;
+    --sidebar-border: 222 15% 22%;
+    --sidebar-ring: 43 99% 50%;
+  }
+
+  .dash-theme main {
+    background-image:
+      radial-gradient(circle at 8% 0%, hsl(43 99% 50% / 0.10), transparent 42%),
+      radial-gradient(circle at 100% 20%, hsl(43 99% 45% / 0.07), transparent 45%);
+  }
+
+  .dash-theme .dash-lift {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .dash-theme .dash-lift:hover {
+    box-shadow: 0 10px 30px -12px hsl(220 15% 14% / 0.18);
+    transform: translateY(-2px);
+  }
+
+  .dash-theme .dash-dark-card {
+    background: linear-gradient(155deg, hsl(222 18% 15%), hsl(222 20% 10%));
+    color: hsl(40 15% 94%);
+  }
 }
 
 @layer base {

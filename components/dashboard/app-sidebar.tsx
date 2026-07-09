@@ -129,12 +129,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="flex h8 w8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Shield className="h4 w4" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+                  <Shield className="h-4 w-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Devanhaar</span>
-                  <span className="text-xs opacity-70">Staff Dashboard</span>
+                  <span className="font-semibold tracking-tight">Devanhaar</span>
+                  <span className="text-xs opacity-60">Staff Dashboard</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -151,9 +151,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(item.url))}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
+                      {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -165,7 +165,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <ShoppingBag className="h3 w3 mr-1" />
+            <ShoppingBag className="h-3 w-3 mr-1" />
             Shop
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -174,7 +174,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -188,7 +188,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Trophy className="h3 w3 mr-1" />
+            <Trophy className="h-3 w-3 mr-1" />
             Events
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -197,7 +197,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -211,7 +211,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Home className="h3 w3 mr-1" />
+            <Home className="h-3 w-3 mr-1" />
             Sikh Family Retreat
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -220,7 +220,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -234,7 +234,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <BookOpen className="h3 w3 mr-1" />
+            <BookOpen className="h-3 w-3 mr-1" />
             Sikhi Vidyala
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -243,7 +243,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -258,7 +258,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
-            <TreePine className="h3 w3 mr-1" />
+            <TreePine className="h-3 w-3 mr-1" />
             Roots Residential
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -267,7 +267,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -287,9 +287,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
-                      <item.icon className="h4 w4" />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
+                      {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -306,21 +306,21 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="lg">
-                  <Avatar className="h8 w8">
-                    <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs">
+                  <Avatar className="h-8 w-8 ring-2 ring-sidebar-primary/30">
+                    <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col gap-0.5 leading-none text-left">
-                    <span className="text-sm font-medium truncate max-w[120px]">{user.fullName}</span>
+                    <span className="text-sm font-medium truncate max-w-[120px]">{user.fullName}</span>
                     <span className="text-xs opacity-70 capitalize">{user.role?.replace('_', ' ')}</span>
                   </div>
-                  <ChevronDown className="ml-auto h4 w4" />
+                  <ChevronDown className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                  <LogOut className="mr-2 h4 w4" />
+                  <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
