@@ -154,7 +154,7 @@ export function ProjectsPageContent() {
                 <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Projects" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                <p className="text-3xl font-bold">8</p>
+                <p className="text-3xl font-bold">9</p>
                 <p className="text-sm text-primary-foreground/80">Live Projects</p>
               </div>
             </div>

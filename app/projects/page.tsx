@@ -31,7 +31,7 @@ const projectsFAQs = [
   {
     question: "How many projects does Devanhaar run?",
     answer:
-      "Devanhaar currently runs eight live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikhi Vidyala, University Projects, Gurmat Academy, Self Defence Academy, and Sikh Professional Network. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
+      "Devanhaar currently runs nine live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikh Family Retreat, Sikhi Vidyala, University Projects, Gurmat Academy, Self Defence Academy, and Sikh Professional Network. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
   },
   {
     question: "Who can attend Devanhaar camps?",
