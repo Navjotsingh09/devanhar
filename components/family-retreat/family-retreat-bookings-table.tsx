@@ -1,421 +1,496 @@
-'use client'
+"use client"
 
-import { useState, useTransition } from 'react'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { ChevronDown, ChevronUp, Check, X, Clock, Loader2, Download, Users, CheckCircle2, ListChecks, Baby } from 'lucide-react'
-import { updateFamilyRetreatStatus, updateFamilyRetreatNotes, syncFamilyRetreatPayment } from '@/app/dashboard/family-retreat/actions'
-import { toast } from 'sonner'
+import { Fragment, useMemo, useState, useTransition } from "react"
+import { format } from "date-fns"
+import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle } from "lucide-react"
 
-type ChildEntry = { first_name: string; last_name: string; date_of_birth: string }
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  removeFamilyRetreatBooking,
+  sendFamilyRetreatAdditionalCharge,
+  syncFamilyRetreatPayment,
+  updateFamilyRetreatStatus,
+} from "@/app/dashboard/family-retreat/actions"
+
+type RetreatStatus = "pending" | "confirmed" | "waitlisted" | "declined" | "archived"
+type PaymentFilter = "all" | "paid" | "unpaid"
+type StatusFilter = "all" | RetreatStatus
+type SortMode =
+  | "newest"
+  | "oldest"
+  | "paid_first"
+  | "unpaid_first"
+  | "name_az"
+  | "name_za"
+  | "amount_high"
+  | "amount_low"
+
+type ChildPerson = {
+  first_name?: string
+  last_name?: string
+  date_of_birth?: string
+}
+
+type AdultPerson = {
+  first_name?: string
+  last_name?: string
+}
 
 export type FamilyRetreatBooking = {
   id: string
   created_at: string
-  status: string
-  first_name: string
-  last_name: string
-  email: string
-  phone: string
-  city: string
-  postcode: string
-  country: string
-  children_attending: ChildEntry[]
+  status: RetreatStatus
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+  phone: string | null
+  city: string | null
+  postcode: string | null
+  country: string | null
+  children_attending: ChildPerson[] | null
+  adults_attending: AdultPerson[] | null
   accommodation_preference: string | null
   dietary_requirements: string | null
   medical_requirements: string | null
-  emergency_contact_name: string
-  emergency_contact_relationship: string
-  emergency_contact_phone: string
+  emergency_contact_name: string | null
+  emergency_contact_relationship: string | null
+  emergency_contact_phone: string | null
   heard_about_retreat: string | null
   additional_notes: string | null
-  consent_email: boolean
-  consent_whatsapp: boolean
   internal_notes: string | null
-  payment_status?: string | null
-  amount_due?: number | null
-  amount_paid?: number | null
-  stripe_payment_link?: string | null
+  amount_due: number | null
+  amount_paid: number | null
+  payment_status: string | null
+  paid_at: string | null
+  stripe_payment_link: string | null
+  stripe_payment_link_id: string | null
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  pending:   'bg-yellow-100 text-yellow-800 border-yellow-200',
-  confirmed: 'bg-green-100  text-green-800  border-green-200',
-  declined:  'bg-red-100    text-red-800    border-red-200',
-  waitlist:  'bg-blue-100   text-blue-800   border-blue-200',
+type Message = {
+  type: "success" | "error"
+  text: string
 }
 
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[status] ?? 'bg-muted text-muted-foreground border-border'}`}>
-      {status}
-    </span>
-  )
-}
-
-function BookingRow({ booking, index }: { booking: FamilyRetreatBooking; index: number }) {
-  const [expanded, setExpanded] = useState(false)
-  const [notes, setNotes] = useState(booking.internal_notes ?? '')
-  const [savingNotes, setSavingNotes] = useState(false)
-  const [isPending, startTransition] = useTransition()
-  const [confirming, setConfirming] = useState(false)
-  const [adults, setAdults] = useState('')
-  const [amount, setAmount] = useState('')
-  const [syncing, setSyncing] = useState(false)
-
-  const handleSyncPayment = async () => {
-    setSyncing(true)
-    try {
-      const res = await syncFamilyRetreatPayment(booking.id)
-      if (res.status === 'paid') toast.success(`Payment confirmed \u2014 \u00a3${res.amount} \u00b7 receipt email sent`)
-      else if (res.status === 'already_paid') toast.success('Already marked as paid')
-      else if (res.status === 'not_paid_yet') toast('No completed payment found yet')
-      else toast('No payment link on this booking')
-    } catch {
-      toast.error('Could not sync payment. Please try again.')
-    } finally {
-      setSyncing(false)
-    }
+function csvCell(value: unknown): string {
+  const raw = value == null ? "" : String(value)
+  if (raw.includes(",") || raw.includes('"') || raw.includes("\n")) {
+    return `"${raw.replace(/"/g, '""')}"`
   }
-
-  const handleStatus = (status: string) => {
-    startTransition(async () => {
-      try {
-        await updateFamilyRetreatStatus(booking.id, status)
-        toast.success(`Booking ${status}${status === 'confirmed' ? ' — confirmation email sent' : status === 'declined' ? ' — decline email sent' : ''}`)
-      } catch {
-        toast.error('Failed to update status. Please try again.')
-      }
-    })
-  }
-
-  const handleConfirm = () => {
-    startTransition(async () => {
-      try {
-        await updateFamilyRetreatStatus(booking.id, 'confirmed', { adults: adults.trim(), amount: amount.trim() })
-        toast.success('Booking confirmed \u2014 confirmation email sent')
-        setConfirming(false)
-      } catch {
-        toast.error('Failed to confirm. Please try again.')
-      }
-    })
-  }
-
-  const handleSaveNotes = async () => {
-    setSavingNotes(true)
-    try {
-      await updateFamilyRetreatNotes(booking.id, notes)
-      toast.success('Notes saved')
-    } catch {
-      toast.error('Failed to save notes')
-    } finally {
-      setSavingNotes(false)
-    }
-  }
-
-  return (
-    <>
-      <tr className={`border-b border-border transition-colors ${expanded ? 'bg-muted/20' : 'hover:bg-muted/30'}`}>
-        <td className="px-4 py-3 text-muted-foreground tabular-nums text-sm">{index + 1}</td>
-        <td className="px-4 py-3">
-          <p className="font-medium text-foreground text-sm whitespace-nowrap">{booking.first_name} {booking.last_name}</p>
-          <p className="text-xs text-muted-foreground">{booking.city}, {booking.country}</p>
-        </td>
-        <td className="px-4 py-3">
-          <a href={`mailto:${booking.email}`} className="text-blue-600 hover:underline text-sm">{booking.email}</a>
-          <p className="text-xs text-muted-foreground"><a href={`tel:${booking.phone}`} className="hover:underline">{booking.phone}</a></p>
-        </td>
-        <td className="px-4 py-3 text-sm text-foreground">
-          <span className="font-semibold">{booking.children_attending?.length ?? 0}</span>
-          {(booking.children_attending?.length ?? 0) > 0 && (
-            <p className="text-xs text-muted-foreground truncate max-w-[140px]">
-              {booking.children_attending.map(c => c.first_name).join(', ')}
-            </p>
-          )}
-        </td>
-        <td className="px-4 py-3 text-sm text-muted-foreground capitalize whitespace-nowrap">
-          {booking.accommodation_preference?.replace(/-/g, ' ') ?? '—'}
-        </td>
-        <td className="px-4 py-3">
-          <StatusBadge status={booking.status} />
-          {booking.status === 'confirmed' && (
-            <span className={`mt-1 block text-xs font-medium ${booking.payment_status === 'paid' ? 'text-green-700' : 'text-amber-600'}`}>
-              {booking.payment_status === 'paid'
-                ? `\u2713 Paid${booking.amount_paid ? ` \u00a3${booking.amount_paid}` : ''}`
-                : 'Awaiting payment'}
-            </span>
-          )}
-        </td>
-        <td className="px-4 py-3 text-xs text-muted-foreground tabular-nums whitespace-nowrap">
-          {new Date(booking.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-        </td>
-        <td className="px-4 py-3">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {booking.payment_status === 'paid' ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-                <Check className="h-3 w-3" /> Paid
-              </span>
-            ) : booking.status === 'declined' ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">
-                <X className="h-3 w-3" /> Declined
-              </span>
-            ) : (
-              <>
-                {booking.status !== 'confirmed' && (
-                  <Button size="sm" variant="outline" onClick={() => setConfirming(true)} disabled={isPending}
-                    className="h-7 px-2 text-xs text-green-700 border-green-200 hover:bg-green-50 gap-1">
-                    {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Confirm
-                  </Button>
-                )}
-                {booking.status !== 'waitlist' && (
-                  <Button size="sm" variant="outline" onClick={() => handleStatus('waitlist')} disabled={isPending}
-                    className="h-7 px-2 text-xs text-blue-700 border-blue-200 hover:bg-blue-50 gap-1">
-                    <Clock className="h-3 w-3" /> Waitlist
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    if (typeof window !== 'undefined' && window.confirm(`Decline ${booking.first_name} ${booking.last_name}'s booking? They will be emailed that they were not successful. This is a hard decline and cannot be undone from the dashboard.`)) {
-                      handleStatus('declined')
-                    }
-                  }}
-                  disabled={isPending}
-                  className="h-7 px-2 text-xs text-red-700 border-red-200 hover:bg-red-50 gap-1"
-                >
-                  <X className="h-3 w-3" /> Decline
-                </Button>
-              </>
-            )}
-            <Button size="sm" variant="ghost" onClick={() => setExpanded(!expanded)} className="h-7 px-2 text-muted-foreground">
-              {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            </Button>
-          </div>
-        </td>
-      </tr>
-
-      {confirming && (
-        <tr className="bg-green-50/40 border-b border-border">
-          <td />
-          <td colSpan={7} className="px-4 py-4">
-            <div className="flex flex-col gap-3 max-w-2xl">
-              <p className="text-sm font-medium text-foreground">
-                Confirm {booking.first_name} {booking.last_name}&apos;s booking
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Family name, number of children and accommodation are taken from the form. Enter the number of adults and the total amount agreed on the call &mdash; these are merged into the confirmation email.
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-foreground">Number of adults</label>
-                  <Input value={adults} onChange={(e) => setAdults(e.target.value)} placeholder="e.g. 2" inputMode="numeric" className="h-8 text-sm" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-foreground">Total amount agreed (&pound;)</label>
-                  <Input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="e.g. 350" inputMode="decimal" className="h-8 text-sm" />
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button size="sm" onClick={handleConfirm} disabled={isPending || !adults.trim() || !amount.trim()}
-                  className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700 text-white gap-1.5">
-                  {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Send confirmation email
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setConfirming(false)} disabled={isPending} className="h-8 px-3 text-xs">
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </td>
-        </tr>
-      )}
-
-      {expanded && (
-        <tr className="bg-muted/10 border-b border-border">
-          <td />
-          <td colSpan={7} className="px-4 py-5">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 text-sm">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Children attending</p>
-                {(booking.children_attending?.length ?? 0) === 0 ? <p className="text-muted-foreground">—</p> : (
-                  <ul className="space-y-1">
-                    {booking.children_attending.map((c, i) => (
-                      <li key={i} className="text-foreground">
-                        {c.first_name} {c.last_name}
-                        <span className="ml-2 text-xs text-muted-foreground">DOB: {new Date(c.date_of_birth).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Dietary & medical</p>
-                <p className="text-foreground mb-1"><span className="font-medium">Dietary: </span><span className="text-muted-foreground">{booking.dietary_requirements || 'None stated'}</span></p>
-                <p className="text-foreground"><span className="font-medium">Medical: </span><span className="text-muted-foreground">{booking.medical_requirements || 'None stated'}</span></p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Emergency contact</p>
-                <p className="text-foreground">{booking.emergency_contact_name}</p>
-                <p className="text-muted-foreground">{booking.emergency_contact_relationship}</p>
-                <a href={`tel:${booking.emergency_contact_phone}`} className="text-blue-600 hover:underline">{booking.emergency_contact_phone}</a>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Address</p>
-                <p className="text-foreground">{booking.city}, {booking.postcode}</p>
-                <p className="text-muted-foreground">{booking.country}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Additional info</p>
-                <p className="text-foreground mb-1"><span className="font-medium">Heard via: </span><span className="text-muted-foreground">{booking.heard_about_retreat || '—'}</span></p>
-                <p className="text-foreground"><span className="font-medium">Notes: </span><span className="text-muted-foreground">{booking.additional_notes || 'None'}</span></p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Contact consent</p>
-                <p className="text-muted-foreground">Email: {booking.consent_email ? '✓ Yes' : '✗ No'}</p>
-                <p className="text-muted-foreground">WhatsApp: {booking.consent_whatsapp ? '✓ Yes' : '✗ No'}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Payment</p>
-                <p className="text-muted-foreground">Status: <span className={booking.payment_status === 'paid' ? 'text-green-700 font-medium' : booking.status === 'confirmed' ? 'text-amber-600 font-medium' : ''}>{booking.payment_status === 'paid' ? 'Paid' : booking.status === 'confirmed' ? 'Awaiting payment' : 'Not yet invoiced'}</span></p>
-                {booking.amount_due != null && <p className="text-muted-foreground">Amount due: £{booking.amount_due}</p>}
-                {booking.amount_paid != null && <p className="text-muted-foreground">Amount paid: £{booking.amount_paid}</p>}
-                {booking.stripe_payment_link && (
-                  <a href={booking.stripe_payment_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all text-xs">Open payment link</a>
-                )}
-                {booking.status === 'confirmed' && booking.payment_status !== 'paid' && (
-                  <button onClick={handleSyncPayment} disabled={syncing} className="mt-1 block text-xs text-blue-600 hover:underline disabled:opacity-50">
-                    {syncing ? 'Checking\u2026' : 'Check / sync payment'}
-                  </button>
-                )}
-              </div>
-            </div>
-            <div className="mt-5 border-t border-border pt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Internal notes</p>
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="text-sm mb-2" placeholder="Add internal notes visible only to the team…" />
-              <Button size="sm" variant="outline" onClick={handleSaveNotes} disabled={savingNotes} className="h-7 px-3 text-xs">
-                {savingNotes ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Saving…</> : 'Save notes'}
-              </Button>
-            </div>
-          </td>
-        </tr>
-      )}
-    </>
-  )
+  return raw
 }
 
-function csvCell(v: unknown): string {
-  const s = v == null ? '' : String(v)
-  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+function formatMoney(value: number | null | undefined) {
+  if (value == null || Number.isNaN(Number(value))) return "-"
+  return `£${Number(value).toFixed(2)}`
 }
 
-function bookingsToCsv(bookings: FamilyRetreatBooking[]): string {
+function statusPill(status: string) {
+  switch (status) {
+    case "confirmed":
+      return "bg-green-100 text-green-800"
+    case "declined":
+      return "bg-red-100 text-red-800"
+    case "waitlisted":
+      return "bg-blue-100 text-blue-800"
+    case "archived":
+      return "bg-slate-100 text-slate-700"
+    default:
+      return "bg-amber-100 text-amber-800"
+  }
+}
+
+function paymentPill(paymentStatus: string | null) {
+  if (paymentStatus === "paid") return "bg-emerald-100 text-emerald-800"
+  return "bg-orange-100 text-orange-800"
+}
+
+function toCsv(bookings: FamilyRetreatBooking[]): string {
   const headers = [
-    'Booking #', 'Submitted', 'Status',
-    'First name', 'Last name', 'Email', 'Phone',
-    'City', 'Postcode', 'Country',
-    'Children count', 'Children (name + DOB)',
-    'Accommodation preference', 'Dietary requirements', 'Medical requirements',
-    'Emergency contact name', 'Emergency contact relationship', 'Emergency contact phone',
-    'Heard about retreat', 'Additional notes',
-    'Consent email', 'Consent WhatsApp', 'Internal notes',
+    "id", "created_at", "status", "payment_status", "first_name", "last_name", "email", "phone", "city", "postcode", "country",
+    "adults_count", "children_count", "amount_due", "amount_paid", "paid_at", "internal_notes",
   ]
-  const rows = bookings.map((b, i) => [
-    i + 1,
-    b.created_at ? new Date(b.created_at).toLocaleString('en-GB') : '',
-    b.status,
-    b.first_name, b.last_name, b.email, b.phone,
-    b.city, b.postcode, b.country,
-    b.children_attending?.length ?? 0,
-    (b.children_attending ?? []).map(c => `${c.first_name} ${c.last_name} (DOB ${c.date_of_birth})`).join('; '),
-    b.accommodation_preference ?? '',
-    b.dietary_requirements ?? '',
-    b.medical_requirements ?? '',
-    b.emergency_contact_name, b.emergency_contact_relationship, b.emergency_contact_phone,
-    b.heard_about_retreat ?? '',
-    b.additional_notes ?? '',
-    b.consent_email ? 'Yes' : 'No',
-    b.consent_whatsapp ? 'Yes' : 'No',
-    b.internal_notes ?? '',
-  ])
-  return [headers, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n')
+
+  const rows = bookings.map((booking) => {
+    const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
+    const childrenCount = Array.isArray(booking.children_attending) ? booking.children_attending.length : 0
+    return [
+      booking.id,
+      booking.created_at,
+      booking.status,
+      booking.payment_status || "",
+      booking.first_name || "",
+      booking.last_name || "",
+      booking.email || "",
+      booking.phone || "",
+      booking.city || "",
+      booking.postcode || "",
+      booking.country || "",
+      adultsCount,
+      childrenCount,
+      booking.amount_due ?? "",
+      booking.amount_paid ?? "",
+      booking.paid_at || "",
+      booking.internal_notes || "",
+    ].map(csvCell).join(",")
+  })
+
+  return "\uFEFF" + [headers.join(","), ...rows].join("\n")
 }
 
-function downloadBookingsCsv(bookings: FamilyRetreatBooking[]) {
-  const csv = '\uFEFF' + bookingsToCsv(bookings)
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+function downloadCsv(bookings: FamilyRetreatBooking[]) {
+  const blob = new Blob([toCsv(bookings)], { type: "text/csv;charset=utf-8;" })
   const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
+  const a = document.createElement("a")
   a.href = url
-  a.download = `family-retreat-bookings-${new Date().toISOString().slice(0, 10)}.csv`
-  document.body.appendChild(a)
+  a.download = `family-retreat-bookings-${format(new Date(), "yyyy-MM-dd")}.csv`
   a.click()
-  document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
 
 export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetreatBooking[] }) {
-  const pending   = bookings.filter(b => b.status === 'pending').length
-  const confirmed = bookings.filter(b => b.status === 'confirmed').length
-  const waitlist  = bookings.filter(b => b.status === 'waitlist').length
-  const totalChildren = bookings.reduce((s, b) => s + (b.children_attending?.length ?? 0), 0)
+  const [isPending, startTransition] = useTransition()
+
+  const [search, setSearch] = useState("")
+  const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("all")
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [sortMode, setSortMode] = useState<SortMode>("newest")
+
+  // Guardrail: keep one inline panel open at a time to prevent overlapping controls.
+  const [activeConfirmRow, setActiveConfirmRow] = useState<string | null>(null)
+  const [activeAdditionalRow, setActiveAdditionalRow] = useState<string | null>(null)
+
+  const [confirmAdults, setConfirmAdults] = useState<Record<string, string>>({})
+  const [confirmAmount, setConfirmAmount] = useState<Record<string, string>>({})
+  const [extraAmount, setExtraAmount] = useState<Record<string, string>>({})
+  const [extraReason, setExtraReason] = useState<Record<string, string>>({})
+
+  const [messages, setMessages] = useState<Record<string, Message>>({})
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase()
+    const list = bookings.filter((booking) => {
+      if (paymentFilter === "paid" && booking.payment_status !== "paid") return false
+      if (paymentFilter === "unpaid" && booking.payment_status === "paid") return false
+      if (statusFilter !== "all" && booking.status !== statusFilter) return false
+
+      if (!term) return true
+      const haystack = [booking.first_name, booking.last_name, booking.email, booking.phone, booking.city, booking.postcode]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+      return haystack.includes(term)
+    })
+
+    return list.sort((a, b) => {
+      switch (sortMode) {
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        case "paid_first":
+          return Number(b.payment_status === "paid") - Number(a.payment_status === "paid")
+        case "unpaid_first":
+          return Number(a.payment_status === "paid") - Number(b.payment_status === "paid")
+        case "name_az":
+          return `${a.first_name || ""} ${a.last_name || ""}`.localeCompare(`${b.first_name || ""} ${b.last_name || ""}`)
+        case "name_za":
+          return `${b.first_name || ""} ${b.last_name || ""}`.localeCompare(`${a.first_name || ""} ${a.last_name || ""}`)
+        case "amount_high":
+          return Number(b.amount_due || 0) - Number(a.amount_due || 0)
+        case "amount_low":
+          return Number(a.amount_due || 0) - Number(b.amount_due || 0)
+        case "newest":
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
+    })
+  }, [bookings, paymentFilter, statusFilter, search, sortMode])
+
+  const paidCount = bookings.filter((booking) => booking.payment_status === "paid").length
+  const unpaidCount = bookings.length - paidCount
+
+  function setRowMessage(id: string, message: Message) {
+    setMessages((current) => ({ ...current, [id]: message }))
+  }
+
+  function run(id: string, action: () => Promise<void>, successText: string) {
+    startTransition(async () => {
+      try {
+        await action()
+        setRowMessage(id, { type: "success", text: successText })
+      } catch (error) {
+        setRowMessage(id, {
+          type: "error",
+          text: error instanceof Error ? error.message : "Something went wrong.",
+        })
+      }
+    })
+  }
+
+  function handleConfirm(booking: FamilyRetreatBooking) {
+    const amountValue = Number(confirmAmount[booking.id] || "0")
+    const adultsValue = Number(confirmAdults[booking.id] || "0")
+
+    if (!Number.isFinite(amountValue) || amountValue <= 0) {
+      setRowMessage(booking.id, { type: "error", text: "Enter a valid amount before confirming." })
+      return
+    }
+
+    run(
+      booking.id,
+      async () => {
+        await updateFamilyRetreatStatus(booking.id, "confirmed", {
+          amount: amountValue,
+          adults: Number.isFinite(adultsValue) && adultsValue > 0 ? adultsValue : undefined,
+        })
+        setActiveConfirmRow(null)
+      },
+      "Application confirmed. Payment link and email sent.",
+    )
+  }
+
+  function handleWaitlist(booking: FamilyRetreatBooking) {
+    run(booking.id, () => updateFamilyRetreatStatus(booking.id, "waitlisted"), "Application waitlisted.")
+  }
+
+  function handleDecline(booking: FamilyRetreatBooking) {
+    if (!window.confirm(`Hard decline ${booking.first_name || "this applicant"}?`)) return
+    run(booking.id, () => updateFamilyRetreatStatus(booking.id, "declined"), "Application declined and applicant notified.")
+  }
+
+  function handleSyncPayment(booking: FamilyRetreatBooking) {
+    startTransition(async () => {
+      try {
+        const result = await syncFamilyRetreatPayment(booking.id)
+        setRowMessage(
+          booking.id,
+          result.paid
+            ? { type: "success", text: "Payment synced successfully." }
+            : { type: "error", text: "No paid Stripe session found yet." },
+        )
+      } catch (error) {
+        setRowMessage(booking.id, { type: "error", text: error instanceof Error ? error.message : "Payment sync failed." })
+      }
+    })
+  }
+
+  function handleAdditionalCharge(booking: FamilyRetreatBooking) {
+    const amountValue = Number(extraAmount[booking.id] || "0")
+    const noteValue = (extraReason[booking.id] || "").trim()
+
+    if (!Number.isFinite(amountValue) || amountValue <= 0) {
+      setRowMessage(booking.id, { type: "error", text: "Enter a valid additional amount." })
+      return
+    }
+    if (noteValue.length < 10) {
+      setRowMessage(booking.id, { type: "error", text: "Add a clear reference note (10+ characters)." })
+      return
+    }
+
+    run(
+      booking.id,
+      async () => {
+        await sendFamilyRetreatAdditionalCharge(booking.id, { amount: amountValue, referenceNote: noteValue })
+        setActiveAdditionalRow(null)
+      },
+      "Additional payment link and reference email sent.",
+    )
+  }
+
+  function handleArchive(booking: FamilyRetreatBooking) {
+    if (!window.confirm("Archive this application?")) return
+    run(booking.id, () => removeFamilyRetreatBooking(booking.id, "archive"), "Application archived.")
+  }
+
+  function handleDelete(booking: FamilyRetreatBooking) {
+    if (!window.confirm("Delete this application permanently? This cannot be undone.")) return
+    run(booking.id, () => removeFamilyRetreatBooking(booking.id, "delete"), "Application deleted.")
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          {bookings.length} booking{bookings.length === 1 ? '' : 's'} total
-        </p>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => downloadBookingsCsv(bookings)}
-          disabled={bookings.length === 0}
-          className="gap-1.5"
-        >
-          <Download className="h-4 w-4" /> Export CSV
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-4 text-sm">
+          <span><strong>{bookings.length}</strong> total</span>
+          <span className="text-emerald-700"><strong>{paidCount}</strong> paid</span>
+          <span className="text-orange-700"><strong>{unpaidCount}</strong> unpaid</span>
+        </div>
+        <Button size="sm" variant="outline" onClick={() => downloadCsv(filtered)}>
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
         </Button>
       </div>
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
-        {[
-          { label: 'Total',     value: bookings.length, cls: '', icon: Users,        iconCls: 'text-muted-foreground' },
-          { label: 'Pending',   value: pending,   cls: 'text-yellow-700', icon: Clock,        iconCls: 'text-yellow-600' },
-          { label: 'Confirmed', value: confirmed, cls: 'text-green-700',  icon: CheckCircle2, iconCls: 'text-green-600' },
-          { label: 'Waitlist',  value: waitlist,  cls: 'text-blue-700',   icon: ListChecks,   iconCls: 'text-blue-600' },
-          { label: 'Children',  value: totalChildren, cls: '', icon: Baby,         iconCls: 'text-muted-foreground' },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-            <div className="mb-1 flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">{s.label}</p>
-              <s.icon className={`h-4 w-4 ${s.iconCls}`} />
-            </div>
-            <p className={`text-2xl font-bold text-foreground ${s.cls}`}>{s.value}</p>
-          </div>
-        ))}
-      </div>
-      {bookings.length === 0 ? (
-        <div className="rounded-xl border border-border p-12 text-center text-sm text-muted-foreground">No booking requests yet.</div>
-      ) : (
-        <div className="rounded-xl border border-border overflow-x-auto">
-          <table className="w-full text-sm min-w-[900px]">
-            <thead>
-              <tr className="bg-muted/50 text-left border-b border-border">
-                <th className="px-4 py-3 font-semibold text-foreground">#</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Family</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Contact</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Children</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Accommodation</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Status</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Submitted</th>
-                <th className="px-4 py-3 font-semibold text-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((b, i) => <BookingRow key={b.id} booking={b} index={i} />)}
-            </tbody>
-          </table>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div className="relative">
+          <Search className="h-4 w-4 absolute left-3 top-3 text-muted-foreground" />
+          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name/email/phone" className="pl-9" />
         </div>
-      )}
+
+        <Select value={paymentFilter} onValueChange={(value) => setPaymentFilter(value as PaymentFilter)}>
+          <SelectTrigger><SelectValue placeholder="Payment filter" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Payment: all</SelectItem>
+            <SelectItem value="paid">Payment: paid only</SelectItem>
+            <SelectItem value="unpaid">Payment: unpaid only</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
+          <SelectTrigger><SelectValue placeholder="Status filter" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Status: all</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="confirmed">Confirmed</SelectItem>
+            <SelectItem value="waitlisted">Waitlisted</SelectItem>
+            <SelectItem value="declined">Declined</SelectItem>
+            <SelectItem value="archived">Archived</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortMode} onValueChange={(value) => setSortMode(value as SortMode)}>
+          <SelectTrigger><SelectValue placeholder="Sort" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Sort: newest first</SelectItem>
+            <SelectItem value="oldest">Sort: oldest first</SelectItem>
+            <SelectItem value="paid_first">Sort: paid first</SelectItem>
+            <SelectItem value="unpaid_first">Sort: unpaid first</SelectItem>
+            <SelectItem value="name_az">Sort: name A-Z</SelectItem>
+            <SelectItem value="name_za">Sort: name Z-A</SelectItem>
+            <SelectItem value="amount_high">Sort: amount high-low</SelectItem>
+            <SelectItem value="amount_low">Sort: amount low-high</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="rounded-lg border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Applicant</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Payment</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead className="w-[420px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-12">No applications found for current filters.</TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((booking) => {
+                  const childrenCount = Array.isArray(booking.children_attending) ? booking.children_attending.length : 0
+                  const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
+                  const rowMessage = messages[booking.id]
+
+                  return (
+                    <Fragment key={booking.id}>
+                      <TableRow>
+                        <TableCell>
+                          <div className="font-medium">{booking.first_name || ""} {booking.last_name || ""}</div>
+                          <div className="text-xs text-muted-foreground">{booking.email || "-"}</div>
+                          <div className="text-xs text-muted-foreground">{booking.phone || "-"}</div>
+                          <div className="text-xs text-muted-foreground mt-1">Adults: {adultsCount} | Children: {childrenCount}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div>{booking.city || "-"}</div>
+                          <div className="text-xs text-muted-foreground">{booking.postcode || ""} {booking.country || ""}</div>
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusPill(booking.status)}`}>{booking.status}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${paymentPill(booking.payment_status)}`}>{booking.payment_status || "unpaid"}</span>
+                          <div className="text-xs text-muted-foreground mt-1">Due: {formatMoney(booking.amount_due)}</div>
+                          <div className="text-xs text-muted-foreground">Paid: {formatMoney(booking.amount_paid)}</div>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{format(new Date(booking.created_at), "dd MMM yyyy, HH:mm")}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-2">
+                            {booking.payment_status === "paid" ? (
+                              <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-medium">Paid</span>
+                            ) : (
+                              <>
+                                <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>
+                                  <CheckCircle className="h-3.5 w-3.5 mr-1" />Confirm
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={() => handleWaitlist(booking)} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>Waitlist</Button>
+                                <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDecline(booking)} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>
+                                  <XCircle className="h-3.5 w-3.5 mr-1" />Decline
+                                </Button>
+                              </>
+                            )}
+                            <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check payment</Button>
+                            <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>
+                            <Button size="sm" variant="outline" onClick={() => handleArchive(booking)} disabled={isPending}><Archive className="h-3.5 w-3.5 mr-1" />Archive</Button>
+                            <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDelete(booking)} disabled={isPending}><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+
+                      {activeConfirmRow === booking.id && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="bg-emerald-50/60">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                              <div>
+                                <p className="text-xs mb-1 text-muted-foreground">Adults attending</p>
+                                <Input type="number" min="1" value={confirmAdults[booking.id] ?? ""} onChange={(event) => setConfirmAdults((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="e.g. 2" />
+                              </div>
+                              <div>
+                                <p className="text-xs mb-1 text-muted-foreground">Amount due now (£)</p>
+                                <Input type="number" min="1" step="0.01" value={confirmAmount[booking.id] ?? ""} onChange={(event) => setConfirmAmount((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="e.g. 140" />
+                              </div>
+                              <div className="flex gap-2">
+                                <Button onClick={() => handleConfirm(booking)} disabled={isPending}>Send confirmation</Button>
+                                <Button variant="ghost" onClick={() => setActiveConfirmRow(null)} disabled={isPending}>Cancel</Button>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+
+                      {activeAdditionalRow === booking.id && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="bg-blue-50/60">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-start">
+                              <div>
+                                <p className="text-xs mb-1 text-muted-foreground">Additional amount (£)</p>
+                                <Input type="number" min="1" step="0.01" value={extraAmount[booking.id] ?? ""} onChange={(event) => setExtraAmount((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="e.g. 40" />
+                              </div>
+                              <div className="md:col-span-2">
+                                <p className="text-xs mb-1 text-muted-foreground">Reference note (required)</p>
+                                <Textarea value={extraReason[booking.id] ?? ""} onChange={(event) => setExtraReason((current) => ({ ...current, [booking.id]: event.target.value }))} placeholder="Why these additional charges apply, what was paid earlier, and what is due now." rows={3} />
+                              </div>
+                              <div className="flex gap-2 pt-6">
+                                <Button onClick={() => handleAdditionalCharge(booking)} disabled={isPending}>Send link + email</Button>
+                                <Button variant="ghost" onClick={() => setActiveAdditionalRow(null)} disabled={isPending}>Cancel</Button>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+
+                      {rowMessage && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="py-2">
+                            <p className={`text-xs font-medium ${rowMessage.type === "success" ? "text-emerald-700" : "text-red-700"}`}>{rowMessage.text}</p>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </Fragment>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   )
 }
