@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devanhaar.vercel.app/sitemap.xml

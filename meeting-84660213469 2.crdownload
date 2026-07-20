@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+PRODID:-//zoom.us//iCalendar Event//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+CLASS:PUBLIC
+BEGIN:VTIMEZONE
+TZID:Asia/Kolkata
+LAST-MODIFIED:20260306T231828Z
+TZURL:https://www.tzurl.org/zoneinfo-outlook/Asia/Kolkata
+X-LIC-LOCATION:Asia/Kolkata
+BEGIN:STANDARD
+TZNAME:IST
+TZOFFSETFROM:+0530
+TZOFFSETTO:+0530
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTAMP:20260711T100536Z
+DTSTART;TZID=Asia/Kolkata:20260711T090000
+DTEND;TZID=Asia/Kolkata:20260711T103000
+SUMMARY:Advance Excel
+UID:EVENTOCzK04efS7WbolmWalIIYA@zoom.us
+DESCRIPTION:Piyush Nar is inviting you to a scheduled Zoom meeting.\nJoin
+  Zoom Meeting\nhttps://us06web.zoom.us/j/84660213469?pwd=RKLdTmIAvirdscF
+ TdbaIYRhlJnSLxO.1\n\nMeeting ID: 846 6021 3469\nPasscode: 071526\n\n---\
+ n\nOne tap mobile\n+12532050468\,\,84660213469#\,\,\,\,*071526# US\n+125
+ 32158782\,\,84660213469#\,\,\,\,*071526# US (Tacoma)\n\n\n---\n\nJoin by
+  SIP\n• 84660213469@zoomcrc.com\n\nJoin instructions\nhttps://us06web.zo
+ om.us/meetings/84660213469/invitations?signature=QN3TxxVKkG23LllFH_HhYgE
+ vC3H2rARnyittgUVZUoQ\n\n
+TZID:Asia/Kolkata
+LOCATION:https://us06web.zoom.us/j/84660213469?pwd=RKLdTmIAvirdscFTdbaIYR
+ hlJnSLxO.1
+RRULE:FREQ=DAILY;INTERVAL=1
+BEGIN:VALARM
+TRIGGER:-PT10M
+ACTION:DISPLAY
+DESCRIPTION:Reminder
+END:VALARM
+END:VEVENT
+END:VCALENDAR

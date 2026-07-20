@@ -1,0 +1,34 @@
+import { createClient } from "@/lib/supabase/server"
+import { VacanciesClient } from "@/components/dashboard/vacancies-client"
+
+async function getVacanciesData() {
+  const supabase = await createClient()
+
+  const [{ data: vacancies }, { data: applications }, { data: initiatives }, { data: messages }] = await Promise.all([
+    supabase.from("vacancies").select("*, initiatives(name)").order("created_at", { ascending: false }).limit(1000),
+    supabase.from("vacancy_applications").select("*, vacancies(title)").order("created_at", { ascending: false }).limit(2000),
+    supabase.from("initiatives").select("id, name").eq("is_active", true).order("sort_order"),
+    supabase.from("vacancy_messages").select("*").order("created_at", { ascending: true }).limit(5000),
+  ])
+
+  return {
+    vacancies: vacancies ?? [],
+    applications: applications ?? [],
+    initiatives: initiatives ?? [],
+    messages: messages ?? [],
+  }
+}
+
+export default async function VacanciesPage() {
+  const data = await getVacanciesData()
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Vacancies & Applications</h1>
+        <p className="text-muted-foreground">Manage volunteer and job openings</p>
+      </div>
+      <VacanciesClient {...data} />
+    </div>
+  )
+}

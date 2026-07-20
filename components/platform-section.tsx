@@ -1,0 +1,150 @@
+import Link from "next/link"
+import { Users, Heart, Globe, BookOpen, GraduationCap, School, Shield } from "lucide-react"
+
+const initiatives = [
+  {
+    title: "Singhs Camps",
+    description:
+      "The first UK & Europe retreats exclusively for Male Adult Sikhs at any stage of their spiritual journey.",
+    icon: <Users className="w-5 h-5" />,
+    href: "/initiatives/singhs-camp",
+  },
+  {
+    title: "Kaurs Camps",
+    description:
+      "An everlasting sisterhood, grounded in a yearly retreat, with the aim of connecting sangat to spiritual growth, shared learning, and a supportive community.",
+    icon: <Heart className="w-5 h-5" />,
+    href: "/initiatives/kaurs-camp",
+  },
+  {
+    title: "Kids Camps",
+    description:
+      "Bespoke camps around the UK that are tailored to engage with youth in an interactive, fun and memorable way.",
+    icon: <Globe className="w-5 h-5" />,
+    href: "/initiatives/kids-camps",
+  },
+  {
+    title: "Sikhi Vidyala",
+    description:
+      "An educational institution providing knowledge on Sikh history, philosophy and teachings. Originally started by Bhai Jagraj Singh.",
+    icon: <BookOpen className="w-5 h-5" />,
+    href: "/initiatives/sikhi-vidyala",
+  },  {
+    title: "University Projects",
+    description:
+      "Uni Talk Series crisscrossing the UK, delving into 'The Essence of Sikhi' and supporting Sikh students at a defining time.",
+    icon: <GraduationCap className="w-5 h-5" />,
+    href: "/initiatives/university-projects",
+  },
+  {
+    title: "Gurmat Academy",
+    description:
+      "A space for young students to develop their Sikhi through Gurbani Santhiya, Ithihaas, philosophy and Seva.",
+    icon: <School className="w-5 h-5" />,
+    href: "/initiatives/gurmat-academy",
+  },
+  {
+    title: "Self Defence Academy",
+    description:
+      "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
+    icon: <Shield className="w-5 h-5" />,
+    href: "/initiatives/self-defence-academy",
+  },
+  {
+    title: "Sikh Professional Network",
+    description:
+      "A platform connecting Sikh professionals across industries for mentorship, career development, and collaborative growth.",
+    icon: <Users className="w-5 h-5" />,
+    href: "/initiatives/sikh-professional-network",
+  },
+]
+
+export function PlatformSection() {
+  return (
+    <section id="initiatives" className="pt-0 pb-16 md:pt-0 md:pb-32 bg-background">
+      <div className="container mx-auto px-6 lg:px-12">
+        <div data-animate className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-start">
+          {/* Left: Dark card - STICKY */}
+          <div className="lg:col-span-5 self-start lg:sticky lg:top-28">
+            <div className="relative rounded-2xl overflow-hidden bg-[#1a1d2e] text-white min-h-[24rem] md:min-h-[32rem] flex flex-col justify-between">
+              {/* Background image overlay */}
+              <div className="absolute inset-0">
+                <img
+                  src="https://api.dicebear.com/9.x/shapes/svg?seed=devanhaar-initiatives&backgroundColor=d1d4f9,ffd5dc,ffdfbf"
+                  alt="Sikh community gathering"
+                  className="absolute inset-0 w-full h-full object-cover opacity-20"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1d2e] via-[#1a1d2e]/90 to-[#1a1d2e]/70" />
+              </div>
+
+              <div className="relative z-10 p-8 md:p-10 flex flex-col h-full justify-between">
+                <div>
+                  <span className="inline-block text-[11px] font-bold tracking-[0.15em] text-primary/80 uppercase mb-4 border border-primary/30 rounded-full px-3 py-1">
+                    OUR APPROACH TO GROWTH
+                  </span>
+                  <h3 className="text-3xl md:text-4xl font-bold leading-[1.15] mb-4">
+                    Devanhaar Projects
+                  </h3>
+                  <p className="text-white/60 text-[15px] leading-relaxed max-w-md">
+                    Devanhaar is dedicated to inspiring individuals on their
+                    spiritual journey. We take a holistic approach to engage
+                    members at every stage of life, offering guidance, learning
+                    opportunities, and community support to nurture personal
+                    growth, development, and connection to Sikh values.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-8">
+                  {["Camps", "Education", "Leadership", "Community", "Youth", "Parchaar"].map(
+                    (tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs text-white/50 border border-white/15 rounded-full px-3 py-1.5"
+                      >
+                        {tag}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Scrolling initiative list */}
+          <div className="lg:col-span-7">
+            <div className="divide-y divide-border/60">
+              {initiatives.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="group flex items-start gap-4 md:gap-5 py-6 md:py-10 first:pt-0 last:pb-0 hover:opacity-80 transition-opacity"
+                >
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mt-1">
+                    {item.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      {item.title}
+                    </h4>
+                    <p className="text-foreground/55 text-[15px] leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                  <svg
+                    className="w-5 h-5 text-foreground/20 group-hover:text-primary mt-2 flex-shrink-0 transition-all group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
