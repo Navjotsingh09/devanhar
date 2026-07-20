@@ -58,36 +58,32 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
   let paymentLink: string | null = null
 
   try {
-    const response = await fetch("https://api.nowdonate.com/v2/checkouts/links", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${nowDonateApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        checkout_id: Number(checkoutId),
-        amount: Math.round(amount * 100),
-        currency: "GBP",
-        custom: id,
-        redirect_uri: "https://devanhaar.com/initiatives/roots-residential?paid=1",
-        cancel_uri: "https://devanhaar.com/initiatives/roots-residential#booking-form",
-        supporter: {
-          email: booking.parent_email,
-          first_name: booking.parent_first_name,
-          last_name: booking.parent_last_name,
-        },
-      }),
+    const params = new URLSearchParams({
+      key: nowDonateApiKey,
+      currency: "GBP",
+      amount: String(amount),
+      repeat: "o",
+      giftaid: "false",
+      checkout_id: checkoutId,
+      reference: id,
+      comment: "Roots Residential booking for " + booking.camper_first_name + " " + booking.camper_last_name,
+      success_url: "https://devanhaar.com/initiatives/roots-residential?paid=1",
+      cancel_url: "https://devanhaar.com/initiatives/roots-residential#booking-form",
     })
+
+    const response = await fetch(
+      "https://www.donationmanager.co.uk/services/api/checkout/?" + params.toString()
+    )
 
     const data = await response.json().catch(() => null)
     paymentLink = data?.url || data?.checkout_url || data?.payment_url || null
 
-    if (!response.ok || !paymentLink) {
-      console.error("[roots/confirm] NowDonate link error:", data)
+    if (data?.status !== "success" || !paymentLink) {
+      console.error("[roots/confirm] DonationManager link error:", data)
       throw new Error("Failed to create NowDonate payment link")
     }
   } catch (err) {
-    console.error("[roots/confirm] NowDonate link error:", err)
+    console.error("[roots/confirm] DonationManager link error:", err)
     throw new Error("Could not create payment link")
   }
 
