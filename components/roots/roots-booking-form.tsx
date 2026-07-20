@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, X } from "lucide-react"
 
 type FormData = {
   camper_first_name: string
@@ -14,7 +14,6 @@ type FormData = {
   parent_relationship: string
   parent_email: string
   parent_phone: string
-  accommodation_preference: string
   dietary_requirements: string
   medical_info: string
   emergency_name: string
@@ -29,7 +28,7 @@ const EMPTY: FormData = {
   camper_first_name: "", camper_last_name: "", camper_dob: "", camper_gender: "",
   parent_first_name: "", parent_last_name: "", parent_relationship: "",
   parent_email: "", parent_phone: "",
-  accommodation_preference: "", dietary_requirements: "", medical_info: "",
+  dietary_requirements: "", medical_info: "",
   emergency_name: "", emergency_relationship: "", emergency_phone: "",
   how_did_you_hear: "", additional_info: "",
   privacy_agreed: false,
@@ -72,12 +71,6 @@ export function RootsBookingForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const resetForm = () => {
-    setForm(EMPTY)
-    setSubmitted(false)
-    setError(null)
-  }
 
   const set = (key: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -127,30 +120,37 @@ export function RootsBookingForm() {
     }
   }
 
-  if (submitted) {
-    return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-8 md:p-10 text-center">
-        <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-green-900 mb-3">Booking request received</h3>
-        <p className="text-sm text-green-800 leading-relaxed max-w-md mx-auto mb-6">
-          Thank you for submitting your booking request. A member of the Roots team will be in touch with you shortly to discuss availability, costs and next steps. Please check your inbox for a confirmation email.
-        </p>
-
-        <button
-          onClick={resetForm}
-          className="inline-flex items-center justify-center rounded-full px-7 py-2.5 text-sm font-medium bg-green-700 hover:bg-green-800 text-white transition-colors"
-        >
-          Submit another booking
-        </button>
-      </div>
-    )
-  }
-
   return (
+    <>
+      {/* Success overlay */}
+      {submitted && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setSubmitted(false)}
+        >
+          <div
+            className="relative rounded-2xl border border-green-200 bg-white p-10 md:p-14 text-center max-w-md mx-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSubmitted(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <CheckCircle className="h-14 w-14 text-green-600 mx-auto mb-5" />
+            <h3 className="text-2xl font-bold text-green-900 mb-3">Booking request received</h3>
+            <p className="text-sm text-green-800 leading-relaxed">
+              Thank you for submitting your booking request. A member of the Roots team will be in touch with you shortly to discuss availability, costs and next steps. Please check your inbox for a confirmation email.
+            </p>
+          </div>
+        </div>
+      )}
     <form onSubmit={handleSubmit} className="space-y-10" noValidate>
-      {/* Camper details */}
+      {/* Participant details */}
       <div>
-        <SectionHeading>Camper details</SectionHeading>
+        <SectionHeading>Participant details</SectionHeading>
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="First name" required>
             <input className={inputCls} value={form.camper_first_name} onChange={set("camper_first_name")} placeholder="First name" />
@@ -182,7 +182,7 @@ export function RootsBookingForm() {
           <Field label="Last name" required>
             <input className={inputCls} value={form.parent_last_name} onChange={set("parent_last_name")} placeholder="Last name" />
           </Field>
-          <Field label="Relationship to camper" required>
+          <Field label="Relationship to participant" required>
             <select className={selectCls} value={form.parent_relationship} onChange={set("parent_relationship")}>
               <option value="">Select relationship</option>
               <option value="Parent">Parent</option>
@@ -200,30 +200,15 @@ export function RootsBookingForm() {
         </div>
       </div>
 
-      {/* Accommodation */}
-      <div>
-        <SectionHeading>Accommodation preference</SectionHeading>
-        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-          Accommodation will be allocated by the Roots team based on availability. Specific accommodation cannot be guaranteed unless confirmed directly.
-        </p>
-        <Field label="Preference">
-          <select className={selectCls} value={form.accommodation_preference} onChange={set("accommodation_preference")}>
-            <option value="">No preference</option>
-            <option value="standard">Standard accommodation</option>
-            <option value="ensuite">Ensuite accommodation (if available)</option>
-          </select>
-        </Field>
-      </div>
-
-      {/* Dietary and medical */}
+            {/* Dietary and medical */}
       <div>
         <SectionHeading>Dietary and medical information</SectionHeading>
         <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-          Please include any relevant information for your camper. Leave blank if none apply.
+          Please include any relevant information for the participant. Leave blank if none apply.
         </p>
         <div className="grid gap-5">
           <Field label="Dietary requirements">
-            <textarea className={textareaCls} rows={3} value={form.dietary_requirements} onChange={set("dietary_requirements")} placeholder="e.g. vegetarian, vegan, nut allergy, halal..." />
+            <textarea className={textareaCls} rows={3} value={form.dietary_requirements} onChange={set("dietary_requirements")} placeholder="Please list any dietary requirements..." />
           </Field>
           <Field label="Medical / health information">
             <textarea className={textareaCls} rows={3} value={form.medical_info} onChange={set("medical_info")} placeholder="e.g. asthma, medication, physical restrictions..." />
@@ -241,7 +226,7 @@ export function RootsBookingForm() {
           <Field label="Full name" required>
             <input className={inputCls} value={form.emergency_name} onChange={set("emergency_name")} placeholder="Full name" />
           </Field>
-          <Field label="Relationship to camper" required>
+          <Field label="Relationship to participant" required>
             <input className={inputCls} value={form.emergency_relationship} onChange={set("emergency_relationship")} placeholder="e.g. parent, aunt..." />
           </Field>
           <Field label="Phone number" required>
@@ -266,8 +251,8 @@ export function RootsBookingForm() {
               <option value="Other">Other</option>
             </select>
           </Field>
-          <Field label="Anything else that will help us support your camper">
-            <textarea className={textareaCls} rows={4} value={form.additional_info} onChange={set("additional_info")} placeholder="Any other information that would help the Roots team support your camper during the residential..." />
+          <Field label="Anything else that will help us support the participant">
+            <textarea className={textareaCls} rows={4} value={form.additional_info} onChange={set("additional_info")} placeholder="Any other information that would help the Roots team support the participant during the residential..." />
           </Field>
         </div>
       </div>
@@ -305,9 +290,10 @@ export function RootsBookingForm() {
           {submitting ? "Submitting..." : "Submit booking request"}
         </Button>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Submitting this form does not automatically confirm your camper&apos;s place. The Roots team will review your details and contact you directly.
+          Submitting this form does not automatically confirm your place. The Roots team will review your details and contact you directly.
         </p>
       </div>
     </form>
+    </>
   )
 }
