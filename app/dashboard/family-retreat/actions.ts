@@ -388,19 +388,21 @@ export async function updateFamilyRetreatStatus(
   revalidatePath("/dashboard/family-retreat")
 }
 
-export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: boolean }> {
+export async function syncFamilyRetreatPayment(
+  id: string,
+): Promise<{ paid: boolean; mode: "already_paid" | "nowdonate_webhook" | "stripe_sync" | "unavailable" }> {
   const booking = await getBooking(id)
   if (booking.payment_status === "paid") {
     revalidatePath("/dashboard/family-retreat")
-    return { paid: true }
+    return { paid: true, mode: "already_paid" }
   }
 
   if (booking.nowdonate_payment_url && !booking.stripe_payment_link_id) {
-    return { paid: false }
+    return { paid: false, mode: "stripe_sync" }
   }
 
   if (!booking.stripe_payment_link_id || !process.env.STRIPE_SECRET_KEY) {
-    return { paid: false }
+    return { paid: false, mode: "stripe_sync" }
   }
 
   const supabase = getSupabaseAdmin()
@@ -417,7 +419,7 @@ export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: bool
       (session) => session.payment_status === "paid" && session.status === "complete",
     )
 
-    if (!paidSession) return { paid: false }
+    if (!paidSession) return { paid: false, mode: "stripe_sync" }
 
     const amountPaid = (paidSession.amount_total ?? 0) / 100
     const { error } = await supabase
@@ -439,10 +441,10 @@ export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: bool
     })
 
     revalidatePath("/dashboard/family-retreat")
-    return { paid: true }
+    return { paid: true, mode: "stripe_sync" }
   } catch (error) {
     console.error("[family-retreat] sync payment failed", error)
-    return { paid: false }
+    return { paid: false, mode: "stripe_sync" }
   }
 }
 

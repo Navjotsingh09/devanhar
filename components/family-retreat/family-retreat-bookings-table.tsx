@@ -338,11 +338,18 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
     startTransition(async () => {
       try {
         const result = await syncFamilyRetreatPayment(booking.id)
+        const noPaymentFoundMessage =
+          result.mode === "nowdonate_webhook"
+            ? "This booking uses NowDonate. Payment status updates automatically from webhook events."
+            : result.mode === "unavailable"
+              ? "No payment sync source is available for this booking yet."
+              : "No paid Stripe session found yet."
+
         setRowMessage(
           booking.id,
           result.paid
             ? { type: "success", text: "Payment synced successfully." }
-            : { type: "error", text: "No paid payment found yet." },
+            : { type: "error", text: noPaymentFoundMessage },
         )
       } catch (error) {
         setRowMessage(booking.id, { type: "error", text: error instanceof Error ? error.message : "Payment sync failed." })
