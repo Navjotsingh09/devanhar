@@ -77,6 +77,10 @@ const vidyalaNav: NavItem[] = [
 const rootsNav: NavItem[] = [
   { title: 'Roots Bookings', url: '/dashboard/roots', icon: TreePine },
 ]
+
+const familyRetreatNav: NavItem[] = [
+  { title: 'Family Retreat Bookings', url: '/dashboard/family-retreat', icon: Users },
+]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
 ]
