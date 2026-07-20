@@ -35,7 +35,7 @@ export function RootsHero() {
         <div className="relative h-[58vh] min-h-[420px] w-full overflow-hidden md:h-[64vh] md:min-h-[500px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/initiatives/roots-gallery-11.jpg"
+            src="/initiatives/roots-logo.jpg"
             alt="Roots Residential — Adventure, Friendship, Identity"
             className="absolute inset-0 h-full w-full object-cover"
             style={{ objectPosition: "center 35%" }}
