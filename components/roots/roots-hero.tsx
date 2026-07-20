@@ -30,30 +30,26 @@ export function RootsHero() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Main hero image */}
-      <div className="relative w-full bg-black">
-        <div className="relative h-[58vh] min-h-[420px] w-full overflow-hidden md:h-[64vh] md:min-h-[500px]">
+      <div className="relative w-full overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/initiatives/roots-gallery-11.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: "center 35%" }}
+        />
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="relative container mx-auto px-6 lg:px-12 max-w-5xl py-20 md:py-28 flex items-center justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/initiatives/roots-gallery-11.jpg"
+            src="/initiatives/roots-logo.jpg"
             alt="Roots Residential — Adventure, Friendship, Identity"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center 35%" }}
+            className="w-full max-w-2xl h-auto object-contain"
+            style={{ mixBlendMode: "screen" }}
           />
-          <div className="absolute inset-0 bg-black/45" />
-          <div className="absolute inset-x-0 top-6 z-10 flex justify-center px-6 md:top-10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/initiatives/roots-logo.jpg"
-              alt="Roots Residential"
-              className="w-full max-w-3xl drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
-            />
-          </div>
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent" />
         </div>
       </div>
 
-      {/* CTA cards */}
       <div className="container mx-auto px-6 lg:px-12 max-w-5xl -mt-10 md:-mt-14 relative z-20 pb-16 md:pb-24">
         <div className="grid gap-5 md:grid-cols-2">
           {ctas.map((cta, i) => {
