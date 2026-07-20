@@ -36,6 +36,7 @@ type Booking = {
   amount_paid: number | null
   payment_status: string
   paid_at: string | null
+  nowdonate_payment_url: string | null
   stripe_payment_link: string | null
   stripe_payment_link_id: string | null
   created_at: string
@@ -146,7 +147,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
     try {
       const result = await syncRootsPayment(b.id)
       setMsg(b.id, result.paid ? "success" : "error",
-        result.paid ? "Payment confirmed. Receipt email sent." : "No completed payment found yet.")
+        result.paid ? "Payment confirmed." : "No completed payment found yet.")
     } catch {
       setMsg(b.id, "error", "Sync failed.")
     }
@@ -262,6 +263,20 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                             <XCircle className="h-3 w-3 mr-1" />
                             Decline
                           </Button>
+                        )}
+                        {isConfirmedUnpaid && (
+                          b.nowdonate_payment_url ? (
+                            <Button
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              <a href={b.nowdonate_payment_url} target="_blank" rel="noopener noreferrer">
+                                Open payment link
+                              </a>
+                            </Button>
+                          ) : null
                         )}
                         {isConfirmedUnpaid && (
                           <Button
