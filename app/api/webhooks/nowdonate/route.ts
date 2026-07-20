@@ -74,10 +74,79 @@ export async function HEAD() {
   return new Response(null, { status: 200 })
 }
 
-// NowDonate webhook handler for Roots Residential payment confirmations
+async function sendRootsPaymentEmail(booking: any, amountPounds: number) {
+  if (!process.env.RESEND_API_KEY) return
+  const { Resend } = await import("resend")
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const parentName = `${booking.parent_first_name || ""} ${booking.parent_last_name || ""}`.trim()
+  const camperName = `${booking.camper_first_name || ""} ${booking.camper_last_name || ""}`.trim()
+
+  const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882<br/><a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> on Instagram</p>`
+  const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
+
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Roots Residential</h2><p>Dear ${parentName},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for <strong>${camperName}</strong>.</p><p>Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.</p><p>We cannot wait to welcome ${camperName} to Roots.</p>${SIG}</div>`
+
+  const text = `Payment received — Roots Residential
+
+Dear ${parentName},
+
+We have received your payment of £${amountPounds} for ${camperName}.
+
+Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.
+
+We cannot wait to welcome ${camperName} to Roots.${SIG_TEXT}`
+
+  await resend.emails.send({
+    from: "Roots Residential <noreply@devanhaar.com>",
+    to: booking.parent_email,
+    subject: `Payment received — Roots Residential (${camperName})`,
+    html,
+    text,
+  })
+}
+
+async function sendFamilyRetreatPaymentEmail(booking: any, amountPounds: number) {
+  if (!process.env.RESEND_API_KEY || !booking?.email) return
+  const { Resend } = await import("resend")
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const firstName = booking.first_name || "there"
+  const text = [
+    `Dear ${firstName},`,
+    "",
+    "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.",
+    "",
+    `Thank you — we are pleased to confirm that we have received your payment of £${amountPounds.toFixed(2)} for the Sikh Family Retreat. Your family's place is now fully secured.`,
+    "",
+    "We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.",
+    "",
+    "Warm regards,",
+    "The Sikh Family Initiative Team",
+  ].join("\n")
+
+  const html = [
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1f2937;line-height:1.6">',
+    `<p>Dear ${firstName},</p>`,
+    "<p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>",
+    `<p>Thank you &mdash; we are pleased to confirm that we have received your payment of <strong>£${amountPounds.toFixed(2)}</strong> for the Sikh Family Retreat. Your family&rsquo;s place is now fully secured.</p>`,
+    "<p>We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.</p>",
+    "<p>Warm regards,<br>The Sikh Family Initiative Team</p>",
+    "</div>",
+  ].join("")
+
+  await resend.emails.send({
+    from: "Sikh Family Retreat <noreply@devanhaar.com>",
+    to: booking.email,
+    subject: "Payment received — your Sikh Family Retreat place is secured",
+    html,
+    text,
+  })
+}
+
+// NowDonate webhook handler for Roots and Sikh Family Retreat payment confirmations
 export async function POST(request: Request) {
   try {
-    // Parse webhook payload
     const rawBody = await request.text()
     const payload = JSON.parse(rawBody)
 
@@ -89,7 +158,6 @@ export async function POST(request: Request) {
       custom: payload.custom,
     })
 
-    // Verify webhook signature if secret is provided
     const webhookSecret = process.env.NOWDONATE_WEBHOOK_SECRET
     if (webhookSecret) {
       const signature = request.headers.get("x-nowdonate-signature") || ""
@@ -104,7 +172,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Only process donation completion events.
     if (!isDonationCompletedEvent(payload)) {
       console.log("[webhooks/nowdonate] Ignoring event", {
         type: payload.type,
@@ -114,15 +181,12 @@ export async function POST(request: Request) {
       return json({ status: "ignored" })
     }
 
-    // Extract booking ID from custom field
     const bookingId = getBookingId(payload)
-
     if (!bookingId) {
       console.warn("[webhooks/nowdonate] No booking ID in webhook payload")
       return json({ error: "No booking ID" }, 400)
     }
 
-    // Get Supabase client
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ""
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 
@@ -133,31 +197,46 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch booking
-    const { data: booking, error: fetchError } = await supabase
+    const { data: rootsBooking, error: rootsFetchError } = await supabase
       .from("roots_bookings")
       .select("*")
       .eq("id", bookingId)
-      .single()
+      .maybeSingle()
 
-    if (fetchError || !booking) {
-      console.error(`[webhooks/nowdonate] Booking not found: ${bookingId}`, fetchError)
+    const { data: familyBooking, error: familyFetchError } = rootsBooking
+      ? { data: null, error: null }
+      : await supabase
+          .from("family_retreat_bookings")
+          .select("id, first_name, last_name, email")
+          .eq("id", bookingId)
+          .maybeSingle()
+
+    if (!rootsBooking && !familyBooking) {
+      console.error(`[webhooks/nowdonate] Booking not found: ${bookingId}`, {
+        rootsFetchError,
+        familyFetchError,
+      })
       return json({ error: "Booking not found" }, 404)
     }
 
     const amountPounds = getAmountPounds(payload)
 
-    console.log(`[webhooks/nowdonate] Processing payment for booking ${bookingId}: £${amountPounds}`)
+    console.log(
+      `[webhooks/nowdonate] Processing payment for ${rootsBooking ? "roots" : "family_retreat"} booking ${bookingId}: £${amountPounds}`,
+    )
 
-    // Update booking as paid
+    const updatePayload: Record<string, unknown> = {
+      payment_status: "paid",
+      amount_paid: amountPounds,
+      paid_at: new Date().toISOString(),
+    }
+    if (rootsBooking) {
+      updatePayload.nowdonate_reference_id = getReferenceId(payload)
+    }
+
     const { error: updateError } = await supabase
-      .from("roots_bookings")
-      .update({
-        payment_status: "paid",
-        amount_paid: amountPounds,
-        paid_at: new Date().toISOString(),
-        nowdonate_reference_id: getReferenceId(payload),
-      })
+      .from(rootsBooking ? "roots_bookings" : "family_retreat_bookings")
+      .update(updatePayload)
       .eq("id", bookingId)
 
     if (updateError) {
@@ -165,46 +244,25 @@ export async function POST(request: Request) {
       return json({ error: "Update failed" }, 500)
     }
 
-    // Send payment confirmation email
     if (process.env.RESEND_API_KEY) {
       try {
-        const { Resend } = await import("resend")
-        const resend = new Resend(process.env.RESEND_API_KEY)
-
-        const parentName = `${booking.parent_first_name || ""} ${booking.parent_last_name || ""}`.trim()
-        const camperName = `${booking.camper_first_name || ""} ${booking.camper_last_name || ""}`.trim()
-
-        const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882<br/><a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> on Instagram</p>`
-        const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
-
-        const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Roots Residential</h2><p>Dear ${parentName},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for <strong>${camperName}</strong>.</p><p>Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.</p><p>We cannot wait to welcome ${camperName} to Roots.</p>${SIG}</div>`
-
-        const text = `Payment received — Roots Residential
-
-Dear ${parentName},
-
-We have received your payment of £${amountPounds} for ${camperName}.
-
-Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.
-
-We cannot wait to welcome ${camperName} to Roots.${SIG_TEXT}`
-
-        await resend.emails.send({
-          from: "Roots Residential <noreply@devanhaar.com>",
-          to: booking.parent_email,
-          subject: `Payment received — Roots Residential (${camperName})`,
-          html,
-          text,
-        })
-
-        console.log(`[webhooks/nowdonate] Confirmation email sent to ${booking.parent_email}`)
+        if (rootsBooking) {
+          await sendRootsPaymentEmail(rootsBooking, amountPounds)
+          console.log(`[webhooks/nowdonate] Roots confirmation email sent to ${rootsBooking.parent_email}`)
+        } else if (familyBooking) {
+          await sendFamilyRetreatPaymentEmail(familyBooking, amountPounds)
+          console.log(`[webhooks/nowdonate] Family Retreat confirmation email sent to ${familyBooking.email}`)
+        }
       } catch (emailErr) {
         console.error("[webhooks/nowdonate] Email send error:", emailErr)
-        // Don't fail the webhook if email fails
       }
     }
 
-    return json({ status: "success", booking_id: bookingId })
+    return json({
+      status: "success",
+      booking_id: bookingId,
+      booking_type: rootsBooking ? "roots" : "family_retreat",
+    })
   } catch (error) {
     console.error("[webhooks/nowdonate] Error:", error)
     return json({ error: error instanceof Error ? error.message : "Unknown error" }, 500)
