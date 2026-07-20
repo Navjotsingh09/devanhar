@@ -398,11 +398,11 @@ export async function syncFamilyRetreatPayment(
   }
 
   if (booking.nowdonate_payment_url && !booking.stripe_payment_link_id) {
-    return { paid: false, mode: "stripe_sync" }
+    return { paid: false, mode: "nowdonate_webhook" }
   }
 
   if (!booking.stripe_payment_link_id || !process.env.STRIPE_SECRET_KEY) {
-    return { paid: false, mode: "stripe_sync" }
+    return { paid: false, mode: "unavailable" }
   }
 
   const supabase = getSupabaseAdmin()
