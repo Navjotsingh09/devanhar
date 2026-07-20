@@ -30,15 +30,18 @@ export function RootsHero() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Banner — black brand logo */}
+      {/* Main hero image */}
       <div className="relative w-full bg-black">
-        <div className="container mx-auto px-6 lg:px-12 max-w-5xl py-20 md:py-28 flex items-center justify-center">
+        <div className="relative h-[58vh] min-h-[420px] w-full overflow-hidden md:h-[64vh] md:min-h-[500px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/initiatives/roots-logo.jpg"
+            src="/initiatives/roots-gallery-11.jpg"
             alt="Roots Residential — Adventure, Friendship, Identity"
-            className="w-full max-w-2xl h-auto object-contain"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: "center 35%" }}
           />
+          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/35 to-transparent" />
         </div>
       </div>
 
