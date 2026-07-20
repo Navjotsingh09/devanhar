@@ -124,8 +124,9 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
       setMsg(b.id, "success", `Confirmed. Payment email sent to ${b.parent_email}.`)
       setConfirming(null)
       setAmount("")
-    } catch {
-      setMsg(b.id, "error", "Something went wrong. Please try again.")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong. Please try again."
+      setMsg(b.id, "error", message)
     }
     setLoading(null)
   }
@@ -136,8 +137,9 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
     try {
       await declineRootsBooking(b.id)
       setMsg(b.id, "success", "Declined. Email sent to parent.")
-    } catch {
-      setMsg(b.id, "error", "Something went wrong. Please try again.")
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong. Please try again."
+      setMsg(b.id, "error", message)
     }
     setLoading(null)
   }
