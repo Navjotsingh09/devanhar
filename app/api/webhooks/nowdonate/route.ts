@@ -3,6 +3,75 @@ import crypto from "crypto"
 
 export const dynamic = "force-dynamic"
 
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json" },
+  })
+}
+
+function normalize(value: unknown): string {
+  return typeof value === "string" ? value.trim().toLowerCase() : ""
+}
+
+function isDonationCompletedEvent(payload: any): boolean {
+  const type = normalize(payload?.type)
+  const event = normalize(payload?.event)
+  const object = normalize(payload?.object)
+
+  if (type === "donation.completed" || type === "donation_complete") {
+    return true
+  }
+
+  return object === "donation" && (event === "completed" || event === "complete")
+}
+
+function getBookingId(payload: any): string | null {
+  return (
+    payload?.custom ||
+    payload?.custom_data?.booking_id ||
+    payload?.metadata?.booking_id ||
+    payload?.data?.custom ||
+    payload?.data?.custom_data?.booking_id ||
+    payload?.data?.metadata?.booking_id ||
+    null
+  )
+}
+
+function getReferenceId(payload: any): string | null {
+  return (
+    payload?.donation_id ||
+    payload?.reference_id ||
+    payload?.id ||
+    payload?.data?.donation_id ||
+    payload?.data?.reference_id ||
+    payload?.data?.id ||
+    null
+  )
+}
+
+function getAmountPounds(payload: any): number {
+  const rawAmount =
+    payload?.amount_in_cents ??
+    payload?.amount ??
+    payload?.data?.amount_in_cents ??
+    payload?.data?.amount ??
+    0
+
+  const numericAmount = typeof rawAmount === "number" ? rawAmount : Number(rawAmount)
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) return 0
+
+  return numericAmount >= 1000 ? numericAmount / 100 : numericAmount
+}
+
+export async function GET() {
+  return json({ ok: true, endpoint: "nowdonate-webhook" })
+}
+
+export async function HEAD() {
+  return new Response(null, { status: 200 })
+}
+
 // NowDonate webhook handler for Roots Residential payment confirmations
 export async function POST(request: Request) {
   try {
@@ -12,6 +81,8 @@ export async function POST(request: Request) {
 
     console.log("[webhooks/nowdonate] Received webhook:", {
       type: payload.type,
+      event: payload.event,
+      object: payload.object,
       donation_id: payload.donation_id,
       custom: payload.custom,
     })
@@ -27,22 +98,26 @@ export async function POST(request: Request) {
 
       if (signature !== expectedSig) {
         console.warn("[webhooks/nowdonate] Invalid signature")
-        return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 401 })
+        return json({ error: "Invalid signature" }, 401)
       }
     }
 
-    // Only process donation.completed events
-    if (payload.type !== "donation.completed" && payload.type !== "donation_complete") {
-      console.log(`[webhooks/nowdonate] Ignoring event type: ${payload.type}`)
-      return new Response(JSON.stringify({ status: "ok" }), { status: 200 })
+    // Only process donation completion events.
+    if (!isDonationCompletedEvent(payload)) {
+      console.log("[webhooks/nowdonate] Ignoring event", {
+        type: payload.type,
+        event: payload.event,
+        object: payload.object,
+      })
+      return json({ status: "ignored" })
     }
 
     // Extract booking ID from custom field
-    const bookingId = payload.custom || payload.custom_data?.booking_id || payload.metadata?.booking_id
+    const bookingId = getBookingId(payload)
 
     if (!bookingId) {
       console.warn("[webhooks/nowdonate] No booking ID in webhook payload")
-      return new Response(JSON.stringify({ error: "No booking ID" }), { status: 400 })
+      return json({ error: "No booking ID" }, 400)
     }
 
     // Get Supabase client
@@ -51,7 +126,7 @@ export async function POST(request: Request) {
 
     if (!supabaseUrl || !supabaseKey) {
       console.error("[webhooks/nowdonate] Missing Supabase config")
-      return new Response(JSON.stringify({ error: "Server error" }), { status: 500 })
+      return json({ error: "Server error" }, 500)
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey)
@@ -65,12 +140,10 @@ export async function POST(request: Request) {
 
     if (fetchError || !booking) {
       console.error(`[webhooks/nowdonate] Booking not found: ${bookingId}`, fetchError)
-      return new Response(JSON.stringify({ error: "Booking not found" }), { status: 404 })
+      return json({ error: "Booking not found" }, 404)
     }
 
-    // Parse amount (NowDonate may send in cents or pounds depending on format)
-    const amountCents = payload.amount || payload.amount_in_cents || 0
-    const amountPounds = amountCents / 100
+    const amountPounds = getAmountPounds(payload)
 
     console.log(`[webhooks/nowdonate] Processing payment for booking ${bookingId}: £${amountPounds}`)
 
@@ -81,13 +154,13 @@ export async function POST(request: Request) {
         payment_status: "paid",
         amount_paid: amountPounds,
         paid_at: new Date().toISOString(),
-        nowdonate_reference_id: payload.donation_id || payload.reference_id,
+        nowdonate_reference_id: getReferenceId(payload),
       })
       .eq("id", bookingId)
 
     if (updateError) {
       console.error(`[webhooks/nowdonate] Failed to update booking ${bookingId}:`, updateError)
-      return new Response(JSON.stringify({ error: "Update failed" }), { status: 500 })
+      return json({ error: "Update failed" }, 500)
     }
 
     // Send payment confirmation email
@@ -129,12 +202,9 @@ We cannot wait to welcome ${camperName} to Roots.${SIG_TEXT}`
       }
     }
 
-    return new Response(JSON.stringify({ status: "success", booking_id: bookingId }), { status: 200 })
+    return json({ status: "success", booking_id: bookingId })
   } catch (error) {
     console.error("[webhooks/nowdonate] Error:", error)
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500 }
-    )
+    return json({ error: error instanceof Error ? error.message : "Unknown error" }, 500)
   }
 }

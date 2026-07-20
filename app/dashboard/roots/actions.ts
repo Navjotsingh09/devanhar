@@ -48,39 +48,47 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
   const booking = await getBooking(id)
   if (!booking) throw new Error("Booking not found")
 
-  let paymentLink = process.env.ROOTS_PAYMENT_LINK || null
-  let paymentLinkId: string | null = null
+  const nowDonateApiKey = process.env.NOWDONATE_API_KEY || ""
+  const checkoutId = process.env.NOWDONATE_CHECKOUT_ID || ""
 
-  // Try to create a per-booking exact-amount Stripe payment link
-  if (process.env.STRIPE_SECRET_KEY && amount > 0) {
-    try {
-      const { default: Stripe } = await import("stripe")
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" as any })
+  if (!nowDonateApiKey) throw new Error("Missing NOWDONATE_API_KEY")
+  if (!checkoutId) throw new Error("Missing NOWDONATE_CHECKOUT_ID")
+  if (!(amount > 0)) throw new Error("Payment amount must be greater than 0")
 
-      // Create a one-off Price
-      const price = await stripe.prices.create({
-        currency: "gbp",
-        unit_amount: Math.round(amount * 100),
-        product_data: { name: "Roots Residential — Camp Fee" },
-      })
+  let paymentLink: string | null = null
 
-      // Create a Payment Link (single-use)
-      const link = await stripe.paymentLinks.create({
-        line_items: [{ price: price.id, quantity: 1 }],
-        after_completion: {
-          type: "redirect",
-          redirect: {
-            url: `https://devanhaar.com/initiatives/roots-residential?paid=1&session_id={CHECKOUT_SESSION_ID}`,
-          },
+  try {
+    const response = await fetch("https://api.nowdonate.com/v2/checkouts/links", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${nowDonateApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        checkout_id: Number(checkoutId),
+        amount: Math.round(amount * 100),
+        currency: "GBP",
+        custom: id,
+        redirect_uri: "https://devanhaar.com/initiatives/roots-residential?paid=1",
+        cancel_uri: "https://devanhaar.com/initiatives/roots-residential#booking-form",
+        supporter: {
+          email: booking.parent_email,
+          first_name: booking.parent_first_name,
+          last_name: booking.parent_last_name,
         },
-        metadata: { roots_booking_id: id },
-      })
+      }),
+    })
 
-      paymentLink = `${link.url}?client_reference_id=${id}&prefilled_email=${encodeURIComponent(booking.parent_email)}`
-      paymentLinkId = link.id
-    } catch (err) {
-      console.error("[roots/confirm] Stripe link error (using static fallback):", err)
+    const data = await response.json().catch(() => null)
+    paymentLink = data?.url || data?.checkout_url || data?.payment_url || null
+
+    if (!response.ok || !paymentLink) {
+      console.error("[roots/confirm] NowDonate link error:", data)
+      throw new Error("Failed to create NowDonate payment link")
     }
+  } catch (err) {
+    console.error("[roots/confirm] NowDonate link error:", err)
+    throw new Error("Could not create payment link")
   }
 
   // Update booking
@@ -90,12 +98,11 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
       status: "confirmed",
       amount_due: amount,
       payment_status: "unpaid",
-      stripe_payment_link: paymentLink,
-      stripe_payment_link_id: paymentLinkId,
+      nowdonate_payment_url: paymentLink,
     })
     .eq("id", id)
 
-  await addActivityLog(id, { action: "confirmed", amount, by: "admin" })
+  await addActivityLog(id, { action: "confirmed", amount, by: "admin", payment_provider: "nowdonate" })
 
   // Send confirmation email to parent
   if (process.env.RESEND_API_KEY) {
@@ -194,72 +201,8 @@ If you have any questions, contact us at Roots@Devanhaar.com.${SIG_TEXT}`
 
 // ------- SYNC PAYMENT -------
 export async function syncRootsPayment(id: string): Promise<{ paid: boolean }> {
-  if (!process.env.STRIPE_SECRET_KEY) return { paid: false }
-
-  const supabase = getSupabase()
   const booking = await getBooking(id)
-  if (!booking?.stripe_payment_link_id) return { paid: false }
-
-  try {
-    const { default: Stripe } = await import("stripe")
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" as any })
-
-    const sessions = await stripe.checkout.sessions.list({
-      payment_link: booking.stripe_payment_link_id,
-      limit: 5,
-    })
-
-    const paid = sessions.data.find(
-      (s) => s.payment_status === "paid" && s.status === "complete"
-    )
-    if (!paid) return { paid: false }
-
-    const amountPaid = paid.amount_total ? paid.amount_total / 100 : booking.amount_due
-
-    await supabase
-      .from("roots_bookings")
-      .update({
-        payment_status: "paid",
-        amount_paid: amountPaid,
-        paid_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-
-    await addActivityLog(id, { action: "payment_synced", amount: amountPaid, session_id: paid.id })
-
-    // Send payment received email
-    if (process.env.RESEND_API_KEY) {
-      const { Resend } = await import("resend")
-      const resend = new Resend(process.env.RESEND_API_KEY)
-
-      const parentName = `${escHtml(booking.parent_first_name)} ${escHtml(booking.parent_last_name)}`
-      const camperName = `${escHtml(booking.camper_first_name)} ${escHtml(booking.camper_last_name)}`
-
-      const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Roots Residential</h2><p>Dear ${parentName},</p><p>We have received your payment of <strong>&pound;${amountPaid}</strong> for <strong>${camperName}</strong>.</p><p>Your camper&apos;s place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.</p><p>We cannot wait to welcome ${escHtml(booking.camper_first_name)} to Roots.</p>${SIG}</div>`
-
-      const text = `Payment received — Roots Residential
-
-Dear ${booking.parent_first_name} ${booking.parent_last_name},
-
-We have received your payment of £${amountPaid} for ${booking.camper_first_name} ${booking.camper_last_name}.
-
-Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.
-
-We cannot wait to welcome ${booking.camper_first_name} to Roots.${SIG_TEXT}`
-
-      await resend.emails.send({
-        from: FROM,
-        to: booking.parent_email,
-        subject: `Payment received — Roots Residential (${booking.camper_first_name} ${booking.camper_last_name})`,
-        html,
-        text,
-      })
-    }
-
-    revalidatePath("/dashboard/roots")
-    return { paid: true }
-  } catch (err) {
-    console.error("[roots/sync] Error:", err)
-    return { paid: false }
-  }
+  const paid = booking?.payment_status === "paid"
+  if (paid) revalidatePath("/dashboard/roots")
+  return { paid }
 }

@@ -32,7 +32,13 @@ export const metadata = {
   alternates: { canonical: "https://devanhaar.com/initiatives/roots-residential" },
 }
 
-export default function RootsResidentialPage() {
+export default async function RootsResidentialPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ paid?: string }>
+}) {
+  const params = await searchParams
+
   return (
     <>
       <Navbar />
@@ -230,6 +236,24 @@ export default function RootsResidentialPage() {
           heading="How booking works"
           subheading="From completing the form to confirming your camper's place, here is what to expect."
         />
+
+        {params?.paid === "1" && (
+          <section className="border-t border-border bg-emerald-50 py-10 md:py-12">
+            <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
+              <div className="rounded-2xl border border-emerald-200 bg-white p-6 md:p-8">
+                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-700 mb-3">
+                  Payment received
+                </p>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                  Your Roots payment has been received
+                </h2>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                  Thank you. Your camper&apos;s place is now fully confirmed. The Roots team will be in touch with final details, including arrival information, what to bring and the programme timetable.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Booking Form */}
         <section id="booking-form" className="border-t border-border py-16 md:py-24">
