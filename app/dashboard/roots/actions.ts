@@ -43,17 +43,20 @@ async function addActivityLog(id: string, entry: object) {
 }
 
 // ------- CONFIRM -------
-export async function confirmRootsBooking(id: string, amount: number): Promise<void> {
+export async function confirmRootsBooking(
+  id: string,
+  amount: number
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = getSupabase()
   const booking = await getBooking(id)
-  if (!booking) throw new Error("Booking not found")
+  if (!booking) return { ok: false, error: "Booking not found" }
 
   const nowDonateApiKey = process.env.NOWDONATE_API_KEY || ""
   const checkoutId = process.env.NOWDONATE_CHECKOUT_ID || ""
 
-  if (!nowDonateApiKey) throw new Error("Missing NOWDONATE_API_KEY")
-  if (!checkoutId) throw new Error("Missing NOWDONATE_CHECKOUT_ID")
-  if (!(amount > 0)) throw new Error("Payment amount must be greater than 0")
+  if (!nowDonateApiKey) return { ok: false, error: "Missing NOWDONATE_API_KEY" }
+  if (!checkoutId) return { ok: false, error: "Missing NOWDONATE_CHECKOUT_ID" }
+  if (!(amount > 0)) return { ok: false, error: "Payment amount must be greater than 0" }
 
   let paymentLink: string | null = null
 
@@ -80,11 +83,11 @@ export async function confirmRootsBooking(id: string, amount: number): Promise<v
 
     if (data?.status !== "success" || !paymentLink) {
       console.error("[roots/confirm] DonationManager link error:", data)
-      throw new Error("Failed to create NowDonate payment link")
+      return { ok: false, error: "Failed to create NowDonate payment link" }
     }
   } catch (err) {
     console.error("[roots/confirm] DonationManager link error:", err)
-    throw new Error("Could not create payment link")
+    return { ok: false, error: "Could not create payment link" }
   }
 
   // Update booking
@@ -143,13 +146,14 @@ We look forward to welcoming ${booking.camper_first_name} to the Roots family.${
   }
 
   revalidatePath("/dashboard/roots")
+  return { ok: true }
 }
 
 // ------- DECLINE -------
 export async function declineRootsBooking(id: string): Promise<void> {
   const supabase = getSupabase()
   const booking = await getBooking(id)
-  if (!booking) throw new Error("Booking not found")
+  if (!booking) return { ok: false, error: "Booking not found" }
 
   await supabase
     .from("roots_bookings")
@@ -193,6 +197,7 @@ If you have any questions, contact us at Roots@Devanhaar.com.${SIG_TEXT}`
   }
 
   revalidatePath("/dashboard/roots")
+  return { ok: true }
 }
 
 // ------- SYNC PAYMENT -------
