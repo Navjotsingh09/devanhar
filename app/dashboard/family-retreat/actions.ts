@@ -13,6 +13,7 @@ type Booking = {
   payment_status: string | null
   amount_due: number | null
   amount_paid: number | null
+  nowdonate_payment_url: string | null
   stripe_payment_link_id: string | null
   adults_attending: Array<Record<string, unknown>> | null
 }
@@ -21,6 +22,9 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://devanhaar.com"
 const FAMILY_RETREAT_PAYMENT_LINK =
   process.env.FAMILY_RETREAT_PAYMENT_LINK || "https://buy.stripe.com/7sY14pddk8qWdyB1EVbEA02"
 const FAMILY_RETREAT_STRIPE_PRODUCT = process.env.FAMILY_RETREAT_STRIPE_PRODUCT || "prod_UliRJAIaHaHO9e"
+const NOWDONATE_API_KEY = process.env.NOWDONATE_API_KEY || ""
+const NOWDONATE_CHECKOUT_ID =
+  process.env.FAMILY_RETREAT_NOWDONATE_CHECKOUT_ID || process.env.NOWDONATE_CHECKOUT_ID || ""
 
 const SIGNATURE_LINES = [
   "Best wishes,",
@@ -86,7 +90,7 @@ async function getBooking(id: string): Promise<Booking> {
   const supabase = getSupabaseAdmin()
   const { data, error } = await supabase
     .from("family_retreat_bookings")
-    .select("id, first_name, last_name, email, payment_status, amount_due, amount_paid, stripe_payment_link_id, adults_attending")
+    .select("id, first_name, last_name, email, payment_status, amount_due, amount_paid, nowdonate_payment_url, stripe_payment_link_id, adults_attending")
     .eq("id", id)
     .single()
 
@@ -98,6 +102,41 @@ async function getBooking(id: string): Promise<Booking> {
 }
 
 async function createExactAmountPaymentLink(amountPence: number, bookingId: string, email: string) {
+  if (NOWDONATE_API_KEY && NOWDONATE_CHECKOUT_ID) {
+    const amountGbp = Math.round(amountPence) / 100
+    const params = new URLSearchParams({
+      key: NOWDONATE_API_KEY,
+      currency: "GBP",
+      amount: String(amountGbp),
+      repeat: "o",
+      giftaid: "false",
+      checkout_id: NOWDONATE_CHECKOUT_ID,
+      reference: bookingId,
+      custom: bookingId,
+      comment: `Sikh Family Retreat booking for ${bookingId}`,
+      success_url: `${SITE_URL}/initiatives/sikh-family-retreat?paid=1`,
+      cancel_url: `${SITE_URL}/initiatives/sikh-family-retreat#booking-form`,
+      prefilled_email: email,
+    })
+
+    const response = await fetch(
+      "https://www.donationmanager.co.uk/services/api/checkout/?" + params.toString(),
+    )
+    const data = await response.json().catch(() => null)
+    const paymentUrl = data?.url || data?.checkout_url || data?.payment_url || null
+
+    if (data?.status === "success" && paymentUrl) {
+      return {
+        url: paymentUrl,
+        id: null,
+        provider: "nowdonate" as const,
+      }
+    }
+
+    console.error("[family-retreat] DonationManager link error:", data)
+    throw new Error("Failed to create Family Retreat payment link")
+  }
+
   if (!process.env.STRIPE_SECRET_KEY) {
     return {
       url: buildLinkWithParams(FAMILY_RETREAT_PAYMENT_LINK, {
@@ -105,6 +144,7 @@ async function createExactAmountPaymentLink(amountPence: number, bookingId: stri
         prefilled_email: email,
       }),
       id: null,
+      provider: "stripe" as const,
     }
   }
 
@@ -146,6 +186,7 @@ async function createExactAmountPaymentLink(amountPence: number, bookingId: stri
       prefilled_email: email,
     }),
     id: link.id,
+    provider: "stripe" as const,
   }
 }
 
@@ -286,7 +327,7 @@ export async function updateFamilyRetreatStatus(
   }
 
   if (status === "confirmed" && details?.amount && details.amount > 0 && booking.email) {
-    const { url, id: linkId } = await createExactAmountPaymentLink(
+    const { url, id: linkId, provider } = await createExactAmountPaymentLink(
       Math.round(details.amount * 100),
       id,
       booking.email,
@@ -294,8 +335,14 @@ export async function updateFamilyRetreatStatus(
 
     updatePayload.amount_due = details.amount
     updatePayload.payment_status = "unpaid"
-    updatePayload.stripe_payment_link = url
-    updatePayload.stripe_payment_link_id = linkId
+    if (provider === "nowdonate") {
+      updatePayload.nowdonate_payment_url = url
+      updatePayload.stripe_payment_link = null
+      updatePayload.stripe_payment_link_id = null
+    } else {
+      updatePayload.stripe_payment_link = url
+      updatePayload.stripe_payment_link_id = linkId
+    }
     updatePayload.paid_at = null
 
     try {
@@ -343,6 +390,15 @@ export async function updateFamilyRetreatStatus(
 
 export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: boolean }> {
   const booking = await getBooking(id)
+  if (booking.payment_status === "paid") {
+    revalidatePath("/dashboard/family-retreat")
+    return { paid: true }
+  }
+
+  if (booking.nowdonate_payment_url && !booking.stripe_payment_link_id) {
+    return { paid: false }
+  }
+
   if (!booking.stripe_payment_link_id || !process.env.STRIPE_SECRET_KEY) {
     return { paid: false }
   }
@@ -409,13 +465,18 @@ export async function sendFamilyRetreatAdditionalCharge(
   }
 
   const supabase = getSupabaseAdmin()
-  const { url, id: linkId } = await createExactAmountPaymentLink(Math.round(amount * 100), id, booking.email)
+  const { url, id: linkId, provider } = await createExactAmountPaymentLink(
+    Math.round(amount * 100),
+    id,
+    booking.email,
+  )
 
   const { error } = await supabase
     .from("family_retreat_bookings")
     .update({
-      stripe_payment_link: url,
-      stripe_payment_link_id: linkId,
+      nowdonate_payment_url: provider === "nowdonate" ? url : null,
+      stripe_payment_link: provider === "stripe" ? url : null,
+      stripe_payment_link_id: provider === "stripe" ? linkId : null,
       payment_status: "unpaid",
       amount_due: amount,
       internal_notes: referenceNote,

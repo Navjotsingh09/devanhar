@@ -28,9 +28,11 @@ function isDonationCompletedEvent(payload: any): boolean {
 
 function getBookingId(payload: any): string | null {
   return (
+    payload?.reference ||
     payload?.custom ||
     payload?.custom_data?.booking_id ||
     payload?.metadata?.booking_id ||
+    payload?.data?.reference ||
     payload?.data?.custom ||
     payload?.data?.custom_data?.booking_id ||
     payload?.data?.metadata?.booking_id ||

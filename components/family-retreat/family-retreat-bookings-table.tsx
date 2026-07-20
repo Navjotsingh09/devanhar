@@ -342,7 +342,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
           booking.id,
           result.paid
             ? { type: "success", text: "Payment synced successfully." }
-            : { type: "error", text: "No paid Stripe session found yet." },
+            : { type: "error", text: "No paid payment found yet." },
         )
       } catch (error) {
         setRowMessage(booking.id, { type: "error", text: error instanceof Error ? error.message : "Payment sync failed." })
