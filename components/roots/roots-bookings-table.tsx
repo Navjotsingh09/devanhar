@@ -118,15 +118,15 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   async function handleConfirm(b: Booking) {
     const amt = Number(amount)
     if (!amount || isNaN(amt) || amt <= 0) return
-    setLoading(b.id)    try {
+    setLoading(b.id)
+    try {
       const result = await confirmRootsBooking(b.id, amt)
       if (!result.ok) {
         setMsg(b.id, "error", result.error)
-        setLoading(b.id)
         setLoading(null)
         return
       }
-      setMsg(b.id, "success", `Confirmed. Payment email sent to .`)
+      setMsg(b.id, "success", `Confirmed. Payment email sent to ${b.parent_email}.`)
       setConfirming(null)
       setAmount("")
     } catch {
