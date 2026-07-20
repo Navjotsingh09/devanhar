@@ -224,7 +224,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
         )}
 
-        {\!isVacanciesOnly && (
+        {!isVacanciesOnly && (
         <SidebarGroup>
           <SidebarGroupLabel>
             <TreePine className="h3 w3 mr-1" />
