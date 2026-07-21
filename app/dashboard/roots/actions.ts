@@ -14,6 +14,14 @@ function escHtml(s: string | null | undefined): string {
   return (s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+function buildNowDonateCheckoutUrl(checkoutId: string, params: Record<string, string>) {
+  const url = new URL(`https://www.nowdonate.com/checkout/${checkoutId}`)
+  for (const [key, value] of Object.entries(params)) {
+    if (value) url.searchParams.set(key, value)
+  }
+  return url.toString()
+}
+
 const FROM = "Roots Residential <noreply@devanhaar.com>"
 const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882<br/><a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> on Instagram</p>`
 const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
@@ -51,44 +59,21 @@ export async function confirmRootsBooking(
   const booking = await getBooking(id)
   if (!booking) return { ok: false, error: "Booking not found" }
 
-  const nowDonateApiKey = process.env.NOWDONATE_API_KEY || ""
-  const checkoutId = process.env.NOWDONATE_CHECKOUT_ID || ""
+  const nowDonateApiKey = (process.env.NOWDONATE_API_KEY || "").trim()
+  const checkoutId = (process.env.NOWDONATE_CHECKOUT_ID || "").trim()
 
   if (!nowDonateApiKey) return { ok: false, error: "Missing NOWDONATE_API_KEY" }
   if (!checkoutId) return { ok: false, error: "Missing NOWDONATE_CHECKOUT_ID" }
   if (!(amount > 0)) return { ok: false, error: "Payment amount must be greater than 0" }
 
-  let paymentLink: string | null = null
-
-  try {
-    const params = new URLSearchParams({
-      key: nowDonateApiKey,
-      currency: "GBP",
-      amount: String(amount),
-      repeat: "o",
-      giftaid: "false",
-      checkout_id: checkoutId,
-      reference: id,
-      comment: "Roots Residential booking for " + booking.camper_first_name + " " + booking.camper_last_name,
-      success_url: "https://devanhaar.com/initiatives/roots-residential?paid=1",
-      cancel_url: "https://devanhaar.com/initiatives/roots-residential#booking-form",
-    })
-
-    const response = await fetch(
-      "https://www.donationmanager.co.uk/services/api/checkout/?" + params.toString()
-    )
-
-    const data = await response.json().catch(() => null)
-    paymentLink = data?.url || data?.checkout_url || data?.payment_url || null
-
-    if (data?.status !== "success" || !paymentLink) {
-      console.error("[roots/confirm] DonationManager link error:", data)
-      return { ok: false, error: "Failed to create NowDonate payment link" }
-    }
-  } catch (err) {
-    console.error("[roots/confirm] DonationManager link error:", err)
-    return { ok: false, error: "Could not create payment link" }
-  }
+  const paymentLink = buildNowDonateCheckoutUrl(checkoutId, {
+    amount: String(amount),
+    reference: id,
+    custom: id,
+    prefilled_email: booking.parent_email || "",
+    success_url: "https://devanhaar.com/initiatives/roots-residential?paid=1",
+    cancel_url: "https://devanhaar.com/initiatives/roots-residential#booking-form",
+  })
 
   // Update booking
   await supabase

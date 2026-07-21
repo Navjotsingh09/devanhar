@@ -103,6 +103,10 @@ function buildLinkWithParams(base: string, params: Record<string, string>) {
   return url.toString()
 }
 
+function buildNowDonateCheckoutUrl(checkoutId: string, params: Record<string, string>) {
+  return buildLinkWithParams(`https://www.nowdonate.com/checkout/${checkoutId}`, params)
+}
+
 async function sendEmail(params: { to: string; subject: string; text: string; html: string }) {
   if (!process.env.RESEND_API_KEY) return
   const { Resend } = await import("resend")
@@ -141,37 +145,18 @@ async function createExactAmountPaymentLink(
 
   if (NOWDONATE_API_KEY && checkoutId) {
     const amountGbp = Math.round(amountPence) / 100
-    const params = new URLSearchParams({
-      key: NOWDONATE_API_KEY,
-      currency: "GBP",
-      amount: String(amountGbp),
-      repeat: "o",
-      giftaid: "false",
-      checkout_id: checkoutId,
-      reference: bookingId,
-      custom: bookingId,
-      comment: `Sikh Family Retreat booking for ${bookingId}`,
-      success_url: `${SITE_URL}/initiatives/sikh-family-retreat?paid=1`,
-      cancel_url: `${SITE_URL}/initiatives/sikh-family-retreat#booking-form`,
-      prefilled_email: email,
-    })
-
-    const response = await fetch(
-      "https://www.donationmanager.co.uk/services/api/checkout/?" + params.toString(),
-    )
-    const data = await response.json().catch(() => null)
-    const paymentUrl = data?.url || data?.checkout_url || data?.payment_url || null
-
-    if (data?.status === "success" && paymentUrl) {
-      return {
-        url: paymentUrl,
-        id: null,
-        provider: "nowdonate" as const,
-      }
+    return {
+      url: buildNowDonateCheckoutUrl(checkoutId, {
+        amount: String(amountGbp),
+        reference: bookingId,
+        custom: bookingId,
+        prefilled_email: email,
+        success_url: `${SITE_URL}/initiatives/sikh-family-retreat?paid=1`,
+        cancel_url: `${SITE_URL}/initiatives/sikh-family-retreat#booking-form`,
+      }),
+      id: null,
+      provider: "nowdonate" as const,
     }
-
-    console.error("[family-retreat] DonationManager link error:", data)
-    throw new Error("Failed to create Family Retreat payment link")
   }
 
   if (!process.env.STRIPE_SECRET_KEY) {
