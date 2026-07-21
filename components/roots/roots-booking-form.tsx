@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, X } from "lucide-react"
 
 type FormData = {
   camper_first_name: string
@@ -136,13 +136,25 @@ export function RootsBookingForm() {
   return (
     <div className="space-y-10">
       {submitted ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 py-8 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 py-8 backdrop-blur-sm"
+          onClick={resetForm}
+        >
           <div
             ref={successRef}
             tabIndex={-1}
-            className="w-full max-w-2xl rounded-2xl border border-green-200 bg-[#eef9ef] px-6 py-14 text-center shadow-2xl sm:px-10"
+            className="relative w-full max-w-2xl rounded-2xl border border-green-200 bg-[#eef9ef] px-6 py-14 text-center shadow-2xl sm:px-10"
             aria-live="polite"
+            onClick={(e) => e.stopPropagation()}
           >
+            <button
+              type="button"
+              onClick={resetForm}
+              className="absolute right-5 top-5 text-green-900/60 transition-colors hover:text-green-900"
+              aria-label="Close confirmation"
+            >
+              <X className="h-5 w-5" />
+            </button>
             <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-600" />
             <h3 className="text-xl font-bold text-green-950 sm:text-2xl">Booking request received</h3>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-green-900/90 sm:text-base">
