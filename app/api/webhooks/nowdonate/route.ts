@@ -133,15 +133,20 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch booking
-    const { data: booking, error: fetchError } = await supabase
+    const { data: rootsBooking } = await supabase
       .from("roots_bookings")
       .select("*")
       .eq("id", bookingId)
-      .single()
+      .maybeSingle()
 
-    if (fetchError || !booking) {
-      console.error(`[webhooks/nowdonate] Booking not found: ${bookingId}`, fetchError)
+    const { data: familyBooking } = await supabase
+      .from("family_retreat_bookings")
+      .select("*")
+      .eq("id", bookingId)
+      .maybeSingle()
+
+    if (!rootsBooking && !familyBooking) {
+      console.error(`[webhooks/nowdonate] Booking not found in supported tables: ${bookingId}`)
       return json({ error: "Booking not found" }, 404)
     }
 
@@ -149,16 +154,24 @@ export async function POST(request: Request) {
 
     console.log(`[webhooks/nowdonate] Processing payment for booking ${bookingId}: £${amountPounds}`)
 
-    // Update booking as paid
-    const { error: updateError } = await supabase
-      .from("roots_bookings")
-      .update({
-        payment_status: "paid",
-        amount_paid: amountPounds,
-        paid_at: new Date().toISOString(),
-        nowdonate_reference_id: getReferenceId(payload),
-      })
-      .eq("id", bookingId)
+    const paidUpdateBase = {
+      payment_status: "paid",
+      amount_paid: amountPounds,
+      paid_at: new Date().toISOString(),
+    }
+
+    const { error: updateError } = rootsBooking
+      ? await supabase
+          .from("roots_bookings")
+          .update({
+            ...paidUpdateBase,
+            nowdonate_reference_id: getReferenceId(payload),
+          })
+          .eq("id", bookingId)
+      : await supabase
+          .from("family_retreat_bookings")
+          .update(paidUpdateBase)
+          .eq("id", bookingId)
 
     if (updateError) {
       console.error(`[webhooks/nowdonate] Failed to update booking ${bookingId}:`, updateError)
@@ -171,15 +184,16 @@ export async function POST(request: Request) {
         const { Resend } = await import("resend")
         const resend = new Resend(process.env.RESEND_API_KEY)
 
-        const parentName = `${booking.parent_first_name || ""} ${booking.parent_last_name || ""}`.trim()
-        const camperName = `${booking.camper_first_name || ""} ${booking.camper_last_name || ""}`.trim()
+        if (rootsBooking) {
+          const parentName = `${rootsBooking.parent_first_name || ""} ${rootsBooking.parent_last_name || ""}`.trim()
+          const camperName = `${rootsBooking.camper_first_name || ""} ${rootsBooking.camper_last_name || ""}`.trim()
 
-        const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882<br/><a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> on Instagram</p>`
-        const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
+          const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,</p><p><strong>Roots Residential Team</strong><br/>Devanhaar<br/><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> &bull; +44 7735 048882<br/><a href="https://www.instagram.com/rootsuk13">@rootsuk13</a> on Instagram</p>`
+          const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
 
-        const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Roots Residential</h2><p>Dear ${parentName},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for <strong>${camperName}</strong>.</p><p>Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.</p><p>We cannot wait to welcome ${camperName} to Roots.</p>${SIG}</div>`
+          const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Roots Residential</h2><p>Dear ${parentName},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for <strong>${camperName}</strong>.</p><p>Your camper's place on Roots Residential is now fully confirmed. We will be in touch with further information about arrival, what to bring and the full programme timetable.</p><p>We cannot wait to welcome ${camperName} to Roots.</p>${SIG}</div>`
 
-        const text = `Payment received — Roots Residential
+          const text = `Payment received — Roots Residential
 
 Dear ${parentName},
 
@@ -189,15 +203,41 @@ Your camper's place on Roots Residential is now fully confirmed. We will be in t
 
 We cannot wait to welcome ${camperName} to Roots.${SIG_TEXT}`
 
-        await resend.emails.send({
-          from: "Roots Residential <noreply@devanhaar.com>",
-          to: booking.parent_email,
-          subject: `Payment received — Roots Residential (${camperName})`,
-          html,
-          text,
-        })
+          await resend.emails.send({
+            from: "Roots Residential <noreply@devanhaar.com>",
+            to: rootsBooking.parent_email,
+            subject: `Payment received — Roots Residential (${camperName})`,
+            html,
+            text,
+          })
 
-        console.log(`[webhooks/nowdonate] Confirmation email sent to ${booking.parent_email}`)
+          console.log(`[webhooks/nowdonate] Roots confirmation email sent to ${rootsBooking.parent_email}`)
+        }
+
+        if (familyBooking?.email) {
+          const fullName = `${familyBooking.first_name || ""} ${familyBooking.last_name || ""}`.trim()
+          const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Sikh Family Retreat</h2><p>Dear ${fullName || "there"},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for your Sikh Family Retreat booking.</p><p>Your booking is now marked as paid. We will follow up with any next steps if needed.</p><p style="margin-top:24px;">Best wishes,<br/><strong>Sikh Family Retreat Team</strong><br/>Devanhaar</p></div>`
+          const text = `Payment received — Sikh Family Retreat
+
+Dear ${fullName || "there"},
+
+We have received your payment of £${amountPounds} for your Sikh Family Retreat booking.
+
+Your booking is now marked as paid. We will follow up with any next steps if needed.
+
+Best wishes,
+Sikh Family Retreat Team`
+
+          await resend.emails.send({
+            from: "Sikh Family Retreat <noreply@devanhaar.com>",
+            to: familyBooking.email,
+            subject: "Payment received — Sikh Family Retreat",
+            html,
+            text,
+          })
+
+          console.log(`[webhooks/nowdonate] Family retreat confirmation email sent to ${familyBooking.email}`)
+        }
       } catch (emailErr) {
         console.error("[webhooks/nowdonate] Email send error:", emailErr)
         // Don't fail the webhook if email fails

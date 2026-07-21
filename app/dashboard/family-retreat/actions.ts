@@ -23,8 +23,38 @@ const FAMILY_RETREAT_PAYMENT_LINK =
   process.env.FAMILY_RETREAT_PAYMENT_LINK || "https://buy.stripe.com/7sY14pddk8qWdyB1EVbEA02"
 const FAMILY_RETREAT_STRIPE_PRODUCT = process.env.FAMILY_RETREAT_STRIPE_PRODUCT || "prod_UliRJAIaHaHO9e"
 const NOWDONATE_API_KEY = process.env.NOWDONATE_API_KEY || ""
-const NOWDONATE_CHECKOUT_ID =
-  process.env.FAMILY_RETREAT_NOWDONATE_CHECKOUT_ID || process.env.NOWDONATE_CHECKOUT_ID || ""
+
+function extractNowDonateCheckoutId(value: string | undefined): string {
+  if (!value) return ""
+  const trimmed = value.trim()
+  const directId = /^[a-zA-Z0-9]+$/.test(trimmed)
+  if (directId) return trimmed
+
+  try {
+    const url = new URL(trimmed)
+    const parts = url.pathname.split("/").filter(Boolean)
+    const checkoutIndex = parts.findIndex((segment) => segment === "checkout")
+    if (checkoutIndex >= 0 && parts[checkoutIndex + 1]) {
+      return parts[checkoutIndex + 1]
+    }
+  } catch {
+    return ""
+  }
+
+  return ""
+}
+
+const NOWDONATE_CONFIRM_CHECKOUT_ID =
+  extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_CONFIRM_CHECKOUT_ID) ||
+  extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_CHECKOUT_ID) ||
+  extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_CONFIRM_CHECKOUT_URL) ||
+  extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_CHECKOUT_URL) ||
+  extractNowDonateCheckoutId(process.env.NOWDONATE_CHECKOUT_ID)
+
+const NOWDONATE_ADDITIONAL_CHECKOUT_ID =
+  extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_ADDITIONAL_CHECKOUT_ID) ||
+  extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_ADDITIONAL_CHECKOUT_URL) ||
+  NOWDONATE_CONFIRM_CHECKOUT_ID
 
 const SIGNATURE_LINES = [
   "Best wishes,",
@@ -101,8 +131,15 @@ async function getBooking(id: string): Promise<Booking> {
   return data as Booking
 }
 
-async function createExactAmountPaymentLink(amountPence: number, bookingId: string, email: string) {
-  if (NOWDONATE_API_KEY && NOWDONATE_CHECKOUT_ID) {
+async function createExactAmountPaymentLink(
+  amountPence: number,
+  bookingId: string,
+  email: string,
+  mode: "confirm" | "additional" = "confirm",
+) {
+  const checkoutId = mode === "additional" ? NOWDONATE_ADDITIONAL_CHECKOUT_ID : NOWDONATE_CONFIRM_CHECKOUT_ID
+
+  if (NOWDONATE_API_KEY && checkoutId) {
     const amountGbp = Math.round(amountPence) / 100
     const params = new URLSearchParams({
       key: NOWDONATE_API_KEY,
@@ -110,7 +147,7 @@ async function createExactAmountPaymentLink(amountPence: number, bookingId: stri
       amount: String(amountGbp),
       repeat: "o",
       giftaid: "false",
-      checkout_id: NOWDONATE_CHECKOUT_ID,
+      checkout_id: checkoutId,
       reference: bookingId,
       custom: bookingId,
       comment: `Sikh Family Retreat booking for ${bookingId}`,
@@ -331,6 +368,7 @@ export async function updateFamilyRetreatStatus(
       Math.round(details.amount * 100),
       id,
       booking.email,
+      "confirm",
     )
 
     updatePayload.amount_due = details.amount
@@ -469,6 +507,7 @@ export async function sendFamilyRetreatAdditionalCharge(
     Math.round(amount * 100),
     id,
     booking.email,
+    "additional",
   )
 
   const { error } = await supabase
