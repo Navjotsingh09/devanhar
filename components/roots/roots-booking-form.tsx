@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, X } from "lucide-react"
+import { CheckCircle } from "lucide-react"
 
 type FormData = {
   camper_first_name: string
@@ -71,6 +71,19 @@ export function RootsBookingForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const successRef = useRef<HTMLDivElement | null>(null)
+
+  function resetForm() {
+    setForm(EMPTY)
+    setError(null)
+    setSubmitted(false)
+  }
+
+  useEffect(() => {
+    if (!submitted) return
+    successRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    successRef.current?.focus()
+  }, [submitted])
 
   const set = (key: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -121,32 +134,30 @@ export function RootsBookingForm() {
   }
 
   return (
-    <>
-      {/* Success overlay */}
-      {submitted && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setSubmitted(false)}
-        >
+    <div className="space-y-10">
+      {submitted ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-4 py-8 backdrop-blur-sm">
           <div
-            className="relative rounded-2xl border border-green-200 bg-white p-10 md:p-14 text-center max-w-md mx-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            ref={successRef}
+            tabIndex={-1}
+            className="w-full max-w-2xl rounded-2xl border border-green-200 bg-[#eef9ef] px-6 py-14 text-center shadow-2xl sm:px-10"
+            aria-live="polite"
           >
-            <button
-              onClick={() => setSubmitted(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <CheckCircle className="h-14 w-14 text-green-600 mx-auto mb-5" />
-            <h3 className="text-2xl font-bold text-green-900 mb-3">Booking request received</h3>
-            <p className="text-sm text-green-800 leading-relaxed">
+            <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-600" />
+            <h3 className="text-xl font-bold text-green-950 sm:text-2xl">Booking request received</h3>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-green-900/90 sm:text-base">
               Thank you for submitting your booking request. A member of the Roots team will be in touch with you shortly to discuss availability, costs and next steps. Please check your inbox for a confirmation email.
             </p>
+            <Button
+              type="button"
+              onClick={resetForm}
+              className="mt-8 rounded-full bg-[#1f8f3d] px-8 py-6 text-sm font-semibold text-white hover:bg-[#187635]"
+            >
+              Submit another booking
+            </Button>
           </div>
         </div>
-      )}
+      ) : (
     <form onSubmit={handleSubmit} className="space-y-10" noValidate>
       {/* Participant details */}
       <div>
@@ -294,6 +305,7 @@ export function RootsBookingForm() {
         </p>
       </div>
     </form>
-    </>
+      )}
+    </div>
   )
 }
