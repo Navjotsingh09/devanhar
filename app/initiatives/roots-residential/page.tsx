@@ -148,6 +148,51 @@ export default function RootsResidentialPage() {
           subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires and team competitions, no two days are the same, and every day leaves a lasting impression."
         />
 
+        {/* Photo gallery — portrait cards to avoid cropping tall photos */}
+        <section className="py-20 md:py-28 border-t border-border overflow-hidden">
+          <div className="container mx-auto px-6 lg:px-12 max-w-6xl mb-10 md:mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">Moments from Roots</h2>
+          </div>
+          <div className="relative w-full">
+            <div className="flex gap-5 animate-[roots-scroll-x_260s_linear_infinite] w-max">
+              {[
+                "/initiatives/roots-gallery-07.jpg",
+                "/initiatives/roots-gallery-08.jpg",
+                "/initiatives/roots-gallery-09.jpg",
+                "/initiatives/roots-gallery-10.jpg",
+                "/initiatives/roots-gallery-11.jpg",
+                "/initiatives/roots-gallery-12.jpg",
+                "/initiatives/roots-gallery-13.jpg",
+                "/initiatives/roots-gallery-14.jpg",
+                "/initiatives/roots-gallery-15.jpg",
+                "/initiatives/roots-gallery-07.jpg",
+                "/initiatives/roots-gallery-08.jpg",
+                "/initiatives/roots-gallery-09.jpg",
+                "/initiatives/roots-gallery-10.jpg",
+                "/initiatives/roots-gallery-11.jpg",
+                "/initiatives/roots-gallery-12.jpg",
+                "/initiatives/roots-gallery-13.jpg",
+                "/initiatives/roots-gallery-14.jpg",
+                "/initiatives/roots-gallery-15.jpg",
+              ].map((src, i) => (
+                <div
+                  key={`${src}-${i}`}
+                  className="relative h-[26rem] md:h-[32rem] w-[20rem] md:w-[24rem] flex-shrink-0 rounded-2xl overflow-hidden bg-muted"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <style>{`
+            @keyframes roots-scroll-x {
+              from { transform: translateX(0); }
+              to { transform: translateX(-50%); }
+            }
+          `}</style>
+        </section>
+
         {/* Who Roots Is For */}
         <section className="border-t border-border py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
