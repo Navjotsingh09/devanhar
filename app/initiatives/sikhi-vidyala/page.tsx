@@ -202,7 +202,7 @@ export default function SikhiVidyalaPage() {
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-2">
                 We are hosting a <strong>free &ldquo;Find Out More&rdquo; webinar</strong> on{" "}
-                <strong>Wednesday 29th of July in the evening</strong>. This is a great opportunity
+                <strong>Wednesday 29th of July - 5:30 to 6:30 PM (UK Time)</strong>. This is a great opportunity
                 to ask questions and learn more about the Sikhi Vidyala before applying.
               </p>
               <p className="text-muted-foreground leading-relaxed">
