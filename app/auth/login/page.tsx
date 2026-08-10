@@ -24,6 +24,17 @@ export default function LoginPage() {
   const normalizeEmail = (value: string) => value.trim().toLowerCase()
   const normalizePasswordForRetry = (value: string) => value.replace(/\u00a0/g, " ").trim()
 
+  const sendMagicLink = async (normalizedEmail: string) => {
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOtp({
+      email: normalizedEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
+    })
+    if (error) throw error
+  }
+
   const handleReset = async () => {
     const normalizedEmail = normalizeEmail(email)
     if (!normalizedEmail) { setError("Please enter your email address first."); return }
@@ -76,7 +87,16 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Login failed"
       if (/invalid login credentials/i.test(message)) {
-        setError("Invalid login credentials. If this keeps happening, use Forgot password or Email login link.")
+        try {
+          setLinkLoading(true)
+          await sendMagicLink(normalizedEmail)
+          setLinkSent(true)
+          setError("Password was not accepted. We sent a secure login link to your email.")
+        } catch {
+          setError("Invalid login credentials. Use Forgot password or Email login link.")
+        } finally {
+          setLinkLoading(false)
+        }
       } else {
         setError(message)
       }
@@ -101,14 +121,7 @@ export default function LoginPage() {
     setLinkSent(false)
 
     try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOtp({
-        email: normalizedEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-        },
-      })
-      if (error) throw error
+      await sendMagicLink(normalizedEmail)
       setLinkSent(true)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to send login link")
