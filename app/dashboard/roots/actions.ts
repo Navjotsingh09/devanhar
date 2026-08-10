@@ -188,7 +188,13 @@ If you have any questions, contact us at Roots@Devanhaar.com.${SIG_TEXT}`
 }
 
 // ------- SYNC PAYMENT -------
-export async function syncRootsPayment(id: string): Promise<{ paid: boolean }
+export async function syncRootsPayment(id: string): Promise<{ paid: boolean }> {
+  const booking = await getBooking(id)
+  const paid = booking?.payment_status === "paid"
+  if (paid) revalidatePath("/dashboard/roots")
+  return { paid }
+}
+
 // ------- PAYMENT REMINDER -------
 export async function sendRootsPaymentReminder(
   id: string
@@ -259,10 +265,4 @@ export async function deleteRootsBooking(id: string): Promise<void> {
   const supabase = getSupabase()
   await supabase.from("roots_bookings").delete().eq("id", id)
   revalidatePath("/dashboard/roots")
-}
-> {
-  const booking = await getBooking(id)
-  const paid = booking?.payment_status === "paid"
-  if (paid) revalidatePath("/dashboard/roots")
-  return { paid }
 }
