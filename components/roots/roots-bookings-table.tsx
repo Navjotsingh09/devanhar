@@ -113,7 +113,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
   const [showArchived, setShowArchived] = useState(false)
 
-  const active = bookings.filter((b) => \!b.archived)
+  const active = bookings.filter((b) => !b.archived)
   const archived = bookings.filter((b) => b.archived)
   const visible = showArchived ? archived : active
 
@@ -171,7 +171,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   }
 
   async function handleReminder(b: Booking) {
-    if (\!confirm(`Send payment reminder to ${b.parent_email}?`)) return
+    if (!confirm(`Send payment reminder to ${b.parent_email}?`)) return
     setLoading(b.id)
     try {
       const result = await sendRootsPaymentReminder(b.id)
@@ -186,7 +186,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   async function handleArchive(b: Booking) {
     setLoading(b.id)
     try {
-      await archiveRootsBooking(b.id, \!b.archived)
+      await archiveRootsBooking(b.id, !b.archived)
       setMsg(b.id, "success", b.archived ? "Restored from archive." : "Archived.")
     } catch {
       setMsg(b.id, "error", "Action failed.")
@@ -195,7 +195,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   }
 
   async function handleDelete(b: Booking) {
-    if (\!confirm(`Permanently delete booking for ${b.camper_first_name} ${b.camper_last_name}? This cannot be undone.`)) return
+    if (!confirm(`Permanently delete booking for ${b.camper_first_name} ${b.camper_last_name}? This cannot be undone.`)) return
     setLoading(b.id)
     try {
       await deleteRootsBooking(b.id)
@@ -223,7 +223,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
             <Button
               variant={showArchived ? "secondary" : "outline"}
               size="sm"
-              onClick={() => setShowArchived((v) => \!v)}
+              onClick={() => setShowArchived((v) => !v)}
             >
               <Archive className="h-4 w-4 mr-2" />
               {showArchived ? "Show active" : "Show archived"}

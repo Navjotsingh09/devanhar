@@ -194,10 +194,10 @@ export async function sendRootsPaymentReminder(
   id: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const booking = await getBooking(id)
-  if (\!booking) return { ok: false, error: "Booking not found" }
+  if (!booking) return { ok: false, error: "Booking not found" }
   if (booking.payment_status === "paid") return { ok: false, error: "Already paid" }
-  if (\!booking.nowdonate_payment_url) return { ok: false, error: "No payment link" }
-  if (\!process.env.RESEND_API_KEY) return { ok: false, error: "Email not configured" }
+  if (!booking.nowdonate_payment_url) return { ok: false, error: "No payment link" }
+  if (!process.env.RESEND_API_KEY) return { ok: false, error: "Email not configured" }
 
   try {
     const { Resend } = await import("resend")
