@@ -7,7 +7,7 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (\!user) return { error: 'Unauthorized', status: 401, supabase: null }
+  if (!user) return { error: 'Unauthorized', status: 401, supabase: null }
 
   const { data: profile } = await supabase
     .from('admin_profiles')
@@ -15,7 +15,7 @@ async function requireAdmin() {
     .eq('id', user.id)
     .single()
 
-  if (\!profile || \!['admin', 'super_admin'].includes(profile.role)) {
+  if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
     return { error: 'Forbidden', status: 403, supabase: null }
   }
 
@@ -25,14 +25,14 @@ async function requireAdmin() {
 export async function DELETE(request: NextRequest) {
   try {
     const { error, status, supabase } = await requireAdmin()
-    if (error || \!supabase) {
+    if (error || !supabase) {
       return NextResponse.json({ error }, { status })
     }
 
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 
-    if (\!id) {
+    if (!id) {
       return NextResponse.json({ error: 'Missing runner id' }, { status: 400 })
     }
 
