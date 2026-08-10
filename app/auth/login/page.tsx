@@ -19,13 +19,16 @@ export default function LoginPage() {
   const [resetLoading, setResetLoading] = useState(false)
   const router = useRouter()
 
+  const normalizeEmail = (value: string) => value.trim().toLowerCase()
+
   const handleReset = async () => {
-    if (!email) { setError("Please enter your email address first."); return }
+    const normalizedEmail = normalizeEmail(email)
+    if (!normalizedEmail) { setError("Please enter your email address first."); return }
     setResetLoading(true); setError(null)
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://devanhaar.com/auth/update-password",
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
       })
       if (error) throw error
       setResetSent(true)
@@ -39,14 +42,15 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
-    if (!email.toLowerCase().endsWith("@devanhaar.com")) {
+    const normalizedEmail = normalizeEmail(email)
+    if (!normalizedEmail.endsWith("@devanhaar.com")) {
       setError("Access is restricted to Devanhaar staff. Please use your @devanhaar.com email address.")
       return
     }
     setIsLoading(true)
     setError(null)
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
       if (error) throw error
       router.push("/dashboard")
       router.refresh()
@@ -111,7 +115,7 @@ export default function LoginPage() {
               )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/70 text-sm">Email</Label>
-                <Input id="email" type="email" placeholder="you@devanhaar.org" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12" />
+                <Input id="email" type="email" placeholder="you@devanhaar.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-white/70 text-sm">Password</Label>
@@ -124,11 +128,11 @@ export default function LoginPage() {
               </div>
               <div className="flex justify-end -mt-2">
                 <button type="button" onClick={handleReset} disabled={resetLoading} className="text-amber-400/70 hover:text-amber-400 text-xs transition-colors disabled:opacity-50">
-                  {resetLoading ? "Sending…" : "Forgot password?"}
+                  {resetLoading ? "Sending..." : "Forgot password?"}
                 </button>
               </div>
               {resetSent && (
-                <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 rounded-lg text-center">Password reset email sent — check your inbox.</div>
+                <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 rounded-lg text-center">Password reset email sent - check your inbox.</div>
               )}
               <Button type="submit" disabled={isLoading} className="w-full h-12 bg-amber-400 hover:bg-amber-500 text-black font-semibold rounded-xl transition-all duration-200">
                 {isLoading ? "Signing in..." : "Sign In"}
