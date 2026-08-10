@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
 const ADMIN_EMAIL = process.env.CONTACT_NOTIFICATION_EMAIL || "contact@devanhaar.com"
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Devanhaar <noreply@devanhaar.com>"
@@ -10,13 +11,15 @@ function escapeHtml(s: string): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, email, subject, message, source_page, form_fields } = body as {
+    const { name, email, subject, message, source_page, form_fields, phone, save_submission } = body as {
       name?: string
       email?: string
       subject?: string
       message?: string
       source_page?: string
+      phone?: string
       form_fields?: Record<string, string>
+      save_submission?: boolean
     }
 
     if (!name?.trim() || !email?.trim()) {
@@ -28,6 +31,42 @@ export async function POST(req: NextRequest) {
     const safeSubject = escapeHtml((subject || "Website Enquiry").trim())
     const safeMessage = escapeHtml((message || "").trim())
     const safePage = escapeHtml((source_page || "Unknown").trim())
+
+    if (save_submission) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+      const supabaseKey =
+        process.env.SUPABASE_SERVICE_ROLE_KEY ||
+        process.env.SUPABASE_ANON_KEY ||
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+      if (!supabaseUrl || !supabaseKey) {
+        console.error("[contact] Supabase credentials missing for save_submission")
+        return NextResponse.json({ error: "Submission storage is not configured" }, { status: 500 })
+      }
+
+      const supabase = createClient(supabaseUrl, supabaseKey)
+      const payloadFormData: Record<string, string> = {
+        subject: (subject || "Website Enquiry").trim(),
+        source_page: source_page || "Unknown",
+        ...(form_fields || {}),
+      }
+
+      const { error: insertError } = await supabase.from("form_submissions").insert([
+        {
+          full_name: name.trim(),
+          email: email.trim(),
+          phone: phone?.trim() || null,
+          message: message?.trim() || null,
+          form_data: payloadFormData,
+          status: "new",
+        },
+      ])
+
+      if (insertError) {
+        console.error("[contact] Failed to save submission:", insertError)
+        return NextResponse.json({ error: "Failed to save your enquiry" }, { status: 500 })
+      }
+    }
 
     // Build extra fields HTML for event forms
     let extraFieldsHtml = ""

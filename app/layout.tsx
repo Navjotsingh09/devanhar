@@ -1,6 +1,5 @@
 import React from "react"
 import type { Metadata, Viewport } from "next"
-import Script from "next/script"
 import { Inter } from "next/font/google"
 import { DonationProvider } from "@/components/donation-provider"
 import { CartProvider } from "@/components/cart-provider"
@@ -35,15 +34,13 @@ export default function RootLayout({
           }}
         />
         {/* Google Tag Manager */}
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive"
+        <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NZ4TTBZQ');`,
+})(window,document,'script','dataLayer','GTM-KNKGVNH7');`,
           }}
         />
         {/* End Google Tag Manager */}
@@ -52,7 +49,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-NZ4TTBZQ"
+            src="https://www.googletagmanager.com/ns.html?id=GTM-KNKGVNH7"
             height="0"
             width="0"
             style={{ display: "none", visibility: "hidden" }}

@@ -142,7 +142,7 @@ export function FundraiserPageContent({ slug }: { slug: string }) {
     )
   }
 
-  const packLabel = fundraiser.pack === "singhs" ? "Singhs Camp UK Pack" : "Kaurs Camp UK Pack"
+  const packLabel = fundraiser.pack === "singhs" ? "Singhs Pack" : "Kaurs Pack"
   const packColor = fundraiser.pack === "singhs"
     ? "bg-amber-100 text-amber-700 border-amber-200"
     : "bg-purple-100 text-purple-700 border-purple-200"

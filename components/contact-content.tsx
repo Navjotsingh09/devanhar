@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Check, Mail, MapPin, Clock, Instagram, Send } from "lucide-react"
-import { supabase } from "@/lib/supabase"
 
 const contactInfo = [
   {
@@ -52,14 +51,6 @@ export function ContactContent() {
     const message = data.get("message") as string
 
     try {
-      // Save to Supabase (form_submissions = the table the dashboard reads)
-      if (supabase) {
-        await supabase
-          .from("form_submissions")
-          .insert([{ full_name: name, email, message, form_data: { subject }, status: "new" }])
-      }
-
-      // Send email notification via API
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -69,11 +60,14 @@ export function ContactContent() {
           subject,
           message,
           source_page: "Contact Page",
+          save_submission: true,
         }),
       })
 
       if (!res.ok) {
-        throw new Error("Email notification failed (" + res.status + ")")
+        const payload = await res.json().catch(() => ({}))
+        const details = payload?.error ? String(payload.error) : "Unknown error"
+        throw new Error("Contact submission failed (" + res.status + "): " + details)
       }
 
       setSubmitted(true)

@@ -11,8 +11,8 @@ for(const f of files){
     c=c.replace(/Singhs Camp/g,"Singhs Camp UK");
     c=c.replace(/Kaurs Camp/g,"Kaurs Camp UK");
     c=c.replace(/___SCE___/g,"Singhs Camp EU");
-    c=c.replace(/___SCP___/g,"Singhs Camp UK Pack");
-    c=c.replace(/___KCP___/g,"Kaurs Camp UK Pack");
+    c=c.replace(/___SCP___/g,"Singhs Pack");
+    c=c.replace(/___KCP___/g,"Kaurs Pack");
     c=c.replace(/Singhs Camp UK UK/g,"Singhs Camp UK");
     c=c.replace(/Kaurs Camp UK UK/g,"Kaurs Camp UK");
     if(c!==o){fs.writeFileSync(f,c);console.log("Updated: "+f);n++}

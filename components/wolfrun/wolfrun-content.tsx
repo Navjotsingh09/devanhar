@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     q: "What are the packs?",
-    a: "We're entering as two packs — the Singhs Camp UK Pack and the Kaurs Camp UK Pack. When you register, you choose which pack to join. It's a great way to represent your camp community."
+    a: "We're entering as two packs — the Singhs Pack and the Kaurs Pack. When you register, you choose which pack to join. It's a great way to represent your camp community."
   },
   {
     q: "Where does the money go?",
@@ -239,7 +239,7 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
                 : "border-border hover:border-amber-300"
             }`}
           >
-            Singhs Camp UK Pack
+            Singhs Pack
           </button>
           <button
             type="button"
@@ -250,7 +250,7 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
                 : "border-border hover:border-purple-300"
             }`}
           >
-            Kaurs Camp UK Pack
+            Kaurs Pack
           </button>
         </div>
       </div>
@@ -423,7 +423,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
                 : "border-border hover:border-amber-300"
             }`}
           >
-            Singhs Camp UK Pack
+            Singhs Pack
           </button>
           <button
             type="button"
@@ -434,7 +434,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
                 : "border-border hover:border-purple-300"
             }`}
           >
-            Kaurs Camp UK Pack
+            Kaurs Pack
           </button>
         </div>
       </div>
@@ -679,7 +679,7 @@ export function WolfRunContent() {
               <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-amber-600" />
               </div>
-              <h3 className="text-2xl font-bold text-amber-900 mb-2">Singhs Camp UK Pack</h3>
+              <h3 className="text-2xl font-bold text-amber-900 mb-2">Singhs Pack</h3>
               <p className="text-amber-700/80 mb-6">
                 Representing the Singhs Camp UK community. Run together, raise together, 
                 and show what brotherhood means.
@@ -696,7 +696,7 @@ export function WolfRunContent() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-2xl font-bold text-purple-900 mb-2">Kaurs Camp UK Pack</h3>
+              <h3 className="text-2xl font-bold text-purple-900 mb-2">Kaurs Pack</h3>
               <p className="text-purple-700/80 mb-6">
                 Representing the Kaurs Camp UK community. Stand strong, run wild, and 
                 make an impact for sisterhood.

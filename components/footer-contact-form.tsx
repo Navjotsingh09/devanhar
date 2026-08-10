@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Check, Loader2 } from "lucide-react"
-import { supabase } from "@/lib/supabase"
 
 export function FooterContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
@@ -22,15 +21,7 @@ export function FooterContactForm() {
     const message = fd.get("message") as string
 
     try {
-      // Save to Supabase if available
-      if (supabase) {
-        await supabase
-          .from("form_submissions")
-          .insert([{ full_name: `${firstName} ${lastName}`, email, message, form_data: { first_name: firstName, last_name: lastName }, status: "new" }])
-      }
-
-      // Send email notification via API
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -39,8 +30,19 @@ export function FooterContactForm() {
           subject: `Contact from ${firstName} ${lastName}`,
           message,
           source_page: "Footer — " + window.location.pathname,
+          save_submission: true,
+          form_fields: {
+            first_name: firstName,
+            last_name: lastName,
+          },
         }),
       })
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}))
+        const details = payload?.error ? String(payload.error) : "Unknown error"
+        throw new Error("Footer contact submission failed (" + res.status + "): " + details)
+      }
 
       setStatus("success")
       form.reset()
