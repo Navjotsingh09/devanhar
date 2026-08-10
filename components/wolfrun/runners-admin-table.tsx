@@ -23,6 +23,10 @@ const PACK_LABELS: Record<string, string> = {
   kaurs: "Kaurs",
 }
 
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
 export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
   const [rows, setRows] = useState<Runner[]>(runners)
   const [packFilter, setPackFilter] = useState<"all" | "singhs" | "kaurs">("all")
