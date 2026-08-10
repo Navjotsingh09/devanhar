@@ -4,11 +4,14 @@ import { useState } from "react"
 import { format, differenceInYears, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, CheckCircle, XCircle, RefreshCw } from "lucide-react"
+import { Download, CheckCircle, XCircle, RefreshCw, Archive, ArchiveRestore, Trash2, Bell } from "lucide-react"
 import {
   confirmRootsBooking,
   declineRootsBooking,
   syncRootsPayment,
+  sendRootsPaymentReminder,
+  archiveRootsBooking,
+  deleteRootsBooking,
 } from "@/app/dashboard/roots/actions"
 
 type Booking = {
@@ -39,6 +42,8 @@ type Booking = {
   nowdonate_payment_url: string | null
   stripe_payment_link: string | null
   stripe_payment_link_id: string | null
+  archived: boolean
+  archived_at: string | null
   created_at: string
 }
 
@@ -106,10 +111,15 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState<string | null>(null)
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
+  const [showArchived, setShowArchived] = useState(false)
 
-  const pending = bookings.filter((b) => b.status === "pending").length
-  const confirmed = bookings.filter((b) => b.status === "confirmed").length
-  const declined = bookings.filter((b) => b.status === "declined").length
+  const active = bookings.filter((b) => \!b.archived)
+  const archived = bookings.filter((b) => b.archived)
+  const visible = showArchived ? archived : active
+
+  const pending = active.filter((b) => b.status === "pending").length
+  const confirmed = active.filter((b) => b.status === "confirmed").length
+  const declined = active.filter((b) => b.status === "declined").length
 
   function setMsg(id: string, type: "success" | "error", text: string) {
     setMessages((m) => ({ ...m, [id]: { type, text } }))
@@ -160,20 +170,70 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
     setLoading(null)
   }
 
+  async function handleReminder(b: Booking) {
+    if (\!confirm(`Send payment reminder to ${b.parent_email}?`)) return
+    setLoading(b.id)
+    try {
+      const result = await sendRootsPaymentReminder(b.id)
+      setMsg(b.id, result.ok ? "success" : "error",
+        result.ok ? `Reminder sent to ${b.parent_email}.` : result.error)
+    } catch {
+      setMsg(b.id, "error", "Failed to send reminder.")
+    }
+    setLoading(null)
+  }
+
+  async function handleArchive(b: Booking) {
+    setLoading(b.id)
+    try {
+      await archiveRootsBooking(b.id, \!b.archived)
+      setMsg(b.id, "success", b.archived ? "Restored from archive." : "Archived.")
+    } catch {
+      setMsg(b.id, "error", "Action failed.")
+    }
+    setLoading(null)
+  }
+
+  async function handleDelete(b: Booking) {
+    if (\!confirm(`Permanently delete booking for ${b.camper_first_name} ${b.camper_last_name}? This cannot be undone.`)) return
+    setLoading(b.id)
+    try {
+      await deleteRootsBooking(b.id)
+    } catch {
+      setMsg(b.id, "error", "Delete failed.")
+      setLoading(null)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats + export */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex gap-5 text-sm">
-          <span><strong>{bookings.length}</strong> total</span>
+          <span><strong>{active.length}</strong> active</span>
           <span className="text-yellow-700"><strong>{pending}</strong> pending</span>
           <span className="text-green-700"><strong>{confirmed}</strong> confirmed</span>
           <span className="text-red-700"><strong>{declined}</strong> declined</span>
+          {archived.length > 0 && (
+            <span className="text-muted-foreground"><strong>{archived.length}</strong> archived</span>
+          )}
         </div>
-        <Button variant="outline" size="sm" onClick={() => downloadCsv(bookings)}>
-          <Download className="h-4 w-4 mr-2" />
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          {archived.length > 0 && (
+            <Button
+              variant={showArchived ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setShowArchived((v) => \!v)}
+            >
+              <Archive className="h-4 w-4 mr-2" />
+              {showArchived ? "Show active" : "Show archived"}
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => downloadCsv(bookings)}>
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Table */}
@@ -191,14 +251,14 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {bookings.length === 0 && (
+            {visible.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
-                  No booking requests yet.
+                  {showArchived ? "No archived bookings." : "No booking requests yet."}
                 </td>
               </tr>
             )}
-            {bookings.map((b) => {
+            {visible.map((b) => {
               const age = b.camper_dob
                 ? differenceInYears(new Date(), parseISO(b.camper_dob))
                 : null
@@ -206,6 +266,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
               const isConfirmedUnpaid = b.status === "confirmed" && b.payment_status !== "paid"
               const isLoading = loading === b.id
               const msg = messages[b.id]
+              const isArchived = b.archived
 
               return (
                 <>
@@ -296,6 +357,40 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                             Sync payment
                           </Button>
                         )}
+                        {isConfirmedUnpaid && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-amber-700 border-amber-300 hover:bg-amber-50 text-xs"
+                            onClick={() => handleReminder(b)}
+                            disabled={isLoading}
+                          >
+                            <Bell className="h-3 w-3 mr-1" />
+                            Send reminder
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-muted-foreground text-xs"
+                          onClick={() => handleArchive(b)}
+                          disabled={isLoading}
+                          title={isArchived ? "Restore from archive" : "Archive"}
+                        >
+                          {isArchived
+                            ? <ArchiveRestore className="h-3 w-3" />
+                            : <Archive className="h-3 w-3" />}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-700 border-red-300 hover:bg-red-50 text-xs"
+                          onClick={() => handleDelete(b)}
+                          disabled={isLoading}
+                          title="Delete permanently"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
                     </td>
                   </tr>

@@ -135,7 +135,9 @@ We look forward to welcoming ${booking.camper_first_name} to the Roots family.${
 }
 
 // ------- DECLINE -------
-export async function declineRootsBooking(id: string): Promise<void> {
+export async function declineRootsBooking(
+  id: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = getSupabase()
   const booking = await getBooking(id)
   if (!booking) return { ok: false, error: "Booking not found" }
@@ -186,7 +188,79 @@ If you have any questions, contact us at Roots@Devanhaar.com.${SIG_TEXT}`
 }
 
 // ------- SYNC PAYMENT -------
-export async function syncRootsPayment(id: string): Promise<{ paid: boolean }> {
+export async function syncRootsPayment(id: string): Promise<{ paid: boolean }
+// ------- PAYMENT REMINDER -------
+export async function sendRootsPaymentReminder(
+  id: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const booking = await getBooking(id)
+  if (\!booking) return { ok: false, error: "Booking not found" }
+  if (booking.payment_status === "paid") return { ok: false, error: "Already paid" }
+  if (\!booking.nowdonate_payment_url) return { ok: false, error: "No payment link" }
+  if (\!process.env.RESEND_API_KEY) return { ok: false, error: "Email not configured" }
+
+  try {
+    const { Resend } = await import("resend")
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
+    const parentName = `${escHtml(booking.parent_first_name)} ${escHtml(booking.parent_last_name)}`
+    const camperName = `${escHtml(booking.camper_first_name)} ${escHtml(booking.camper_last_name)}`
+    const amount = booking.amount_due ?? ""
+
+    const btnLabel = amount ? `Complete payment &mdash; &pound;${amount}` : "Complete payment"
+    const paymentButton = `<p style="text-align:center;margin:28px 0;"><a href="${booking.nowdonate_payment_url}" style="display:inline-block;background:#8a6200;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">${btnLabel}</a></p><p style="font-size:13px;color:#666;text-align:center;">This link is personal to ${escHtml(booking.camper_first_name)}. Please do not share it.</p>`
+
+    const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Friendly reminder &mdash; Roots Residential payment</h2><p>Dear ${parentName},</p><p>This is a friendly reminder that payment is still outstanding to secure <strong>${camperName}</strong>&#39;s place on Roots Residential.</p><p>Places are allocated on a first-come, first-served basis once payment is received. Please complete your payment as soon as possible using the button below:</p>${paymentButton}<p>If you have any questions or need to discuss payment, please contact us at <a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a> or <a href="https://wa.me/447735048882">+44 7735 048882</a>.</p><p>If you have already made your payment, please ignore this message.</p>${SIG}</div>`
+
+    const text = [
+      "Friendly reminder -- Roots Residential payment",
+      "",
+      `Dear ${booking.parent_first_name} ${booking.parent_last_name},`,
+      "",
+      `This is a friendly reminder that payment is still outstanding for ${booking.camper_first_name} ${booking.camper_last_name}'s place on Roots Residential.`,
+      "",
+      "Please complete your payment:",
+      booking.nowdonate_payment_url,
+      "",
+      "Contact us at Roots@Devanhaar.com or +44 7735 048882.",
+      SIG_TEXT,
+    ].join("\n")
+
+    await resend.emails.send({
+      from: FROM,
+      to: booking.parent_email,
+      subject: `Reminder: payment outstanding for ${booking.camper_first_name} -- Roots Residential`,
+      html,
+      text,
+    })
+
+    await addActivityLog(id, { action: "payment_reminder_sent", by: "admin" })
+    revalidatePath("/dashboard/roots")
+    return { ok: true }
+  } catch (err) {
+    console.error("[roots/reminder] Error:", err)
+    return { ok: false, error: "Failed to send email" }
+  }
+}
+
+// ------- ARCHIVE / UNARCHIVE -------
+export async function archiveRootsBooking(id: string, archive: boolean): Promise<void> {
+  const supabase = getSupabase()
+  await supabase
+    .from("roots_bookings")
+    .update({ archived: archive, archived_at: archive ? new Date().toISOString() : null })
+    .eq("id", id)
+  await addActivityLog(id, { action: archive ? "archived" : "unarchived", by: "admin" })
+  revalidatePath("/dashboard/roots")
+}
+
+// ------- DELETE -------
+export async function deleteRootsBooking(id: string): Promise<void> {
+  const supabase = getSupabase()
+  await supabase.from("roots_bookings").delete().eq("id", id)
+  revalidatePath("/dashboard/roots")
+}
+> {
   const booking = await getBooking(id)
   const paid = booking?.payment_status === "paid"
   if (paid) revalidatePath("/dashboard/roots")
