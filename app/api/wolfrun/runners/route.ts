@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function getServiceRoleClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ''
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+  if (url === '' || key === '') {
+    throw new Error('Missing Supabase service role credentials')
+  }
+
+  return createServiceClient(url, key)
+}
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -36,14 +48,16 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing runner id' }, { status: 400 })
     }
 
-    const { error: deleteError } = await supabase
+    const supabaseAdmin = getServiceRoleClient()
+
+    const { error: deleteError } = await supabaseAdmin
       .from('wolfrun_runners')
       .delete()
       .eq('id', id)
 
     if (deleteError) {
       console.error('[WolfRun Runners] Delete error:', deleteError)
-      return NextResponse.json({ error: 'Failed to delete runner' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to delete runner: ${deleteError.message}` }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
