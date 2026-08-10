@@ -17,6 +17,7 @@ interface Fundraiser {
 export function FundraisersDirectoryContent() {
   const [fundraisers, setFundraisers] = useState<Fundraiser[]>([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [filter, setFilter] = useState<"all" | "singhs" | "kaurs">("all")
   const [search, setSearch] = useState("")
 
@@ -27,9 +28,12 @@ export function FundraisersDirectoryContent() {
         if (res.ok) {
           const data = await res.json()
           setFundraisers(data.fundraisers || [])
+        } else {
+          const body = await res.json().catch(() => ({}))
+          setFetchError(body.error || "Failed to load fundraisers")
         }
-      } catch {
-        // silently fail
+      } catch (err) {
+        setFetchError("Could not connect. Please try again.")
       } finally {
         setLoading(false)
       }
@@ -109,6 +113,9 @@ export function FundraisersDirectoryContent() {
         </div>
 
         {/* Loading */}
+        {fetchError ? (
+          <div className="text-center py-12 text-red-600 text-sm">{fetchError}</div>
+        ) : null}
         {loading && (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />

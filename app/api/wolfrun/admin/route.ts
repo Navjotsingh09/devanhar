@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function getServiceRole() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ''
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  return createServiceClient(url, key)
+}
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -85,8 +92,10 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing fundraiser id' }, { status: 400 })
     }
 
-    // Delete donations first (foreign key)
-    const { error: donationsError } = await supabase
+    // Use service role to bypass RLS on wolfrun_donations / wolfrun_fundraisers
+    const admin = getServiceRole()
+
+    const { error: donationsError } = await admin
       .from('wolfrun_donations')
       .delete()
       .eq('fundraiser_id', id)
@@ -96,7 +105,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to delete donations' }, { status: 500 })
     }
 
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await admin
       .from('wolfrun_fundraisers')
       .delete()
       .eq('id', id)

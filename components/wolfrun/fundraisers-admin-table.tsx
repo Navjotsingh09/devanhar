@@ -20,7 +20,7 @@ type Fundraiser = {
 }
 
 function formatAmount(pence: number) {
-  return `\u00a3${(pence / 100).toFixed(pence % 100 === 0 ? 0 : 2)}`
+  return `£${(pence / 100).toFixed(pence % 100 === 0 ? 0 : 2)}`
 }
 
 export default function FundraisersAdminTable({ initialFundraisers }: { initialFundraisers: Fundraiser[] }) {
@@ -135,6 +135,7 @@ export default function FundraisersAdminTable({ initialFundraisers }: { initialF
             <tr className="border-b border-border">
               <th className="text-left py-3 px-2 font-medium text-muted-foreground">Name</th>
               <th className="text-left py-3 px-2 font-medium text-muted-foreground">Email</th>
+              <th className="text-left py-3 px-2 font-medium text-muted-foreground">Phone</th>
               <th className="text-left py-3 px-2 font-medium text-muted-foreground">Pack</th>
               <th className="text-right py-3 px-2 font-medium text-muted-foreground">Goal</th>
               <th className="text-right py-3 px-2 font-medium text-muted-foreground">Raised</th>
@@ -165,6 +166,7 @@ export default function FundraisersAdminTable({ initialFundraisers }: { initialF
                       </div>
                     </td>
                     <td className="py-3 px-2 text-muted-foreground">{f.email}</td>
+                    <td className="py-3 px-2 text-muted-foreground">{f.phone}</td>
                     <td className="py-3 px-2">
                       <select
                         className="border rounded px-1.5 py-1 text-sm"
@@ -215,12 +217,13 @@ export default function FundraisersAdminTable({ initialFundraisers }: { initialF
                   <>
                     <td className="py-3 px-2 font-medium">{f.first_name} {f.last_name}</td>
                     <td className="py-3 px-2 text-muted-foreground">{f.email}</td>
+                    <td className="py-3 px-2 text-muted-foreground">{f.phone}</td>
                     <td className="py-3 px-2">
                       <Badge variant={f.pack === "singhs" ? "default" : "secondary"}>
                         {f.pack === "singhs" ? "Singhs" : "Kaurs"}
                       </Badge>
                     </td>
-                    <td className="py-3 px-2 text-right">\u00a3{f.fundraising_goal}</td>
+                    <td className="py-3 px-2 text-right">£{f.fundraising_goal}</td>
                     <td className="py-3 px-2 text-right font-medium">{formatAmount(f.total_raised)}</td>
                     <td className="py-3 px-2">
                       <Badge variant={f.status === "active" ? "default" : "secondary"}>{f.status}</Badge>
