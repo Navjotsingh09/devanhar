@@ -17,9 +17,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
+  const [linkSent, setLinkSent] = useState(false)
+  const [linkLoading, setLinkLoading] = useState(false)
   const router = useRouter()
 
   const normalizeEmail = (value: string) => value.trim().toLowerCase()
+  const normalizePasswordForRetry = (value: string) => value.replace(/\u00a0/g, " ").trim()
 
   const handleReset = async () => {
     const normalizedEmail = normalizeEmail(email)
@@ -49,15 +52,68 @@ export default function LoginPage() {
     }
     setIsLoading(true)
     setError(null)
+    setLinkSent(false)
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
-      if (error) throw error
+      const firstAttempt = await supabase.auth.signInWithPassword({ email: normalizedEmail, password })
+
+      let finalError = firstAttempt.error
+
+      if (finalError) {
+        const sanitizedPassword = normalizePasswordForRetry(password)
+        const shouldRetry = Object.is(sanitizedPassword, password) === false
+        if (shouldRetry) {
+          const secondAttempt = await supabase.auth.signInWithPassword({
+            email: normalizedEmail,
+            password: sanitizedPassword,
+          })
+          finalError = secondAttempt.error
+        }
+      }
+
+      if (finalError) throw finalError
       router.push("/dashboard")
       router.refresh()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      const message = err instanceof Error ? err.message : "Login failed"
+      if (/invalid login credentials/i.test(message)) {
+        setError("Invalid login credentials. If this keeps happening, use Forgot password or Email login link.")
+      } else {
+        setError(message)
+      }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleMagicLink = async () => {
+    const normalizedEmail = normalizeEmail(email)
+    if (normalizedEmail.length === 0) {
+      setError("Please enter your email address first.")
+      return
+    }
+    if (normalizedEmail.endsWith("@devanhaar.com") === false) {
+      setError("Access is restricted to Devanhaar staff. Please use your @devanhaar.com email address.")
+      return
+    }
+
+    setLinkLoading(true)
+    setError(null)
+    setLinkSent(false)
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+        },
+      })
+      if (error) throw error
+      setLinkSent(true)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to send login link")
+    } finally {
+      setLinkLoading(false)
     }
   }
 
@@ -134,8 +190,14 @@ export default function LoginPage() {
               {resetSent && (
                 <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 rounded-lg text-center">Password reset email sent - check your inbox.</div>
               )}
+              {linkSent && (
+                <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm px-4 py-3 rounded-lg text-center">Login link sent - check your inbox.</div>
+              )}
               <Button type="submit" disabled={isLoading} className="w-full h-12 bg-amber-400 hover:bg-amber-500 text-black font-semibold rounded-xl transition-all duration-200">
                 {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+              <Button type="button" onClick={handleMagicLink} disabled={linkLoading} className="w-full h-12 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-xl transition-all duration-200 border border-white/20">
+                {linkLoading ? "Sending link..." : "Email login link"}
               </Button>
             </form>
           </div>
