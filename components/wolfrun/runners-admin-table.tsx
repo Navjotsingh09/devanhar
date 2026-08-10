@@ -64,6 +64,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
               <tr className="border-b border-border bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Name</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Email</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Phone</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Pack</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Age</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">City</th>
@@ -81,6 +82,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                     {runner.first_name} {runner.last_name}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{runner.email}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{runner.phone || "-"}</td>
                   <td className="px-4 py-3">
                     {runner.pack === "singhs" ? (
                       <Badge className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100">
