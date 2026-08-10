@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,7 +25,7 @@ interface Product {
   description: string
 }
 
-const products: Product[] = [
+const initialProducts: Product[] = [
   {
     id: "prod-001",
     name: "Devanhaar Heritage Polo",
@@ -98,10 +101,19 @@ function getStockBadgeClass(stock: number): string {
 }
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>(initialProducts)
+
   const totalProducts = products.length
   const inStock = products.filter((p) => p.totalStock >= 10).length
   const lowStock = products.filter((p) => p.totalStock > 0 && p.totalStock < 10).length
   const outOfStock = products.filter((p) => p.totalStock === 0).length
+
+  const handleDeleteProduct = (product: Product) => {
+    if (!window.confirm(`Delete ${product.name}? This cannot be undone.`)) {
+      return
+    }
+    setProducts((prev) => prev.filter((p) => p.id !== product.id))
+  }
 
   return (
     <div className="space-y-8">
@@ -277,7 +289,12 @@ export default function ProductsPage() {
                     <Button variant="outline" size="sm">
                       <Edit className="w-3.5 h-3.5" />
                     </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDeleteProduct(product)}
+                    >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>

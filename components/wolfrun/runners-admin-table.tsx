@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { Trash2 } from "lucide-react"
 
 type Runner = {
   id: string
@@ -23,13 +24,43 @@ const PACK_LABELS: Record<string, string> = {
 }
 
 export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
+  const [rows, setRows] = useState<Runner[]>(runners)
   const [packFilter, setPackFilter] = useState<"all" | "singhs" | "kaurs">("all")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [error, setError] = useState("")
 
   const filtered =
-    packFilter === "all" ? runners : runners.filter((r) => r.pack === packFilter)
+    packFilter === "all" ? rows : rows.filter((r) => r.pack === packFilter)
+
+  const deleteRunner = async (runner: Runner) => {
+    if (!window.confirm(`Permanently delete ${runner.first_name} ${runner.last_name}? This cannot be undone.`)) {
+      return
+    }
+
+    setDeletingId(runner.id)
+    setError("")
+
+    try {
+      const res = await fetch(`/api/wolfrun/runners?id=${runner.id}`, { method: "DELETE" })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || "Failed to delete runner")
+        return
+      }
+      setRows((prev) => prev.filter((r) => r.id !== runner.id))
+    } catch {
+      setError("Network error")
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   return (
     <div className="space-y-4">
+      {error ? (
+        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+      ) : null}
+
       {/* Pack filter tabs */}
       <div className="flex gap-2">
         {(["all", "singhs", "kaurs"] as const).map((tab) => (
@@ -47,10 +78,10 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
             }`}
           >
             {tab === "all"
-              ? `All (${runners.length})`
+              ? `All (${rows.length})`
               : tab === "singhs"
-              ? `Singhs (${runners.filter((r) => r.pack === "singhs").length})`
-              : `Kaurs (${runners.filter((r) => r.pack === "kaurs").length})`}
+              ? `Singhs (${rows.filter((r) => r.pack === "singhs").length})`
+              : `Kaurs (${rows.filter((r) => r.pack === "kaurs").length})`}
           </button>
         ))}
       </div>
@@ -70,6 +101,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">City</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">WhatsApp</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Registered</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -111,6 +143,16 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                       month: "short",
                       year: "numeric",
                     })}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => deleteRunner(runner)}
+                      disabled={deletingId === runner.id}
+                      className="rounded p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50"
+                      title="Delete permanently"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
