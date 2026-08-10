@@ -52,6 +52,13 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing runner id' }, { status: 400 })
     }
 
+    if (!isUuid(id)) {
+      return NextResponse.json(
+        { error: 'This row is from Stripe fallback data and cannot be deleted until it exists in Supabase.' },
+        { status: 400 }
+      )
+    }
+
     const supabaseAdmin = getServiceRoleClient()
 
     const { error: deleteError } = await supabaseAdmin

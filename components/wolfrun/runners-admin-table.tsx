@@ -151,9 +151,9 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => deleteRunner(runner)}
-                      disabled={deletingId === runner.id}
+                      disabled={deletingId === runner.id || !isUuid(runner.id)}
                       className="rounded p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50"
-                      title="Delete permanently"
+                      title={!isUuid(runner.id) ? "Unavailable for Stripe fallback rows" : "Delete permanently"}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
