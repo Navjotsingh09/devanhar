@@ -42,8 +42,8 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
     }
 
     // Stripe fallback rows have no Supabase record — remove from UI only
-    if (\!isUuid(runner.id)) {
-      setRows((prev) => prev.filter((r) => r.id \!== runner.id))
+    if (!isUuid(runner.id)) {
+      setRows((prev) => prev.filter((r) => r.id !== runner.id))
       return
     }
 
@@ -53,11 +53,11 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
     try {
       const res = await fetch(`/api/wolfrun/runners?id=${runner.id}`, { method: "DELETE" })
       const data = await res.json()
-      if (\!res.ok) {
+      if (!res.ok) {
         setError(data.error || "Failed to delete runner")
         return
       }
-      setRows((prev) => prev.filter((r) => r.id \!== runner.id))
+      setRows((prev) => prev.filter((r) => r.id !== runner.id))
     } catch {
       setError("Network error")
     } finally {
