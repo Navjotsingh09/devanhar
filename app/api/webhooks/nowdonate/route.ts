@@ -51,7 +51,17 @@ function getReferenceId(payload: any): string | null {
     null
   )
 }
-
+function getDonorEmail(payload: any): string | null {
+  const raw =
+    payload?.donor_email ||
+    payload?.email ||
+    payload?.donor?.email ||
+    payload?.data?.donor_email ||
+    payload?.data?.email ||
+    payload?.data?.donor?.email ||
+    null
+  return typeof raw === "string" && raw.includes("@") ? raw.trim().toLowerCase() : null
+}
 function getAmountPounds(payload: any): number {
   const rawAmount =
     payload?.amount_in_cents ??
@@ -114,14 +124,6 @@ export async function POST(request: Request) {
       return json({ status: "ignored" })
     }
 
-    // Extract booking ID from custom field
-    const bookingId = getBookingId(payload)
-
-    if (!bookingId) {
-      console.warn("[webhooks/nowdonate] No booking ID in webhook payload")
-      return json({ error: "No booking ID" }, 400)
-    }
-
     // Get Supabase client
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ""
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
@@ -133,26 +135,62 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    const { data: rootsBooking } = await supabase
-      .from("roots_bookings")
-      .select("*")
-      .eq("id", bookingId)
-      .maybeSingle()
+    // Extract booking ID from custom field; fall back to email lookup for direct appeal payments
+    const bookingId = getBookingId(payload)
+    let rootsBooking: any = null
+    let familyBooking: any = null
 
-    const { data: familyBooking } = await supabase
-      .from("family_retreat_bookings")
-      .select("*")
-      .eq("id", bookingId)
-      .maybeSingle()
+    if (bookingId) {
+      const [rb, fb] = await Promise.all([
+        supabase.from("roots_bookings").select("*").eq("id", bookingId).maybeSingle(),
+        supabase.from("family_retreat_bookings").select("*").eq("id", bookingId).maybeSingle(),
+      ])
+      rootsBooking = rb.data
+      familyBooking = fb.data
+    } else {
+      // No booking ID — payment made via direct appeal link; match by donor email
+      const donorEmail = getDonorEmail(payload)
+      console.log("[webhooks/nowdonate] No booking ID; attempting email fallback", { donorEmail })
+
+      if (donorEmail) {
+        const { data: matches } = await supabase
+          .from("roots_bookings")
+          .select("*")
+          .eq("parent_email", donorEmail)
+          .neq("payment_status", "paid")
+          .order("created_at", { ascending: false })
+          .limit(1)
+
+        rootsBooking = matches?.[0] ?? null
+
+        if (!rootsBooking) {
+          const { data: fMatches } = await supabase
+            .from("family_retreat_bookings")
+            .select("*")
+            .eq("email", donorEmail)
+            .neq("payment_status", "paid")
+            .order("created_at", { ascending: false })
+            .limit(1)
+
+          familyBooking = fMatches?.[0] ?? null
+        }
+      }
+
+      if (!rootsBooking && !familyBooking) {
+        console.warn("[webhooks/nowdonate] No booking found via email fallback")
+        return json({ status: "no_match", note: "Payment received but no unpaid booking matched" })
+      }
+    }
 
     if (!rootsBooking && !familyBooking) {
-      console.error(`[webhooks/nowdonate] Booking not found in supported tables: ${bookingId}`)
+      console.error(`[webhooks/nowdonate] Booking not found: ${bookingId}`)
       return json({ error: "Booking not found" }, 404)
     }
 
     const amountPounds = getAmountPounds(payload)
+    const matchedId = rootsBooking?.id ?? familyBooking?.id
 
-    console.log(`[webhooks/nowdonate] Processing payment for booking ${bookingId}: £${amountPounds}`)
+    console.log(`[webhooks/nowdonate] Processing payment for booking ${matchedId}: £${amountPounds}`)
 
     const paidUpdateBase = {
       payment_status: "paid",
@@ -167,14 +205,14 @@ export async function POST(request: Request) {
             ...paidUpdateBase,
             nowdonate_reference_id: getReferenceId(payload),
           })
-          .eq("id", bookingId)
+          .eq("id", matchedId)
       : await supabase
           .from("family_retreat_bookings")
           .update(paidUpdateBase)
-          .eq("id", bookingId)
+          .eq("id", matchedId)
 
     if (updateError) {
-      console.error(`[webhooks/nowdonate] Failed to update booking ${bookingId}:`, updateError)
+      console.error(`[webhooks/nowdonate] Failed to update booking ${matchedId}:`, updateError)
       return json({ error: "Update failed" }, 500)
     }
 
@@ -244,7 +282,7 @@ Sikh Family Retreat Team`
       }
     }
 
-    return json({ status: "success", booking_id: bookingId })
+    return json({ status: "success", booking_id: matchedId })
   } catch (error) {
     console.error("[webhooks/nowdonate] Error:", error)
     return json({ error: error instanceof Error ? error.message : "Unknown error" }, 500)
