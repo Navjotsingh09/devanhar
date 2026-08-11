@@ -4,7 +4,7 @@ import { useState } from "react"
 import { format, differenceInYears, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, CheckCircle, XCircle, RefreshCw, Archive, ArchiveRestore, Trash2, Bell } from "lucide-react"
+import { Download, CheckCircle, XCircle, RefreshCw, Archive, ArchiveRestore, Trash2, Bell, BadgeCheck } from "lucide-react"
 import {
   confirmRootsBooking,
   declineRootsBooking,
@@ -12,6 +12,7 @@ import {
   sendRootsPaymentReminder,
   archiveRootsBooking,
   deleteRootsBooking,
+  markRootsBookingAsPaid,
 } from "@/app/dashboard/roots/actions"
 
 type Booking = {
@@ -166,6 +167,22 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
         result.paid ? "Payment confirmed." : "No completed payment found yet.")
     } catch {
       setMsg(b.id, "error", "Sync failed.")
+    }
+    setLoading(null)
+  }
+
+  async function handleMarkPaid(b: Booking) {
+    const input = window.prompt(`Mark as paid — enter amount paid (£):`, String(b.amount_due ?? ""))
+    if (input === null) return
+    const amount = parseFloat(input)
+    if (!isFinite(amount) || amount <= 0) { alert("Invalid amount"); return }
+    if (!confirm(`Mark ${b.camper_first_name} ${b.camper_last_name} as paid £${amount}? This cannot be undone.`)) return
+    setLoading(b.id)
+    try {
+      const result = await markRootsBookingAsPaid(b.id, amount)
+      setMsg(b.id, result.ok ? "success" : "error", result.ok ? `Marked as paid £${amount}.` : result.error)
+    } catch {
+      setMsg(b.id, "error", "Action failed.")
     }
     setLoading(null)
   }
@@ -355,6 +372,18 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                           >
                             <RefreshCw className={`h-3 w-3 mr-1 ${isLoading ? "animate-spin" : ""}`} />
                             Sync payment
+                          </Button>
+                        )}
+                        {isConfirmedUnpaid && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-700 border-green-300 hover:bg-green-50 text-xs"
+                            onClick={() => handleMarkPaid(b)}
+                            disabled={isLoading}
+                          >
+                            <BadgeCheck className="h-3 w-3 mr-1" />
+                            Mark paid
                           </Button>
                         )}
                         {isConfirmedUnpaid && (

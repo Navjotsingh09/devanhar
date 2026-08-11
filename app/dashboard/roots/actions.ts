@@ -260,6 +260,32 @@ export async function archiveRootsBooking(id: string, archive: boolean): Promise
   revalidatePath("/dashboard/roots")
 }
 
+// ------- MARK AS PAID (manual admin override) -------
+export async function markRootsBookingAsPaid(
+  id: string,
+  amountPaid: number
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = getSupabase()
+  const booking = await getBooking(id)
+  if (!booking) return { ok: false, error: "Booking not found" }
+  if (booking.payment_status === "paid") return { ok: false, error: "Already marked as paid" }
+
+  const { error } = await supabase
+    .from("roots_bookings")
+    .update({
+      payment_status: "paid",
+      amount_paid: amountPaid,
+      paid_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+
+  if (error) return { ok: false, error: error.message }
+
+  await addActivityLog(id, { action: "marked_paid_manually", amount: amountPaid, by: "admin" })
+  revalidatePath("/dashboard/roots")
+  return { ok: true }
+}
+
 // ------- DELETE -------
 export async function deleteRootsBooking(id: string): Promise<void> {
   const supabase = getSupabase()
