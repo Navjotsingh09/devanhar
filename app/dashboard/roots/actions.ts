@@ -199,45 +199,8 @@ export async function syncRootsPayment(id: string): Promise<{ paid: boolean; err
   const apiKey = (process.env.NOWDONATE_API_KEY || "").trim()
   if (!apiKey) return { paid: false, error: "Missing NOWDONATE_API_KEY" }
 
-  try {
-    // Query DonationManager for donations with this booking ID as reference
-    const params = new URLSearchParams({ key: apiKey, reference: id })
-    const res = await fetch(
-      "https://www.donationmanager.co.uk/services/api/donations/?" + params.toString(),
-      { cache: "no-store" }
-    )
-    if (!res.ok) return { paid: false, error: "DonationManager API error" }
-    const data = await res.json()
-
-    // Find a completed donation in the response
-    const donations: any[] = Array.isArray(data) ? data : (data.donations ?? data.data ?? [])
-    const completed = donations.find(
-      (d: any) => d.status === "completed" || d.status === "complete" || d.payment_status === "paid"
-    )
-    if (!completed) return { paid: false }
-
-    const amountPaid =
-      typeof completed.amount === "number" ? completed.amount
-      : typeof completed.amount_in_cents === "number" ? completed.amount_in_cents / 100
-      : booking.amount_due ?? 0
-
-    await getSupabase()
-      .from("roots_bookings")
-      .update({
-        payment_status: "paid",
-        amount_paid: amountPaid,
-        paid_at: new Date().toISOString(),
-        nowdonate_reference_id: completed.id ?? completed.reference_id ?? null,
-      })
-      .eq("id", id)
-
-    await addActivityLog(id, { action: "payment_synced_donationmanager", amount: amountPaid })
-    revalidatePath("/dashboard/roots")
-    return { paid: true }
-  } catch (err) {
-    console.error("[syncRootsPayment] Error:", err)
-    return { paid: false, error: "Sync failed" }
-  }
+  // DonationManager donations query endpoint TBD — checked locally for now
+  return { paid: false }
 }
 
 // ------- PAYMENT REMINDER -------
