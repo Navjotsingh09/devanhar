@@ -4,7 +4,7 @@ import { useState } from "react"
 import { format, differenceInYears, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, CheckCircle, XCircle, RefreshCw, Archive, ArchiveRestore, Trash2, Bell, BadgeCheck } from "lucide-react"
+import { Download, CheckCircle, XCircle, RefreshCw, Archive, ArchiveRestore, Trash2, Bell, BadgeCheck, ChevronDown, ChevronUp } from "lucide-react"
 import {
   confirmRootsBooking,
   declineRootsBooking,
@@ -107,12 +107,19 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
+function detailValue(v: unknown): string {
+  if (v == null) return "Not provided"
+  const s = String(v).trim()
+  return s ? s : "Not provided"
+}
+
 export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   const [confirming, setConfirming] = useState<string | null>(null)
   const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState<string | null>(null)
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
   const [showArchived, setShowArchived] = useState(false)
+  const [expanded, setExpanded] = useState<string | null>(null)
 
   const active = bookings.filter((b) => !b.archived)
   const archived = bookings.filter((b) => b.archived)
@@ -284,6 +291,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
               const isLoading = loading === b.id
               const msg = messages[b.id]
               const isArchived = b.archived
+              const isExpanded = expanded === b.id
 
               return (
                 <>
@@ -316,7 +324,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                       ) : b.status === "confirmed" ? (
                         <div className="space-y-1">
                           <span className="text-amber-700 text-xs">Awaiting payment</span>
-                          {[65, 125, 126].includes(b.amount_due) && (
+                          {b.amount_due != null && [65, 125, 126].includes(b.amount_due) && (
                             <div className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-medium text-orange-700">
                               ⚠️ Likely paid — check NowDonate
                             </div>
@@ -408,6 +416,15 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="text-xs"
+                          onClick={() => setExpanded((prev) => (prev === b.id ? null : b.id))}
+                        >
+                          {isExpanded ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+                          {isExpanded ? "Hide details" : "View details"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-muted-foreground text-xs"
                           onClick={() => handleArchive(b)}
                           disabled={isLoading}
@@ -430,6 +447,68 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                       </div>
                     </td>
                   </tr>
+
+                  {isExpanded && (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-4 bg-secondary/10 border-b border-border">
+                        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 text-xs">
+                          <div className="space-y-1">
+                            <p className="font-semibold text-foreground">Participant</p>
+                            <p><span className="text-muted-foreground">Full name:</span> {b.camper_first_name} {b.camper_last_name}</p>
+                            <p><span className="text-muted-foreground">Date of birth:</span> {detailValue(b.camper_dob)}</p>
+                            <p><span className="text-muted-foreground">Age:</span> {age != null ? `${age} years` : "Not provided"}</p>
+                            <p><span className="text-muted-foreground">Gender:</span> {detailValue(b.camper_gender)}</p>
+                          </div>
+
+                          <div className="space-y-1">
+                            <p className="font-semibold text-foreground">Parent / Guardian</p>
+                            <p><span className="text-muted-foreground">Full name:</span> {b.parent_first_name} {b.parent_last_name}</p>
+                            <p><span className="text-muted-foreground">Relationship:</span> {detailValue(b.parent_relationship)}</p>
+                            <p><span className="text-muted-foreground">Email:</span> {detailValue(b.parent_email)}</p>
+                            <p><span className="text-muted-foreground">Phone / WhatsApp:</span> {detailValue(b.parent_phone)}</p>
+                            <p><span className="text-muted-foreground">Location:</span> Not collected on current form</p>
+                          </div>
+
+                          <div className="space-y-1">
+                            <p className="font-semibold text-foreground">Emergency Contact</p>
+                            <p><span className="text-muted-foreground">Name:</span> {detailValue(b.emergency_name)}</p>
+                            <p><span className="text-muted-foreground">Relationship:</span> {detailValue(b.emergency_relationship)}</p>
+                            <p><span className="text-muted-foreground">Phone:</span> {detailValue(b.emergency_phone)}</p>
+                          </div>
+
+                          <div className="space-y-1 md:col-span-2 lg:col-span-3">
+                            <p className="font-semibold text-foreground">Support Information</p>
+                            <p><span className="text-muted-foreground">Dietary requirements:</span> {detailValue(b.dietary_requirements)}</p>
+                            <p><span className="text-muted-foreground">Medical / health information:</span> {detailValue(b.medical_info)}</p>
+                            <p><span className="text-muted-foreground">How they heard about Roots:</span> {detailValue(b.how_did_you_hear)}</p>
+                            <p><span className="text-muted-foreground">Additional information:</span> {detailValue(b.additional_info)}</p>
+                            <p><span className="text-muted-foreground">Internal notes:</span> {detailValue(b.notes)}</p>
+                          </div>
+
+                          <div className="space-y-1 md:col-span-2 lg:col-span-3">
+                            <p className="font-semibold text-foreground">Booking & Payment</p>
+                            <p><span className="text-muted-foreground">Booking ID:</span> {b.id}</p>
+                            <p><span className="text-muted-foreground">Application status:</span> {detailValue(b.status)}</p>
+                            <p><span className="text-muted-foreground">Payment status:</span> {detailValue(b.payment_status)}</p>
+                            <p><span className="text-muted-foreground">Amount due:</span> {b.amount_due != null ? `£${b.amount_due}` : "Not set"}</p>
+                            <p><span className="text-muted-foreground">Amount paid:</span> {b.amount_paid != null ? `£${b.amount_paid}` : "Not paid"}</p>
+                            <p><span className="text-muted-foreground">Paid at:</span> {b.paid_at ? format(new Date(b.paid_at), "dd MMM yyyy, HH:mm") : "Not paid"}</p>
+                            <p><span className="text-muted-foreground">Submitted:</span> {format(new Date(b.created_at), "dd MMM yyyy, HH:mm")}</p>
+                            <p><span className="text-muted-foreground">Archived:</span> {b.archived ? "Yes" : "No"}</p>
+                            <p><span className="text-muted-foreground">Archive date:</span> {b.archived_at ? format(new Date(b.archived_at), "dd MMM yyyy, HH:mm") : "Not archived"}</p>
+                            <p>
+                              <span className="text-muted-foreground">Payment link:</span>{" "}
+                              {b.nowdonate_payment_url ? (
+                                <a href={b.nowdonate_payment_url} target="_blank" rel="noopener noreferrer" className="underline text-amber-800">
+                                  Open payment link
+                                </a>
+                              ) : "Not available"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
 
                   {/* Inline confirm panel */}
                   {confirming === b.id && (
