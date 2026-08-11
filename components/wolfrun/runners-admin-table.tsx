@@ -37,7 +37,13 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
     packFilter === "all" ? rows : rows.filter((r) => r.pack === packFilter)
 
   const deleteRunner = async (runner: Runner) => {
-    if (!window.confirm(`Permanently delete ${runner.first_name} ${runner.last_name}? This cannot be undone.`)) {
+    if (\!window.confirm(`Permanently delete ${runner.first_name} ${runner.last_name}? This cannot be undone.`)) {
+      return
+    }
+
+    // Stripe fallback rows have no Supabase record — remove from UI only
+    if (\!isUuid(runner.id)) {
+      setRows((prev) => prev.filter((r) => r.id \!== runner.id))
       return
     }
 
@@ -47,11 +53,11 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
     try {
       const res = await fetch(`/api/wolfrun/runners?id=${runner.id}`, { method: "DELETE" })
       const data = await res.json()
-      if (!res.ok) {
+      if (\!res.ok) {
         setError(data.error || "Failed to delete runner")
         return
       }
-      setRows((prev) => prev.filter((r) => r.id !== runner.id))
+      setRows((prev) => prev.filter((r) => r.id \!== runner.id))
     } catch {
       setError("Network error")
     } finally {
@@ -151,9 +157,9 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => deleteRunner(runner)}
-                      disabled={deletingId === runner.id || !isUuid(runner.id)}
+                      disabled={deletingId === runner.id}
                       className="rounded p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50"
-                      title={!isUuid(runner.id) ? "Unavailable for Stripe fallback rows" : "Delete permanently"}
+                      title="Delete permanently"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
