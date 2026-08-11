@@ -259,7 +259,7 @@ export default function RootsResidentialPage() {
               Pricing
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="text-5xl md:text-6xl text-[hsl(43,100%,29%)]">&pound;125.00</span>
+              <span className="text-5xl md:text-6xl text-[hsl(43,100%,29%)]">&pound;75.00</span>
               <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per participant</span>
             </h2>
             <p className="text-sm text-muted-foreground mb-6">

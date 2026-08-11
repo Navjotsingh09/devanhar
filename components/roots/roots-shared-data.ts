@@ -98,7 +98,7 @@ export const rootsFAQs: FAQItem[] = [
   },
   {
     question: "How much does Roots cost?",
-    answer: "The current price is £125 per participant, subject to change. The exact cost will be confirmed when we contact you following your application.",
+    answer: "The current price is £75 per participant, subject to change. The exact cost will be confirmed when we contact you following your application.",
   },
   {
     question: "Who can attend Roots?",
