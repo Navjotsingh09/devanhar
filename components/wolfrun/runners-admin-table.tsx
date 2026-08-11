@@ -37,7 +37,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
     packFilter === "all" ? rows : rows.filter((r) => r.pack === packFilter)
 
   const deleteRunner = async (runner: Runner) => {
-    if (\!window.confirm(`Permanently delete ${runner.first_name} ${runner.last_name}? This cannot be undone.`)) {
+    if (!window.confirm(`Permanently delete ${runner.first_name} ${runner.last_name}? This cannot be undone.`)) {
       return
     }
 
