@@ -171,7 +171,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
     try {
       const result = await syncRootsPayment(b.id)
       setMsg(b.id, result.paid ? "success" : "error",
-        result.paid ? "Payment confirmed." : "No completed payment found yet.")
+        result.paid ? "Payment confirmed." : (result.error ?? "No completed payment found yet."))
     } catch {
       setMsg(b.id, "error", "Sync failed.")
     }
