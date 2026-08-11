@@ -322,14 +322,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                           Paid &pound;{b.amount_paid}
                         </span>
                       ) : b.status === "confirmed" ? (
-                        <div className="space-y-1">
-                          <span className="text-amber-700 text-xs">Awaiting payment</span>
-                          {b.amount_due != null && [65, 125, 126].includes(b.amount_due) && (
-                            <div className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-medium text-orange-700">
-                              ⚠️ Likely paid — check NowDonate
-                            </div>
-                          )}
-                        </div>
+                        <span className="text-amber-700 text-xs">Awaiting payment</span>
                       ) : (
                         <span className="text-muted-foreground text-xs">—</span>
                       )}
