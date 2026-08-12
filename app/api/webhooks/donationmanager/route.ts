@@ -12,6 +12,80 @@ function getSupabaseAdmin() {
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 
+function normalize(value: unknown): string {
+  return typeof value === 'string' ? value.trim().toLowerCase() : ''
+}
+
+function getReference(payload: any): string {
+  const raw =
+    payload?.reference ??
+    payload?.custom ??
+    payload?.data?.reference ??
+    payload?.data?.custom ??
+    payload?.donation?.reference ??
+    payload?.donation?.custom ??
+    ''
+  return typeof raw === 'string' ? raw.trim() : ''
+}
+
+function getDonationEventType(payload: any): string {
+  return normalize(payload?.event || payload?.type)
+}
+
+function getDonationObject(payload: any): string {
+  return normalize(payload?.object)
+}
+
+function isCancelledDonation(payload: any): boolean {
+  const donationCancelled = payload?.donation?.cancelled
+  if (typeof donationCancelled === 'boolean') return donationCancelled
+  const eventType = getDonationEventType(payload)
+  return eventType === 'donation.refunded' || eventType === 'order.refunded'
+}
+
+function isCompletedDonation(payload: any): boolean {
+  const eventType = getDonationEventType(payload)
+  if (eventType === 'donation.completed' || eventType === 'donation.received' || eventType === 'donation.recurring') {
+    return true
+  }
+
+  if (getDonationObject(payload) === 'donation') {
+    return !isCancelledDonation(payload)
+  }
+
+  return false
+}
+
+function extractIdFromReference(reference: string, prefix: string): string | null {
+  if (!reference.startsWith(prefix)) return null
+  const id = reference.slice(prefix.length).trim()
+  return id || null
+}
+
+async function recalcFundraiserTotalRaised(supabase: ReturnType<typeof getSupabaseAdmin>, fundraiserId: string) {
+  const { data: completedRows, error: sumError } = await supabase
+    .from('wolfrun_donations')
+    .select('amount')
+    .eq('fundraiser_id', fundraiserId)
+    .eq('status', 'completed')
+
+  if (sumError) {
+    console.error('[DonationManager Webhook] Failed to recalc fundraiser total:', sumError)
+    return
+  }
+
+  const totalRaised = (completedRows || []).reduce((sum, row) => sum + (row.amount || 0), 0)
+
+  const { error: updateError } = await supabase
+    .from('wolfrun_fundraisers')
+    .update({ total_raised: totalRaised })
+    .eq('id', fundraiserId)
+
+  if (updateError) {
+    console.error('[DonationManager Webhook] Failed to update fundraiser total:', updateError)
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const signature = request.headers.get('x-webhook-signature') || request.headers.get('x-dm-signature')
@@ -22,6 +96,48 @@ export async function POST(request: NextRequest) {
     const payload = await request.json()
     const eventType = payload.event || payload.type
     const supabase = getSupabaseAdmin()
+    const reference = getReference(payload)
+
+    // Wolf Run entry payment reconciliation
+    const runnerId = extractIdFromReference(reference, 'wolfrun_runner:')
+    if (runnerId) {
+      const runnerStatus = isCompletedDonation(payload) ? 'confirmed' : isCancelledDonation(payload) ? 'failed' : null
+      if (runnerStatus) {
+        await supabase
+          .from('wolfrun_runners')
+          .update({
+            status: runnerStatus,
+            stripe_session_id: payload?.donation?.id || payload?.donation_id || payload?.id || reference,
+          })
+          .eq('id', runnerId)
+      }
+    }
+
+    // Wolf Run sponsorship donation reconciliation
+    const wolfrunDonationId = extractIdFromReference(reference, 'wolfrun_donation:')
+    if (wolfrunDonationId) {
+      let fundraiserId: string | null = null
+
+      if (isCompletedDonation(payload) || isCancelledDonation(payload)) {
+        const nextStatus = isCompletedDonation(payload) ? 'completed' : 'failed'
+        const { data: updatedDonation, error: donationUpdateError } = await supabase
+          .from('wolfrun_donations')
+          .update({ status: nextStatus })
+          .eq('id', wolfrunDonationId)
+          .select('fundraiser_id')
+          .maybeSingle()
+
+        if (donationUpdateError) {
+          console.error('[DonationManager Webhook] Failed to update Wolf Run donation status:', donationUpdateError)
+        } else {
+          fundraiserId = updatedDonation?.fundraiser_id || null
+        }
+      }
+
+      if (fundraiserId) {
+        await recalcFundraiserTotalRaised(supabase, fundraiserId)
+      }
+    }
 
     switch (eventType) {
       case 'donation.completed':
@@ -29,7 +145,7 @@ export async function POST(request: NextRequest) {
         await supabase.from('activity_log').insert({
           action: 'Donation received via DonationManager',
           entity_type: 'donation_webhook',
-          entity_id: payload.data?.reference || payload.id || null,
+          entity_id: payload.data?.reference || payload.id || reference || null,
         })
         break
       }
@@ -37,7 +153,7 @@ export async function POST(request: NextRequest) {
         await supabase.from('activity_log').insert({
           action: 'Recurring donation via DonationManager',
           entity_type: 'donation_webhook',
-          entity_id: payload.data?.reference || payload.id || null,
+          entity_id: payload.data?.reference || payload.id || reference || null,
         })
         break
       }
@@ -55,7 +171,7 @@ export async function POST(request: NextRequest) {
         await supabase.from('activity_log').insert({
           action: 'Refund processed via DonationManager',
           entity_type: 'refund_webhook',
-          entity_id: payload.data?.reference || payload.id || null,
+          entity_id: payload.data?.reference || payload.id || reference || null,
         })
         break
       }
