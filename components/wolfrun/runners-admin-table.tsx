@@ -110,6 +110,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Age</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">City</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">WhatsApp</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Payment</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Registered</th>
                 <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
               </tr>
@@ -145,6 +146,13 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                       <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">Yes</Badge>
                     ) : (
                       <Badge variant="outline" className="text-muted-foreground">No</Badge>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {runner.status === "confirmed" ? (
+                      <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">Confirmed</Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800">Payment pending</Badge>
                     )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">

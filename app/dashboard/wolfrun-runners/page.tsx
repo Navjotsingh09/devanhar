@@ -35,7 +35,6 @@ async function getRunnerStats() {
     supabase
       .from('wolfrun_runners')
       .select('id, first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, status, created_at')
-      .eq('status', 'confirmed')
       .order('created_at', { ascending: false })
       .limit(5000),
     supabase
@@ -73,7 +72,7 @@ export default async function WolfRunRunnersPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Wolf Run Runners</h1>
-        <p className="text-muted-foreground">Confirmed entrants for the Wolf Run event</p>
+        <p className="text-muted-foreground">All Wolf Run entry submissions and their payment status</p>
         <p className="text-xs text-muted-foreground mt-1">Data source: Supabase</p>
       </div>
 
@@ -112,7 +111,7 @@ export default async function WolfRunRunnersPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3">Confirmed Runners</h2>
+        <h2 className="text-lg font-semibold mb-3">Entries</h2>
         {error ? (
           <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             {error.includes("Could not find the table 'public.wolfrun_runners'")
