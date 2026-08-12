@@ -27,6 +27,8 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://igkpvudaqxkncxgslbvb.supabase.co" />
+        <meta name="google-site-verification" content="6VJaNEHtUGoWRaVifyifGM9VIZHhHbOp_OS7aBgQqzk" />
+        <meta name="msvalidate.01" content="32CE480F983651B6253AEE1265C5A404" />
         {/* GTM Consent Mode v2 — default denied, must be before GTM script */}
         <script
           dangerouslySetInnerHTML={{
