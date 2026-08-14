@@ -11,7 +11,7 @@ type Attendee = { name: string; age: string }
 type Travel = "door" | "transport"
 const RATES = { child: { door: 8, transport: 10 }, adult: { door: 15, transport: 20 } }
 const emptyAttendee = (): Attendee => ({ name: "", age: "" })
-const namePattern = /^[\p{L}\p{M}\s'.\-]{1,80}$/u
+const namePattern = /^[\p{L}\p{M}\s'.()\-]{1,80}$/u
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const phonePattern = /^[\d\s+\-()]{7,24}$/
 
