@@ -20,6 +20,7 @@ const routeLabels: Record<string, string> = {
   '/dashboard/donations': 'Donations',
   '/dashboard/activity': 'Activity Log',
   '/dashboard/settings': 'Settings',
+  '/dashboard/family-initiative': 'Family Fun Day Bookings',
 }
 
 export function DashboardHeader() {

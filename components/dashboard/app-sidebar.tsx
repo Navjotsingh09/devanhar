@@ -19,6 +19,7 @@ import {
   BookOpen,
   Video,
   TreePine,
+  CalendarDays,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -80,6 +81,9 @@ const rootsNav: NavItem[] = [
 
 const familyRetreatNav: NavItem[] = [
   { title: 'Family Retreat Bookings', url: '/dashboard/family-retreat', icon: Users },
+]
+const familyInitiativeNav: NavItem[] = [
+  { title: "Family Fun Day Bookings", url: "/dashboard/family-initiative", icon: CalendarDays },
 ]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -272,6 +276,21 @@ export function AppSidebar({ user }: AppSidebarProps) {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+        )}
+
+        {isVacanciesOnly === false && (
+        <SidebarGroup>
+          <SidebarGroupLabel><CalendarDays className="h3 w3 mr-1" />Sikh Family Initiative</SidebarGroupLabel>
+          <SidebarGroupContent><SidebarMenu>
+            {familyInitiativeNav.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
+                  <Link href={item.url}><item.icon className="h4 w4" /><span>{item.title}</span></Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu></SidebarGroupContent>
         </SidebarGroup>
         )}
 

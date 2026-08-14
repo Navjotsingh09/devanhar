@@ -18,3 +18,5 @@ create table if not exists public.family_initiative_bookings (
 );
 alter table public.family_initiative_bookings enable row level security;
 revoke all on public.family_initiative_bookings from anon, authenticated;
+
+alter table public.family_initiative_bookings add column if not exists internal_notes text;
