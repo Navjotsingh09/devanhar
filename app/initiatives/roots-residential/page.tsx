@@ -50,20 +50,45 @@ export default function RootsResidentialPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                 Applications are now open
               </h2>
+              <div className="mb-4 rounded-xl border border-[hsl(43,100%,29%)]/30 bg-[hsl(43,100%,29%)]/10 px-5 py-4 sm:flex sm:items-center sm:justify-between">
+                <p className="text-sm font-semibold uppercase tracking-wide text-[hsl(43,100%,29%)]">Current price</p>
+                <p className="mt-1 text-2xl font-bold text-foreground sm:mt-0">£75 per participant</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 mb-8">
+                <div className="rounded-xl border border-border bg-background p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Location</p>
+                  <p className="mt-1 text-lg font-bold text-foreground">Hilston Park, Wales</p>
+                </div>
+                <div className="rounded-xl border border-border bg-background p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dates</p>
+                  <p className="mt-1 text-lg font-bold text-foreground">To be confirmed</p>
+                </div>
+              </div>
               <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
                 <p>
                   Please complete one application per participant. The form will ask for the participant's details, parent or guardian contact information, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential.
                 </p>
                 <p>
-                  Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment.
+                  Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment. The current cost is £75 per participant.
                 </p>
               </div>
-              <Button
-                asChild
-                className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
-              >
-                <a href="#booking-form">Complete the application</a>
-              </Button>
+              <div className="flex flex-wrap items-center gap-4">
+                <Button
+                  asChild
+                  className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
+                >
+                  <a href="#booking-form">Complete the application</a>
+                </Button>
+                <a
+                  href="https://www.instagram.com/rootsuk13"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline"
+                >
+                  <Instagram className="h-4 w-4" />
+                  Instagram @rootsuk13
+                </a>
+              </div>
               <p className="mt-6 text-xs text-muted-foreground leading-relaxed max-w-xl">
                 Submitting the form does not automatically confirm your place. Your booking is only confirmed once the Roots team has reviewed your details and contacted you directly.
               </p>
@@ -102,6 +127,7 @@ export default function RootsResidentialPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-kaurs-logo.jpg" alt="Bibia Kaurs Roots — girls' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Girls&apos; Residential</h3>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Dates to be confirmed</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.
                 </p>
@@ -110,6 +136,7 @@ export default function RootsResidentialPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-singhs-logo.jpg" alt="Singhs Roots — boys' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Boys&apos; Residential</h3>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Dates to be confirmed</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.
                 </p>
@@ -121,6 +148,9 @@ export default function RootsResidentialPage() {
                 Girls and boys attend separate residentials, giving every young person a safe, comfortable space to take part, build friendships and grow with confidence. Safeguarding and welfare are at the heart of everything we do.
               </p>
             </div>
+            <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+              The girls&apos; and boys&apos; residentials run on separate dates. The exact dates will be published here as soon as they are confirmed.
+            </p>
           </div>
         </section>
 
@@ -227,28 +257,36 @@ export default function RootsResidentialPage() {
           </div>
         </section>
 
-        {/* Histon Park */}
+        {/* Hilston Park */}
         <section className="border-t border-border py-16 md:py-24">
-          <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
+          <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               The Venue
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Hilston Park
-            </h2>
-            <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
-              <p>
-                Roots takes place at Hilston Park, a stunning residential activity centre set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.
-              </p>
-              <p>
-                From the grounds to the accommodation, every part of the site is designed to support an immersive residential experience.
-              </p>
+            <div className="grid gap-8 md:grid-cols-[1.1fr_1fr] md:items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                  Hilston Park, Wales
+                </h2>
+                <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
+                  <p>
+                    Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.
+                  </p>
+                  <p>
+                    From the grounds to the accommodation, every part of the site is designed to support an immersive residential experience.
+                  </p>
+                </div>
+                <Button asChild variant="outline" className="rounded-full px-7 gap-2">
+                  <Link href="https://hilstonpark.com/" target="_blank" rel="noopener noreferrer">
+                    Visit Hilston Park website <ExternalLink className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+              <figure className="overflow-hidden rounded-2xl border border-border bg-muted">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/initiatives/roots-hilston-park.jpg" alt="Hilston Park venue in Wales" className="h-full min-h-72 w-full object-cover" />
+              </figure>
             </div>
-            <Button asChild variant="outline" className="rounded-full px-7 gap-2">
-              <Link href="https://hilstonpark.com/" target="_blank" rel="noopener noreferrer">
-                Visit Hilston Park website <ExternalLink className="h-4 w-4" />
-              </Link>
-            </Button>
           </div>
         </section>
 
@@ -263,7 +301,10 @@ export default function RootsResidentialPage() {
               <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per participant</span>
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Price is subject to change. The exact cost will be confirmed when we contact you following your application.
+              The current cost is £75 per participant. This is subject to change, and the final amount will be confirmed when we contact you following your application.
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Transport arrangements, including whether supported coach travel will run from London or Birmingham, are still to be confirmed. Families will receive clear arrival and travel information before the residential.
             </p>
             <Button
               asChild
