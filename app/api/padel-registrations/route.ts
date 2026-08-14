@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { sendPadelRegistrationOwnerNotification } from '@/lib/padel-registration-emails'
 import { sendPadelPaymentPendingEmail, sendPadelRegistrationReceivedEmail } from '@/lib/padel-registration-emails'
 import { signPadelResumeToken } from '@/lib/padel-resume-token'
+import { PADEL_EVENT } from '@/components/padel/padel-event'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -13,7 +14,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `h
 const padelFeePerPersonGbp = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || '50')
 const PADEL_PLAYERS_PER_TEAM = 2
 const paymentMode = (process.env.PADEL_PAYMENT_MODE || process.env.CAMP_PAYMENT_MODE || 'stripe').trim().toLowerCase()
-const eventName = process.env.PADEL_EVENT_NAME || 'Sikh Padel Association — 4th July'
+const eventName = process.env.PADEL_EVENT_NAME || PADEL_EVENT.name
 
 function isStripePaymentModeEnabled() {
   return paymentMode === 'stripe'

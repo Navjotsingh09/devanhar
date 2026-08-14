@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react"
+import { PADEL_EVENT } from "@/components/padel/padel-event"
 import {
   Trophy,
   Users,
@@ -80,7 +81,7 @@ export const padelSteps: PadelStep[] = [
     step: "03",
     title: "Place confirmed",
     description:
-      "Once your team is confirmed you will receive an email with full event details, your group and timings.",
+      "Once your team is confirmed, you will receive an email with your place and event details for ${PADEL_EVENT.date}.",
   },
   {
     step: "04",
@@ -144,7 +145,7 @@ export const padelFaqs = [
   {
     question: "When is the next event?",
     answer:
-      "Our upcoming tournament takes place on 4th July. Register your team to secure your place — further details will be shared with confirmed teams by email.",
+      `Our upcoming tournament takes place on ${PADEL_EVENT.date}, from ${PADEL_EVENT.time}, at ${PADEL_EVENT.venue}, ${PADEL_EVENT.address}. Register your team to secure your place.`,
   },
   {
     question: "How does payment work?",

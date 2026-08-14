@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
 import { verifyPadelResumeToken } from "@/lib/padel-resume-token"
+import { PADEL_EVENT } from "@/components/padel/padel-event"
 
 export const dynamic = "force-dynamic"
 
@@ -13,7 +14,7 @@ const siteUrl =
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
 const padelFeePerPersonGbp = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || "50")
 const PADEL_PLAYERS_PER_TEAM = 2
-const eventName = process.env.PADEL_EVENT_NAME || "Sikh Padel Association — 4th July"
+const eventName = process.env.PADEL_EVENT_NAME || PADEL_EVENT.name
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
