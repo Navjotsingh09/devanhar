@@ -62,12 +62,16 @@ export function FooterContactForm() {
       </h3>
 
       {status === "success" ? (
-        <div className="flex flex-col items-center text-center py-8">
-          <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-4">
-            <Check className="h-7 w-7 text-green-600" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="contact-success-title">
+          <div className="w-full max-w-xl rounded-3xl border-2 border-emerald-500/30 bg-background p-8 text-center shadow-2xl md:p-12">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
+              <Check className="h-11 w-11 text-emerald-600" strokeWidth={2.5} />
+            </div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">Submission successful</p>
+            <h4 id="contact-success-title" className="mb-4 text-3xl font-bold text-foreground">Message sent</h4>
+            <p className="mb-8 text-base leading-relaxed text-muted-foreground">Thank you for reaching out. Your message has been submitted successfully and our team will get back to you soon.</p>
+            <Button type="button" onClick={() => setStatus("idle")} className="rounded-full bg-primary px-8 text-primary-foreground hover:bg-primary/90">Close confirmation</Button>
           </div>
-          <h4 className="text-lg font-semibold text-foreground mb-2">Message sent!</h4>
-          <p className="text-sm text-muted-foreground">Thank you for reaching out. We will get back to you soon.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
