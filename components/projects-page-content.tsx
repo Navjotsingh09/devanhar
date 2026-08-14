@@ -51,6 +51,14 @@ const projects: Project[] = [
     icon: Home,
   },
   {
+    title: "Sikh Family Initiative",
+    description: "Family Fun Day - Summer Extravaganza on 31 August 2026, bringing families together through community, connection and shared memories.",
+    image: "/initiatives/sikh-family-retreat-top.png",
+    href: "/initiatives/sikh-family-initiative",
+    tag: "Family",
+    icon: Home,
+  },
+  {
     title: "Sikhi Vidyala",
     description: "A structured educational programme offering weekly classes in Gurbani, Sikh history, Gurmukhi, and Sikh philosophy for all ages.",
     image: "/initiatives/sikhi-vidyala-top.jpg",

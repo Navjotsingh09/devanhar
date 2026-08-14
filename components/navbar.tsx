@@ -51,6 +51,13 @@ const MEGA_MENU_PROJECTS = [
     tag: "Family",
   },
   {
+    title: "Sikh Family Initiative",
+    description: "Family Fun Day - Summer Extravaganza on 31 August 2026.",
+    image: "/initiatives/sikh-family-retreat-top.png",
+    href: "/initiatives/sikh-family-initiative",
+    tag: "Family",
+  },
+  {
     title: "Sikhi Vidyala",
     description: "Structured classes in Gurbani, Sikh history, Gurmukhi and Sikh philosophy for all ages.",
     image: "/initiatives/sikhi-vidyala-top.jpg",

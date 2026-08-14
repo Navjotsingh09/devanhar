@@ -1,0 +1,23 @@
+import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const notificationEmails = [process.env.FAMILY_INITIATIVE_NOTIFICATION_EMAIL || "TheSikhFI@devanhaar.com", "SikhFI@devanhaar.com"]
+const rates = { child: { door: 8, transport: 10 }, adult: { door: 15, transport: 20 } }
+function adminClient() { const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL; const key = process.env.SUPABASE_SERVICE_ROLE_KEY; if (!url || !key) throw new Error("Missing Supabase service role credentials"); return createClient(url, key) }
+export async function GET() { return NextResponse.json({ ok: true, route: "family-initiative-bookings", methods: ["POST"] }) }
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json(); const contact = body.contact || {}; const children = Array.isArray(body.children) ? body.children : []; const adults = Array.isArray(body.adults) ? body.adults : []; const travel = body.travel === "transport" ? "transport" : "door"
+    if (!contact.name?.trim() || !emailPattern.test(contact.email || "") || !contact.phone?.trim()) return NextResponse.json({ error: "Please complete the main contact details." }, { status: 400 })
+    if (!children.length || !adults.length) return NextResponse.json({ error: "Please add at least one child and one adult." }, { status: 400 })
+    if ([...children, ...adults].some((attendee) => !attendee.name?.trim() || !/^\d{1,3}$/.test(String(attendee.age)) || Number(attendee.age) > 120)) return NextResponse.json({ error: "Please complete every attendee's name and age." }, { status: 400 })
+    if (travel === "transport" && !body.pickup?.trim()) return NextResponse.json({ error: "Please provide pickup or transport details." }, { status: 400 })
+    if (!contact.consent) return NextResponse.json({ error: "Please accept the privacy policy to continue." }, { status: 400 })
+    const total = children.length * rates.child[travel] + adults.length * rates.adult[travel]
+    const payload = { event_name: "Family Fun Day - Summer Extravaganza", event_date: "2026-08-31", contact_name: contact.name.trim(), email: contact.email.trim().toLowerCase(), phone: contact.phone.trim(), children_attending: children, adults_attending: adults, travel_option: travel, pickup_details: travel === "transport" ? body.pickup.trim() : null, medical_allergy_information: contact.medical?.trim() || null, estimated_total_pence: total * 100, consent_privacy: true, page_url: body.page_url?.slice(0, 2048) || null, status: "pending" }
+    const { data, error } = await adminClient().from("family_initiative_bookings").insert(payload).select("id").single()
+    if (error) { console.error("[family-initiative-bookings] DB error:", error); return NextResponse.json({ error: "Failed to save booking. Please try again." }, { status: 500 }) }
+    if (process.env.RESEND_API_KEY) { try { const { Resend } = await import("resend"); const resend = new Resend(process.env.RESEND_API_KEY); const summary = [`New Sikh Family Initiative booking request`, `Submission ID: ${data.id}`, `Event: ${payload.event_name} (${payload.event_date})`, `Contact: ${payload.contact_name}`, `Email: ${payload.email}`, `Phone: ${payload.phone}`, `Children: ${JSON.stringify(children)}`, `Adults: ${JSON.stringify(adults)}`, `Travel: ${travel}`, `Pickup: ${payload.pickup_details || "Not required"}`, `Medical/allergy information: ${payload.medical_allergy_information || "None stated"}`, `Estimated total: £${total}`].join("\n"); await resend.emails.send({ from: "Devanhaar <noreply@devanhaar.com>", to: notificationEmails, subject: `Family Fun Day booking - ${payload.contact_name}`, text: summary }); await resend.emails.send({ from: "Sikh Family Initiative <noreply@devanhaar.com>", to: payload.email, subject: "Your Family Fun Day booking request has been received", text: `Dear ${payload.contact_name},\n\nThank you for your Family Fun Day - Summer Extravaganza booking request for 31 August 2026. The Sikh Family Initiative team will review your details and contact you to confirm the booking. No payment has been taken.\n\nWarm regards,\nThe Sikh Family Initiative Team` }) } catch (emailError) { console.warn("[family-initiative-bookings] Email failed:", emailError) } }
+    return NextResponse.json({ success: true, id: data.id, total })
+  } catch (error) { console.error("[family-initiative-bookings] Unexpected error:", error); return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 }) }
+}
