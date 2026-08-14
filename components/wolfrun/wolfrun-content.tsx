@@ -504,7 +504,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
       </button>
 
       <p className="text-xs text-muted-foreground text-center">
-        You&apos;ll be redirected to Stripe to complete your payment securely.
+        You&apos;ll be redirected to DonationManager to complete your payment securely.
       </p>
     </form>
   )

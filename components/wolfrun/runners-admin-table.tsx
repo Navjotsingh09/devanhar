@@ -151,8 +151,10 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                   <td className="px-4 py-3">
                     {runner.status === "confirmed" ? (
                       <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">Confirmed</Badge>
-                    ) : (
+                    ) : runner.status === "payment_pending" ? (
                       <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800">Payment pending</Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-red-300 bg-red-50 text-red-800">Payment not completed</Badge>
                     )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
