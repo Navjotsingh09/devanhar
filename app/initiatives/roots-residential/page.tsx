@@ -61,7 +61,7 @@ export default function RootsResidentialPage() {
                 </div>
                 <div className="rounded-xl border border-border bg-background p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dates</p>
-                  <p className="mt-1 text-lg font-bold text-foreground">To be confirmed</p>
+                  <p className="mt-1 text-lg font-bold text-foreground">23rd–30th August</p>
                 </div>
               </div>
               <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
@@ -127,7 +127,7 @@ export default function RootsResidentialPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-kaurs-logo.jpg" alt="Bibia Kaurs Roots — girls' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Girls&apos; Residential</h3>
-                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Dates to be confirmed</p>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Girls: 27th–30th August</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.
                 </p>
@@ -136,7 +136,7 @@ export default function RootsResidentialPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-singhs-logo.jpg" alt="Singhs Roots — boys' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Boys&apos; Residential</h3>
-                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Dates to be confirmed</p>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Boys: 23rd–26th August</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.
                 </p>
@@ -149,7 +149,7 @@ export default function RootsResidentialPage() {
               </p>
             </div>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
-              The girls&apos; and boys&apos; residentials run on separate dates. The exact dates will be published here as soon as they are confirmed.
+              The boys&apos; residential runs from 23rd–26th August, followed by the girls&apos; residential from 27th–30th August.
             </p>
           </div>
         </section>
