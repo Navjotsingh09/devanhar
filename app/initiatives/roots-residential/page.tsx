@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ExternalLink, Instagram, Shield } from "lucide-react"
+import { Bus, ExternalLink, Instagram, Shield } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -303,9 +303,29 @@ export default function RootsResidentialPage() {
             <p className="text-sm text-muted-foreground mb-6">
               The current cost is £75 per participant. This is subject to change, and the final amount will be confirmed when we contact you following your application.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Transport arrangements, including whether supported coach travel will run from London or Birmingham, are still to be confirmed. Families will receive clear arrival and travel information before the residential.
-            </p>
+            <div className="mb-8 rounded-2xl border border-[hsl(43,100%,29%)]/30 bg-background p-5 md:p-6">
+              <div className="flex items-start gap-4">
+                <div className="rounded-full bg-[hsl(43,100%,29%)]/10 p-3 text-[hsl(43,100%,29%)]">
+                  <Bus className="h-6 w-6" aria-hidden="true" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-foreground">Travel information</h3>
+                  <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                    Transport arrangements are still to be confirmed. We will let families know whether supported coach travel will run from London or Birmingham, or whether participants should make their own way to Hilston Park.
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-lg border border-border px-3 py-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Coach routes</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">London / Birmingham: to be confirmed</p>
+                    </div>
+                    <div className="rounded-lg border border-border px-3 py-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Arrival</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">Own way: to be confirmed</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <Button
               asChild
               className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
