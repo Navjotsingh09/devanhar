@@ -6,7 +6,10 @@ import { CampLandingHero } from "@/components/camps/camp-landing-hero"
 import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
 import { ScrollingGallery } from "@/components/camps/scrolling-gallery"
 import { ApplicationProcessTimeline } from "@/components/camps/application-process-timeline"
-import { KaursForumsSection } from "@/components/camps/kaurs-forums-section"
+import {
+  KaursForumInstagramStrips,
+  KaursForumsSection,
+} from "@/components/camps/kaurs-forums-section"
 import {
   kaursCorePillars,
   applicationSteps,
@@ -84,6 +87,8 @@ export default function KaursCampLandingPage() {
         <CorePillarsGrid pillars={kaursCorePillars} />
 
         <ScrollingGallery images={kaursGalleryImages} heading="Moments from past camps" />
+
+        <KaursForumInstagramStrips />
 
         <ApplicationProcessTimeline steps={applicationSteps} />
 
