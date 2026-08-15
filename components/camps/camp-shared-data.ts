@@ -20,6 +20,12 @@ export interface ApplicationStep {
   description: string
 }
 
+export interface KaursForum {
+  location: string
+  image: string
+  instagramUrl?: string
+}
+
 export const singhsCorePillars: CorePillar[] = [
   {
     title: "Brotherhood",
@@ -133,9 +139,43 @@ export const singhsCampDescription: string[] = [
 ]
 
 export const kaursCampDescription: string[] = [
-  "Kaurs Camps are residential retreats created for Adult Sikh women seeking space to reconnect with Sikhi, build sisterhood and step away from the noise of everyday life.",
-  "Every camp is built around the same simple idea: Naam, Sangat and Seva. We rise early for Amrit Vela, sit together in kirtan and simran, share langar, take part in workshops and katha, and make space for movement, reflection and time in nature.",
-  "In 2027 we're taking that experience to mainland Europe for the first time. Whether you join us in the UK or register your interest for the EU camp, you'll be welcomed into a sisterhood that lasts long after the camp ends.",
+  "The Kaur's Space was created for adult Sikh women seeking sisterhood, a deeper connection with Guru Sahib, and a space for empowerment.",
+  "Through our annual residential Kaur's Camps and monthly Kaur's Forums, we bring women together in welcoming, non-judgemental environments rooted in Naam, Sangat, Gurbani contemplation, and Seva. From Amrit Vela, Simran, and Kirtan to workshops, reflection, and open conversations, each gathering is designed to nurture spiritual growth.",
+  "What began as a single residential Kaur's Camp has now grown into a network of Kaur's Forums and Sangat spaces across the UK & Europe. Our vision is to provide women with a consistent space for connection, learning, and support throughout the year, fostering a sisterhood centred around Guru Sahib.",
+]
+
+export const kaursForumsDescription: string[] = [
+  "Kaurs Forums are monthly gatherings held across five locations throughout the UK, with plans to continue expanding each year. Following feedback from Kaurs Camp attendees, we recognised that one weekend of connection each year wasn't enough. In response, we created monthly forums to provide Sikh women with a safe, non-judgemental space to connect, grow and support one another through Sikhi.",
+  "Each forum brings women together in a warm and welcoming environment to build meaningful friendships, strengthen their faith, and engage in open conversations that inspire both personal and spiritual growth.",
+  "Every forum is centred around the same simple values: Naam, Sangat and Seva. Through discussion, reflection, workshops and shared experiences, women are encouraged to learn from one another, deepen their connection to Sikhi, and become part of a supportive sisterhood within their local community.",
+  "Whether you're looking to deepen your understanding of Sikhi, build lasting friendships, or simply find a welcoming community of like-minded women, there's a place for you. Explore the information below to find your nearest Kaurs Forum and become part of our growing sisterhood.",
+]
+
+export const kaursForums: KaursForum[] = [
+  {
+    location: "Derby",
+    image: "/initiatives/kaurs-forums/derby.png",
+  },
+  {
+    location: "Leicester",
+    image: "/initiatives/kaurs-forums/leicester.png",
+    instagramUrl: "https://www.instagram.com/kaursforumleicester/",
+  },
+  {
+    location: "Nottingham",
+    image: "/initiatives/kaurs-forums/nottingham.png",
+    instagramUrl: "https://www.instagram.com/kaurnect_notts/",
+  },
+  {
+    location: "Newcastle",
+    image: "/initiatives/kaurs-forums/newcastle.png",
+    instagramUrl: "https://www.instagram.com/northeastseva/",
+  },
+  {
+    location: "Birmingham",
+    image: "/initiatives/kaurs-forums/birmingham.png",
+    instagramUrl: "https://www.instagram.com/kaursforumbirmingham/",
+  },
 ]
 
 export const singhsGalleryImages: string[] = [
@@ -152,4 +192,7 @@ export const singhsGalleryImages: string[] = [
 
 export const kaursGalleryImages: string[] = [
   "/initiatives/kaurs-camp-top.jpg",
+  "/initiatives/kaurs-camp-1.jpg",
+  "/initiatives/kaurs-camp-2.jpg",
+  "/initiatives/kaurs-camp-3.jpg",
 ]

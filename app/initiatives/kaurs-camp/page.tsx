@@ -6,6 +6,7 @@ import { CampLandingHero } from "@/components/camps/camp-landing-hero"
 import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
 import { ScrollingGallery } from "@/components/camps/scrolling-gallery"
 import { ApplicationProcessTimeline } from "@/components/camps/application-process-timeline"
+import { KaursForumsSection } from "@/components/camps/kaurs-forums-section"
 import {
   kaursCorePillars,
   applicationSteps,
@@ -45,7 +46,7 @@ export default function KaursCampLandingPage() {
       <main className="min-h-screen">
         <CampLandingHero
           eyebrow="Sisterhood Retreat"
-          title="Kaurs Camps"
+          title="Kaurs Space"
           subtitle="A space for Adult Sikh women to reconnect with Sikhi, build lifelong sisterhood and step away from the noise of everyday life."
           heroImage="/initiatives/kaurs-camp-top.jpg"
           ctas={[
@@ -69,7 +70,7 @@ export default function KaursCampLandingPage() {
 
         <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
-            About the Kaurs Camps movement
+            About The Kaur's Space
           </h2>
           <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
             {kaursCampDescription.map((p, i) => (
@@ -77,6 +78,8 @@ export default function KaursCampLandingPage() {
             ))}
           </div>
         </section>
+
+        <KaursForumsSection />
 
         <CorePillarsGrid pillars={kaursCorePillars} />
 
