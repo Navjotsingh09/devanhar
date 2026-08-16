@@ -1,4 +1,5 @@
 const PADEL_FROM_EMAIL = 'Sikh Padel Association <noreply@devanhaar.com>'
+const PADEL_EVENT_DETAILS = '6 September, 11am–5pm, Wellness Suite, Rocket Padel, 2 The Drive, Ilford IG1 3PS'
 
 function escapeHtml(value: string | null | undefined): string {
   const str = value == null ? '' : String(value)
@@ -99,7 +100,7 @@ export async function sendPadelRegistrationApprovedEmail(params: {
   const html = shell('Your place is confirmed', `
     <p>Dear ${name},</p>
     <p>Great news — <strong>${team}</strong> is confirmed for the Sikh Padel Association tournament. Your entry fee payment has been completed.</p>
-    <p>We will share full event details, including venue and timings, closer to the day.</p>
+    <p>Your event details are <strong>${PADEL_EVENT_DETAILS}</strong>.</p>
   `)
   try {
     await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — your place is confirmed', html })

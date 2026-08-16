@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { CheckCircle2, Loader2, X } from "lucide-react"
+import { PADEL_EVENT } from "@/components/padel/padel-event"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const NAME_REGEX = /^[a-zA-Z\s'\-]{2,50}$/
@@ -171,8 +172,7 @@ export function PadelRegistrationForm({
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Register your pair</h2>
             <p className="mt-3 text-sm md:text-base text-muted-foreground">
               Padel is played in pairs. Complete your details and your partner&apos;s name below.
-              The entry fee is £50 per player (£100 per pair), authorised securely and only taken
-              once your place is confirmed.
+              The {PADEL_EVENT.date} tournament takes place from {PADEL_EVENT.time} at {PADEL_EVENT.venue}, {PADEL_EVENT.address}. The entry fee is £{PADEL_EVENT.feePerPerson} per player (£{PADEL_EVENT.teamFee} per pair), authorised securely and only taken once your place is confirmed.
             </p>
           </div>
           <button

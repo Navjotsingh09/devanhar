@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { CampLandingHero } from "@/components/camps/camp-landing-hero"
 import { PadelRegistrationForm } from "@/components/padel-registration-form"
+import { PADEL_EVENT, PREVIOUS_PADEL_EVENT } from "@/components/padel/padel-event"
 
 export function PadelHeroWithRegister() {
   const [showForm, setShowForm] = useState(false)
@@ -16,9 +17,9 @@ export function PadelHeroWithRegister() {
         heroImage="/initiatives/sikh-padel-association-top.jpg"
         ctas={[
           {
-            label: "Tournament — 4th July",
+            label: `Tournament — ${PADEL_EVENT.date}`,
             description:
-              "Our upcoming team tournament takes place on 4th July. Register your pair now to secure your place.",
+              `Our upcoming team tournament takes place on ${PADEL_EVENT.date}, ${PADEL_EVENT.time}, at ${PADEL_EVENT.venue}. Register your pair now to secure your place.`,
             ctaLabel: "Register your team",
             primary: true,
             onClick: () => {
@@ -33,11 +34,11 @@ export function PadelHeroWithRegister() {
             },
           },
           {
-            label: "Live leaderboard",
+            label: "Previous tournament results",
             description:
-              "Follow games, points and rankings as they are updated after each round on tournament day.",
-            href: "/initiatives/sikh-padel-association/leaderboard",
-            ctaLabel: "View leaderboard",
+              `View the ${PREVIOUS_PADEL_EVENT.date} tournament results from ${PREVIOUS_PADEL_EVENT.venue}.`,
+            href: PREVIOUS_PADEL_EVENT.leaderboardUrl,
+            ctaLabel: "View previous results",
           },
         ]}
       />

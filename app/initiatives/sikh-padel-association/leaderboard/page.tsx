@@ -20,12 +20,12 @@ export default function PadelLeaderboardPage() {
             <Trophy className="h-8 w-8 text-[hsl(43,100%,29%)]" />
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Live leaderboard
+            September live leaderboard
           </h1>
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            The live leaderboard goes live on tournament day. Games, points and
-            rankings will be updated after each round so you can follow every
-            team&apos;s progress.
+            The live leaderboard for the 6 September tournament will go live on
+            tournament day. Games, points and rankings will be updated after each
+            round so you can follow every team&apos;s progress.
           </p>
           <div className="mt-8">
             <Link href="/initiatives/sikh-padel-association">
