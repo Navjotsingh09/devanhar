@@ -75,7 +75,7 @@ export const padelSteps: PadelStep[] = [
     step: "02",
     title: "Payment held securely",
     description:
-      "Your entry fee is authorised through Stripe and held — not taken — until the team confirms your place.",
+      "Your entry fee is processed securely through our donation manager. Once your team is confirmed, further payment instructions will be sent.",
   },
   {
     step: "03",

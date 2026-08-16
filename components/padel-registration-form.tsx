@@ -127,8 +127,9 @@ export function PadelRegistrationForm({
       if (!res.ok) {
         setError(data.error || "Failed to submit. Please try again.")
       } else {
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url
+        // Redirect to NowDonate for payment
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url
           return
         }
         setSuccessTitle(data.title || "Registration received")
@@ -172,7 +173,7 @@ export function PadelRegistrationForm({
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Register your pair</h2>
             <p className="mt-3 text-sm md:text-base text-muted-foreground">
               Padel is played in pairs. Complete your details and your partner&apos;s name below.
-              The {PADEL_EVENT.date} tournament takes place from {PADEL_EVENT.time} at {PADEL_EVENT.venue}, {PADEL_EVENT.address}. The entry fee is £{PADEL_EVENT.feePerPerson} per player (£{PADEL_EVENT.teamFee} per pair), authorised securely and only taken once your place is confirmed.
+              The {PADEL_EVENT.date} tournament takes place from {PADEL_EVENT.time} at {PADEL_EVENT.venue}, {PADEL_EVENT.address}. The entry fee is £{PADEL_EVENT.feePerPerson} per player (£{PADEL_EVENT.teamFee} per pair). Payment is processed securely via our donation manager.
             </p>
           </div>
           <button
@@ -354,7 +355,7 @@ export function PadelRegistrationForm({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing…
                 </>
               ) : (
-                "Register & pay entry fee"
+                "Register & continue to payment"
               )}
             </Button>
             <button type="button" onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">

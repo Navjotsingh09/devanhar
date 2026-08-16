@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import Stripe from 'stripe'
 import { sendPadelRegistrationOwnerNotification } from '@/lib/padel-registration-emails'
 import { sendPadelPaymentPendingEmail, sendPadelRegistrationReceivedEmail } from '@/lib/padel-registration-emails'
 import { signPadelResumeToken } from '@/lib/padel-resume-token'
@@ -13,25 +12,13 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `h
 // Entry fee is per player; a team has two players. Override per-player amount via STRIPE_PADEL_FEE_PER_PERSON_GBP.
 const padelFeePerPersonGbp = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || '50')
 const PADEL_PLAYERS_PER_TEAM = 2
-const paymentMode = (process.env.PADEL_PAYMENT_MODE || process.env.CAMP_PAYMENT_MODE || 'stripe').trim().toLowerCase()
 const eventName = process.env.PADEL_EVENT_NAME || PADEL_EVENT.name
-
-function isStripePaymentModeEnabled() {
-  return paymentMode === 'stripe'
-}
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase service role credentials')
   }
   return createClient(supabaseUrl, supabaseServiceKey)
-}
-
-function getStripeClient() {
-  if (!stripeSecretKey) {
-    throw new Error('Missing STRIPE_SECRET_KEY')
-  }
-  return new Stripe(stripeSecretKey)
 }
 
 function normalizePhone(phone: string): string {
@@ -166,106 +153,34 @@ export async function POST(request: NextRequest) {
       },
     }).then(undefined, () => {})
 
-    if (!isStripePaymentModeEnabled()) {
-      sendPadelRegistrationReceivedEmail({
-        to: payload.captain_email as string,
-        firstName: body.captain_first_name.trim(),
-        teamName: teamLabel,
-      }).catch(() => {})
-      return NextResponse.json(
-        {
-          success: true,
-          payment_mode: 'deferred',
-          title: 'Registration received',
-          message: 'Your registration has been received. The team will contact you with payment instructions.',
-        },
-        { status: 201 }
-      )
-    }
-
+    // Redirect to NowDonate for payment processing
+    const nowDonateUrl = "https://www.nowdonate.com/checkout/63hzpepp0m54p65i54d0"
+    
     try {
-      const stripe = getStripeClient()
-      const initiativePath = `/initiatives/${body.initiative_slug || 'sikh-padel-association'}`
-      const returnTo = encodeURIComponent(initiativePath)
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        payment_method_types: ['card'],
-        payment_intent_data: {
-          capture_method: 'manual',
-          metadata: {
-            padel_registration_id: data.id,
-          },
-        },
-        customer_email: payload.captain_email as string,
-        customer_creation: 'always',
-        line_items: [
-          {
-            price_data: {
-              currency: 'gbp',
-              unit_amount: padelFeePerPersonGbp * 100,
-              product_data: {
-                name: `${eventName} — Entry`,
-                description: `Entry fee per player (${PADEL_PLAYERS_PER_TEAM} players)`,
-              },
-            },
-            quantity: PADEL_PLAYERS_PER_TEAM,
-          },
-        ],
-        metadata: {
-          padel_registration_id: data.id,
-        },
-        allow_promotion_codes: true,
-        success_url: `${siteUrl}${initiativePath}?payment=success`,
-        cancel_url: `${siteUrl}/payment/cancelled?returnTo=${returnTo}&registrationId=${data.id}&resumeToken=${encodeURIComponent(signPadelResumeToken(String(data.id)))}`,
-      })
-
-      try {
-        await supabase
-          .from('padel_registrations')
-          .update({
-            stripe_checkout_session_id: session.id,
-            stripe_checkout_url: session.url,
-            stripe_checkout_expires_at: session.expires_at
-              ? new Date(session.expires_at * 1000).toISOString()
-              : null,
-            stripe_checkout_amount_pence: entryFeePence,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', data.id)
-      } catch (persistErr) {
-        console.warn('[Padel Registration] Failed to persist Stripe checkout session:', persistErr)
-      }
-
-      try {
-        await sendPadelPaymentPendingEmail({
-          to: payload.captain_email as string,
-          firstName: body.captain_first_name.trim(),
-          teamName: teamLabel,
-          resumeUrl: `${siteUrl}/api/padel-registrations/resume-payment?registration_id=${data.id}&token=${encodeURIComponent(signPadelResumeToken(String(data.id)))}`,
-        })
-      } catch (emailErr) {
-        console.error('[Padel Email] Payment-pending email failed (non-blocking):', emailErr)
-      }
-
-      return NextResponse.json({ success: true, payment_mode: 'stripe', checkout_url: session.url }, { status: 201 })
-    } catch (stripeError) {
-      console.error('[Padel Registration] Stripe checkout creation failed, falling back to deferred:', stripeError)
-      sendPadelRegistrationReceivedEmail({
+      await sendPadelPaymentPendingEmail({
         to: payload.captain_email as string,
         firstName: body.captain_first_name.trim(),
         teamName: teamLabel,
-      }).catch(() => {})
-      return NextResponse.json(
-        {
-          success: true,
-          payment_mode: 'deferred',
-          title: 'Registration received',
-          message: 'Your registration has been received. The team will contact you with payment instructions.',
-        },
-        { status: 201 }
-      )
+        paymentUrl: nowDonateUrl,
+      })
+    } catch (emailErr) {
+      console.error('[Padel Email] Payment-pending email failed (non-blocking):', emailErr)
     }
+
+    return NextResponse.json(
+      { 
+        success: true, 
+        payment_mode: 'donation_manager',
+        title: 'Registration received — payment required',
+        message: 'Your team registration is complete. Please proceed to complete your entry fee payment.',
+        payment_url: nowDonateUrl,
+        redirect_url: nowDonateUrl,
+      }, 
+      { status: 201 }
+    )
   } catch (err) {
+    console.error('[Padel Registration] Unexpected error:', err)
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 }) catch (err) {
     console.error('[Padel Registration] Unexpected error:', err)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }

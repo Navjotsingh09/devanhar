@@ -26,7 +26,8 @@ export async function sendPadelPaymentPendingEmail(params: {
   to: string
   firstName: string
   teamName: string
-  resumeUrl: string
+  resumeUrl?: string
+  paymentUrl?: string
 }): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Padel Email] Skipping payment-pending email - RESEND_API_KEY not configured')
@@ -40,9 +41,8 @@ export async function sendPadelPaymentPendingEmail(params: {
     <p>Dear ${name},</p>
     <p>Your team <strong>${team}</strong> has been registered for the Sikh Padel Association tournament. To secure your place, please complete your entry fee payment using the link below.</p>
     <p style="text-align:center;margin:28px 0;">
-      <a href="${params.resumeUrl}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
+      <a href="${params.paymentUrl || params.resumeUrl}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
     </p>
-    <p>This link is personal to you and will always work — if the payment page has expired it will automatically open a fresh one.</p>
   `)
   const text = `Team registered — payment required
 
@@ -50,7 +50,7 @@ Dear ${params.firstName},
 
 Your team ${params.teamName} has been registered. To secure your place, please complete your entry fee payment:
 
-${params.resumeUrl}
+${params.paymentUrl || params.resumeUrl}
 
 Sat Sri Akal,
 Sikh Padel Association

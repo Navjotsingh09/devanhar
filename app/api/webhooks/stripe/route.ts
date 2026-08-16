@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { sendApplicationApprovedEmail, sendApplicationDeclinedEmail, sendApplicationUnderReviewEmail, sendApplicationPaymentReminderEmail } from "@/lib/camp-applicant-emails"
-import { sendPadelRegistrationApprovedEmail, sendPadelRegistrationDeclinedEmail, sendPadelRegistrationUnderReviewEmail } from "@/lib/padel-registration-emails"
 import { buildResumeUrl } from "@/lib/camp-resume-token"
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
@@ -122,43 +121,6 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Padel team entry payment completed
-      const padelRegistrationId = session.metadata?.padel_registration_id
-      if (padelRegistrationId) {
-        const padelPiId = typeof session.payment_intent === 'string' ? session.payment_intent : null
-        await supabase.from("padel_registrations").update({
-          stripe_payment_intent_id: padelPiId,
-          stripe_pi_status: 'requires_capture',
-          stripe_pi_synced_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }).eq("id", padelRegistrationId)
-
-        // True hold: card is authorised only - do NOT auto-capture.
-        // The money stays uncaptured until an admin manually captures it from
-        // the Stripe dashboard, which fires payment_intent.succeeded -> approved.
-        // Releasing the hold there fires payment_intent.canceled -> declined.
-        const { data: padelTransitioned } = await supabase
-          .from("padel_registrations")
-          .update({ status: "payment_authorized", updated_at: new Date().toISOString() })
-          .eq("id", padelRegistrationId)
-          .eq("status", "payment_pending")
-          .select("id, captain_email, captain_first_name, player2_first_name")
-          .maybeSingle()
-        await supabase.from("activity_log").insert({
-          action: "Padel checkout completed - payment on hold, awaiting manual capture",
-          entity_type: "padel_registration",
-          entity_id: padelRegistrationId,
-          metadata: { stripe_session_id: session.id, stripe_payment_intent: padelPiId, amount_total: session.amount_total, currency: session.currency },
-        }).then(undefined, () => {})
-        if (padelTransitioned?.captain_email) {
-          sendPadelRegistrationUnderReviewEmail({
-            to: padelTransitioned.captain_email,
-            firstName: padelTransitioned.captain_first_name || "Player",
-            teamName: padelTransitioned.player2_first_name ? `${padelTransitioned.captain_first_name} & ${padelTransitioned.player2_first_name}` : undefined,
-          }).catch((err) => console.error("[Padel Email] Under-review email failed:", err))
-        }
-      }
-
       // Wolf Run entry payment completed — store runner in wolfrun_runners
       if (session.metadata?.type === "wolfrun_entry") {
         const m = session.metadata
@@ -268,25 +230,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (event.type === "payment_intent.succeeded") {
-      const padelPi = event.data.object as Stripe.PaymentIntent
-      const padelPid = padelPi.metadata?.padel_registration_id
-      if (padelPid) {
-        const { data: padelApproved } = await supabase
-          .from("padel_registrations")
-          .update({ status: "approved", stripe_pi_status: "succeeded", stripe_pi_synced_at: new Date().toISOString(), updated_at: new Date().toISOString() })
-          .eq("id", padelPid)
-          .neq("status", "approved")
-          .select("captain_email, captain_first_name, player2_first_name")
-          .maybeSingle()
-        await supabase.from("activity_log").insert({ action: "Padel payment captured - team approved", entity_type: "padel_registration", entity_id: padelPid, metadata: { stripe_pi: padelPi.id, amount: padelPi.amount_received } }).then(undefined, () => {})
-        if (padelApproved?.captain_email) {
-          sendPadelRegistrationApprovedEmail({ to: padelApproved.captain_email, firstName: padelApproved.captain_first_name || "Player", teamName: padelApproved.player2_first_name ? `${padelApproved.captain_first_name} & ${padelApproved.player2_first_name}` : undefined }).catch(err => console.error("[Padel Email] Approved email failed:", err))
-        }
-      }
-    }
-
-    if (event.type === "payment_intent.canceled") {
-      const pi = event.data.object as Stripe.PaymentIntent
       const cid = pi.metadata?.camp_application_id
       if (cid) {
         // Idempotent: only transition and email if not already declined.
