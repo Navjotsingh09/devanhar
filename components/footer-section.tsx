@@ -200,6 +200,9 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
               <Link href="/cookies" className="hover:text-white transition-colors">
                 Cookie Policy
               </Link>
+              <Link href="/data-complaint" className="hover:text-white transition-colors">
+                Data complaints
+              </Link>
               <span className="text-white/40">
                 Site by{" "}
                 <a

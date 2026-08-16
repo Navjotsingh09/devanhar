@@ -11,7 +11,7 @@ function escapeHtml(s: string): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, email, subject, message, source_page, form_fields, phone, save_submission } = body as {
+    const { name, email, subject, message, source_page, form_fields, phone, save_submission, attachment } = body as {
       name?: string
       email?: string
       subject?: string
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       phone?: string
       form_fields?: Record<string, string>
       save_submission?: boolean
+      attachment?: { filename?: string; content?: string }
     }
 
     if (!name?.trim() || !email?.trim()) {
@@ -114,6 +115,7 @@ export async function POST(req: NextRequest) {
       subject: `[${source_page || "Website"}] ${subject || "New Enquiry"} — ${name}`,
       html,
       text,
+      ...(attachment?.filename && attachment.content ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, "base64") }] } : {}),
     })
 
     return NextResponse.json({ success: true })
