@@ -180,8 +180,6 @@ export async function POST(request: NextRequest) {
     )
   } catch (err) {
     console.error('[Padel Registration] Unexpected error:', err)
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 }) catch (err) {
-    console.error('[Padel Registration] Unexpected error:', err)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
 }
