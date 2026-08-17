@@ -285,105 +285,32 @@ export async function cancelApplicationPayment(applicationId: string) {
   revalidatePath('/dashboard/submissions')
 }
 
-// -- Padel registrations: capture / release the manual-capture hold ----------
-// Mirrors captureApplicationPayment / cancelApplicationPayment but operates on
-// the padel_registrations table. The padel checkout uses capture_method
-// 'manual', so the GBP100 entry fee sits as an uncaptured authorisation until
-// an admin approves (capture) or declines (cancel/refund) the team.
-
-async function findStripePiForPadel(
-  stripe: Stripe,
-  reg: { id: string; captain_email?: string | null; stripe_payment_intent_id?: string | null; stripe_checkout_session_id?: string | null }
-): Promise<Stripe.PaymentIntent | null> {
-  if (reg.stripe_payment_intent_id) {
-    try {
-      return await stripe.paymentIntents.retrieve(reg.stripe_payment_intent_id)
-    } catch (e) {
-      console.warn('[findStripePiForPadel] direct PI retrieve failed:', (e as Error).message)
-    }
-  }
-  if (reg.stripe_checkout_session_id) {
-    try {
-      const session = await stripe.checkout.sessions.retrieve(reg.stripe_checkout_session_id)
-      if (session.payment_intent && typeof session.payment_intent === 'string') {
-        return await stripe.paymentIntents.retrieve(session.payment_intent)
-      }
-    } catch (e) {
-      console.warn('[findStripePiForPadel] session lookup failed:', (e as Error).message)
-    }
-  }
-  const email = (reg.captain_email || '').toLowerCase().trim()
-  const regIdStr = String(reg.id)
-  const eighteenMonthsAgoSec = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30 * 18
-  let startingAfter: string | undefined
-  for (let pageIdx = 0; pageIdx < 5; pageIdx++) {
-    const pg: Stripe.ApiList<Stripe.PaymentIntent> = await stripe.paymentIntents.list({
-      limit: 100,
-      created: { gte: eighteenMonthsAgoSec },
-      ...(startingAfter ? { starting_after: startingAfter } : {}),
-    })
-    for (const pi of pg.data) {
-      const metaId = pi.metadata?.padel_registration_id
-      if (metaId && String(metaId) === regIdStr) return pi
-    }
-    if (email) {
-      const matches = pg.data.filter(pi => (pi.receipt_email || pi.metadata?.email || '').toLowerCase().trim() === email)
-      if (matches.length > 0) {
-        const order = ['requires_capture', 'succeeded']
-        matches.sort((x, y) => {
-          const xi = order.indexOf(x.status) === -1 ? 99 : order.indexOf(x.status)
-          const yi = order.indexOf(y.status) === -1 ? 99 : order.indexOf(y.status)
-          return xi === yi ? y.created - x.created : xi - yi
-        })
-        return matches[0]
-      }
-    }
-    if (pg.has_more === false) break
-    startingAfter = pg.data[pg.data.length - 1].id
-  }
-  return null
-}
+// -- Padel registrations: approve / decline a team --------------------------
+// Padel entry fees are collected via NowDonate (donation manager), not Stripe --
+// there is no payment hold to capture/release here. The DonationManager webhook
+// auto-approves + emails a team once their entry fee payment completes; these
+// actions exist for an admin to manually approve/decline (e.g. cash/bank
+// transfer payment, or removing a team that never pays).
 
 export async function capturePadelPayment(registrationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user == null) throw new Error('Unauthorized')
-  const { data: reg } = await supabase.from('padel_registrations').select('*').eq('id', registrationId).single()
+
+  const { data: reg } = await supabase
+    .from('padel_registrations')
+    .select('id, status, captain_email, captain_first_name, captain_last_name, player2_first_name')
+    .eq('id', registrationId)
+    .single()
   if (reg == null) throw new Error('Registration not found')
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+  if (reg.status === 'approved') throw new Error('Already approved')
 
-  const pi = await findStripePiForPadel(stripe, reg)
-  const resolvedPiId: string | null = pi?.id ?? null
+  const { error } = await supabase
+    .from('padel_registrations')
+    .update({ status: 'approved', updated_at: new Date().toISOString() })
+    .eq('id', registrationId)
+  if (error) throw new Error(error.message)
 
-  if (pi) {
-    if (pi.status === 'requires_capture') {
-      try {
-        await stripe.paymentIntents.capture(pi.id)
-      } catch (captureErr: any) {
-        if (captureErr?.code === 'payment_intent_unexpected_state') {
-          console.warn('[Padel Capture] PI already captured between retrieve and capture')
-        } else {
-          throw captureErr
-        }
-      }
-    } else if (pi.status === 'succeeded') {
-      console.log('[Padel Capture] Payment intent already captured:', pi.id)
-    } else if (pi.status === 'requires_action') {
-      throw new Error('Player must complete 3-D Secure authentication before this can be captured. Resend payment link.')
-    } else if (pi.status === 'canceled') {
-      throw new Error('Payment was canceled or expired. Resend payment link to start a new authorisation.')
-    } else {
-      throw new Error('Cannot capture payment in state "' + pi.status + '"')
-    }
-  } else if (reg.status === 'approved') {
-    throw new Error('Already approved (no payment intent on file)')
-  } else {
-    throw new Error('No payment intent on file - the team has not completed checkout. Ensure they pay first.')
-  }
-
-  const dbUpdate: Record<string, unknown> = { status: 'approved', stripe_pi_status: 'succeeded', updated_at: new Date().toISOString() }
-  if (resolvedPiId) dbUpdate.stripe_payment_intent_id = resolvedPiId
-  await supabase.from('padel_registrations').update(dbUpdate).eq('id', registrationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Approved padel team ' + (reg.captain_first_name || '') + ' ' + (reg.captain_last_name || ''), entity_type: 'padel_registration', entity_id: registrationId }).then(undefined, () => {})
   if (reg.captain_email) {
     sendPadelRegistrationApprovedEmail({ to: reg.captain_email, firstName: reg.captain_first_name || 'Player', teamName: reg.player2_first_name ? (reg.captain_first_name || 'Player') + ' & ' + reg.player2_first_name : undefined })
@@ -396,36 +323,21 @@ export async function cancelPadelPayment(registrationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user == null) throw new Error('Unauthorized')
-  const { data: reg } = await supabase.from('padel_registrations').select('id, stripe_payment_intent_id, stripe_checkout_session_id, status, captain_first_name, captain_last_name, captain_email, player2_first_name').eq('id', registrationId).single()
+
+  const { data: reg } = await supabase
+    .from('padel_registrations')
+    .select('id, status, captain_email, captain_first_name, captain_last_name, player2_first_name')
+    .eq('id', registrationId)
+    .single()
   if (reg == null) throw new Error('Registration not found')
   if (reg.status === 'declined') throw new Error('Already declined')
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
-  const pi = await findStripePiForPadel(stripe, reg)
-  const resolvedPiId: string | null = pi?.id ?? null
+  const { error } = await supabase
+    .from('padel_registrations')
+    .update({ status: 'declined', updated_at: new Date().toISOString() })
+    .eq('id', registrationId)
+  if (error) throw new Error(error.message)
 
-  if (pi) {
-    try {
-      if (pi.status === 'succeeded') {
-        await stripe.refunds.create({ payment_intent: pi.id })
-      } else if (pi.status === 'requires_capture' || pi.status === 'requires_action' || pi.status === 'requires_payment_method' || pi.status === 'requires_confirmation' || pi.status === 'processing') {
-        await stripe.paymentIntents.cancel(pi.id)
-      }
-    } catch (cancelErr: any) {
-      if (cancelErr?.code === 'payment_intent_unexpected_state') {
-        try { await stripe.refunds.create({ payment_intent: pi.id }) } catch (refundErr: any) {
-          console.error('[Padel Decline] Refund failed after cancel failed:', refundErr?.message)
-          throw new Error('Could not release payment: ' + (refundErr?.message || 'Refund failed'))
-        }
-      } else {
-        throw cancelErr
-      }
-    }
-  }
-
-  const dbUpdate: Record<string, unknown> = { status: 'declined', stripe_pi_status: 'canceled', updated_at: new Date().toISOString() }
-  if (resolvedPiId) dbUpdate.stripe_payment_intent_id = resolvedPiId
-  await supabase.from('padel_registrations').update(dbUpdate).eq('id', registrationId)
   await supabase.from('activity_log').insert({ admin_id: user.id, action: 'Declined padel team ' + (reg.captain_first_name || '') + ' ' + (reg.captain_last_name || ''), entity_type: 'padel_registration', entity_id: registrationId }).then(undefined, () => {})
   if (reg.captain_email) {
     sendPadelRegistrationDeclinedEmail({ to: reg.captain_email, firstName: reg.captain_first_name || 'Player', teamName: reg.player2_first_name ? (reg.captain_first_name || 'Player') + ' & ' + reg.player2_first_name : undefined })
