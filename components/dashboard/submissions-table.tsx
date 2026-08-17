@@ -921,6 +921,12 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
         </div>
       </div>
 
+      {showUnpaidPadel && unpaidPadelCount > 0 && (
+        <div className="mb-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-300">
+          Showing {unpaidPadelCount} Padel team{unpaidPadelCount !== 1 ? 's' : ''} awaiting payment — they submitted the form but have not completed their entry fee on NowDonate yet, so they are not confirmed and are hidden from the main view by default.
+        </div>
+      )}
+
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
