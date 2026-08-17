@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
         to: payload.captain_email as string,
         firstName: body.captain_first_name.trim(),
         teamName: teamLabel,
-        paymentUrl: nowDonateUrl,
+        resumeUrl: nowDonateUrl,
       })
     } catch (emailErr) {
       console.error('[Padel Email] Payment-pending email failed (non-blocking):', emailErr)
