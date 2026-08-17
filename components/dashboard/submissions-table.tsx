@@ -508,11 +508,18 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [paymentFilter, setPaymentFilter] = useState<PaymentHealth | 'all'>('all')
   const [expandedPanel, setExpandedPanel] = useState<PaymentHealth | null>(null)
+  // Unpaid padel registrations are noise until they're actually confirmed -- hidden by default.
+  const [showUnpaidPadel, setShowUnpaidPadel] = useState(false)
 
   // Distinct statuses present in this list (so the dropdown only shows relevant options)
   const availableStatuses = Array.from(new Set(submissions.map((s) => s.status))).sort()
 
+  const unpaidPadelCount = submissions.filter(
+    (s) => s.source_table === 'padel_registrations' && s.status === 'payment_pending'
+  ).length
+
   const filteredSubmissions = submissions.filter((s) => {
+    if (!showUnpaidPadel && s.source_table === 'padel_registrations' && s.status === 'payment_pending') return false
     if (paymentFilter !== 'all' && getPaymentHealth(s) !== paymentFilter) return false
     if (statusFilter !== 'all' && s.status !== statusFilter) return false
     if (searchQuery.trim()) {
@@ -890,6 +897,17 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           <span className="text-xs text-muted-foreground hidden sm:inline">
             {filteredSubmissions.length} of {submissions.length}
           </span>
+          {unpaidPadelCount > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowUnpaidPadel((v) => !v)}
+              className="h-9"
+              title="Padel registrations awaiting payment are hidden from the main view by default"
+            >
+              {showUnpaidPadel ? 'Hide' : 'Show'} awaiting payment ({unpaidPadelCount})
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
