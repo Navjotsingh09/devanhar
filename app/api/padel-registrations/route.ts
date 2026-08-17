@@ -58,11 +58,13 @@ export async function POST(request: NextRequest) {
     const phoneNormalized = normalizePhone(body.captain_phone)
     if (phoneNormalized.length >= 7) {
       try {
+        // Only an already-confirmed (approved) registration blocks a resubmission --
+        // a pending/awaiting-payment entry should not permanently lock out the phone number.
         const dupeQuery = supabase
           .from('padel_registrations')
           .select('id')
           .eq('captain_phone_normalized', phoneNormalized)
-          .not('status', 'in', '("rejected","cancelled","declined")')
+          .eq('status', 'approved')
         if (initiative?.id) {
           dupeQuery.eq('initiative_id', initiative.id)
         }
