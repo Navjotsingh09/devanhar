@@ -155,9 +155,21 @@ export async function POST(request: NextRequest) {
       },
     }).then(undefined, () => {})
 
-    // Redirect to NowDonate for payment processing
-    const nowDonateUrl = "https://www.nowdonate.com/checkout/63hzpepp0m54p65i54d0"
-    
+    // Redirect to NowDonate for payment processing -- reference/custom carries the
+    // registration id so the DonationManager webhook can auto-confirm this team on payment.
+    const initiativePath = `/initiatives/${body.initiative_slug || 'sikh-padel-association'}`
+    const nowDonateReference = `padel_registration:${data.id}`
+    const nowDonateUrlObj = new URL("https://www.nowdonate.com/checkout/63hzpepp0m54p65i54d0")
+    nowDonateUrlObj.searchParams.set('amount', String(entryFeePence / 100))
+    nowDonateUrlObj.searchParams.set('reference', nowDonateReference)
+    nowDonateUrlObj.searchParams.set('custom', nowDonateReference)
+    if (payload.captain_email) {
+      nowDonateUrlObj.searchParams.set('prefilled_email', payload.captain_email as string)
+    }
+    nowDonateUrlObj.searchParams.set('success_url', `${siteUrl}${initiativePath}?paid=1`)
+    nowDonateUrlObj.searchParams.set('cancel_url', `${siteUrl}${initiativePath}?paid=0`)
+    const nowDonateUrl = nowDonateUrlObj.toString()
+
     try {
       await sendPadelPaymentPendingEmail({
         to: payload.captain_email as string,
