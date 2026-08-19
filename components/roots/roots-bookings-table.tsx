@@ -26,6 +26,10 @@ type Booking = {
   parent_relationship: string
   parent_email: string
   parent_phone: string
+  parent_address_line_1: string | null
+  parent_address_line_2: string | null
+  parent_town_city: string | null
+  parent_postcode: string | null
   accommodation_preference: string | null
   dietary_requirements: string | null
   medical_info: string | null
@@ -60,7 +64,7 @@ function csvCell(v: unknown): string {
 function bookingsToCsv(bookings: Booking[]): string {
   const headers = [
     "ID", "Camper First", "Camper Last", "DOB", "Age", "Gender",
-    "Parent Name", "Parent Email", "Parent Phone",
+    "Parent Name", "Parent Email", "Parent Phone", "Address Line 1", "Address Line 2", "Town/City", "Postcode",
     "Accommodation", "Dietary", "Medical",
     "Emergency Name", "Emergency Phone",
     "How Heard", "Additional Info",
@@ -71,6 +75,7 @@ function bookingsToCsv(bookings: Booking[]): string {
     return [
       b.id, b.camper_first_name, b.camper_last_name, b.camper_dob, age, b.camper_gender ?? "",
       `${b.parent_first_name} ${b.parent_last_name}`, b.parent_email, b.parent_phone,
+      b.parent_address_line_1 ?? "", b.parent_address_line_2 ?? "", b.parent_town_city ?? "", b.parent_postcode ?? "",
       b.accommodation_preference ?? "", b.dietary_requirements ?? "", b.medical_info ?? "",
       b.emergency_name, b.emergency_phone,
       b.how_did_you_hear ?? "", b.additional_info ?? "",
@@ -459,7 +464,10 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                             <p><span className="text-muted-foreground">Relationship:</span> {detailValue(b.parent_relationship)}</p>
                             <p><span className="text-muted-foreground">Email:</span> {detailValue(b.parent_email)}</p>
                             <p><span className="text-muted-foreground">Phone / WhatsApp:</span> {detailValue(b.parent_phone)}</p>
-                            <p><span className="text-muted-foreground">Location:</span> Not collected on current form</p>
+                            <p><span className="text-muted-foreground">Address line 1:</span> {detailValue(b.parent_address_line_1)}</p>
+                            <p><span className="text-muted-foreground">Address line 2:</span> {detailValue(b.parent_address_line_2)}</p>
+                            <p><span className="text-muted-foreground">Town / City:</span> {detailValue(b.parent_town_city)}</p>
+                            <p><span className="text-muted-foreground">Postcode:</span> {detailValue(b.parent_postcode)}</p>
                           </div>
 
                           <div className="space-y-1">
