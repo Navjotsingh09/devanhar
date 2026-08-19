@@ -14,6 +14,10 @@ type FormData = {
   parent_relationship: string
   parent_email: string
   parent_phone: string
+  parent_address_line_1: string
+  parent_address_line_2: string
+  parent_town_city: string
+  parent_postcode: string
   dietary_requirements: string
   medical_info: string
   emergency_name: string
@@ -27,7 +31,7 @@ type FormData = {
 const EMPTY: FormData = {
   camper_first_name: "", camper_last_name: "", camper_dob: "", camper_gender: "",
   parent_first_name: "", parent_last_name: "", parent_relationship: "",
-  parent_email: "", parent_phone: "",
+  parent_email: "", parent_phone: "", parent_address_line_1: "", parent_address_line_2: "", parent_town_city: "", parent_postcode: "",
   dietary_requirements: "", medical_info: "",
   emergency_name: "", emergency_relationship: "", emergency_phone: "",
   how_did_you_hear: "", additional_info: "",
@@ -100,6 +104,7 @@ export function RootsBookingForm() {
       "camper_first_name", "camper_last_name", "camper_dob",
       "parent_first_name", "parent_last_name", "parent_relationship",
       "parent_email", "parent_phone",
+      "parent_address_line_1", "parent_town_city", "parent_postcode",
       "emergency_name", "emergency_relationship", "emergency_phone",
       "how_did_you_hear",
     ]
@@ -219,6 +224,18 @@ export function RootsBookingForm() {
           </Field>
           <Field label="Phone / WhatsApp" required>
             <input type="tel" className={inputCls} value={form.parent_phone} onChange={set("parent_phone")} placeholder="+44 7..." />
+          </Field>
+          <Field label="Address line 1" required>
+            <input className={inputCls} value={form.parent_address_line_1} onChange={set("parent_address_line_1")} placeholder="House number and street" />
+          </Field>
+          <Field label="Address line 2 (optional)">
+            <input className={inputCls} value={form.parent_address_line_2} onChange={set("parent_address_line_2")} placeholder="Flat, apartment, building, etc." />
+          </Field>
+          <Field label="Town / City" required>
+            <input className={inputCls} value={form.parent_town_city} onChange={set("parent_town_city")} placeholder="e.g. London, Manchester" />
+          </Field>
+          <Field label="Postcode" required>
+            <input className={inputCls} value={form.parent_postcode} onChange={set("parent_postcode")} placeholder="e.g. B1 1AA" />
           </Field>
         </div>
       </div>

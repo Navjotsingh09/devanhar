@@ -1,17 +1,30 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Users, Heart, Trophy } from 'lucide-react'
+import { Users, Heart, Trophy, AlertTriangle } from 'lucide-react'
 import FundraisersAdminTable from '@/components/wolfrun/fundraisers-admin-table'
 
 async function getWolfRunStats() {
   const supabase = await createClient()
+  const thirtyMinutesAgoIso = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+  const oneDayAgoIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
-  const [fundraisersResult, donationsResult, singhsResult, kaursResult] = await Promise.all([
+  const missingConfig: string[] = []
+  const wolfrunCheckoutId = process.env.WOLFRUN_NOWDONATE_CHECKOUT_ID || process.env.NOWDONATE_CHECKOUT_ID
+  const hasNowDonateApiKey = Boolean(process.env.NOWDONATE_API_KEY)
+  if (hasNowDonateApiKey === false && wolfrunCheckoutId === undefined) {
+    missingConfig.push('NOWDONATE_API_KEY or WOLFRUN_NOWDONATE_CHECKOUT_ID')
+  }
+  if (wolfrunCheckoutId === undefined) missingConfig.push('WOLFRUN_NOWDONATE_CHECKOUT_ID or NOWDONATE_CHECKOUT_ID')
+  if (!process.env.NEXT_PUBLIC_SITE_URL && !process.env.VERCEL_URL) missingConfig.push('NEXT_PUBLIC_SITE_URL (or VERCEL_URL)')
+
+  const [fundraisersResult, donationsResult, singhsResult, kaursResult, stuckDonationsResult, recentCompletedResult] = await Promise.all([
     supabase.from('wolfrun_fundraisers').select('id, first_name, last_name, email, phone, pack, slug, fundraising_goal, total_raised, status, created_at').order('created_at', { ascending: false }).limit(2000),
     supabase.from('wolfrun_donations').select('id, fundraiser_id, donor_name, donor_email, amount, gift_aid, message, status, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(2000),
     supabase.from('wolfrun_fundraisers').select('id', { count: 'exact', head: true }).eq('pack', 'singhs').eq('status', 'active'),
     supabase.from('wolfrun_fundraisers').select('id', { count: 'exact', head: true }).eq('pack', 'kaurs').eq('status', 'active'),
+    supabase.from('wolfrun_donations').select('id', { count: 'exact', head: true }).in('status', ['pending', 'redirected']).lt('created_at', thirtyMinutesAgoIso),
+    supabase.from('wolfrun_donations').select('id', { count: 'exact', head: true }).eq('status', 'completed').gte('created_at', oneDayAgoIso),
   ])
 
   const fundraisers = fundraisersResult.data || []
@@ -24,6 +37,9 @@ async function getWolfRunStats() {
     totalRaised,
     singhsCount: singhsResult.count || 0,
     kaursCount: kaursResult.count || 0,
+    stalePendingDonations: stuckDonationsResult.count || 0,
+    recentCompletedDonations: recentCompletedResult.count || 0,
+    missingConfig,
   }
 }
 
@@ -32,7 +48,18 @@ function formatAmount(pence: number) {
 }
 
 export default async function WolfRunDashboard() {
-  const { fundraisers, donations, totalRaised, singhsCount, kaursCount } = await getWolfRunStats()
+  const {
+    fundraisers,
+    donations,
+    totalRaised,
+    singhsCount,
+    kaursCount,
+    stalePendingDonations,
+    recentCompletedDonations,
+    missingConfig,
+  } = await getWolfRunStats()
+  const showWebhookWarning = stalePendingDonations > 0
+  const showConfigWarning = missingConfig.length > 0
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,6 +67,30 @@ export default async function WolfRunDashboard() {
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Wolf Run Fundraising</h1>
         <p className="text-muted-foreground">Manage fundraisers and donations for the Wolf Run event</p>
       </div>
+
+      {(showConfigWarning || showWebhookWarning) ? (
+        <Card className="border-amber-300 bg-amber-50/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-amber-900">
+              <AlertTriangle className="h-4 w-4" />
+              Wolf Run Payment Health Check
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-amber-900">
+            {showConfigWarning ? (
+              <p>
+                Missing config: {missingConfig.join(', ')}. Wolf Run payment links may fail until these are set in Vercel env vars.
+              </p>
+            ) : null}
+            {showWebhookWarning ? (
+              <p>
+                {stalePendingDonations} donation(s) are still pending/redirected for more than 30 minutes.
+                This can indicate webhook delivery/mapping issues. Completed in the last 24h: {recentCompletedDonations}.
+              </p>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

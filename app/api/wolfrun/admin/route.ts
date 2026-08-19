@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+function getServiceRoleClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ''
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+  if (url === '' || key === '') {
+    throw new Error('Missing Supabase service role credentials')
+  }
+
+  return createServiceClient(url, key)
+}
 
 async function requireAdmin() {
   const supabase = await createClient()
@@ -16,7 +28,7 @@ async function requireAdmin() {
     return { error: 'Forbidden', status: 403, supabase: null }
   }
 
-  return { error: null, status: 200, supabase }
+  return { error: null, status: 200, supabase: getServiceRoleClient() }
 }
 
 // PATCH — edit a fundraiser

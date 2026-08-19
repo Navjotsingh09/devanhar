@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       "camper_first_name", "camper_last_name", "camper_dob",
       "parent_first_name", "parent_last_name", "parent_relationship",
       "parent_email", "parent_phone",
+      "parent_address_line_1", "parent_town_city", "parent_postcode",
       "emergency_name", "emergency_relationship", "emergency_phone",
       "how_did_you_hear",
     ]
@@ -49,6 +50,10 @@ export async function POST(req: NextRequest) {
         parent_relationship: body.parent_relationship,
         parent_email: body.parent_email,
         parent_phone: body.parent_phone,
+        parent_address_line_1: body.parent_address_line_1.trim(),
+        parent_address_line_2: body.parent_address_line_2?.trim() || null,
+        parent_town_city: body.parent_town_city.trim(),
+        parent_postcode: body.parent_postcode.trim().toUpperCase(),
         accommodation_preference: body.accommodation_preference || null,
         dietary_requirements: body.dietary_requirements || null,
         medical_info: body.medical_info || null,
@@ -78,7 +83,11 @@ export async function POST(req: NextRequest) {
         parentLast: body.parent_last_name,
         parentEmail: body.parent_email,
         parentPhone: body.parent_phone,
+        parentAddressLine1: body.parent_address_line_1,
+        parentAddressLine2: body.parent_address_line_2,
         parentRelationship: body.parent_relationship,
+        parentTownCity: body.parent_town_city,
+        parentPostcode: body.parent_postcode,
         accommodation: body.accommodation_preference,
         dietary: body.dietary_requirements,
         medical: body.medical_info,
@@ -102,7 +111,8 @@ async function sendEmails(p: {
   bookingId: string
   camperFirst: string; camperLast: string; camperDob: string
   parentFirst: string; parentLast: string; parentEmail: string
-  parentPhone: string; parentRelationship: string
+  parentPhone: string; parentRelationship: string; parentAddressLine1: string
+  parentAddressLine2?: string | null; parentTownCity: string; parentPostcode: string
   accommodation: string | null; dietary: string | null; medical: string | null
   emergencyName: string; emergencyPhone: string
   howHeard: string | null; additional: string | null
@@ -147,6 +157,7 @@ Devanhaar`
     ["Parent/guardian", `${p.parentFirst} ${p.parentLast} (${p.parentRelationship})`],
     ["Parent email", p.parentEmail],
     ["Parent phone", p.parentPhone],
+    ["Address", [p.parentAddressLine1, p.parentAddressLine2, p.parentTownCity, p.parentPostcode].filter(Boolean).join(", ")],
     ["Accommodation pref", p.accommodation || "None"],
     ["Dietary", p.dietary || "None"],
     ["Medical", p.medical || "None"],
@@ -157,7 +168,7 @@ Devanhaar`
   const tableRows = rows.map(([k, v]) => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600;white-space:nowrap">${escHtml(k)}</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escHtml(v ?? "")}</td></tr>`).join("")
   const teamHtml = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">New Roots booking submission</h2><table style="border-collapse:collapse;width:100%;font-size:14px">${tableRows}</table><p style="margin-top:20px;"><a href="${dashUrl}" style="display:inline-block;background:#8a6200;color:white;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">View in dashboard</a></p></div>`
 
-  const teamText = `New Roots booking submission\n\nCamper: ${p.camperFirst} ${p.camperLast}\nDOB: ${p.camperDob}\nParent: ${p.parentFirst} ${p.parentLast} (${p.parentRelationship})\nEmail: ${p.parentEmail}\nPhone: ${p.parentPhone}\nAccommodation: ${p.accommodation || "None"}\nDietary: ${p.dietary || "None"}\nMedical: ${p.medical || "None"}\nEmergency: ${p.emergencyName} - ${p.emergencyPhone}\nHow heard: ${p.howHeard || "Not specified"}\nAdditional: ${p.additional || "None"}\n\nView in dashboard: ${dashUrl}`
+  const teamText = `New Roots booking submission\n\nCamper: ${p.camperFirst} ${p.camperLast}\nDOB: ${p.camperDob}\nParent: ${p.parentFirst} ${p.parentLast} (${p.parentRelationship})\nEmail: ${p.parentEmail}\nPhone: ${p.parentPhone}\nAddress: ${[p.parentAddressLine1, p.parentAddressLine2, p.parentTownCity, p.parentPostcode].filter(Boolean).join(", ")}\nAccommodation: ${p.accommodation || "None"}\nDietary: ${p.dietary || "None"}\nMedical: ${p.medical || "None"}\nEmergency: ${p.emergencyName} - ${p.emergencyPhone}\nHow heard: ${p.howHeard || "Not specified"}\nAdditional: ${p.additional || "None"}\n\nView in dashboard: ${dashUrl}`
 
   await Promise.allSettled([
     resend.emails.send({

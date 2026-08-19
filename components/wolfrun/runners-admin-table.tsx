@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Trash2 } from "lucide-react"
 
@@ -28,10 +28,14 @@ function isUuid(value: string) {
 }
 
 export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
-  const [rows, setRows] = useState<Runner[]>(runners)
+  const [rows, setRows] = useState<Runner[]>(() => runners.filter((r) => r.status === "confirmed"))
   const [packFilter, setPackFilter] = useState<"all" | "singhs" | "kaurs">("all")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState("")
+
+  useEffect(() => {
+    setRows(runners.filter((r) => r.status === "confirmed"))
+  }, [runners])
 
   const filtered =
     packFilter === "all" ? rows : rows.filter((r) => r.pack === packFilter)

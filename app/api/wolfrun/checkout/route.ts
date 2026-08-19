@@ -49,73 +49,39 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = getSupabaseAdmin()
-
-    // Keep a runner row ready, then mark as confirmed when webhook notifies payment completion.
     const normalizedEmail = email.trim().toLowerCase()
-    const { data: existingRunner, error: existingRunnerError } = await supabase
+
+    // Block already-confirmed runners at the form step for immediate feedback
+    const { data: confirmed, error: lookupError } = await supabase
       .from('wolfrun_runners')
-      .select('id, status')
+      .select('id')
       .eq('email', normalizedEmail)
+      .eq('status', 'confirmed')
       .maybeSingle()
 
-    if (existingRunnerError) {
-      console.error('[Wolf Run Checkout] Supabase lookup error:', existingRunnerError)
+    if (lookupError) {
+      console.error('[Wolf Run Checkout] Supabase lookup error:', lookupError)
       return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
     }
 
-    if (existingRunner?.status === 'confirmed') {
+    if (confirmed) {
       return NextResponse.json({ error: 'This email is already registered for Wolf Run.' }, { status: 409 })
     }
 
-    let runnerId = existingRunner?.id as string | undefined
+    // No DB write before payment — form data travels with the checkout reference
+    // and the webhook creates the confirmed row only after DonationManager succeeds
+    const entryPayload = Buffer.from(JSON.stringify({
+      f: first_name.trim(),
+      l: last_name.trim(),
+      e: normalizedEmail,
+      p: phone.trim(),
+      a: ageNum,
+      c: city.trim(),
+      k: pack,
+      w: Boolean(agree_whatsapp_group),
+    })).toString('base64url')
 
-    if (runnerId) {
-      const { error: updateError } = await supabase
-        .from('wolfrun_runners')
-        .update({
-          first_name: first_name.trim(),
-          last_name: last_name.trim(),
-          phone: phone.trim(),
-          age: ageNum,
-          city: city.trim(),
-          pack,
-          agree_whatsapp_group: Boolean(agree_whatsapp_group),
-          status: 'failed',
-          stripe_session_id: null,
-          stripe_payment_intent_id: null,
-        })
-        .eq('id', runnerId)
-
-      if (updateError) {
-        console.error('[Wolf Run Checkout] Supabase update error:', updateError)
-        return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
-      }
-    } else {
-      const { data: insertedRunner, error: insertError } = await supabase
-        .from('wolfrun_runners')
-        .insert({
-          first_name: first_name.trim(),
-          last_name: last_name.trim(),
-          email: normalizedEmail,
-          phone: phone.trim(),
-          age: ageNum,
-          city: city.trim(),
-          pack,
-          agree_whatsapp_group: Boolean(agree_whatsapp_group),
-          status: 'failed',
-        })
-        .select('id')
-        .single()
-
-      if (insertError || !insertedRunner) {
-        console.error('[Wolf Run Checkout] Supabase insert error:', insertError)
-        return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
-      }
-
-      runnerId = insertedRunner.id
-    }
-
-    const customReference = `wolfrun_runner:${runnerId}`
+    const customReference = `wolfrun_entry:${entryPayload}`
     const dmParams = new URLSearchParams({
       key: nowDonateApiKey,
       currency: 'GBP',

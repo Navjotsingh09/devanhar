@@ -17,16 +17,51 @@ function normalize(value: unknown): string {
   return typeof value === 'string' ? value.trim().toLowerCase() : ''
 }
 
+function collectPayloadValues(payload: unknown, keys: string[]): string[] {
+  if (payload === null) return []
+  if (typeof payload === 'string' || typeof payload === 'number' || typeof payload === 'boolean') return []
+  const values: string[] = []
+  for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+    if (keys.includes(key.toLowerCase()) && (typeof value === 'string' || typeof value === 'number')) {
+      values.push(String(value).trim())
+    }
+    if (value && typeof value === 'object') values.push(...collectPayloadValues(value, keys))
+  }
+  return values
+}
+
 function getReference(payload: any): string {
   const raw =
     payload?.reference ??
     payload?.custom ??
     payload?.data?.reference ??
     payload?.data?.custom ??
+    payload?.data?.donation?.reference ??
+    payload?.data?.donation?.custom ??
     payload?.donation?.reference ??
     payload?.donation?.custom ??
     ''
-  return typeof raw === 'string' ? raw.trim() : ''
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : collectPayloadValues(payload, ['reference', 'custom'])[0] || ''
+}
+
+function getDonorEmail(payload: any): string {
+  const raw =
+    payload?.donation?.donor_email ??
+    payload?.donation?.email ??
+    payload?.data?.donation?.donor_email ??
+    payload?.data?.donation?.email ??
+    payload?.donor_email ??
+    payload?.email ??
+    payload?.data?.donor_email ??
+    payload?.data?.email ??
+    ''
+  return normalize(raw || collectPayloadValues(payload, ['email', 'donor_email'])[0])
+}
+
+function isWolfRunDonation(payload: any): boolean {
+  const values = collectPayloadValues(payload, ['checkout', 'checkout_id', 'appeal', 'appeal_id'])
+
+  return values.includes('16919') || values.includes('12903')
 }
 
 function getDonationEventType(payload: any): string {
@@ -46,7 +81,14 @@ function isCancelledDonation(payload: any): boolean {
 
 function isCompletedDonation(payload: any): boolean {
   const eventType = getDonationEventType(payload)
-  if (eventType === 'donation.completed' || eventType === 'donation.received' || eventType === 'donation.recurring') {
+  const statusValues = collectPayloadValues(payload, ['status', 'payment_status', 'state']).map(normalize)
+  if (
+    eventType === 'donation.completed' ||
+    eventType === 'donation.received' ||
+    eventType === 'donation.recurring' ||
+    /(?:completed|received|paid|success|succeeded)/.test(eventType) ||
+    statusValues.some((status) => ['completed', 'received', 'paid', 'success', 'succeeded'].includes(status))
+  ) {
     return true
   }
 
@@ -99,18 +141,59 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseAdmin()
     const reference = getReference(payload)
 
-    // Wolf Run entry payment reconciliation
+    // Payment-first: create runner row only after DonationManager confirms payment
+    const wolfrunEntryRef = extractIdFromReference(reference, 'wolfrun_entry:')
+    if (wolfrunEntryRef && isCompletedDonation(payload)) {
+      try {
+        const d = JSON.parse(Buffer.from(wolfrunEntryRef, 'base64url').toString())
+        const email = typeof d.e === 'string' ? d.e.trim().toLowerCase() : ''
+        if (email) {
+          const { data: existing } = await supabase
+            .from('wolfrun_runners')
+            .select('id')
+            .eq('email', email)
+            .eq('status', 'confirmed')
+            .maybeSingle()
+          if (!existing) {
+            const paymentRef = payload?.donation?.id || payload?.donation_id || payload?.id || reference
+            const { error: runnerError } = await supabase.from('wolfrun_runners').insert({
+              first_name: String(d.f || '').trim(),
+              last_name: String(d.l || '').trim(),
+              email,
+              phone: String(d.p || '').trim(),
+              age: Number(d.a) || 0,
+              city: String(d.c || '').trim(),
+              pack: String(d.k || ''),
+              agree_whatsapp_group: Boolean(d.w),
+              status: 'confirmed',
+              stripe_session_id: paymentRef,
+            })
+            if (runnerError) {
+              console.error('[DonationManager Webhook] Failed to create confirmed runner:', runnerError)
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[DonationManager Webhook] Failed to parse wolfrun_entry payload:', err)
+      }
+    }
+
+    // Legacy: update a pre-created runner row (old flow, kept for any in-flight sessions)
     const runnerId = extractIdFromReference(reference, 'wolfrun_runner:')
-    if (runnerId) {
-      const runnerStatus = isCompletedDonation(payload) ? 'confirmed' : isCancelledDonation(payload) ? 'failed' : null
-      if (runnerStatus) {
-        await supabase
-          .from('wolfrun_runners')
-          .update({
-            status: runnerStatus,
-            stripe_session_id: payload?.donation?.id || payload?.donation_id || payload?.id || reference,
-          })
-          .eq('id', runnerId)
+    const runnerStatus = isCompletedDonation(payload) ? 'confirmed' : isCancelledDonation(payload) ? 'failed' : null
+    if (runnerStatus) {
+      const paymentReference = payload?.donation?.id || payload?.donation_id || payload?.id || reference
+      const runnerUpdate = { status: runnerStatus, stripe_session_id: paymentReference }
+      let runnerUpdateError: unknown = null
+      if (runnerId) {
+        const result = await supabase.from('wolfrun_runners').update(runnerUpdate).eq('id', runnerId)
+        runnerUpdateError = result.error
+      } else if (isWolfRunDonation(payload) && getDonorEmail(payload)) {
+        const result = await supabase.from('wolfrun_runners').update(runnerUpdate).eq('email', getDonorEmail(payload))
+        runnerUpdateError = result.error
+      }
+      if (runnerUpdateError) {
+        console.error('[DonationManager Webhook] Failed to reconcile Wolf Run runner:', runnerUpdateError)
       }
     }
 

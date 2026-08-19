@@ -31,20 +31,33 @@ function getSupabaseAdmin() {
 async function getRunnerStats() {
   const supabase = getSupabaseAdmin()
 
-  const runnersResult = await supabase
-    .from('wolfrun_runners')
-    .select('id, first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, status, created_at')
-    .order('created_at', { ascending: false })
-    .limit(5000)
+  const [runnersResult, singhsResult, kaursResult] = await Promise.all([
+    supabase
+      .from('wolfrun_runners')
+      .select('id, first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, status, created_at')
+      .eq('status', 'confirmed')
+      .order('created_at', { ascending: false })
+      .limit(5000),
+    supabase
+      .from('wolfrun_runners')
+      .select('id', { count: 'exact', head: true })
+      .eq('pack', 'singhs')
+      .eq('status', 'confirmed'),
+    supabase
+      .from('wolfrun_runners')
+      .select('id', { count: 'exact', head: true })
+      .eq('pack', 'kaurs')
+      .eq('status', 'confirmed'),
+  ])
 
-  const runners = runnersResult.data || []
+  const error = runnersResult.error || singhsResult.error || kaursResult.error
 
   return {
-    runners,
-    totalCount: runners.length,
-    singhsCount: runners.filter((runner) => runner.pack === 'singhs').length,
-    kaursCount: runners.filter((runner) => runner.pack === 'kaurs').length,
-    error: runnersResult.error?.message ?? null,
+    runners: runnersResult.data || [],
+    totalCount: runnersResult.data?.length ?? 0,
+    singhsCount: singhsResult.count ?? 0,
+    kaursCount: kaursResult.count ?? 0,
+    error: error?.message ?? null,
   }
 }
 
@@ -60,7 +73,7 @@ export default async function WolfRunRunnersPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">Wolf Run Runners</h1>
-        <p className="text-muted-foreground">All Wolf Run entry submissions and their payment status</p>
+        <p className="text-muted-foreground">Confirmed paid Wolf Run entries only</p>
         <p className="text-xs text-muted-foreground mt-1">Data source: Supabase</p>
       </div>
 
