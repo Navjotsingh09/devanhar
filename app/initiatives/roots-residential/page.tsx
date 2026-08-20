@@ -80,13 +80,13 @@ export default function RootsResidentialPage() {
                   <a href="#booking-form">Complete the application</a>
                 </Button>
                 <a
-                  href="https://www.instagram.com/rootsuk13"
+                  href="https://www.instagram.com/rootsprojectuk/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline"
                 >
                   <Instagram className="h-4 w-4" />
-                  Instagram @rootsuk13
+                  Instagram @rootsprojectuk
                 </a>
               </div>
               <p className="mt-6 text-xs text-muted-foreground leading-relaxed max-w-xl">

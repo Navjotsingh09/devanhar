@@ -10,9 +10,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, capturePadelPayment, cancelPadelPayment, deleteSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants, captureAllPayments, approveVidyalaApplication, declineVidyalaApplication, approveSpnSubmission, declineSpnSubmission } from '@/app/dashboard/submissions/actions'
+import { updateSubmissionStatus, updateSubmissionNotes, captureApplicationPayment, cancelApplicationPayment, capturePadelPayment, cancelPadelPayment, archiveSubmission, resendPaymentLink, sendAllPaymentLinks, getSendableApplicants, captureAllPayments, approveVidyalaApplication, declineVidyalaApplication, approveSpnSubmission, declineSpnSubmission } from '@/app/dashboard/submissions/actions'
 import type { SendableApplicant } from '@/app/dashboard/submissions/actions'
-import { Eye, StickyNote, CheckCircle, XCircle, Download, Search, Trash2, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
+import { Archive, Eye, StickyNote, CheckCircle, XCircle, Download, Search, Mail, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, Clock, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { ReplyComposer } from '@/components/dashboard/reply-composer'
 import { Input } from '@/components/ui/input'
@@ -801,17 +801,17 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
 
 
-  const handleDelete = (sub: Submission) => {
+  const handleArchive = (sub: Submission) => {
     const confirmed = window.confirm(
-      `Permanently delete this ${sub.source_table === 'camp_applications' ? 'camp application' : 'submission'} from ${sub.full_name} <${sub.email}>?\n\nThis cannot be undone. Any uncaptured Stripe authorisation will be cancelled first.`
+      `Archive this ${sub.source_table === 'camp_applications' ? 'camp application' : 'submission'} from ${sub.full_name} <${sub.email}>?\n\nIt will remain in the dashboard and can be found using the Archived status filter.`
     )
-    if (!confirmed) return
+    if (confirmed === false) return
     startTransition(async () => {
       try {
-        await deleteSubmission(sub.id, sub.source_table)
-        toast.success('Deleted')
+        await archiveSubmission(sub.id, sub.source_table)
+        toast.success('Archived')
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Failed to delete')
+        toast.error(err instanceof Error ? err.message : 'Failed to archive')
       }
     })
   }
@@ -1188,13 +1188,13 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                      onClick={() => handleDelete(sub)}
-                      disabled={isPending}
-                      title="Delete permanently"
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                      onClick={() => handleArchive(sub)}
+                      disabled={isPending || sub.status === 'archived'}
+                      title="Archive submission"
                     >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
+                      <Archive className="h-4 w-4" />
+                      <span className="sr-only">Archive</span>
                     </Button>
                     <Dialog>
                       <DialogTrigger asChild>
@@ -1299,12 +1299,14 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         </div>
                       </DialogContent>
                     </Dialog>
-                    <ReplyComposer
-                      submissionId={sub.id}
-                      sourceTable={sub.source_table}
-                      recipientName={sub.full_name}
-                      recipientEmail={sub.email}
-                    />
+                    {(sub.source_table === 'form_submissions' || sub.source_table === 'camp_applications' || sub.source_table === 'vidyala_applications') && (
+                      <ReplyComposer
+                        submissionId={sub.id}
+                        sourceTable={sub.source_table}
+                        recipientName={sub.full_name}
+                        recipientEmail={sub.email}
+                      />
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"

@@ -30,6 +30,16 @@ type DashboardSubmission = {
   stripe_review_state: string | null
 }
 
+type OtherDashboardSubmission = {
+  id: string
+  source: string
+  full_name: string
+  email: string
+  status: string
+  details: string
+  created_at: string
+}
+
 function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> {
   const excludedKeys = new Set([
     'id',
@@ -245,13 +255,16 @@ async function getSubmissions() {
   const supabase = await createClient()
 
   // Fire all four DB queries in parallel; .limit() caps act as safety nets.
-  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes, padelRegsRes, spnSubsRes] = await Promise.all([
+  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes, padelRegsRes, spnSubsRes, interestRes, rootsRes, wolfRunFundraisersRes] = await Promise.all([
     supabase.from('initiatives').select('id, name, slug').eq('is_active', true).order('sort_order'),
     supabase.from('form_submissions').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('camp_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('vidyala_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('padel_registrations').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('spn_submissions').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
+    supabase.from('register_interest').select('*').order('created_at', { ascending: false }).limit(5000),
+    supabase.from('roots_bookings').select('*').order('created_at', { ascending: false }).limit(5000),
+    supabase.from('wolfrun_fundraisers').select('*').order('created_at', { ascending: false }).limit(5000),
   ])
   const initiatives = initiativesRes.data
   const submissions = submissionsRes.data
@@ -259,6 +272,9 @@ async function getSubmissions() {
   const vidyalaApplications = vidyalaAppsRes.data
   const padelRegistrations = padelRegsRes.data
   const spnSubmissions = spnSubsRes.data
+  const interestRegistrations = interestRes.data ?? []
+  const rootsBookings = rootsRes.data ?? []
+  const wolfRunFundraisers = wolfRunFundraisersRes.data ?? []
 
   // Only ask Stripe about apps with unknown status AND still active.
   // Approved/declined/withdrawn/archived already have final state in DB.
@@ -382,12 +398,7 @@ async function getSubmissions() {
     }
   )
 
-  const { data: webinarSignups } = await supabase
-    .from('register_interest')
-    .select('*')
-    .eq('camp', 'vidyala-webinar')
-    .order('created_at', { ascending: false })
-    .limit(5000)
+  const webinarSignups = interestRegistrations.filter((registration: Record<string, unknown>) => registration.camp === 'vidyala-webinar')
 
   const normalizedSpnSubs: DashboardSubmission[] = (spnSubmissions ?? []).map(
     (s: Record<string, unknown>) => {
@@ -424,17 +435,38 @@ async function getSubmissions() {
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   )
 
+  const otherSubmissions: OtherDashboardSubmission[] = [
+    ...interestRegistrations.filter((registration: Record<string, unknown>) => (registration.camp === 'vidyala-webinar') === false).map((registration: Record<string, unknown>) => ({
+      id: String(registration.id), source: `Interest registration: ${String(registration.camp ?? 'Unknown')}`,
+      full_name: String(registration.name ?? 'Unknown'), email: String(registration.email ?? ''), status: 'registered',
+      details: [registration.country, registration.occupation, registration.schedule, registration.notes].filter((value) => typeof value === 'string' && value.trim() !== '').map(String).join(' | '),
+      created_at: String(registration.created_at ?? new Date().toISOString()),
+    })),
+    ...rootsBookings.map((booking: Record<string, unknown>) => ({
+      id: String(booking.id), source: 'Roots booking', full_name: `${String(booking.camper_first_name ?? '').trim()} ${String(booking.camper_last_name ?? '').trim()}`.trim() || 'Unknown',
+      email: String(booking.parent_email ?? ''), status: String(booking.status ?? 'pending'),
+      details: [booking.parent_relationship, booking.payment_status ? `Payment: ${String(booking.payment_status)}` : null].filter((value) => typeof value === 'string' && value.trim() !== '').map(String).join(' | '),
+      created_at: String(booking.created_at ?? new Date().toISOString()),
+    })),
+    ...wolfRunFundraisers.map((fundraiser: Record<string, unknown>) => ({
+      id: String(fundraiser.id), source: 'Wolf Run fundraiser', full_name: `${String(fundraiser.first_name ?? '').trim()} ${String(fundraiser.last_name ?? '').trim()}`.trim() || 'Unknown',
+      email: String(fundraiser.email ?? ''), status: String(fundraiser.status ?? 'active'), details: `Pack: ${String(fundraiser.pack ?? 'Unknown')}`,
+      created_at: String(fundraiser.created_at ?? new Date().toISOString()),
+    })),
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
   return {
     initiatives: initiatives ?? [],
     submissions: unifiedSubmissions,
-    webinarSignups: (webinarSignups ?? []) as Array<{
+    webinarSignups: webinarSignups as Array<{
       id: string; name: string; email: string; country: string | null; notes: string | null; created_at: string
     }>,
+    otherSubmissions,
   }
 }
 
 export default async function SubmissionsPage() {
-  const [{ initiatives, submissions, webinarSignups }, recentActivity] = await Promise.all([
+  const [{ initiatives, submissions, webinarSignups, otherSubmissions }, recentActivity] = await Promise.all([
     getSubmissions(),
     getRecentCampActivity(60).catch((e) => {
       console.error('[submissions] getRecentCampActivity failed - hiding activity panel:', e)
@@ -487,6 +519,10 @@ export default async function SubmissionsPage() {
               <span className="text-[11px] font-medium leading-none opacity-70">General / Contact</span>
             </TabsTrigger>
           )}
+          <TabsTrigger value="__other" className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60">
+            <span className="text-lg font-bold leading-none">{otherSubmissions.length}</span>
+            <span className="text-[11px] font-medium leading-none opacity-70">Other Website Forms</span>
+          </TabsTrigger>
           <TabsTrigger
             value="__webinar"
             className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60"
@@ -511,6 +547,18 @@ export default async function SubmissionsPage() {
             <SubmissionsTable submissions={generalSubmissions} />
           </TabsContent>
         )}
+
+        <TabsContent value="__other" className="mt-4">
+          {otherSubmissions.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">No other website submissions yet.</p>
+          ) : (
+            <div className="rounded-xl border border-border overflow-hidden">
+              <table className="w-full text-sm"><thead><tr className="bg-muted/50 text-left"><th className="px-4 py-3 font-semibold text-foreground">Name</th><th className="px-4 py-3 font-semibold text-foreground">Source</th><th className="px-4 py-3 font-semibold text-foreground">Email</th><th className="px-4 py-3 font-semibold text-foreground">Status</th><th className="px-4 py-3 font-semibold text-foreground">Details</th><th className="px-4 py-3 font-semibold text-foreground">Submitted</th></tr></thead>
+                <tbody className="divide-y divide-border">{otherSubmissions.map((submission) => (<tr key={`${submission.source}-${submission.id}`} className="hover:bg-muted/30 transition-colors"><td className="px-4 py-3 font-medium text-foreground">{submission.full_name}</td><td className="px-4 py-3 text-muted-foreground">{submission.source}</td><td className="px-4 py-3"><a href={`mailto:${submission.email}`} className="text-blue-600 hover:underline">{submission.email}</a></td><td className="px-4 py-3 text-muted-foreground">{submission.status}</td><td className="px-4 py-3 text-muted-foreground max-w-xs break-words">{submission.details || '—'}</td><td className="px-4 py-3 text-muted-foreground text-xs tabular-nums whitespace-nowrap">{new Date(submission.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td></tr>))}</tbody>
+              </table>
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="__webinar" className="mt-4">
           {webinarSignups.length === 0 ? (
