@@ -255,7 +255,7 @@ async function getSubmissions() {
   const supabase = await createClient()
 
   // Fire all four DB queries in parallel; .limit() caps act as safety nets.
-  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes, padelRegsRes, spnSubsRes, interestRes, rootsRes, wolfRunFundraisersRes] = await Promise.all([
+  const [initiativesRes, submissionsRes, campAppsRes, vidyalaAppsRes, padelRegsRes, spnSubsRes, interestRes, rootsRes, wolfRunFundraisersRes, familyInitiativeRes] = await Promise.all([
     supabase.from('initiatives').select('id, name, slug').eq('is_active', true).order('sort_order'),
     supabase.from('form_submissions').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
     supabase.from('camp_applications').select('*, initiatives(name, slug)').order('created_at', { ascending: false }).limit(2000),
@@ -265,6 +265,7 @@ async function getSubmissions() {
     supabase.from('register_interest').select('*').order('created_at', { ascending: false }).limit(5000),
     supabase.from('roots_bookings').select('*').order('created_at', { ascending: false }).limit(5000),
     supabase.from('wolfrun_fundraisers').select('*').order('created_at', { ascending: false }).limit(5000),
+    supabase.from('family_initiative_bookings').select('*').order('created_at', { ascending: false }).limit(5000),
   ])
   const initiatives = initiativesRes.data
   const submissions = submissionsRes.data
@@ -275,6 +276,7 @@ async function getSubmissions() {
   const interestRegistrations = interestRes.data ?? []
   const rootsBookings = rootsRes.data ?? []
   const wolfRunFundraisers = wolfRunFundraisersRes.data ?? []
+  const familyInitiativeBookings = familyInitiativeRes.data ?? []
 
   // Only ask Stripe about apps with unknown status AND still active.
   // Approved/declined/withdrawn/archived already have final state in DB.
@@ -452,6 +454,12 @@ async function getSubmissions() {
       id: String(fundraiser.id), source: 'Wolf Run fundraiser', full_name: `${String(fundraiser.first_name ?? '').trim()} ${String(fundraiser.last_name ?? '').trim()}`.trim() || 'Unknown',
       email: String(fundraiser.email ?? ''), status: String(fundraiser.status ?? 'active'), details: `Pack: ${String(fundraiser.pack ?? 'Unknown')}`,
       created_at: String(fundraiser.created_at ?? new Date().toISOString()),
+    })),
+    ...familyInitiativeBookings.map((booking: Record<string, unknown>) => ({
+      id: String(booking.id), source: 'Sikh Family Initiative booking', full_name: String(booking.contact_name ?? 'Unknown'),
+      email: String(booking.email ?? ''), status: String(booking.status ?? 'pending'),
+      details: [booking.event_name, booking.travel_option, booking.estimated_total_pence ? `Estimated total: £${(Number(booking.estimated_total_pence) / 100).toFixed(2)}` : null].filter((value) => typeof value === 'string' && value.trim() !== '').map(String).join(' | '),
+      created_at: String(booking.created_at ?? new Date().toISOString()),
     })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
