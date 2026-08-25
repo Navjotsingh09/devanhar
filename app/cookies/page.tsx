@@ -75,7 +75,7 @@ const sections: { h: string; blocks: Block[] }[] = [
       { t: "p", c: "We use Google Tag Manager to manage website tags and scripts." },
       { t: "p", c: "Google Tag Manager itself does not typically collect personal information but may deploy analytics and marketing tags that do so, subject to user consent." },
       { t: "h3", c: "Active integration manifest" },
-      { t: "ul", c: ["Google Tag Manager (container GTM-KNKGVNH7) for consent-aware tag deployment", "Next.js and Vercel application infrastructure for page delivery and essential security", "Supabase for secure form and registration storage", "Web3Forms secure endpoints where enabled by an individual form", "Resend for transactional notifications where configured"] },
+      { t: "ul", c: ["Google Tag Manager (container GTM-NZ4TTBZQ) for consent-aware tag deployment", "Next.js and Vercel application infrastructure for page delivery and essential security", "Supabase for secure form and registration storage", "Web3Forms secure endpoints where enabled by an individual form", "Resend for transactional notifications where configured"] },
     ],
   },
   {
