@@ -321,6 +321,11 @@ export async function sendApplicationPaymentReminderEmail(params: {
   resumeUrl: string
   amountGbp?: number
 }): Promise<boolean> {
+  if (process.env.CAMP_PAYMENT_REMINDERS_ENABLED !== 'true') {
+    console.warn('[Camp Email] Payment-reminder emails are disabled')
+    return false
+  }
+
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Camp Email] Skipping payment-reminder email - RESEND_API_KEY not configured')
     return false
