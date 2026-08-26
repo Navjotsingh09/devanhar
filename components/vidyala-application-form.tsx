@@ -70,18 +70,9 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
     what_to_learn: "",
     continue_parchaar: "" as "" | "yes" | "no",
     how_heard: "",
-    preferred_schedule: [] as string[],
-    preferred_schedule_other: "",
   })
 
   const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }))
-  const toggleSchedule = (v: string) => setForm((p) => ({
-    ...p,
-    preferred_schedule: (p.preferred_schedule as string[]).includes(v)
-      ? (p.preferred_schedule as string[]).filter((x: string) => x !== v)
-      : [...(p.preferred_schedule as string[]), v],
-  }))
-
   const NAVY = "#1E3461"
   const GOLD = "#F5A623"
   const WARM_BG = "#FFF8EE"
@@ -516,21 +507,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                   ))}
                 </div>
               </div>
-              <div>
-                  <Label>If No, which of the following options would you prefer if Vidyala were offered on a part-time, one-day-a-week basis? (Select all that apply.)</Label>
-                  <div className="flex flex-col gap-2 mt-2">
-                    {["Monday \u2013 Evening", "Tuesday \u2013 Evening", "Wednesday \u2013 Evening", "Thursday \u2013 Evening", "Friday \u2013 Evening", "Saturday \u2013 Daytime", "Sunday \u2013 Daytime"].map((slot) => (
-                      <label key={slot} className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={(form.preferred_schedule as string[]).includes(slot)} onChange={() => toggleSchedule(slot)} className="accent-[#F5A623]" />
-                        <span className="text-sm">{slot}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <Label>Other</Label>
-                    <Input value={form.preferred_schedule_other as string} onChange={(e) => set("preferred_schedule_other", e.target.value)} placeholder="Please specify your availability..." className="mt-1" />
-                  </div>
-              </div>
+              
               <div>
                 <Label>Are you able to fund the fee of £795 or will you require financial support from the Vidyala? *</Label>
                 <div className="flex flex-col gap-2 mt-2">
