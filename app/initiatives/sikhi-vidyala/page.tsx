@@ -183,46 +183,6 @@ export default function SikhiVidyalaPage() {
           </div>
         </section>
 
-                {/* -- WEBINAR -- */}
-        <section id="webinar" className="py-16 lg:py-20 border-b border-border">
-          <div className="container mx-auto px-6 lg:px-12">
-            <div className="max-w-3xl mx-auto text-center mb-10">
-              <span
-                className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4"
-                style={{ backgroundColor: `${GOLD}22`, color: NAVY }}
-              >
-                Free Event
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Find Out More &mdash; <em className="italic" style={{ color: NAVY }}>Join our Webinar</em>
-              </h2>
-              <p className="text-muted-foreground leading-relaxed mb-2">
-                We are hosting a <strong>free &ldquo;Find Out More&rdquo; webinar</strong> on{" "}
-                <strong>Wednesday 29th of July - 5:30 to 6:30 PM (UK Time)</strong>. This is a great opportunity
-                to ask questions and learn more about the Sikhi Vidyala before applying.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Register below to receive your invite. The recording of the webinar will be uploaded here after it has taken place.
-              </p>
-            </div>
-            <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto items-start">
-              <div className="rounded-2xl p-8 shadow-md" style={{ backgroundColor: "#f9f7f4", border: `1px solid ${GOLD}44` }}>
-                <RegisterInterestForm
-                  camp="vidyala-webinar"
-                  heading="Register for the Webinar"
-                  description="Enter your details below and we will send you the webinar link."
-                  successMessage="You are registered! We will send you the webinar link closer to the date."
-                  duplicateMessage="You are already registered for the webinar — we will send you the link closer to the date."
-                  showCountry={false}
-                  notesLabel="Please submit any questions you'd like us to cover in the webinar session. (optional)"
-                />
-              </div>
-              <div className="rounded-2xl p-8 shadow-md" style={{ backgroundColor: "#f9f7f4", border: `1px solid ${GOLD}44` }}>
-                <VidyalaInterestForm />
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* ── WHAT YOU WILL LEARN ── */}
         <section className="py-16 lg:py-24" style={{ backgroundColor: "#f9f7f4" }}>
