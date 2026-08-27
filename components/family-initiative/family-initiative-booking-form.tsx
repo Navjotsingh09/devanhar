@@ -27,6 +27,14 @@ export function FamilyInitiativeBookingForm() {
   const [error, setError] = useState("")
   const successRef = useRef<HTMLDivElement>(null)
   const total = children.length * RATES.child[travel] + adults.length * RATES.adult[travel]
+  const resetForm = () => {
+    setContact({ name: "", email: "", phone: "", medical: "", consent: false })
+    setChildren([emptyAttendee()])
+    setAdults([emptyAttendee()])
+    setTravel("door")
+    setPickup("")
+    setError("")
+  }
   const updateContact = (field: string, value: string | boolean) => setContact((current) => ({ ...current, [field]: value }))
   const updateAttendee = (group: "children" | "adults", index: number, field: keyof Attendee, value: string) => {
     const setter = group === "children" ? setChildren : setAdults
@@ -61,6 +69,7 @@ export function FamilyInitiativeBookingForm() {
       const result = await response.json()
       if (!response.ok) { setError(result.error || "Something went wrong. Please try again."); return }
       setPaymentUrl(typeof result.payment_url === "string" ? result.payment_url : "")
+      resetForm()
       setSubmitted(true)
     } catch { setError("Something went wrong. Please try again or contact the team directly.") }
     finally { setSubmitting(false) }
