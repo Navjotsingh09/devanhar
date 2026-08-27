@@ -20,10 +20,7 @@ export async function POST(request: NextRequest) {
     const { first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, agree_terms } = body
 
     if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !age || !city?.trim()) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     if (!agree_terms) {
@@ -51,8 +48,8 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseAdmin()
     const normalizedEmail = email.trim().toLowerCase()
 
-    // Block already-confirmed runners at the form step for immediate feedback
-    const { data: confirmed, error: lookupError } = await supabase
+    // Block already-confirmed runners immediately
+    const { data: confirmedRow, error: lookupError } = await supabase
       .from('wolfrun_runners')
       .select('id')
       .eq('email', normalizedEmail)
@@ -64,24 +61,69 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
     }
 
-    if (confirmed) {
+    if (confirmedRow) {
       return NextResponse.json({ error: 'This email is already registered for Wolf Run.' }, { status: 409 })
     }
 
-    // No DB write before payment — form data travels with the checkout reference
-    // and the webhook creates the confirmed row only after DonationManager succeeds
-    const entryPayload = Buffer.from(JSON.stringify({
-      f: first_name.trim(),
-      l: last_name.trim(),
-      e: normalizedEmail,
-      p: phone.trim(),
-      a: ageNum,
-      c: city.trim(),
-      k: pack,
-      w: Boolean(agree_whatsapp_group),
-    })).toString('base64url')
+    // Create or refresh a payment_pending row so the webhook can always find it by ID.
+    // Rows that stay payment_pending (abandoned checkouts) are invisible to the dashboard.
+    const { data: existingPending } = await supabase
+      .from('wolfrun_runners')
+      .select('id')
+      .eq('email', normalizedEmail)
+      .eq('status', 'payment_pending')
+      .maybeSingle()
 
-    const customReference = `wolfrun_entry:${entryPayload}`
+    let runnerId: string
+
+    if (existingPending?.id) {
+      const { error: updateError } = await supabase
+        .from('wolfrun_runners')
+        .update({
+          first_name: first_name.trim(),
+          last_name: last_name.trim(),
+          phone: phone.trim(),
+          age: ageNum,
+          city: city.trim(),
+          pack,
+          agree_whatsapp_group: Boolean(agree_whatsapp_group),
+          stripe_session_id: null,
+          stripe_payment_intent_id: null,
+        })
+        .eq('id', existingPending.id)
+
+      if (updateError) {
+        console.error('[Wolf Run Checkout] Supabase update error:', updateError)
+        return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
+      }
+
+      runnerId = existingPending.id
+    } else {
+      const { data: inserted, error: insertError } = await supabase
+        .from('wolfrun_runners')
+        .insert({
+          first_name: first_name.trim(),
+          last_name: last_name.trim(),
+          email: normalizedEmail,
+          phone: phone.trim(),
+          age: ageNum,
+          city: city.trim(),
+          pack,
+          agree_whatsapp_group: Boolean(agree_whatsapp_group),
+          status: 'payment_pending',
+        })
+        .select('id')
+        .single()
+
+      if (insertError || !inserted) {
+        console.error('[Wolf Run Checkout] Supabase insert error:', insertError)
+        return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
+      }
+
+      runnerId = inserted.id
+    }
+
+    const customReference = `wolfrun_runner:${runnerId}`
     const dmParams = new URLSearchParams({
       key: nowDonateApiKey,
       currency: 'GBP',
