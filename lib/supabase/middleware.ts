@@ -46,9 +46,11 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
+  // Use getSession (no network call) — getUser() causes MIDDLEWARE_INVOCATION_TIMEOUT on Vercel Edge
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
+  const user = session?.user ?? null
 
   const pathname = request.nextUrl.pathname
 
