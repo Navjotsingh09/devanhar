@@ -137,6 +137,37 @@ export async function POST(request: Request) {
 
     // Extract booking ID from custom field; fall back to email lookup for direct appeal payments
     const bookingId = getBookingId(payload)
+
+    // Wolf Run entries are a separate table, keyed by their own custom reference prefix.
+    if (typeof bookingId === "string" && bookingId.startsWith("wolfrun_runner:")) {
+      const runnerId = bookingId.slice("wolfrun_runner:".length)
+      const { data: runner, error: runnerError } = await supabase
+        .from("wolfrun_runners")
+        .select("id, status")
+        .eq("id", runnerId)
+        .maybeSingle()
+
+      if (runnerError || !runner) {
+        console.error(`[webhooks/nowdonate] Wolf Run runner not found: ${runnerId}`, runnerError)
+        return json({ error: "Runner not found" }, 404)
+      }
+
+      if (runner.status !== "confirmed") {
+        const { error: confirmError } = await supabase
+          .from("wolfrun_runners")
+          .update({ status: "confirmed", stripe_payment_intent_id: getReferenceId(payload) })
+          .eq("id", runnerId)
+
+        if (confirmError) {
+          console.error(`[webhooks/nowdonate] Failed to confirm Wolf Run runner ${runnerId}:`, confirmError)
+          return json({ error: "Update failed" }, 500)
+        }
+      }
+
+      console.log(`[webhooks/nowdonate] Wolf Run runner confirmed: ${runnerId}`)
+      return json({ status: "ok", runner_id: runnerId })
+    }
+
     let rootsBooking: any = null
     let familyBooking: any = null
 
