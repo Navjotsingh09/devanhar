@@ -65,13 +65,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'This email is already registered for Wolf Run.' }, { status: 409 })
     }
 
-    // Create or refresh a payment_pending row so the webhook can always find it by ID.
-    // Rows that stay payment_pending (abandoned checkouts) are invisible to the dashboard.
+    // Create or refresh a failed row so the webhook can always find it by ID.
+    // Rows that stay failed (abandoned checkouts) are invisible to the dashboard.
     const { data: existingPending } = await supabase
       .from('wolfrun_runners')
       .select('id')
       .eq('email', normalizedEmail)
-      .eq('status', 'payment_pending')
+      .eq('status', 'failed')
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
 
     let runnerId: string
@@ -110,7 +112,7 @@ export async function POST(request: NextRequest) {
           city: city.trim(),
           pack,
           agree_whatsapp_group: Boolean(agree_whatsapp_group),
-          status: 'payment_pending',
+          status: 'failed',
         })
         .select('id')
         .single()
