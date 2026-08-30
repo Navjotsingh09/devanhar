@@ -24,7 +24,7 @@ export function TransportFullyBookedNotice() {
 
   return (
     <>
-      <aside className="border-b border-amber-300 bg-amber-50 text-slate-950" aria-label="Important transport update">
+      <aside className="mt-16 border-b border-amber-300 bg-amber-50 text-slate-950 md:mt-20" aria-label="Important transport update">
         <div className="container mx-auto flex max-w-5xl items-start gap-3 px-6 py-4 lg:px-12">
           <Bus className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
           <div>
