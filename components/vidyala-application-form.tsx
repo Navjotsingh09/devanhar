@@ -15,15 +15,13 @@ const STEPS = [
   "DBS Check",
   "Emergency Contacts",
   "Sikhi Journey",
-  "Commitment & Practical",
-  "Visa Information",
+  "Funding",
   "Additional Questions",
 ]
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "heic", "heif", "pdf"]
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const APPLICATION_DEADLINE = new Date('2026-08-01T00:00:00Z')
 
 interface VidyalaApplicationFormProps {
   onClose: () => void
@@ -60,11 +58,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
     sikhi_journey: "",
     english_ability: "",
     panjabi_ability: "",
-    can_commit: "" as "" | "yes" | "no",
     funding_option: "",
-    accommodation_option: "",
-    requires_visa: "" as "" | "yes" | "no",
-    requires_visa_support: "" as "" | "yes" | "no",
     motivation: "",
     current_seva: "",
     what_to_learn: "",
@@ -146,19 +140,14 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
         break
       case 5:
         if (!form.is_amritdhari) return "Please indicate whether you are Amritdhari."
+        if (!form.sikhi_journey.trim()) return "Please tell us about your Sikhi journey."
         if (!form.english_ability) return "Please select your English ability."
         if (!form.panjabi_ability) return "Please select your Panjabi ability."
         break
       case 6:
-        if (!form.can_commit) return "Please indicate whether you can commit to the full programme."
         if (!form.funding_option) return "Please select a funding option."
-        if (!form.accommodation_option) return "Please select an accommodation option."
         break
       case 7:
-        if (!form.requires_visa) return "Please indicate whether you require a visa."
-        if (form.requires_visa === "yes" && !form.requires_visa_support) return "Please indicate whether you need visa support."
-        break
-      case 8:
         if (!form.motivation.trim()) return "Please tell us your motivation for applying."
         if (!form.how_heard.trim()) return "Please tell us how you heard about the Vidyala."
         break
@@ -188,9 +177,6 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
         ...form,
         is_amritdhari: form.is_amritdhari === "yes",
         has_dbs_check: form.has_dbs_check === "yes",
-        can_commit: form.can_commit === "yes",
-        requires_visa: form.requires_visa === "yes",
-        requires_visa_support: form.requires_visa_support === "yes",
         continue_parchaar: form.continue_parchaar === "yes",
         page_url: typeof window !== "undefined" ? window.location.href : "",
       }
@@ -213,27 +199,6 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
   }
 
   const progressPct = Math.round((step / (STEPS.length - 1)) * 100)
-
-  if (new Date() >= APPLICATION_DEADLINE) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: `${NAVY}15` }}>
-            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: NAVY }}>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Applications Closed</h2>
-          <p className="text-gray-600 mb-6">
-            The application window for Sikhi Vidyala has now closed (31 July 2026). Please keep an eye out for future cohorts.
-          </p>
-          <Button onClick={onClose} className="w-full text-white font-semibold" style={{ backgroundColor: NAVY }}>
-            Close
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   if (submitted) {
     return (
@@ -493,21 +458,9 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
             </div>
           )}
 
-          {/* Step 6: Commitment & Practical */}
+          {/* Step 6: Funding */}
           {step === 6 && (
             <div className="space-y-4">
-              <div>
-                <Label>The Vidyala requires you to commit 6 months of seva and activities to attend in-farm as well as some weekends and weekend evenings. Are you able to make this commitment? *</Label>
-                <div className="flex gap-4 mt-2">
-                  {["yes", "no"].map((v) => (
-                    <label key={v} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="can_commit" value={v} checked={form.can_commit === v} onChange={() => set("can_commit", v)} className="accent-[#F5A623]" />
-                      <span className="text-sm capitalize">{v === "yes" ? "Yes" : "No"}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              
               <div>
                 <Label>Are you able to fund the fee of £795 or will you require financial support from the Vidyala? *</Label>
                 <div className="flex flex-col gap-2 mt-2">
@@ -522,59 +475,11 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
                   ))}
                 </div>
               </div>
-              <div>
-                <Label>For those living outside of Birmingham (UK), will you require accommodation? *</Label>
-                <div className="flex flex-col gap-2 mt-2">
-                  {[
-                    { v: "provided", l: "Yes, I will need accommodation arranged/funded" },
-                    { v: "local", l: "No, I live in Birmingham" },
-                    { v: "own", l: "No, I will arrange/fund my own accommodation" },
-                  ].map(({ v, l }) => (
-                    <label key={v} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="accommodation_option" value={v} checked={form.accommodation_option === v} onChange={() => set("accommodation_option", v)} className="accent-[#F5A623]" />
-                      <span className="text-sm">{l}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
-          {/* Step 7: Visa */}
+          {/* Step 7: Additional Questions */}
           {step === 7 && (
-            <div className="space-y-4">
-              <div>
-                <Label>Are you making a trip to attend the Vidyala? (Note that the Vidyala cannot sponsor students but can send a supporting letter if required.) *</Label>
-                <div className="flex gap-4 mt-2">
-                  {["yes", "no"].map((v) => (
-                    <label key={v} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="requires_visa" value={v} checked={form.requires_visa === v} onChange={() => set("requires_visa", v)} className="accent-[#F5A623]" />
-                      <span className="text-sm capitalize">{v === "yes" ? "Yes" : "No"}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              {form.requires_visa === "yes" && (
-                <div>
-                  <Label>Do you require support from the Vidyala to apply for your visa application? *</Label>
-                  <div className="flex gap-4 mt-2">
-                    {["yes", "no"].map((v) => (
-                      <label key={v} className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="requires_visa_support" value={v} checked={form.requires_visa_support === v} onChange={() => set("requires_visa_support", v)} className="accent-[#F5A623]" />
-                        <span className="text-sm capitalize">{v === "yes" ? "Yes please" : "No, I will sort it myself"}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {form.requires_visa === "no" && (
-                <p className="text-sm text-gray-500 rounded-lg p-3 bg-gray-50">No visa is required — you are all set for this section.</p>
-              )}
-            </div>
-          )}
-
-          {/* Step 8: Additional Questions */}
-          {step === 8 && (
             <div className="space-y-4">
               <div>
                 <Label>What is your main motivation for joining the Vidyala? *</Label>
