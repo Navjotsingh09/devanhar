@@ -6,6 +6,7 @@ import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCir
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { statusFilterClass } from "@/components/dashboard/status-filter-pills"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
@@ -386,10 +387,12 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-4 text-sm">
-          <span><strong>{bookings.length}</strong> total</span>
-          <span className="text-emerald-700"><strong>{paidCount}</strong> paid</span>
-          <span className="text-orange-700"><strong>{unpaidCount}</strong> unpaid</span>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => setStatusFilter("all")} className={statusFilterClass()}>All ({bookings.length})</button>
+          <button onClick={() => setStatusFilter("confirmed")} className={statusFilterClass("confirmed")}>Confirmed ({bookings.filter((booking) => booking.status === "confirmed").length})</button>
+          <button onClick={() => setStatusFilter("pending")} className={statusFilterClass("pending")}>Pending ({bookings.filter((booking) => booking.status === "pending").length})</button>
+          <button onClick={() => setStatusFilter("declined")} className={statusFilterClass("attention")}>Declined ({bookings.filter((booking) => booking.status === "declined").length})</button>
+          <button onClick={() => setStatusFilter("waitlisted")} className={statusFilterClass()}>Waitlisted ({bookings.filter((booking) => booking.status === "waitlisted").length})</button>
         </div>
         <Button size="sm" variant="outline" onClick={() => downloadCsv(filtered)}>
           <Download className="h-4 w-4 mr-2" />
@@ -409,18 +412,6 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
             <SelectItem value="all">Payment: all</SelectItem>
             <SelectItem value="paid">Payment: paid only</SelectItem>
             <SelectItem value="unpaid">Payment: unpaid only</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
-          <SelectTrigger><SelectValue placeholder="Status filter" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Status: all</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="confirmed">Confirmed</SelectItem>
-            <SelectItem value="waitlisted">Waitlisted</SelectItem>
-            <SelectItem value="declined">Declined</SelectItem>
-            <SelectItem value="archived">Archived</SelectItem>
           </SelectContent>
         </Select>
 
