@@ -14,6 +14,21 @@ html { font-size: calc(100% * var(--a11y-text-scale, 1)); }
 .a11y-high-contrast body * { border-color: #000 !important; }
 .a11y-high-contrast a, .a11y-high-contrast button { color: #000 !important; }
 
+/* Third-party GTM cookie-consent widget defaults to a full-screen blocking modal; keep it as a small, non-blocking corner banner so pages remain usable while consent is pending. */
+#custom-cookie-manager.ccm-wrapper {
+  background: transparent !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  pointer-events: none !important;
+  padding: 1.5rem !important;
+}
+#custom-cookie-manager .ccm-container {
+  pointer-events: auto !important;
+  max-width: 380px !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
