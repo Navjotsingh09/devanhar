@@ -10,12 +10,13 @@ type Runner = {
   last_name: string
   email: string
   phone: string
-  age: number
-  city: string
+  age: number | null
+  city: string | null
   pack: string
   agree_whatsapp_group: boolean
   status: string
   created_at: string
+  recovered?: boolean
 }
 
 const PACK_LABELS: Record<string, string> = {
@@ -27,18 +28,18 @@ function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 }
 
-export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
-  const [rows, setRows] = useState<Runner[]>(() => runners.filter((r) => r.status === "confirmed"))
-  const [packFilter, setPackFilter] = useState<"all" | "singhs" | "kaurs">("all")
+export default function RunnersAdminTable({ runners, recoveredRunners = [] }: { runners: Runner[]; recoveredRunners?: Runner[] }) {
+  const [rows, setRows] = useState<Runner[]>([...runners, ...recoveredRunners])
+  const [packFilter, setPackFilter] = useState<"all" | "singhs" | "kaurs" | "recovered">("all")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    setRows(runners.filter((r) => r.status === "confirmed"))
-  }, [runners])
+    setRows([...runners, ...recoveredRunners])
+  }, [runners, recoveredRunners])
 
   const filtered =
-    packFilter === "all" ? rows : rows.filter((r) => r.pack === packFilter)
+    packFilter === "all" ? rows : packFilter === "recovered" ? rows.filter((runner) => runner.recovered) : rows.filter((runner) => runner.pack === packFilter)
 
   const deleteRunner = async (runner: Runner) => {
     if (!window.confirm(`Permanently delete ${runner.first_name} ${runner.last_name}? This cannot be undone.`)) {
@@ -46,7 +47,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
     }
 
     // Stripe fallback rows have no Supabase record — remove from UI only
-    if (!isUuid(runner.id)) {
+    if (runner.recovered || !isUuid(runner.id)) {
       setRows((prev) => prev.filter((r) => r.id !== runner.id))
       return
     }
@@ -77,7 +78,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
 
       {/* Pack filter tabs */}
       <div className="flex gap-2">
-        {(["all", "singhs", "kaurs"] as const).map((tab) => (
+        {(["all", "singhs", "kaurs", "recovered"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setPackFilter(tab)}
@@ -87,6 +88,8 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                   ? "bg-amber-100 border-amber-400 text-amber-800"
                   : tab === "kaurs"
                   ? "bg-purple-100 border-purple-400 text-purple-800"
+                  : tab === "recovered"
+                  ? "bg-blue-100 border-blue-400 text-blue-800"
                   : "bg-foreground text-background border-foreground"
                 : "border-border text-muted-foreground hover:border-foreground/40"
             }`}
@@ -95,7 +98,9 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
               ? `All (${rows.length})`
               : tab === "singhs"
               ? `Singhs (${rows.filter((r) => r.pack === "singhs").length})`
-              : `Kaurs (${rows.filter((r) => r.pack === "kaurs").length})`}
+              : tab === "kaurs"
+              ? `Kaurs (${rows.filter((r) => r.pack === "kaurs").length})`
+              : `Recovered (${rows.filter((r) => r.recovered).length})`}
           </button>
         ))}
       </div>
@@ -140,11 +145,11 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                         Kaurs
                       </Badge>
                     ) : (
-                      <Badge variant="outline">{runner.pack}</Badge>
+                      <Badge variant="outline">{runner.recovered ? 'Pack to confirm' : runner.pack}</Badge>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{runner.age}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{runner.city}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{runner.age ?? 'Not recovered'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{runner.city || 'Not recovered'}</td>
                   <td className="px-4 py-3">
                     {runner.agree_whatsapp_group ? (
                       <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">Yes</Badge>
@@ -154,7 +159,7 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                   </td>
                   <td className="px-4 py-3">
                     {runner.status === "confirmed" ? (
-                      <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">Confirmed</Badge>
+                      <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">{runner.recovered ? 'Confirmed (recovered)' : 'Confirmed'}</Badge>
                     ) : runner.status === "payment_pending" ? (
                       <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800">Payment pending</Badge>
                     ) : (
@@ -169,14 +174,14 @@ export default function RunnersAdminTable({ runners }: { runners: Runner[] }) {
                     })}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
+                    {runner.recovered ? <span className="text-xs text-muted-foreground">Payment verified</span> : <button
                       onClick={() => deleteRunner(runner)}
                       disabled={deletingId === runner.id}
                       className="rounded p-1.5 text-red-500 hover:bg-red-50 disabled:opacity-50"
                       title="Delete permanently"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </button>}
                   </td>
                 </tr>
               ))}

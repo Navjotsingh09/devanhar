@@ -9,12 +9,13 @@ type RunnerRow = {
   last_name: string
   email: string
   phone: string
-  age: number
-  city: string
+  age: number | null
+  city: string | null
   pack: string
   agree_whatsapp_group: boolean
   status: string
   created_at: string
+  recovered?: boolean
 }
 
 type RecoveredPayment = {
@@ -93,6 +94,10 @@ export default async function WolfRunRunnersPage() {
     paymentCount: payments.length,
     sources: [...new Set(payments.map((payment) => payment.source))],
   }))
+  const recoveredRunners: RunnerRow[] = recoveredContacts.map(({ latest }) => {
+    const [firstName = 'Unknown', ...lastName] = (latest.customer_name || '').trim().split(/\s+/).filter(Boolean)
+    return { id: latest.id, first_name: firstName, last_name: lastName.join(' '), email: latest.customer_email || '', phone: latest.customer_phone || '', age: null, city: null, pack: 'recovered', agree_whatsapp_group: false, status: 'confirmed', created_at: latest.occurred_at || new Date().toISOString(), recovered: true }
+  })
   const error = primary.error
 
   return (
@@ -103,13 +108,13 @@ export default async function WolfRunRunnersPage() {
         <p className="text-xs text-muted-foreground mt-1">Data source: Supabase</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Runners</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent><div className="text-3xl font-bold text-foreground">{totalCount}</div></CardContent>
+          <CardContent><div className="text-3xl font-bold text-foreground">{totalCount + recoveredRunners.length}</div><p className="text-xs text-muted-foreground mt-1">{recoveredRunners.length} payment-verified recovery</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Singhs Pack</CardTitle></CardHeader>
@@ -119,37 +124,15 @@ export default async function WolfRunRunnersPage() {
           <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Kaurs Pack</CardTitle></CardHeader>
           <CardContent><div className="text-3xl font-bold text-purple-600">{kaursCount}</div><p className="text-xs text-muted-foreground mt-1">Kaurs Pack</p></CardContent>
         </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Pack To Confirm</CardTitle></CardHeader>
+          <CardContent><div className="text-3xl font-bold text-blue-600">{recoveredRunners.length}</div><p className="text-xs text-muted-foreground mt-1">Confirmed paid seats</p></CardContent>
+        </Card>
       </div>
 
       <div>
         <h2 className="text-lg font-semibold mb-3">Entries</h2>
-        {error ? <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">Failed to load runners: {error}</div> : <RunnersAdminTable runners={runners} />}
-      </div>
-
-      <div>
-        <h2 className="text-lg font-semibold mb-1">Recovered Wolf Run Contacts</h2>
-        <p className="mb-3 text-sm text-muted-foreground">{recoveredContacts.length} contacts recovered from {recoveredPayments.length} payment records. Age, city, pack, and WhatsApp consent require the original registration data.</p>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[980px] text-sm">
-            <thead className="border-b border-border bg-muted/50 text-left text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Name</th><th className="px-4 py-3 font-medium">Email</th><th className="px-4 py-3 font-medium">Phone</th><th className="px-4 py-3 font-medium">Pack</th><th className="px-4 py-3 font-medium">Age</th><th className="px-4 py-3 font-medium">City</th><th className="px-4 py-3 font-medium">Latest payment</th><th className="px-4 py-3 font-medium">Records</th><th className="px-4 py-3 font-medium">Sources</th></tr></thead>
-            <tbody>
-              {recoveredContacts.map(({ latest, paymentCount, sources }) => (
-                <tr key={latest.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 font-medium">{latest.customer_name || 'Unknown'}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{latest.customer_email || 'Not recovered'}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{latest.customer_phone || 'Not recovered'}</td>
-                  <td className="px-4 py-3 text-muted-foreground">Not recovered</td>
-                  <td className="px-4 py-3 text-muted-foreground">Not recovered</td>
-                  <td className="px-4 py-3 text-muted-foreground">Not recovered</td>
-                  <td className="whitespace-nowrap px-4 py-3">{latest.amount == null ? 'Unknown' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: latest.currency || 'GBP' }).format(latest.amount)}<p className="text-xs text-muted-foreground">{latest.payment_status || 'Unknown'} · {latest.occurred_at ? new Date(latest.occurred_at).toLocaleDateString('en-GB') : 'Unknown date'}</p></td>
-                  <td className="px-4 py-3">{paymentCount}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{sources.map((source) => source === 'donation_manager' ? 'Donation Manager' : 'Stripe').join(', ')}</td>
-                </tr>
-              ))}
-              {recoveredContacts.length === 0 && <tr><td className="px-4 py-8 text-center text-muted-foreground" colSpan={9}>No recovered Wolf Run contacts found.</td></tr>}
-            </tbody>
-          </table>
-        </div>
+        {error ? <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">Failed to load runners: {error}</div> : <RunnersAdminTable runners={runners} recoveredRunners={recoveredRunners} />}
       </div>
     </div>
   )
