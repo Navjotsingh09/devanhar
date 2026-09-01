@@ -29,3 +29,12 @@
 - Recreate Storage buckets and policies before enabling document-upload forms.
 - Validate with one staff login, one safe test submission per form type, a dashboard read, and a file-upload flow before reopening all public forms.
 - Keep the Supabase recovery ticket active. If the original project is restored, decide explicitly whether to switch back or import recovered data into the replacement.
+
+## Permanent Safeguards
+
+- Follow `SUPABASE_RECOVERY_RUNBOOK.md` for production backup, export, recovery, and validation procedures.
+- Database exports and third-party recovery exports contain personal data. Store them in approved private storage only; never commit them to this repository.
+- Preserve original source IDs, timestamps, and provenance when importing recovered records. Do not create invented application fields from incomplete provider exports.
+- Every new or changed form must be verified end-to-end: form submit, database row, complete staff-details view, notification/payment behavior, and required upload flow.
+- Ensure at least two trusted people remain Supabase organization Owners and Vercel project Administrators.
+
