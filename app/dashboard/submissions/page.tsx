@@ -52,6 +52,12 @@ function recoveredCategory(description: unknown) {
   return 'Donations / Unclassified'
 }
 
+function recoveredInitiativeSlug(description: unknown) {
+  const value = String(description ?? '').toLowerCase()
+  if (value.includes('singhs camp')) return 'singhs-camp'
+  return null
+}
+
 function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> {
   const excludedKeys = new Set([
     'id',
@@ -515,6 +521,12 @@ export default async function SubmissionsPage() {
   ])
 
   const allSubmissions = submissions
+  const recoveredByInitiative = (initiatives as Initiative[]).reduce((acc, initiative) => {
+    acc[initiative.slug] = recoveredSubmissions.filter((submission) => recoveredInitiativeSlug(submission.details) === initiative.slug)
+    return acc
+  }, {} as Record<string, RecoveredSubmission[]>)
+  const unassignedRecovered = recoveredSubmissions.filter((submission) => recoveredInitiativeSlug(submission.details) === null)
+  const allSubmissionCount = allSubmissions.length + recoveredSubmissions.length
   const groupedByInitiative = (initiatives as Initiative[]).reduce((acc, init) => {
     acc[init.slug] = submissions.filter((s: DashboardSubmission) => s.initiatives?.slug === init.slug)
     return acc
@@ -534,11 +546,11 @@ export default async function SubmissionsPage() {
             value="all"
             className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60"
           >
-            <span className="text-lg font-bold leading-none">{allSubmissions.length}</span>
+            <span className="text-lg font-bold leading-none">{allSubmissionCount}</span>
             <span className="text-[11px] font-medium leading-none opacity-70">All</span>
           </TabsTrigger>
           {initiatives.map((init) => {
-            const count = groupedByInitiative[init.slug]?.length || 0
+            const count = (groupedByInitiative[init.slug]?.length || 0) + (recoveredByInitiative[init.slug]?.length || 0)
             return (
               <TabsTrigger
                 key={init.slug}
@@ -560,7 +572,7 @@ export default async function SubmissionsPage() {
             </TabsTrigger>
           )}
           <TabsTrigger value="__other" className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60">
-            <span className="text-lg font-bold leading-none">{otherSubmissions.length}</span>
+            <span className="text-lg font-bold leading-none">{otherSubmissions.length + unassignedRecovered.length}</span>
             <span className="text-[11px] font-medium leading-none opacity-70">Other Website Forms</span>
           </TabsTrigger>
           <TabsTrigger value="__recovered" className="group flex-col items-start gap-0.5 h-auto px-4 py-3 min-w-[90px] rounded-xl border border-border bg-card text-left shadow-sm transition-all data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md hover:border-primary/50 hover:bg-muted/60">
@@ -578,11 +590,13 @@ export default async function SubmissionsPage() {
 
         <TabsContent value="all" className="mt-4">
           <SubmissionsTable submissions={allSubmissions} />
+          {recoveredSubmissions.length > 0 && <div className="mt-6"><h2 className="mb-3 text-lg font-semibold text-foreground">Recovered records</h2><RecoveredRecordsTable records={recoveredSubmissions} /></div>}
         </TabsContent>
 
         {initiatives.map((init) => (
           <TabsContent key={init.slug} value={init.slug} className="mt-4">
             <SubmissionsTable submissions={groupedByInitiative[init.slug] || []} />
+            {(recoveredByInitiative[init.slug] || []).length > 0 && <div className="mt-6"><h2 className="mb-3 text-lg font-semibold text-foreground">Recovered records</h2><RecoveredRecordsTable records={recoveredByInitiative[init.slug]} /></div>}
           </TabsContent>
         ))}
 
@@ -603,6 +617,7 @@ export default async function SubmissionsPage() {
             </div>
           )}
         </TabsContent>
+          {unassignedRecovered.length > 0 && <div className="mt-6"><h2 className="mb-3 text-lg font-semibold text-foreground">Recovered records</h2><RecoveredRecordsTable records={unassignedRecovered} /></div>}
 
         <TabsContent value="__recovered" className="mt-4">
           {recoveredSubmissions.length === 0 ? (
