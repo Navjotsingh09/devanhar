@@ -15,6 +15,7 @@ import {
   Package,
   ClipboardList,
   ImageIcon,
+  ReceiptText,
   Trophy,
   BookOpen,
   Video,
@@ -56,6 +57,7 @@ const mainNav: NavItem[] = [
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
+  { title: 'Recovered Payments', url: '/dashboard/recovery-payments', icon: ReceiptText },
   { title: 'User Management', url: '/dashboard/users', icon: Users, adminOnly: true },
   { title: 'Site Images', url: '/dashboard/images', icon: ImageIcon },
 ]
