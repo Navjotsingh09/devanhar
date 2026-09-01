@@ -4,6 +4,7 @@ import { useState } from "react"
 import { format, differenceInYears, parseISO } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { statusFilterClass } from "@/components/dashboard/status-filter-pills"
 import { Download, CheckCircle, XCircle, RefreshCw, Archive, ArchiveRestore, Trash2, Bell, BadgeCheck, ChevronDown, ChevronUp } from "lucide-react"
 import {
   confirmRootsBooking,
@@ -124,11 +125,12 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   const [loading, setLoading] = useState<string | null>(null)
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
   const [showArchived, setShowArchived] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<"all" | "confirmed" | "pending" | "declined">("all")
   const [expanded, setExpanded] = useState<string | null>(null)
 
   const active = bookings.filter((b) => !b.archived)
   const archived = bookings.filter((b) => b.archived)
-  const visible = showArchived ? archived : active
+  const visible = (showArchived ? archived : active).filter((booking) => statusFilter === "all" || booking.status === statusFilter)
 
   const pending = active.filter((b) => b.status === "pending").length
   const confirmed = active.filter((b) => b.status === "confirmed").length
@@ -238,14 +240,11 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
     <div className="space-y-6">
       {/* Stats + export */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex gap-5 text-sm">
-          <span><strong>{active.length}</strong> active</span>
-          <span className="text-yellow-700"><strong>{pending}</strong> pending</span>
-          <span className="text-green-700"><strong>{confirmed}</strong> confirmed</span>
-          <span className="text-red-700"><strong>{declined}</strong> declined</span>
-          {archived.length > 0 && (
-            <span className="text-muted-foreground"><strong>{archived.length}</strong> archived</span>
-          )}
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => setStatusFilter("all")} className={statusFilterClass()}>All ({active.length})</button>
+          <button onClick={() => setStatusFilter("confirmed")} className={statusFilterClass("confirmed")}>Confirmed ({confirmed})</button>
+          <button onClick={() => setStatusFilter("pending")} className={statusFilterClass("pending")}>Pending ({pending})</button>
+          <button onClick={() => setStatusFilter("declined")} className={statusFilterClass("attention")}>Declined ({declined})</button>
         </div>
         <div className="flex gap-2">
           {archived.length > 0 && (
