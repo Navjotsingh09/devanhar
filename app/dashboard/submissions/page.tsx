@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { SubmissionsTable } from '@/components/dashboard/submissions-table'
+import { RecoveredRecordsTable, type RecoveredSubmission } from '@/components/dashboard/recovered-records-table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Stripe from 'stripe'
 import { getRecentCampActivity } from '@/app/dashboard/submissions/actions'
@@ -38,6 +39,17 @@ type OtherDashboardSubmission = {
   status: string
   details: string
   created_at: string
+}
+
+function recoveredCategory(description: unknown) {
+  const value = String(description ?? '').toLowerCase()
+  if (value.includes('wolf run')) return 'Wolf Run'
+  if (value.includes('family fun day') || value.includes('family initiative')) return 'Family Fun Day'
+  if (value.includes('family retreat')) return 'Family Retreat'
+  if (value.includes('roots residential') || value.includes('roots booking')) return 'Roots Residential'
+  if (value.includes('padel')) return 'Sikh Padel Association'
+  if (value.includes('singhs camp') || value.includes('kaurs camp') || value.includes('camp fee')) return 'Camps'
+  return 'Donations / Unclassified'
 }
 
 function buildCampFormData(c: Record<string, unknown>): Record<string, unknown> {
@@ -465,8 +477,9 @@ async function getSubmissions() {
     })),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-  const recoveredSubmissions: OtherDashboardSubmission[] = recoveredPayments.map((payment: Record<string, unknown>) => ({
+  const recoveredSubmissions: RecoveredSubmission[] = recoveredPayments.map((payment: Record<string, unknown>) => ({
     id: String(payment.id),
+    category: recoveredCategory(payment.description),
     source: `Recovered ${payment.source === 'donation_manager' ? 'Donation Manager' : 'Stripe'} record`,
     full_name: String(payment.customer_name ?? 'Unknown'),
     email: String(payment.customer_email ?? ''),
@@ -595,11 +608,7 @@ export default async function SubmissionsPage() {
           {recoveredSubmissions.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">No recovered records found.</p>
           ) : (
-            <div className="rounded-xl border border-border overflow-hidden">
-              <table className="w-full text-sm"><thead><tr className="bg-muted/50 text-left"><th className="px-4 py-3 font-semibold text-foreground">Name</th><th className="px-4 py-3 font-semibold text-foreground">Source</th><th className="px-4 py-3 font-semibold text-foreground">Email</th><th className="px-4 py-3 font-semibold text-foreground">Status</th><th className="px-4 py-3 font-semibold text-foreground">Recovered details</th><th className="px-4 py-3 font-semibold text-foreground">Date</th></tr></thead>
-                <tbody className="divide-y divide-border">{recoveredSubmissions.map((submission) => (<tr key={submission.id} className="hover:bg-muted/30 transition-colors"><td className="px-4 py-3 font-medium text-foreground">{submission.full_name}</td><td className="px-4 py-3 text-muted-foreground">{submission.source}</td><td className="px-4 py-3">{submission.email ? <a href={`mailto:${submission.email}`} className="text-blue-600 hover:underline">{submission.email}</a> : '—'}</td><td className="px-4 py-3 text-muted-foreground">{submission.status}</td><td className="px-4 py-3 text-muted-foreground max-w-xs break-words">{submission.details || '—'}</td><td className="px-4 py-3 text-muted-foreground text-xs tabular-nums whitespace-nowrap">{new Date(submission.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td></tr>))}</tbody>
-              </table>
-            </div>
+            <RecoveredRecordsTable records={recoveredSubmissions} />
           )}
         </TabsContent>
 
