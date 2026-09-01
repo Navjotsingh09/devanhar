@@ -26,6 +26,7 @@ type RecoveredPayment = {
   payment_status: string | null
   customer_name: string | null
   customer_email: string | null
+  customer_phone: string | null
   payment_reference: string | null
 }
 
@@ -59,7 +60,7 @@ async function getRunnerStats() {
       .eq('pack', 'kaurs'),
     supabase
       .from('recovery_payment_ledger')
-      .select('id, source, occurred_at, amount, currency, payment_status, customer_name, customer_email, payment_reference')
+      .select('id, source, occurred_at, amount, currency, payment_status, customer_name, customer_email, customer_phone, payment_reference')
       .ilike('description', '%Wolf Run%')
       .order('occurred_at', { ascending: false }),
   ])
@@ -83,6 +84,15 @@ export default async function WolfRunRunnersPage() {
   const singhsCount = primary.singhsCount
   const kaursCount = primary.kaursCount
   const recoveredPayments = primary.recoveredPayments
+  const recoveredContacts = Object.values(recoveredPayments.reduce<Record<string, RecoveredPayment[]>>((groups, payment) => {
+    const key = payment.customer_email?.trim().toLowerCase() || payment.payment_reference || payment.id
+    groups[key] = [...(groups[key] ?? []), payment]
+    return groups
+  }, {})).map((payments) => ({
+    latest: payments[0],
+    paymentCount: payments.length,
+    sources: [...new Set(payments.map((payment) => payment.source))],
+  }))
   const error = primary.error
 
   return (
@@ -117,23 +127,26 @@ export default async function WolfRunRunnersPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-1">Recovered Wolf Run Payments</h2>
-        <p className="mb-3 text-sm text-muted-foreground">Payment evidence recovered from external providers. These are not runner profiles because the original registration details are unavailable.</p>
+        <h2 className="text-lg font-semibold mb-1">Recovered Wolf Run Contacts</h2>
+        <p className="mb-3 text-sm text-muted-foreground">{recoveredContacts.length} contacts recovered from {recoveredPayments.length} payment records. Age, city, pack, and WhatsApp consent require the original registration data.</p>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="border-b border-border bg-muted/50 text-left text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Date</th><th className="px-4 py-3 font-medium">Contact</th><th className="px-4 py-3 font-medium">Amount</th><th className="px-4 py-3 font-medium">Status</th><th className="px-4 py-3 font-medium">Source</th><th className="px-4 py-3 font-medium">Reference</th></tr></thead>
+          <table className="w-full min-w-[980px] text-sm">
+            <thead className="border-b border-border bg-muted/50 text-left text-muted-foreground"><tr><th className="px-4 py-3 font-medium">Name</th><th className="px-4 py-3 font-medium">Email</th><th className="px-4 py-3 font-medium">Phone</th><th className="px-4 py-3 font-medium">Pack</th><th className="px-4 py-3 font-medium">Age</th><th className="px-4 py-3 font-medium">City</th><th className="px-4 py-3 font-medium">Latest payment</th><th className="px-4 py-3 font-medium">Records</th><th className="px-4 py-3 font-medium">Sources</th></tr></thead>
             <tbody>
-              {recoveredPayments.map((payment) => (
-                <tr key={payment.id} className="border-b border-border last:border-0">
-                  <td className="whitespace-nowrap px-4 py-3">{payment.occurred_at ? new Date(payment.occurred_at).toLocaleDateString('en-GB') : 'Unknown'}</td>
-                  <td className="px-4 py-3"><p>{payment.customer_name || 'Unknown'}</p><p className="text-xs text-muted-foreground">{payment.customer_email || 'No email'}</p></td>
-                  <td className="whitespace-nowrap px-4 py-3">{payment.amount == null ? 'Unknown' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: payment.currency || 'GBP' }).format(payment.amount)}</td>
-                  <td className="px-4 py-3">{payment.payment_status || 'Unknown'}</td>
-                  <td className="px-4 py-3">{payment.source === 'donation_manager' ? 'Donation Manager' : 'Stripe'}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{payment.payment_reference || 'No reference'}</td>
+              {recoveredContacts.map(({ latest, paymentCount, sources }) => (
+                <tr key={latest.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3 font-medium">{latest.customer_name || 'Unknown'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{latest.customer_email || 'Not recovered'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{latest.customer_phone || 'Not recovered'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">Not recovered</td>
+                  <td className="px-4 py-3 text-muted-foreground">Not recovered</td>
+                  <td className="px-4 py-3 text-muted-foreground">Not recovered</td>
+                  <td className="whitespace-nowrap px-4 py-3">{latest.amount == null ? 'Unknown' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: latest.currency || 'GBP' }).format(latest.amount)}<p className="text-xs text-muted-foreground">{latest.payment_status || 'Unknown'} · {latest.occurred_at ? new Date(latest.occurred_at).toLocaleDateString('en-GB') : 'Unknown date'}</p></td>
+                  <td className="px-4 py-3">{paymentCount}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{sources.map((source) => source === 'donation_manager' ? 'Donation Manager' : 'Stripe').join(', ')}</td>
                 </tr>
               ))}
-              {recoveredPayments.length === 0 && <tr><td className="px-4 py-8 text-center text-muted-foreground" colSpan={6}>No recovered Wolf Run payments found.</td></tr>}
+              {recoveredContacts.length === 0 && <tr><td className="px-4 py-8 text-center text-muted-foreground" colSpan={9}>No recovered Wolf Run contacts found.</td></tr>}
             </tbody>
           </table>
         </div>
