@@ -18,13 +18,14 @@ async function getWolfRunStats() {
   if (wolfrunCheckoutId === undefined) missingConfig.push('WOLFRUN_NOWDONATE_CHECKOUT_ID or NOWDONATE_CHECKOUT_ID')
   if (!process.env.NEXT_PUBLIC_SITE_URL && !process.env.VERCEL_URL) missingConfig.push('NEXT_PUBLIC_SITE_URL (or VERCEL_URL)')
 
-  const [fundraisersResult, donationsResult, singhsResult, kaursResult, stuckDonationsResult, recentCompletedResult] = await Promise.all([
+  const [fundraisersResult, donationsResult, singhsResult, kaursResult, stuckDonationsResult, recentCompletedResult, recoveredPaymentsResult] = await Promise.all([
     supabase.from('wolfrun_fundraisers').select('id, first_name, last_name, email, phone, pack, slug, fundraising_goal, total_raised, status, created_at').order('created_at', { ascending: false }).limit(2000),
     supabase.from('wolfrun_donations').select('id, fundraiser_id, donor_name, donor_email, amount, gift_aid, message, status, created_at').eq('status', 'completed').order('created_at', { ascending: false }).limit(2000),
     supabase.from('wolfrun_fundraisers').select('id', { count: 'exact', head: true }).eq('pack', 'singhs').eq('status', 'active'),
     supabase.from('wolfrun_fundraisers').select('id', { count: 'exact', head: true }).eq('pack', 'kaurs').eq('status', 'active'),
     supabase.from('wolfrun_donations').select('id', { count: 'exact', head: true }).in('status', ['pending', 'redirected']).lt('created_at', thirtyMinutesAgoIso),
     supabase.from('wolfrun_donations').select('id', { count: 'exact', head: true }).eq('status', 'completed').gte('created_at', oneDayAgoIso),
+    supabase.from('recovery_payment_ledger').select('id, source, occurred_at, amount, currency, payment_status, customer_name, customer_email, payment_reference').ilike('description', '%Wolf Run%').order('occurred_at', { ascending: false }),
   ])
 
   const fundraisers = fundraisersResult.data || []
@@ -39,6 +40,7 @@ async function getWolfRunStats() {
     kaursCount: kaursResult.count || 0,
     stalePendingDonations: stuckDonationsResult.count || 0,
     recentCompletedDonations: recentCompletedResult.count || 0,
+    recoveredPayments: recoveredPaymentsResult.data || [],
     missingConfig,
   }
 }
@@ -56,6 +58,7 @@ export default async function WolfRunDashboard() {
     kaursCount,
     stalePendingDonations,
     recentCompletedDonations,
+    recoveredPayments,
     missingConfig,
   } = await getWolfRunStats()
   const showWebhookWarning = stalePendingDonations > 0
@@ -193,6 +196,14 @@ export default async function WolfRunDashboard() {
               </table>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Recovered Wolf Run Payments ({recoveredPayments.length})</CardTitle></CardHeader>
+        <CardContent>
+          <p className="mb-4 text-sm text-muted-foreground">Payment evidence recovered from Stripe and Donation Manager. These entries are not linked to a fundraiser profile because the original database record is unavailable.</p>
+          {recoveredPayments.length === 0 ? <p className="py-4 text-sm text-muted-foreground">No recovered Wolf Run payments found.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-sm"><thead><tr className="border-b border-border"><th className="px-2 py-3 text-left font-medium text-muted-foreground">Contact</th><th className="px-2 py-3 text-left font-medium text-muted-foreground">Email</th><th className="px-2 py-3 text-right font-medium text-muted-foreground">Amount</th><th className="px-2 py-3 text-left font-medium text-muted-foreground">Status</th><th className="px-2 py-3 text-left font-medium text-muted-foreground">Source</th><th className="px-2 py-3 text-left font-medium text-muted-foreground">Date</th></tr></thead><tbody>{recoveredPayments.map((payment) => <tr key={payment.id} className="border-b border-border last:border-0"><td className="px-2 py-3 font-medium">{payment.customer_name || 'Unknown'}</td><td className="px-2 py-3 text-muted-foreground">{payment.customer_email || '—'}</td><td className="px-2 py-3 text-right font-medium">{payment.amount == null ? '—' : new Intl.NumberFormat('en-GB', { style: 'currency', currency: payment.currency || 'GBP' }).format(payment.amount)}</td><td className="px-2 py-3 text-muted-foreground">{payment.payment_status || 'Unknown'}</td><td className="px-2 py-3 text-muted-foreground">{payment.source === 'donation_manager' ? 'Donation Manager' : 'Stripe'}</td><td className="px-2 py-3 text-muted-foreground">{payment.occurred_at ? new Date(payment.occurred_at).toLocaleDateString('en-GB') : 'Unknown'}</td></tr>)}</tbody></table></div>}
         </CardContent>
       </Card>
     </div>
