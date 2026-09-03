@@ -14,6 +14,7 @@ import {
   padelFaqs,
 } from "@/components/padel/padel-shared-data"
 import { PADEL_EVENT, PREVIOUS_PADEL_EVENT } from "@/components/padel/padel-event"
+import Link from "next/link"
 
 export const metadata = {
   title: "Sikh Padel Association | Devanhaar",
@@ -80,6 +81,25 @@ export default function SikhPadelAssociationPage() {
             >
               Open venue address
             </a>
+          </div>
+        </section>
+
+        <section className="border-t border-border py-12 md:py-16">
+          <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-2">
+                Player rankings
+              </p>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                See where every player stands
+              </h2>
+            </div>
+            <Link
+              href="/initiatives/sikh-padel-association/leaderboard"
+              className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
+            >
+              View player leaderboard
+            </Link>
           </div>
         </section>
 
