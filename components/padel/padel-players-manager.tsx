@@ -17,6 +17,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -242,8 +249,16 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="gender">Gender (optional)</Label>
-                <Input id="gender" value={form.gender} onChange={(e) => setForm((p) => ({ ...p, gender: e.target.value }))} />
+                <Label htmlFor="gender">Gender</Label>
+                <Select value={form.gender || undefined} onValueChange={(v) => setForm((p) => ({ ...p, gender: v }))}>
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="city_country">City / Country (optional)</Label>
