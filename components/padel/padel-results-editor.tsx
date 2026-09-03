@@ -78,25 +78,25 @@ export function PadelResultsEditor({
 
   const handleSave = () => {
     startTransition(async () => {
-      try {
-        const results: TournamentResultInput[] = orderedStages
-          .filter((stage) => rows[stage.value].player_id)
-          .map((stage) => {
-            const row = rows[stage.value]
-            return {
-              finishing_position: stage.value,
-              player_id: row.player_id,
-              partner_player_id: row.partner_player_id || null,
-              points_awarded: Number(row.points_awarded) || 0,
-              notes: row.notes || null,
-            }
-          })
-        await saveTournamentResults(tournamentId, results)
-        toast.success('Results saved and leaderboard updated')
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to save results')
+      const results: TournamentResultInput[] = orderedStages
+        .filter((stage) => rows[stage.value].player_id)
+        .map((stage) => {
+          const row = rows[stage.value]
+          return {
+            finishing_position: stage.value,
+            player_id: row.player_id,
+            partner_player_id: row.partner_player_id || null,
+            points_awarded: Number(row.points_awarded) || 0,
+            notes: row.notes || null,
+          }
+        })
+      const result = await saveTournamentResults(tournamentId, results)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
       }
+      toast.success('Results saved and leaderboard updated')
+      router.refresh()
     })
   }
 

@@ -12,16 +12,18 @@ export type TournamentResultInput = {
   notes?: string | null
 }
 
-export async function saveTournamentResults(tournamentId: string, results: TournamentResultInput[]) {
+type ActionResult = { error: string } | { success: true }
+
+export async function saveTournamentResults(tournamentId: string, results: TournamentResultInput[]): Promise<ActionResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) throw new Error('Unauthorized')
+  if (user == null) return { error: 'Unauthorized' }
 
   const submitted = results.filter((r) => r.player_id)
   const seenPlayers = new Set<string>()
   for (const r of submitted) {
     if (seenPlayers.has(r.player_id)) {
-      throw new Error("A player cannot appear twice in the same tournament's results")
+      return { error: "A player cannot appear twice in the same tournament's results" }
     }
     seenPlayers.add(r.player_id)
   }
@@ -34,7 +36,7 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
   const toDelete = (existing || []).filter((row) => !keepPlayerIds.has(row.player_id)).map((row) => row.id)
   if (toDelete.length > 0) {
     const { error: deleteError } = await supabase.from('padel_tournament_results').delete().in('id', toDelete)
-    if (deleteError) throw new Error(deleteError.message)
+    if (deleteError) return { error: deleteError.message }
   }
 
   if (submitted.length > 0) {
@@ -52,7 +54,7 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
         })),
         { onConflict: 'tournament_id,player_id' }
       )
-    if (upsertError) throw new Error(upsertError.message)
+    if (upsertError) return { error: upsertError.message }
   }
 
   const { data: activePlayers } = await supabase
@@ -74,7 +76,7 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
       .from('padel_players')
       .update({ total_points: total, updated_at: new Date().toISOString() })
       .eq('id', player.id)
-    if (error) throw new Error(error.message)
+    if (error) return { error: error.message }
   }
 
   const ranked = computeRanksWithTies(
@@ -91,10 +93,11 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
       })),
       { onConflict: 'tournament_id,player_id' }
     )
-  if (snapshotError) throw new Error(snapshotError.message)
+  if (snapshotError) return { error: snapshotError.message }
 
   revalidatePath('/dashboard/padel/results')
   revalidatePath('/dashboard/padel/tournaments/' + tournamentId + '/results')
   revalidatePath('/dashboard/padel/players')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
+  return { success: true }
 }

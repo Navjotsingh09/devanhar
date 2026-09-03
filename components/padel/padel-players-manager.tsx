@@ -103,51 +103,46 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
 
   const handleSave = () => {
     startTransition(async () => {
-      try {
-        const input = {
-          first_name: form.first_name,
-          last_name: form.last_name,
-          gender: form.gender || null,
-          city_country: form.city_country || null,
-          photo_url: form.photo_url || null,
-        }
-        if (editingId) {
-          await updatePlayer(editingId, input)
-          toast.success('Player updated')
-        } else {
-          await createPlayer(input)
-          toast.success('Player added')
-        }
-        setDialogOpen(false)
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to save player')
+      const input = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        gender: form.gender || null,
+        city_country: form.city_country || null,
+        photo_url: form.photo_url || null,
       }
+      const result = editingId ? await updatePlayer(editingId, input) : await createPlayer(input)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
+      toast.success(editingId ? 'Player updated' : 'Player added')
+      setDialogOpen(false)
+      router.refresh()
     })
   }
 
   const handleToggleActive = (player: PadelPlayerRow) => {
     startTransition(async () => {
-      try {
-        await setPlayerActive(player.id, !player.is_active)
-        toast.success(player.is_active ? 'Player deactivated' : 'Player reactivated')
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to update player')
+      const result = await setPlayerActive(player.id, !player.is_active)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
       }
+      toast.success(player.is_active ? 'Player deactivated' : 'Player reactivated')
+      router.refresh()
     })
   }
 
   const handleDelete = (player: PadelPlayerRow) => {
     if (!confirm(`Delete ${player.first_name} ${player.last_name}? This cannot be undone.`)) return
     startTransition(async () => {
-      try {
-        await deletePlayer(player.id)
-        toast.success('Player deleted')
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to delete player')
+      const result = await deletePlayer(player.id)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
       }
+      toast.success('Player deleted')
+      router.refresh()
     })
   }
 

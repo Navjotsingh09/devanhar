@@ -85,38 +85,33 @@ export function PadelTournamentsManager({ tournaments }: { tournaments: PadelTou
 
   const handleSave = () => {
     startTransition(async () => {
-      try {
-        const input = {
-          name: form.name,
-          event_date: form.event_date,
-          category: form.category || null,
-          applicable_stages: form.applicable_stages,
-        }
-        if (editingId) {
-          await updateTournament(editingId, input)
-          toast.success('Tournament updated')
-        } else {
-          await createTournament(input)
-          toast.success('Tournament created')
-        }
-        setDialogOpen(false)
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to save tournament')
+      const input = {
+        name: form.name,
+        event_date: form.event_date,
+        category: form.category || null,
+        applicable_stages: form.applicable_stages,
       }
+      const result = editingId ? await updateTournament(editingId, input) : await createTournament(input)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
+      toast.success(editingId ? 'Tournament updated' : 'Tournament created')
+      setDialogOpen(false)
+      router.refresh()
     })
   }
 
   const handleDelete = (tournament: PadelTournamentRow) => {
     if (!confirm(`Delete "${tournament.name}"? This removes its results too.`)) return
     startTransition(async () => {
-      try {
-        await deleteTournament(tournament.id)
-        toast.success('Tournament deleted')
-        router.refresh()
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : 'Unable to delete tournament')
+      const result = await deleteTournament(tournament.id)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
       }
+      toast.success('Tournament deleted')
+      router.refresh()
     })
   }
 
