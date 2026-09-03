@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { UserCircle2, Pencil, Trash2, Ban, CheckCircle2, Plus } from 'lucide-react'
+import { UserCircle2, Pencil, Archive, ArchiveRestore, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,7 +31,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { preparePhotoForUpload } from '@/lib/image-compression'
-import { createPlayer, updatePlayer, setPlayerActive, deletePlayer } from '@/app/dashboard/padel/players/actions'
+import { createPlayer, updatePlayer, setPlayerActive } from '@/app/dashboard/padel/players/actions'
 
 export type PadelPlayerRow = {
   id: string
@@ -133,19 +133,6 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
     })
   }
 
-  const handleDelete = (player: PadelPlayerRow) => {
-    if (!confirm(`Delete ${player.first_name} ${player.last_name}? This cannot be undone.`)) return
-    startTransition(async () => {
-      const result = await deletePlayer(player.id)
-      if ('error' in result) {
-        toast.error(result.error)
-        return
-      }
-      toast.success('Player deleted')
-      router.refresh()
-    })
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -185,14 +172,13 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
                   </span>
                 </TableCell>
                 <TableCell className="text-right space-x-1">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(player)} disabled={isPending}>
-                    <Pencil className="h-4 w-4" />
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(player)} disabled={isPending}>
+                    <Pencil className="h-4 w-4 mr-1" /> Edit
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleToggleActive(player)} disabled={isPending}>
-                    {player.is_active ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(player)} disabled={isPending}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                  <Button variant="ghost" size="sm" onClick={() => handleToggleActive(player)} disabled={isPending}>
+                    {player.is_active
+                      ? <><Archive className="h-4 w-4 mr-1" /> Archive</>
+                      : <><ArchiveRestore className="h-4 w-4 mr-1" /> Restore</>}
                   </Button>
                 </TableCell>
               </TableRow>
