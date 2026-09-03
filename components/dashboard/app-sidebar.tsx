@@ -36,6 +36,11 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/ui/collapsible'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -175,24 +180,33 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
         {!isVacanciesOnly && (
         <SidebarGroup>
-          <SidebarGroupLabel>
-            <CircleDot className="h3 w3 mr-1" />
-            Sikh Padel Association
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {padelNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url + '/')}>
-                    <Link href={item.url}>
-                      <item.icon className="h4 w4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+          <Collapsible defaultOpen className="group/padel">
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between">
+                <span className="flex items-center">
+                  <CircleDot className="h3 w3 mr-1" />
+                  Sikh Padel Association
+                </span>
+                <ChevronDown className="h3 w3 transition-transform group-data-[state=open]/padel:rotate-180" />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {padelNav.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url + '/')}>
+                        <Link href={item.url}>
+                          <item.icon className="h4 w4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarGroup>
         )}
 
