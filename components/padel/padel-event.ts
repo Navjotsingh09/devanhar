@@ -9,6 +9,10 @@ export const PADEL_EVENT = {
   name: "Sikh Padel Association — 6 September",
 } as const
 
+// Set once the current event's live Tournify link is known; the season leaderboard
+// page shows a "live scores" link only when this is non-null (no fabricated URLs).
+export const PADEL_LIVE_SCORES_URL: string | null = null
+
 export const PREVIOUS_PADEL_EVENT = {
   date: "4 July",
   fullDate: "Saturday 4 July 2026",

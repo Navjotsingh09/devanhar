@@ -58,10 +58,16 @@ const mainNav: NavItem[] = [
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
-  { title: 'Sikh Padel Association', url: '/dashboard/padel', icon: CircleDot },
   { title: 'Recovered Payments', url: '/dashboard/recovery-payments', icon: ReceiptText },
   { title: 'User Management', url: '/dashboard/users', icon: Users, adminOnly: true },
   { title: 'Site Images', url: '/dashboard/images', icon: ImageIcon },
+]
+
+const padelNav: NavItem[] = [
+  { title: 'Entries', url: '/dashboard/padel', icon: CircleDot },
+  { title: 'Players', url: '/dashboard/padel/players', icon: Users },
+  { title: 'Tournaments', url: '/dashboard/padel/tournaments', icon: Trophy },
+  { title: 'Results', url: '/dashboard/padel/results', icon: ClipboardList },
 ]
 
 const shopNav: NavItem[] = [
@@ -166,6 +172,29 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {!isVacanciesOnly && (
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <CircleDot className="h3 w3 mr-1" />
+            Sikh Padel Association
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {padelNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url + '/')}>
+                    <Link href={item.url}>
+                      <item.icon className="h4 w4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        )}
 
         {!isVacanciesOnly && (
         <SidebarGroup>
