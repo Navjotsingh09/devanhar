@@ -113,17 +113,15 @@ export function PadelResultsEditor({
     const lines = importText.trim().split(String.fromCharCode(10)).filter((line) => line.trim() !== "")
     const delimiter = importText.includes('	') ? '	' : ','
     const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim()))
-    const data = parsed[0]?.[0]?.toLocaleLowerCase() === 'player_first_name' ? parsed.slice(1) : parsed
-    if (data.length === 0 || data.some((row) => row.length !== 5 || row.some((cell) => cell === ''))) {
-      toast.error('Paste five columns per team: player first name, player last name, partner first name, partner last name, finishing position')
+    const data = parsed[0]?.[0]?.toLocaleLowerCase() === 'player_name' ? parsed.slice(1) : parsed
+    if (data.length === 0 || data.some((row) => row.length !== 3 || row.some((cell) => cell === ''))) {
+      toast.error('Paste three columns per team: player name, partner name, finishing position')
       return
     }
     const imported: BulkTournamentResultInput[] = data.map((row) => ({
-      player_first_name: row[0],
-      player_last_name: row[1],
-      partner_first_name: row[2],
-      partner_last_name: row[3],
-      finishing_position: row[4],
+      player_name: row[0],
+      partner_name: row[1],
+      finishing_position: row[2],
     }))
     startTransition(async () => {
       const result = await importTournamentResults(tournamentId, imported)
@@ -142,13 +140,13 @@ export function PadelResultsEditor({
       <div className="rounded-lg border border-border p-4 space-y-3">
         <div>
           <h2 className="font-semibold">Bulk import teams</h2>
-          <p className="text-sm text-muted-foreground">Paste CSV or tab-separated rows: player first name, player last name, partner first name, partner last name, finishing position.</p>
+          <p className="text-sm text-muted-foreground">Paste CSV or tab-separated rows: player name, partner name, finishing position.</p>
         </div>
         <textarea
           value={importText}
           onChange={(event) => setImportText(event.target.value)}
           className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          placeholder="Gavindeep	Singh	Mandeep	Kaur	winner"
+          placeholder="Gavindeep	Mandeep	winner"
         />
         <Button type="button" variant="outline" onClick={handleImport} disabled={isPending}>
           {isPending ? 'Importing...' : 'Import teams'}
