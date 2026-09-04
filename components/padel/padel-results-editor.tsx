@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -27,26 +26,35 @@ type ExistingResult = {
 }
 
 type RowState = {
+  id: string
+  finishing_position: string
   player_id: string
   partner_player_id: string
-  points_awarded: number
   notes: string
 }
 
 const NONE = '__none__'
 
-function buildInitialRows(stages: string[], existing: ExistingResult[]): Record<string, RowState> {
-  const rows: Record<string, RowState> = {}
-  for (const stage of stages) {
-    const match = existing.find((r) => r.finishing_position === stage)
-    rows[stage] = {
-      player_id: match?.player_id || '',
-      partner_player_id: match?.partner_player_id || '',
-      points_awarded: match?.points_awarded ?? getPointsForPosition(stage),
-      notes: match?.notes || '',
-    }
+function createRow(finishingPosition: string): RowState {
+  return {
+    id: crypto.randomUUID(),
+    finishing_position: finishingPosition,
+    player_id: '',
+    partner_player_id: '',
+    notes: '',
   }
-  return rows
+}
+
+function buildInitialRows(stages: string[], existing: ExistingResult[]): RowState[] {
+  return existing
+    .filter((result) => stages.includes(result.finishing_position))
+    .map((result) => ({
+      id: crypto.randomUUID(),
+      finishing_position: result.finishing_position,
+      player_id: result.player_id,
+      partner_player_id: result.partner_player_id || '',
+      notes: result.notes || '',
+    }))
 }
 
 export function PadelResultsEditor({
@@ -63,13 +71,17 @@ export function PadelResultsEditor({
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const orderedStages = FINISHING_POSITIONS.filter((p) => applicableStages.includes(p.value))
-  const [rows, setRows] = useState<Record<string, RowState>>(() =>
+  const [rows, setRows] = useState<RowState[]>(() =>
     buildInitialRows(orderedStages.map((s) => s.value), existingResults)
   )
 
-  const updateRow = (stage: string, patch: Partial<RowState>) => {
-    setRows((prev) => ({ ...prev, [stage]: { ...prev[stage], ...patch } }))
+  const updateRow = (id: string, patch: Partial<RowState>) => {
+    setRows((previous) => previous.map((row) => (row.id === id ? { ...row, ...patch } : row)))
   }
+
+  const addRow = (stage: string) => setRows((previous) => [...previous, createRow(stage)])
+
+  const removeRow = (id: string) => setRows((previous) => previous.filter((row) => row.id !== id))
 
   const playerName = (id: string) => {
     const p = players.find((pl) => pl.id === id)
@@ -78,18 +90,14 @@ export function PadelResultsEditor({
 
   const handleSave = () => {
     startTransition(async () => {
-      const results: TournamentResultInput[] = orderedStages
-        .filter((stage) => rows[stage.value].player_id)
-        .map((stage) => {
-          const row = rows[stage.value]
-          return {
-            finishing_position: stage.value,
-            player_id: row.player_id,
-            partner_player_id: row.partner_player_id || null,
-            points_awarded: Number(row.points_awarded) || 0,
-            notes: row.notes || null,
-          }
-        })
+      const results: TournamentResultInput[] = rows
+        .filter((row) => row.player_id)
+        .map((row) => ({
+          finishing_position: row.finishing_position,
+          player_id: row.player_id,
+          partner_player_id: row.partner_player_id || null,
+          notes: row.notes || null,
+        }))
       const result = await saveTournamentResults(tournamentId, results)
       if ('error' in result) {
         toast.error(result.error)
@@ -103,56 +111,56 @@ export function PadelResultsEditor({
   return (
     <div className="space-y-6">
       {orderedStages.map((stage) => {
-        const row = rows[stage.value]
+        const stageRows = rows.filter((row) => row.finishing_position === stage.value)
         return (
           <div key={stage.value} className="rounded-lg border border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">{stage.label}</h3>
-              <span className="text-sm text-muted-foreground">Default {stage.points} pts</span>
+              <span className="text-sm text-muted-foreground">{stage.points} pts per player</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <Label>Player</Label>
-                <Select value={row.player_id || NONE} onValueChange={(v) => updateRow(stage.value, { player_id: v === NONE ? '' : v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select player" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NONE}>— None —</SelectItem>
-                    {players.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {stageRows.map((row) => (
+              <div key={row.id} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
+                <div>
+                  <Label>Player</Label>
+                  <Select value={row.player_id || NONE} onValueChange={(value) => updateRow(row.id, { player_id: value === NONE ? '' : value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select player" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>None</SelectItem>
+                      {players.map((player) => (
+                        <SelectItem key={player.id} value={player.id}>{player.first_name} {player.last_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Partner (optional, this event only)</Label>
+                  <Select value={row.partner_player_id || NONE} onValueChange={(value) => updateRow(row.id, { partner_player_id: value === NONE ? '' : value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select partner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NONE}>None</SelectItem>
+                      {players.filter((player) => player.id !== row.player_id).map((player) => (
+                        <SelectItem key={player.id} value={player.id}>{player.first_name} {player.last_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="button" variant="outline" className="self-end" onClick={() => removeRow(row.id)}>
+                  Remove
+                </Button>
+                {row.player_id && (
+                  <p className="text-xs text-muted-foreground md:col-span-2">
+                    {playerName(row.player_id)}{row.partner_player_id && <> &amp; {playerName(row.partner_player_id)}</>}
+                  </p>
+                )}
               </div>
-              <div>
-                <Label>Partner (optional, this event only)</Label>
-                <Select value={row.partner_player_id || NONE} onValueChange={(v) => updateRow(stage.value, { partner_player_id: v === NONE ? '' : v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select partner" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NONE}>— None —</SelectItem>
-                    {players.filter((p) => p.id !== row.player_id).map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Points (editable)</Label>
-                <Input
-                  type="number"
-                  value={row.points_awarded}
-                  onChange={(e) => updateRow(stage.value, { points_awarded: Number(e.target.value) })}
-                />
-              </div>
-            </div>
-            {row.player_id && (
-              <p className="text-xs text-muted-foreground">
-                {playerName(row.player_id)}{row.partner_player_id ? ` & ${playerName(row.partner_player_id)}` : ''}
-              </p>
-            )}
+            ))}
+            <Button type="button" variant="outline" size="sm" onClick={() => addRow(stage.value)}>
+              Add player
+            </Button>
           </div>
         )
       })}

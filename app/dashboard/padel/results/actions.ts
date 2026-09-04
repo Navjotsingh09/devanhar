@@ -2,13 +2,12 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { computeRanksWithTies } from '@/lib/padel-ranking'
+import { computeRanksWithTies, getPointsForPosition } from '@/lib/padel-ranking'
 
 export type TournamentResultInput = {
   finishing_position: string
   player_id: string
   partner_player_id: string | null
-  points_awarded: number
   notes?: string | null
 }
 
@@ -25,7 +24,26 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
     if (seenPlayers.has(r.player_id)) {
       return { error: "A player cannot appear twice in the same tournament's results" }
     }
+    if (r.player_id === r.partner_player_id) {
+      return { error: 'A player cannot be their own partner' }
+    }
     seenPlayers.add(r.player_id)
+  }
+
+  const { data: tournament, error: tournamentError } = await supabase
+    .from('padel_tournaments')
+    .select('applicable_stages')
+    .eq('id', tournamentId)
+    .single()
+  if (tournamentError || !tournament) return { error: tournamentError?.message || 'Tournament not found' }
+
+  for (const result of submitted) {
+    if (!tournament.applicable_stages.includes(result.finishing_position)) {
+      return { error: 'A result uses a finishing position that is not enabled for this tournament' }
+    }
+    if (getPointsForPosition(result.finishing_position) === 0) {
+      return { error: 'A result uses an invalid finishing position' }
+    }
   }
 
   const { data: existing } = await supabase
@@ -48,7 +66,7 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
           player_id: r.player_id,
           partner_player_id: r.partner_player_id || null,
           finishing_position: r.finishing_position,
-          points_awarded: r.points_awarded,
+          points_awarded: getPointsForPosition(r.finishing_position),
           notes: r.notes || null,
           updated_at: new Date().toISOString(),
         })),
