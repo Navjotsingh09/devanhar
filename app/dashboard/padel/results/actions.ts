@@ -13,6 +13,64 @@ export type TournamentResultInput = {
 
 type ActionResult = { error: string } | { success: true }
 
+export type BulkTournamentResultInput = {
+  player_first_name: string
+  player_last_name: string
+  partner_first_name: string
+  partner_last_name: string
+  finishing_position: string
+}
+
+function playerKey(firstName: string, lastName: string) {
+  return firstName.trim().toLocaleLowerCase() + '|' + lastName.trim().toLocaleLowerCase()
+}
+
+export async function importTournamentResults(tournamentId: string, rows: BulkTournamentResultInput[]): Promise<ActionResult & { importedPlayers?: number; importedResults?: number }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user == null) return { error: 'Unauthorized' }
+  if (rows.length === 0) return { error: 'Add at least one team to import' }
+
+  for (const row of rows) {
+    if (row.player_first_name.trim() === '' || row.player_last_name.trim() === '' || row.partner_first_name.trim() === '' || row.partner_last_name.trim() === '') {
+      return { error: 'Every imported team needs first and last names for both players' }
+    }
+    if (playerKey(row.player_first_name, row.player_last_name) === playerKey(row.partner_first_name, row.partner_last_name)) {
+      return { error: 'A team cannot contain the same player twice' }
+    }
+  }
+
+  const { data: existingPlayers, error: playersError } = await supabase.from('padel_players').select('id, first_name, last_name')
+  if (playersError) return { error: playersError.message }
+  const playerIdByKey = new Map((existingPlayers ?? []).map((player) => [playerKey(player.first_name, player.last_name), player.id]))
+  const missingPlayers = new Map<string, { first_name: string; last_name: string }>()
+
+  for (const row of rows) {
+    for (const player of [{ first_name: row.player_first_name.trim(), last_name: row.player_last_name.trim() }, { first_name: row.partner_first_name.trim(), last_name: row.partner_last_name.trim() }]) {
+      const key = playerKey(player.first_name, player.last_name)
+      if (playerIdByKey.has(key) === false) missingPlayers.set(key, player)
+    }
+  }
+
+  if (missingPlayers.size > 0) {
+    const { data: createdPlayers, error: createError } = await supabase.from('padel_players').insert([...missingPlayers.values()]).select('id, first_name, last_name')
+    if (createError) return { error: createError.message }
+    for (const player of createdPlayers ?? []) playerIdByKey.set(playerKey(player.first_name, player.last_name), player.id)
+  }
+
+  const results: TournamentResultInput[] = rows.flatMap((row) => {
+    const playerId = playerIdByKey.get(playerKey(row.player_first_name, row.player_last_name))
+    const partnerId = playerIdByKey.get(playerKey(row.partner_first_name, row.partner_last_name))
+    if (playerId === undefined || partnerId === undefined) return []
+    return [{ finishing_position: row.finishing_position, player_id: playerId, partner_player_id: partnerId }, { finishing_position: row.finishing_position, player_id: partnerId, partner_player_id: playerId }]
+  })
+  if (results.length !== rows.length * 2) return { error: 'Could not resolve every imported player' }
+
+  const result = await saveTournamentResults(tournamentId, results)
+  if ('error' in result) return result
+  return { success: true, importedPlayers: missingPlayers.size, importedResults: results.length }
+}
+
 export async function saveTournamentResults(tournamentId: string, results: TournamentResultInput[]): Promise<ActionResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

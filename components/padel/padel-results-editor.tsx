@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FINISHING_POSITIONS, getPointsForPosition } from '@/lib/padel-ranking'
-import { saveTournamentResults, type TournamentResultInput } from '@/app/dashboard/padel/results/actions'
+import { importTournamentResults, saveTournamentResults, type BulkTournamentResultInput, type TournamentResultInput } from '@/app/dashboard/padel/results/actions'
 
 type PlayerOption = { id: string; first_name: string; last_name: string }
 
@@ -74,6 +74,7 @@ export function PadelResultsEditor({
   const [rows, setRows] = useState<RowState[]>(() =>
     buildInitialRows(orderedStages.map((s) => s.value), existingResults)
   )
+  const [importText, setImportText] = useState('')
 
   const updateRow = (id: string, patch: Partial<RowState>) => {
     setRows((previous) => previous.map((row) => (row.id === id ? { ...row, ...patch } : row)))
@@ -108,8 +109,52 @@ export function PadelResultsEditor({
     })
   }
 
+  const handleImport = () => {
+    const lines = importText.trim().split(/?
+/).filter((line) => line.trim() !== '')
+    const delimiter = importText.includes('	') ? '	' : ','
+    const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim()))
+    const data = parsed[0]?.[0]?.toLocaleLowerCase() === 'player_first_name' ? parsed.slice(1) : parsed
+    if (data.length === 0 || data.some((row) => row.length !== 5 || row.some((cell) => cell === ''))) {
+      toast.error('Paste five columns per team: player first name, player last name, partner first name, partner last name, finishing position')
+      return
+    }
+    const imported: BulkTournamentResultInput[] = data.map((row) => ({
+      player_first_name: row[0],
+      player_last_name: row[1],
+      partner_first_name: row[2],
+      partner_last_name: row[3],
+      finishing_position: row[4],
+    }))
+    startTransition(async () => {
+      const result = await importTournamentResults(tournamentId, imported)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
+      toast.success('Imported ' + result.importedResults + ' player results and ' + result.importedPlayers + ' new profiles')
+      setImportText('')
+      router.refresh()
+    })
+  }
+
   return (
     <div className="space-y-6">
+      <div className="rounded-lg border border-border p-4 space-y-3">
+        <div>
+          <h2 className="font-semibold">Bulk import teams</h2>
+          <p className="text-sm text-muted-foreground">Paste CSV or tab-separated rows: player first name, player last name, partner first name, partner last name, finishing position.</p>
+        </div>
+        <textarea
+          value={importText}
+          onChange={(event) => setImportText(event.target.value)}
+          className="min-h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          placeholder="Gavindeep	Singh	Mandeep	Kaur	winner"
+        />
+        <Button type="button" variant="outline" onClick={handleImport} disabled={isPending}>
+          {isPending ? 'Importing...' : 'Import teams'}
+        </Button>
+      </div>
       {orderedStages.map((stage) => {
         const stageRows = rows.filter((row) => row.finishing_position === stage.value)
         return (
