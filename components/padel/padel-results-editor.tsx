@@ -110,8 +110,7 @@ export function PadelResultsEditor({
   }
 
   const handleImport = () => {
-    const lines = importText.trim().split(/?
-/).filter((line) => line.trim() !== '')
+    const lines = importText.trim().split(String.fromCharCode(10)).filter((line) => line.trim() !== "")
     const delimiter = importText.includes('	') ? '	' : ','
     const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim()))
     const data = parsed[0]?.[0]?.toLocaleLowerCase() === 'player_first_name' ? parsed.slice(1) : parsed
