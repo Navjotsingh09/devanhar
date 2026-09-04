@@ -89,32 +89,32 @@ export default async function PadelPlayerProfilePage({
           {history.length === 0 ? (
             <p className="text-muted-foreground">No tournament results recorded yet.</p>
           ) : (
-            <div className="rounded-xl border border-border overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-secondary/40">
-                  <tr>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Tournament</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Finishing position</th>
-                    <th className="text-left px-4 py-3 font-medium text-muted-foreground">Partner</th>
-                    <th className="text-right px-4 py-3 font-medium text-muted-foreground">Points</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((row, index) => (
-                    <tr key={index} className="border-t border-border">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-foreground">{row.tournamentName}</div>
-                        <div className="text-xs text-muted-foreground">{row.eventDate}</div>
-                      </td>
-                      <td className="px-4 py-3">{getPositionLabel(row.finishingPosition)}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{row.partnerName || "—"}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-foreground">{row.points}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            <>
+              <div className="divide-y divide-border overflow-hidden rounded-lg border border-border md:hidden">
+                {history.map((row, index) => (
+                  <div key={index} className="space-y-3 px-4 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground">{row.tournamentName}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{row.eventDate}</p>
+                      </div>
+                      <p className="shrink-0 text-right font-semibold text-[hsl(43,100%,29%)]">{row.points} <span className="text-xs font-normal">pts</span></p>
+                    </div>
+                    <dl className="grid grid-cols-2 gap-3 text-sm">
+                      <div><dt className="text-xs text-muted-foreground">Finish</dt><dd className="mt-1 font-medium text-foreground">{getPositionLabel(row.finishingPosition)}</dd></div>
+                      <div><dt className="text-xs text-muted-foreground">Partner</dt><dd className="mt-1 text-foreground">{row.partnerName || "-"}</dd></div>
+                    </dl>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden overflow-hidden rounded-lg border border-border md:block">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/40"><tr><th className="text-left px-4 py-3 font-medium text-muted-foreground">Tournament</th><th className="text-left px-4 py-3 font-medium text-muted-foreground">Finishing position</th><th className="text-left px-4 py-3 font-medium text-muted-foreground">Partner</th><th className="text-right px-4 py-3 font-medium text-muted-foreground">Points</th></tr></thead>
+                  <tbody>{history.map((row, index) => (<tr key={index} className="border-t border-border"><td className="px-4 py-3"><div className="font-medium text-foreground">{row.tournamentName}</div><div className="text-xs text-muted-foreground">{row.eventDate}</div></td><td className="px-4 py-3">{getPositionLabel(row.finishingPosition)}</td><td className="px-4 py-3 text-muted-foreground">{row.partnerName || "-"}</td><td className="px-4 py-3 text-right font-semibold text-foreground">{row.points}</td></tr>))}</tbody>
+                </table>
+              </div>
+            </>
+                    )}
 
           <div className="mt-10 text-center">
             <Link href="/initiatives/sikh-padel-association">
