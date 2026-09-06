@@ -172,7 +172,7 @@ export async function sendVidyalaConfirmationEmail(params: {
         <div style="background:#fefce8;border-left:4px solid #F5A623;border-radius:4px;padding:16px;margin:24px 0;">
           <p style="margin:0;color:#78350f;font-weight:600;">What happens next?</p>
           <ul style="color:#78350f;font-size:14px;margin:8px 0 0;padding-left:20px;">
-            <li>Applications close on <strong>31st July 2026</strong></li>
+            <li>Applications close on <strong>1st October 2026</strong></li>
             <li>We will review all applications and be in touch with a decision after that date</li>
             <li>If you have any questions in the meantime, reply to this email</li>
           </ul>
@@ -189,7 +189,7 @@ Dear ${params.firstName},
 
 Thank you for submitting your application to the Sikhi Vidyala. We have received your application and it is now under review.
 
-Applications close on 31st July 2026. We will review all applications and be in touch with a decision after that date.
+Applications close on 1st October 2026. We will review all applications and be in touch with a decision after that date.
 
 If you have any questions, please reply to this email.
 

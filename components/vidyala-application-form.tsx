@@ -462,7 +462,7 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
           {step === 6 && (
             <div className="space-y-4">
               <div>
-                <Label>Are you able to fund the fee of £795 or will you require financial support from the Vidyala? *</Label>
+                <Label>Are you able to fund the fee of £250 or will you require financial support from the Vidyala? *</Label>
                 <div className="flex flex-col gap-2 mt-2">
                   {[
                     { v: "self_funded", l: "I will be able to fund it myself" },
