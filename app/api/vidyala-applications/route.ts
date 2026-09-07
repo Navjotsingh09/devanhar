@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { sendVidyalaConfirmationEmail, sendVidyalaInternalNotification } from "@/lib/vidyala-emails"
-
-const APPLICATION_DEADLINE = new Date('2026-08-01T00:00:00Z')
+import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -15,8 +14,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: NextRequest) {
   try {
-    // Hard close after 31 July 2026
-    if (new Date() >= APPLICATION_DEADLINE) {
+    if (isVidyalaApplicationsClosed()) {
       return NextResponse.json(
         { error: 'Applications for Sikhi Vidyala are now closed. Thank you for your interest.' },
         { status: 410 }

@@ -5,6 +5,7 @@ import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { ArrowRight, MapPin, Clock, Calendar, Users, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
 import { VidyalaGallery } from "@/components/vidyala-gallery"
+import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 
 export const metadata = {
   title: "Sikhi Vidyala | Devanhaar",
@@ -16,6 +17,7 @@ const NAVY = "#1E3461"
 const GOLD = "#F5A623"
 
 export default function SikhiVidyalaPage() {
+  const closed = isVidyalaApplicationsClosed()
   return (
     <>
       <Navbar />
@@ -37,7 +39,7 @@ export default function SikhiVidyalaPage() {
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.18em] mb-6"
               style={{ backgroundColor: GOLD, color: NAVY }}
             >
-              Applications Open
+              {closed ? "Applications Closed" : "Applications Open"}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
               Sikhi <em className="not-italic" style={{ color: GOLD }}>Vidyala</em>
@@ -340,7 +342,7 @@ export default function SikhiVidyalaPage() {
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
               style={{ backgroundColor: `${GOLD}33`, color: GOLD }}
             >
-              Applications Open
+              {closed ? "Applications Closed" : "Applications Open"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Be part of the next <em className="italic" style={{ color: GOLD }}>Vidyala cohort</em>

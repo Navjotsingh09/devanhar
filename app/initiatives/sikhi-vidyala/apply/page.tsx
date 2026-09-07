@@ -4,9 +4,11 @@ import { useState } from "react"
 import { VidyalaApplicationForm } from "@/components/vidyala-application-form"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 
 export default function VidyalaApplyPage() {
   const [open, setOpen] = useState(false)
+  const [closed] = useState(() => isVidyalaApplicationsClosed())
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "#F9F7F4" }}>
@@ -28,11 +30,12 @@ export default function VidyalaApplyPage() {
           </p>
           <Button
             onClick={() => setOpen(true)}
+            disabled={closed}
             size="lg"
-            className="text-white font-semibold px-10 py-4 text-lg rounded-full shadow-lg hover:opacity-90 transition"
+            className="text-white font-semibold px-10 py-4 text-lg rounded-full shadow-lg hover:opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ backgroundColor: "#F5A623", color: "#1E3461" }}
           >
-            Start your application for 2026-2027 Cohort
+            {closed ? "Applications Are Closed" : "Start your application for 2026-2027 Cohort"}
           </Button>
         </div>
       </section>
@@ -64,11 +67,12 @@ export default function VidyalaApplyPage() {
         </p>
         <Button
           onClick={() => setOpen(true)}
+          disabled={closed}
           size="lg"
-          className="font-semibold px-10 py-4 text-lg rounded-full hover:opacity-90 transition"
+          className="font-semibold px-10 py-4 text-lg rounded-full hover:opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed"
           style={{ backgroundColor: "#F5A623", color: "#1E3461" }}
         >
-          Start your application for 2026-2027 Cohort
+          {closed ? "Applications Are Closed" : "Start your application for 2026-2027 Cohort"}
         </Button>
       </section>
 
