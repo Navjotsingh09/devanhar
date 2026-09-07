@@ -71,8 +71,8 @@ export default function SikhiVidyalaPage() {
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
-                { icon: Calendar, label: "Schedule", value: "Mon – Fri, 9am – 5pm" },
-                { icon: MapPin, label: "Location", value: "Birmingham, UK (Gurdwara-based)" },
+                { icon: Calendar, label: "Schedule", value: "2 hours online, once a week" },
+                { icon: MapPin, label: "Location", value: <>Online, evening session (GMT)<br />Termly in-person Weekend (UK)</> },
                 { icon: Clock, label: "Duration", value: "October 2026 to February 2027" },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex flex-col items-center gap-2">
@@ -83,15 +83,6 @@ export default function SikhiVidyalaPage() {
                   <p className="text-sm font-medium text-foreground">{value}</p>
                 </div>
               ))}
-            </div>
-            <div className="mt-6 rounded-xl px-5 py-4 text-center text-sm" style={{ backgroundColor: `${GOLD}18`, border: `1px solid ${GOLD}55` }}>
-              <p className="text-foreground leading-relaxed">
-                We&apos;re exploring a part-time, one day a week option.{" "}
-                <Link href="/initiatives/sikhi-vidyala/apply" className="font-semibold underline" style={{ color: NAVY }}>Apply now</Link>{" "}
-                to see your study options or{" "}
-                <a href="#webinar" className="font-semibold underline" style={{ color: NAVY }}>join our free webinar</a>{" "}
-                to learn more.
-              </p>
             </div>
           </div>
         </section>
@@ -120,7 +111,7 @@ export default function SikhiVidyalaPage() {
                     The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. The course is run by a core team of speakers, workshop leads and facilitators with regular appearances with guests across the panth.
                   </p>
                   <p>
-                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a parchaarik. Global applicants must be aged 18+ and be willing to stay in the UK for six months.
+                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a parchaarik.
                   </p>
                   <p>
                     We have captured the best speakers and trainers from various organisations within the UK and beyond to help inspire and provide the skills necessary for the next generation to spread the message of Sikhi.
@@ -152,13 +143,13 @@ export default function SikhiVidyalaPage() {
                   </span>
                   <h3 className="text-2xl font-bold text-white mb-3">Apply for Vidyala 2026-2027</h3>
                   <p className="text-white/70 mb-6 text-sm leading-relaxed">
-                    Applications are reviewed by our team. We welcome anyone with a sincere desire to learn and do parchaar. Applicants must be 18+ and based in the UK for the full six months.
+                    Applications are reviewed by our team. We welcome anyone with a sincere desire to learn and do parchaar. Applicants must be 18+.
                   </p>
                   <ul className="space-y-2 mb-8">
                     {[
                       "Open to ages 18+",
-                      "Must be UK-based for 6 months",                      "Accommodation & support provided",
-                    ].map((item) => (
+                      "Must attend In-person weekend sessions (UK- Termly sessions)",
+                      ].map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm text-white/80">
                         <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: GOLD }} />
                         {item}
