@@ -9,7 +9,7 @@ async function getApplications(): Promise<VidyalaApplicationRow[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from('vidyala_applications')
-    .select('id, first_name, middle_name, last_name, email, phone, date_of_birth, status, created_at')
+    .select('*')
     .order('created_at', { ascending: false })
     .limit(5000)
 
