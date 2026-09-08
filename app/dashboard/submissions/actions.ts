@@ -5,11 +5,11 @@ import Stripe from 'stripe'
 import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
 import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from '@/lib/camp-applicant-emails'
-import { sendVidyalaApprovalEmail, sendVidyalaDeclineEmail } from '@/lib/vidyala-emails'
+import { sendVidyalaApprovalEmail, sendVidyalaDeclineEmail, sendVidyalaCustomMessage } from '@/lib/vidyala-emails'
 import { sendPadelRegistrationApprovedEmail, sendPadelRegistrationDeclinedEmail } from '@/lib/padel-registration-emails'
 import { sendSpnApprovalEmail, sendSpnDeclineEmail } from '@/lib/spn-emails'
 
-type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations' | 'spn_submissions'
+type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations' | 'spn_submissions' | 'register_interest'
 
 /**
  * Locate the Stripe PaymentIntent that belongs to a camp_application even
@@ -365,7 +365,9 @@ export async function archiveSubmission(id: string, sourceTable: SourceTable = '
         ? 'padel_registration'
         : sourceTable === 'spn_submissions'
           ? 'spn_submission'
-          : 'form_submission'
+          : sourceTable === 'register_interest'
+            ? 'register_interest'
+            : 'form_submission'
   await supabase.from('activity_log').insert({
     admin_id: user.id,
     action: `Archived ${entityType.replace(/_/g, ' ')}`,
@@ -984,4 +986,111 @@ export async function declineSpnSubmission(submissionId: string) {
   }
 
   revalidatePath('/dashboard/submissions')
+}
+
+// ---------------------------------------------------------------------------
+// Generic hard delete — used by the Sikhi Vidyala dashboard tabs (Vidyala
+// applications, webinar signups, interest registrations) to permanently
+// remove a row. Captures identifying info first so the activity log entry
+// still names who/what was deleted after the row is gone.
+// ---------------------------------------------------------------------------
+export async function deleteSubmission(id: string, sourceTable: SourceTable = 'form_submissions') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const identifierColumns = sourceTable === 'register_interest'
+    ? 'name, email'
+    : sourceTable === 'vidyala_applications'
+      ? 'first_name, last_name, email'
+      : 'email'
+  const { data: existing } = await supabase
+    .from(sourceTable)
+    .select(identifierColumns)
+    .eq('id', id)
+    .maybeSingle()
+
+  const label = existing
+    ? [existing.first_name, existing.last_name, existing.name].filter(Boolean).join(' ') || existing.email || id
+    : id
+
+  const { error } = await supabase.from(sourceTable).delete().eq('id', id)
+  if (error) throw new Error(error.message)
+
+  const entityType = sourceTable === 'camp_applications'
+    ? 'camp_application'
+    : sourceTable === 'vidyala_applications'
+      ? 'vidyala_application'
+      : sourceTable === 'padel_registrations'
+        ? 'padel_registration'
+        : sourceTable === 'spn_submissions'
+          ? 'spn_submission'
+          : sourceTable === 'register_interest'
+            ? 'register_interest'
+            : 'form_submission'
+  await supabase.from('activity_log').insert({
+    admin_id: user.id,
+    action: `Deleted ${entityType.replace(/_/g, ' ')}: ${label}`,
+    entity_type: entityType,
+    entity_id: id,
+  })
+
+  revalidatePath('/dashboard/vidyala')
+  revalidatePath('/dashboard/vidyala/webinar')
+  revalidatePath('/dashboard/vidyala/interest')
+  revalidatePath('/dashboard/submissions')
+}
+
+// ---------------------------------------------------------------------------
+// Send a custom message to a Vidyala applicant / webinar signup / interest
+// registrant. Sends via Resend and logs the message body in activity_log
+// (metadata) so there is an audit trail even without a dedicated messages table.
+// ---------------------------------------------------------------------------
+export async function sendVidyalaMessage(params: {
+  id: string
+  sourceTable: 'vidyala_applications' | 'register_interest'
+  subject: string
+  message: string
+}) {
+  const { id, sourceTable, subject, message } = params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+  if (!message.trim()) throw new Error('Message body is required')
+
+  const selectColumns = sourceTable === 'vidyala_applications'
+    ? 'id, first_name, last_name, email'
+    : 'id, name, email'
+  const { data: recipient, error: fetchError } = await supabase
+    .from(sourceTable)
+    .select(selectColumns)
+    .eq('id', id)
+    .single()
+  if (fetchError || !recipient) throw new Error('Recipient not found')
+  if (!recipient.email) throw new Error('Recipient has no email on file')
+
+  const firstName = sourceTable === 'vidyala_applications'
+    ? (recipient.first_name || 'there')
+    : (String(recipient.name || 'there').split(' ')[0] || 'there')
+
+  const sent = await sendVidyalaCustomMessage({
+    to: recipient.email,
+    firstName,
+    subject,
+    message,
+  })
+  if (!sent) throw new Error('Email could not be sent — check RESEND_API_KEY is configured')
+
+  const entityType = sourceTable === 'vidyala_applications' ? 'vidyala_application' : 'register_interest'
+  await supabase.from('activity_log').insert({
+    admin_id: user.id,
+    action: `Sent message to ${recipient.email}: ${subject}`,
+    entity_type: entityType,
+    entity_id: id,
+    metadata: { subject, message },
+  })
+
+  revalidatePath('/dashboard/vidyala')
+  revalidatePath('/dashboard/vidyala/webinar')
+  revalidatePath('/dashboard/vidyala/interest')
 }

@@ -363,3 +363,50 @@ export async function sendWebinarRegistrationNotification(params: {
   console.log('[Vidyala Email] Webinar notification sent, id:', data?.id)
   return true
 }
+
+export async function sendVidyalaCustomMessage(params: {
+  to: string
+  firstName: string
+  subject: string
+  message: string
+}): Promise<boolean> {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Vidyala Email] Skipping custom message - RESEND_API_KEY not configured')
+    return false
+  }
+
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  const escapedName = escapeHtml(params.firstName)
+  const escapedSubject = escapeHtml(params.subject)
+  const escapedMessage = escapeHtml(params.message).replace(/\n/g, '<br>')
+
+  const html = [
+    '<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;">',
+    '<div style="background:#0A1931;border-radius:12px 12px 0 0;padding:32px;text-align:center;">',
+    '<h1 style="color:#F5A623;margin:0;font-size:20px;letter-spacing:1px;">SIKHI VIDYALA</h1>',
+    '<p style="color:#ffffff99;margin:8px 0 0;font-size:13px;">by Devanhaar</p>',
+    '</div>',
+    '<div style="background:#ffffff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:36px;">',
+    '<p>Dear <strong>' + escapedName + '</strong>,</p>',
+    '<p>' + escapedMessage + '</p>',
+    '<p style="margin-top:32px;color:#6b7280;font-size:13px;">Sikhi Vidyala team, Devanhaar</p>',
+    '</div>',
+    '</div>',
+  ].join('')
+
+  const { data, error } = await resend.emails.send({
+    from: VIDYALA_FROM_EMAIL,
+    to: params.to,
+    subject: params.subject,
+    html,
+    text: params.message,
+  })
+
+  if (error) {
+    console.error('[Vidyala Email] Custom message failed:', error)
+    return false
+  }
+  console.log('[Vidyala Email] Custom message sent, id:', data?.id)
+  return true
+}

@@ -1,21 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { BookOpen } from 'lucide-react'
 import { VidyalaSubNav } from '@/components/dashboard/vidyala-sub-nav'
+import { VidyalaWebinarTable, type VidyalaWebinarRow } from '@/components/dashboard/vidyala-webinar-table'
 
 export const dynamic = 'force-dynamic'
 
-async function getWebinarSignups() {
+async function getWebinarSignups(): Promise<VidyalaWebinarRow[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from('register_interest')
-    .select('*')
+    .select('id, name, email, country, notes, status, created_at')
     .eq('camp', 'vidyala-webinar')
     .order('created_at', { ascending: false })
     .limit(5000)
 
-  return (data ?? []) as Array<{
-    id: string; name: string; email: string; country: string | null; notes: string | null; created_at: string
-  }>
+  return (data ?? []) as VidyalaWebinarRow[]
 }
 
 export default async function VidyalaWebinarPage() {
@@ -40,43 +39,7 @@ export default async function VidyalaWebinarPage() {
             <span className="ml-2 text-sm font-normal text-muted-foreground">({webinarSignups.length})</span>
           </h2>
         </div>
-
-        {webinarSignups.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center border border-border rounded-xl">
-            No webinar signups yet.
-          </p>
-        ) : (
-          <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/50 text-left">
-                  <th className="px-4 py-3 font-semibold text-foreground">#</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Name</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Email</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Country</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Notes</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Signed Up</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {webinarSignups.map((s, i) => (
-                  <tr key={s.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
-                    <td className="px-4 py-3">
-                      <a href={"mailto:" + s.email} className="text-blue-600 hover:underline">{s.email}</a>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{s.country ?? '\u2014'}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{s.notes ?? '\u2014'}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs tabular-nums">
-                      {new Date(s.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <VidyalaWebinarTable signups={webinarSignups} />
       </section>
     </div>
   )

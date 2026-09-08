@@ -130,6 +130,30 @@ export async function POST(req: NextRequest) {
       }).catch(() => {})
     }
 
+    // Mirror Vidyala webinar/interest signups into the shared Devanhaar forms
+    // system (form_submissions) so they also show up in the central Submissions
+    // inbox, like every other Devanhaar form. Best-effort / non-blocking.
+    if (camp === "vidyala-webinar" || camp === "vidyala-interest") {
+      try {
+        const { data: initiativeRow } = await supabase
+          .from("initiatives")
+          .select("id")
+          .eq("slug", "sikhi-vidyala")
+          .single()
+        await supabase.from("form_submissions").insert({
+          full_name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: null,
+          message: camp === "vidyala-webinar" ? "Sikhi Vidyala webinar signup" : "Sikhi Vidyala interest registration",
+          form_data: body,
+          status: "new",
+          initiative_id: initiativeRow?.id ?? null,
+        })
+      } catch (formSubmissionsErr) {
+        console.error("[register-interest] form_submissions mirror failed (non-blocking):", formSubmissionsErr)
+      }
+    }
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error("register-interest error", err)

@@ -1,21 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { BookOpen } from 'lucide-react'
 import { VidyalaSubNav } from '@/components/dashboard/vidyala-sub-nav'
+import { VidyalaInterestTable, type VidyalaInterestRow } from '@/components/dashboard/vidyala-interest-table'
 
 export const dynamic = 'force-dynamic'
 
-async function getInterestSignups() {
+async function getInterestSignups(): Promise<VidyalaInterestRow[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from('register_interest')
-    .select('*')
+    .select('id, name, email, dob, occupation, schedule, status, created_at')
     .eq('camp', 'vidyala-interest')
     .order('created_at', { ascending: false })
     .limit(5000)
 
-  return (data ?? []) as Array<{
-    id: string; name: string; email: string; dob: string | null; occupation: string | null; schedule: string[] | null; created_at: string
-  }>
+  return (data ?? []) as VidyalaInterestRow[]
 }
 
 export default async function VidyalaInterestPage() {
@@ -40,47 +39,7 @@ export default async function VidyalaInterestPage() {
             <span className="ml-2 text-sm font-normal text-muted-foreground">({interestSignups.length})</span>
           </h2>
         </div>
-
-        {interestSignups.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center border border-border rounded-xl">
-            No interest registrations yet.
-          </p>
-        ) : (
-          <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/50 text-left">
-                  <th className="px-4 py-3 font-semibold text-foreground">#</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Name</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">DOB</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Email</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Occupation</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Schedule</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Signed Up</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {interestSignups.map((s, i) => (
-                  <tr key={s.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 text-muted-foreground tabular-nums">{i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground tabular-nums">
-                      {s.dob ? new Date(s.dob).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '\u2014'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <a href={"mailto:" + s.email} className="text-blue-600 hover:underline">{s.email}</a>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{s.occupation ?? '\u2014'}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{s.schedule?.length ? s.schedule.join(', ') : '\u2014'}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs tabular-nums">
-                      {new Date(s.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <VidyalaInterestTable signups={interestSignups} />
       </section>
     </div>
   )

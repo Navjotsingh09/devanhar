@@ -1,10 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { BookOpen } from 'lucide-react'
 import { VidyalaSubNav } from '@/components/dashboard/vidyala-sub-nav'
+import { VidyalaApplicationsTable, type VidyalaApplicationRow } from '@/components/dashboard/vidyala-applications-table'
 
 export const dynamic = 'force-dynamic'
 
-async function getApplications() {
+async function getApplications(): Promise<VidyalaApplicationRow[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from('vidyala_applications')
@@ -12,9 +13,7 @@ async function getApplications() {
     .order('created_at', { ascending: false })
     .limit(5000)
 
-  return (data ?? []) as Array<{
-    id: number; first_name: string; middle_name: string | null; last_name: string; email: string; phone: string; date_of_birth: string; status: string; created_at: string
-  }>
+  return (data ?? []) as VidyalaApplicationRow[]
 }
 
 export default async function VidyalaApplicationsPage() {
@@ -38,36 +37,7 @@ export default async function VidyalaApplicationsPage() {
             Vidyala Applications <span className="ml-2 text-sm font-normal text-muted-foreground">({applications.length})</span>
           </h2>
         </div>
-        {applications.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-8 text-center border border-border rounded-xl">No Vidyala applications yet.</p>
-        ) : (
-          <div className="rounded-xl border border-border overflow-x-auto">
-            <table className="w-full min-w-[760px] text-sm">
-              <thead>
-                <tr className="bg-muted/50 text-left">
-                  <th className="px-4 py-3 font-semibold text-foreground">Applicant</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Email</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Phone</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Status</th>
-                  <th className="px-4 py-3 font-semibold text-foreground">Applied</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {applications.map((application) => (
-                  <tr key={application.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 font-medium text-foreground">{application.first_name} {application.middle_name ? application.middle_name + " " : ""}{application.last_name}</td>
-                    <td className="px-4 py-3"><a href={"mailto:" + application.email} className="text-blue-600 hover:underline">{application.email}</a></td>
-                    <td className="px-4 py-3 text-muted-foreground">{application.phone}</td>
-                    <td className="px-4 py-3 capitalize text-muted-foreground">{application.status}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {new Date(application.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <VidyalaApplicationsTable applications={applications} />
       </section>
     </div>
   )

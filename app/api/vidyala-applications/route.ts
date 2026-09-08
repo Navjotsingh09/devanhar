@@ -105,6 +105,23 @@ export async function POST(req: NextRequest) {
       })
     } catch {}
 
+    // Mirror into the shared Devanhaar forms system (form_submissions) so this
+    // application also shows up in the central Submissions inbox, like every
+    // other Devanhaar form. Best-effort / non-blocking.
+    try {
+      await supabase.from("form_submissions").insert({
+        full_name: String(body.first_name).trim() + " " + String(body.last_name).trim(),
+        email: String(body.email).trim().toLowerCase(),
+        phone: body.phone ? String(body.phone).trim() : null,
+        message: "Sikhi Vidyala application submitted",
+        form_data: body,
+        status: "new",
+        initiative_id: initiative?.id ?? null,
+      })
+    } catch (formSubmissionsErr) {
+      console.error("[vidyala-applications] form_submissions mirror failed (non-blocking):", formSubmissionsErr)
+    }
+
     // Fire emails - await both before returning
     const firstName = String(body.first_name).trim()
     const email = String(body.email).trim().toLowerCase()
