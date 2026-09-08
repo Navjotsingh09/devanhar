@@ -87,7 +87,9 @@ const eventsNav: NavItem[] = [
 ]
 
 const vidyalaNav: NavItem[] = [
-  { title: 'Applications', url: '/dashboard/vidyala', icon: Video },
+  { title: 'Vidyala Applications', url: '/dashboard/vidyala', icon: BookOpen },
+  { title: 'Webinar Signups', url: '/dashboard/vidyala/webinar', icon: Video },
+  { title: 'Interest Registrations', url: '/dashboard/vidyala/interest', icon: Users },
 ]
 
 const rootsNav: NavItem[] = [
@@ -258,24 +260,33 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
         {!isVacanciesOnly && (
         <SidebarGroup>
-          <SidebarGroupLabel>
-            <BookOpen className="h3 w3 mr-1" />
-            Sikhi Vidyala
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {vidyalaNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
-                    <Link href={item.url}>
-                      <item.icon className="h4 w4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+          <Collapsible defaultOpen className="group/vidyala">
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between">
+                <span className="flex items-center">
+                  <BookOpen className="h3 w3 mr-1" />
+                  Sikhi Vidyala
+                </span>
+                <ChevronDown className="h3 w3 transition-transform group-data-[state=open]/vidyala:rotate-180" />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {vidyalaNav.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={pathname === item.url}>
+                        <Link href={item.url}>
+                          <item.icon className="h4 w4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarGroup>
         )}
 
