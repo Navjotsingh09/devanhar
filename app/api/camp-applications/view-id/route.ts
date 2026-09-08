@@ -4,7 +4,8 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const bucketName = process.env.SUPABASE_CAMP_UPLOAD_BUCKET || 'camp-applications'
+const campBucketName = process.env.SUPABASE_CAMP_UPLOAD_BUCKET || 'camp-applications'
+const vidyalaBucketName = process.env.SUPABASE_VIDYALA_UPLOAD_BUCKET || 'vidyala-applications'
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,12 +24,15 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    console.log('[View ID] User:', user.id, 'Profile:', JSON.stringify(profile))
-    if (!profile || !['admin', 'super_admin', 'staff'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden', debug: { userId: user.id, profile } }, { status: 403 })
+    // A missing admin_profiles row defaults to 'staff' (matches app/dashboard/layout.tsx),
+    // since staff Auth accounts and their admin_profiles rows are recreated separately
+    // after a recovery — only an EXISTING profile with a disallowed role is blocked.
+    if (profile && !['admin', 'super_admin', 'staff'].includes(profile.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     const filePath = request.nextUrl.searchParams.get('path')
+    const source = request.nextUrl.searchParams.get('source')
     if (!filePath) {
       return NextResponse.json({ error: 'Missing path parameter' }, { status: 400 })
     }
@@ -43,6 +47,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate a signed URL valid for 1 hour
+    const bucketName = source === 'vidyala' ? vidyalaBucketName : campBucketName
     const { data, error } = await admin.storage
       .from(bucketName)
       .createSignedUrl(filePath, 3600)
