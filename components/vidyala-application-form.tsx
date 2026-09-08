@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, X } from "lucide-react"
 import Image from "next/image"
-import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 
 const STEPS = [
   "Important Information",
@@ -29,7 +28,6 @@ interface VidyalaApplicationFormProps {
 }
 
 export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps) {
-  const [closed] = useState(() => isVidyalaApplicationsClosed())
   const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -201,22 +199,6 @@ export function VidyalaApplicationForm({ onClose }: VidyalaApplicationFormProps)
   }
 
   const progressPct = Math.round((step / (STEPS.length - 1)) * 100)
-
-  if (closed) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
-          <h2 className="text-2xl font-bold mb-2" style={{ color: NAVY }}>Applications Are Closed</h2>
-          <p className="text-gray-600 mb-6">
-            Applications for the Sikhi Vidyala are now closed. Thank you for your interest — please check back for future cohorts.
-          </p>
-          <Button onClick={onClose} className="w-full text-white font-semibold" style={{ backgroundColor: NAVY }}>
-            Close
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   if (submitted) {
     return (

@@ -3,9 +3,8 @@ import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
-import { ArrowRight, MapPin, Clock, Calendar, Users, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
+import { ArrowRight, Clock, Calendar, Users, UserRound, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
 import { VidyalaGallery } from "@/components/vidyala-gallery"
-import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 
 export const metadata = {
   title: "Sikhi Vidyala | Devanhaar",
@@ -17,7 +16,6 @@ const NAVY = "#1E3461"
 const GOLD = "#F5A623"
 
 export default function SikhiVidyalaPage() {
-  const closed = isVidyalaApplicationsClosed()
   return (
     <>
       <Navbar />
@@ -39,7 +37,7 @@ export default function SikhiVidyalaPage() {
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.18em] mb-6"
               style={{ backgroundColor: GOLD, color: NAVY }}
             >
-              {closed ? "Applications Closed" : "Applications Open"}
+              Applications Open
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
               Sikhi <em className="not-italic" style={{ color: GOLD }}>Vidyala</em>
@@ -73,9 +71,9 @@ export default function SikhiVidyalaPage() {
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
-                { icon: Calendar, label: "Schedule", value: "2 hours online, once a week" },
-                { icon: MapPin, label: "Location", value: <>Online, evening session (GMT)<br />Termly in-person Weekend (UK)</> },
-                { icon: Clock, label: "Duration", value: "October 2026 to February 2027" },
+                { icon: Calendar, label: "Schedule", value: "Online, two-hour session once a week, UK evening" },
+                { icon: UserRound, label: "Location", value: "In-person sessions, termly, UK" },
+                { icon: Clock, label: "Duration", value: "October 2026 to March 2027" },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex flex-col items-center gap-2">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: `${NAVY}15` }}>
@@ -113,7 +111,7 @@ export default function SikhiVidyalaPage() {
                     The course includes understanding Gurbani, learning Sikh history, Santhiya, Q&A sessions, katha, community skills and more. The Vidyala was started in 2015 by Bhai Jagraj Singh of Basics of Sikhi. The course is run by a core team of speakers, workshop leads and facilitators with regular appearances with guests across the panth.
                   </p>
                   <p>
-                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a parchaarik.
+                    This course is open to anyone desiring to get involved in Seva or parchaar, whether for local Sikhi camps or becoming a parchaarik. Global applicants must be aged 18+.
                   </p>
                   <p>
                     We have captured the best speakers and trainers from various organisations within the UK and beyond to help inspire and provide the skills necessary for the next generation to spread the message of Sikhi.
@@ -150,8 +148,7 @@ export default function SikhiVidyalaPage() {
                   <ul className="space-y-2 mb-8">
                     {[
                       "Open to ages 18+",
-                      "Must attend In-person weekend sessions (UK- Termly sessions)",
-                      ].map((item) => (
+                    ].map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm text-white/80">
                         <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: GOLD }} />
                         {item}
@@ -342,7 +339,7 @@ export default function SikhiVidyalaPage() {
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
               style={{ backgroundColor: `${GOLD}33`, color: GOLD }}
             >
-              {closed ? "Applications Closed" : "Applications Open"}
+              Applications Open
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Be part of the next <em className="italic" style={{ color: GOLD }}>Vidyala cohort</em>

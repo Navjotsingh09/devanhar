@@ -74,6 +74,18 @@ create policy "Service role full access"
   using (true)
   with check (true);
 
+create policy "Staff can read Vidyala applications"
+  on vidyala_applications
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.admin_profiles
+      where admin_profiles.id = auth.uid()
+    )
+  );
+
 -- Indexes
 create index if not exists vidyala_applications_email_idx on vidyala_applications(email);
 create index if not exists vidyala_applications_status_idx on vidyala_applications(status);

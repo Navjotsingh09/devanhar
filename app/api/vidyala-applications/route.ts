@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { sendVidyalaConfirmationEmail, sendVidyalaInternalNotification } from "@/lib/vidyala-emails"
-import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
+
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
@@ -14,13 +14,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: NextRequest) {
   try {
-    if (isVidyalaApplicationsClosed()) {
-      return NextResponse.json(
-        { error: 'Applications for Sikhi Vidyala are now closed. Thank you for your interest.' },
-        { status: 410 }
-      )
-    }
-
     const body = await req.json()
 
     const required = [
@@ -84,11 +77,7 @@ export async function POST(req: NextRequest) {
         sikhi_journey: body.sikhi_journey ?? null,
         english_ability: body.english_ability ?? null,
         panjabi_ability: body.panjabi_ability ?? null,
-        can_commit: body.can_commit ?? null,
         funding_option: body.funding_option ?? null,
-        accommodation_option: body.accommodation_option ?? null,
-        requires_visa: body.requires_visa ?? false,
-        requires_visa_support: body.requires_visa_support ?? false,
         motivation: body.motivation ?? null,
         current_seva: body.current_seva ?? null,
         what_to_learn: body.what_to_learn ?? null,

@@ -262,11 +262,7 @@ export async function sendVidyalaInternalNotification(params: {
           ${row('Sikhi Journey', esc(d.sikhi_journey))}
           ${row('English Ability', esc(d.english_ability))}
           ${row('Panjabi Ability', esc(d.panjabi_ability))}
-          ${row('Can Commit', bool(d.can_commit))}
           ${row('Funding Option', esc(d.funding_option))}
-          ${row('Accommodation', esc(d.accommodation_option))}
-          ${row('Requires Visa', bool(d.requires_visa))}
-          ${row('Requires Visa Support', bool(d.requires_visa_support))}
         </table>
         <h3 style="color:#1E3461;border-bottom:2px solid #F5A623;padding-bottom:6px;margin-bottom:0;">Additional Questions</h3>
         <table style="width:100%;border-collapse:collapse;margin-bottom:8px;">

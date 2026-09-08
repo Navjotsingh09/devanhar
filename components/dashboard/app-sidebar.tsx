@@ -87,7 +87,7 @@ const eventsNav: NavItem[] = [
 ]
 
 const vidyalaNav: NavItem[] = [
-  { title: 'Webinar Signups', url: '/dashboard/vidyala', icon: Video },
+  { title: 'Applications', url: '/dashboard/vidyala', icon: Video },
 ]
 
 const rootsNav: NavItem[] = [
