@@ -12,6 +12,11 @@ function getSupabaseAdmin() {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+// Karnjit Kaur administers Vidyala applications and needs to be able to
+// resubmit/test the form at any time -- exempt her from the duplicate-email
+// guard below rather than one-off deleting her row each time.
+const DUPLICATE_CHECK_EXEMPT_EMAILS = new Set(["karnjit.kaur@devanhaar.com"])
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -40,17 +45,20 @@ export async function POST(req: NextRequest) {
       .single()
 
     // Check for duplicate email
-    const { data: existing } = await supabase
-      .from("vidyala_applications")
-      .select("id")
-      .eq("email", String(body.email).trim().toLowerCase())
-      .maybeSingle()
+    const normalizedEmail = String(body.email).trim().toLowerCase()
+    if (DUPLICATE_CHECK_EXEMPT_EMAILS.has(normalizedEmail) === false) {
+      const { data: existing } = await supabase
+        .from("vidyala_applications")
+        .select("id")
+        .eq("email", normalizedEmail)
+        .maybeSingle()
 
-    if (existing) {
-      return NextResponse.json(
-        { error: "An application with this email address already exists." },
-        { status: 409 }
-      )
+      if (existing) {
+        return NextResponse.json(
+          { error: "An application with this email address already exists." },
+          { status: 409 }
+        )
+      }
     }
 
     const { data, error } = await supabase
