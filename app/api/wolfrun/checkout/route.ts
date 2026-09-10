@@ -10,7 +10,7 @@ const wolfRunApplicationsOpen = false
 const applicationsClosedError = 'Applications for Wolf Run are now closed.'
 
 function getSupabaseAdmin() {
-  if (\!supabaseUrl || \!supabaseServiceKey) {
+  if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase service role credentials')
   }
   return createClient(supabaseUrl, supabaseServiceKey)
@@ -25,20 +25,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { first_name, last_name, email, phone, age, city, pack, agree_whatsapp_group, agree_terms } = body
 
-    if (\!first_name?.trim() || \!last_name?.trim() || \!email?.trim() || \!phone?.trim() || \!age || \!city?.trim()) {
+    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !age || !city?.trim()) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    if (\!agree_terms) {
+    if (!agree_terms) {
       return NextResponse.json({ error: 'You must agree to the Terms & Conditions' }, { status: 400 })
     }
 
-    if (\!pack || \!['singhs', 'kaurs'].includes(pack)) {
+    if (!pack || !['singhs', 'kaurs'].includes(pack)) {
       return NextResponse.json({ error: 'You must choose a pack - Singhs or Kaurs' }, { status: 400 })
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (\!emailRegex.test(email)) {
+    if (!emailRegex.test(email)) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
         .select('id')
         .single()
 
-      if (insertError || \!inserted) {
+      if (insertError || !inserted) {
         console.error('[Wolf Run Checkout] Supabase insert error:', insertError)
         return NextResponse.json({ error: 'Unable to create checkout right now. Please try again.' }, { status: 500 })
       }
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
     const dmRes = await fetch(dmUrl)
     const dmData = await dmRes.json()
 
-    if (dmData.status \!== 'success' || \!dmData.url) {
+    if (dmData.status !== 'success' || !dmData.url) {
       return NextResponse.json({ error: 'Unable to create checkout session' }, { status: 502 })
     }
 
