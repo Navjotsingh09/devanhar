@@ -17,6 +17,7 @@ const eventsConfig = [
       "Build confidence and discipline through guided horse riding sessions with a seva-centred atmosphere.",
     priceLabel: "",
     comingSoon: true,
+    closed: false,
   },
   {
     slug: "shooting",
@@ -28,17 +29,19 @@ const eventsConfig = [
       "Regular target shooting sessions designed to build focus, discipline, and consistency.",
     priceLabel: "",
     comingSoon: true,
+    closed: false,
   },
   {
     slug: "wolfrun",
     image: "/images/events/wolfrun-hero.jpg",
     title: "Wolf Run",
-    badge: "Challenge",
+    badge: "Applications Over",
     dateLabel: "12 September 2026",
     shortDescription:
       "A high-energy obstacle challenge through mud, water, and woodland testing teamwork and resilience.",
     priceLabel: "GBP 45 per person",
     comingSoon: false,
+    closed: true,
   },
   {
     slug: "yorkshire-3-peaks",
@@ -50,6 +53,7 @@ const eventsConfig = [
       "A full-day charity hike across Pen-y-ghent, Whernside, and Ingleborough with coach fee included.",
     priceLabel: "",
     comingSoon: true,
+    closed: false,
   },
 ]
 
@@ -116,10 +120,10 @@ export default function EventsPage() {
                   >
                     <div className="relative h-48 w-full overflow-hidden">
                       <img src={event.image} alt={event.title} className={`h-full w-full object-cover transition-transform duration-300 ${event.comingSoon ? "grayscale" : "group-hover:scale-105"}`} />
-                      {event.comingSoon && (
+                      {(event.comingSoon || event.closed) && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                           <span className="text-white text-sm font-semibold tracking-[0.2em] uppercase border border-white/70 rounded-full px-4 py-1.5 backdrop-blur-sm">
-                            Coming Soon
+                            {event.closed ? "Applications Over" : "Coming Soon"}
                           </span>
                         </div>
                       )}
@@ -139,12 +143,12 @@ export default function EventsPage() {
                     {event.shortDescription}
                   </p>
                   {event.priceLabel && <p className="mt-4 text-xs font-semibold text-foreground">{event.priceLabel}</p>}
-                  {event.comingSoon ? (
+                  {event.comingSoon || event.closed ? (
                     <Button
                       disabled
                       className="mt-5 w-full rounded-full bg-muted text-muted-foreground hover:bg-muted text-sm font-semibold cursor-not-allowed"
                     >
-                      Coming Soon
+                      {event.closed ? "Applications Over" : "Coming Soon"}
                     </Button>
                   ) : (
                     <Button asChild className="mt-5 w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-semibold">

@@ -7,6 +7,7 @@ import Link from "next/link"
 const siteUrl = typeof window !== "undefined" ? window.location.origin : ""
 
 const presetAmounts = [10, 20, 50, 100]
+const applicationsClosedMessage = "Applications for Wolf Run are now closed."
 
 const faqs = [
   {
@@ -193,9 +194,10 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Phone</label>
+        <label className="block text-sm font-medium mb-1">Phone *</label>
         <input
           type="tel"
+          required
           value={form.phone}
           onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -292,7 +294,7 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
 
       <button
         type="submit"
-        disabled={loading || !form.pack || !form.first_name || !form.last_name || !form.email || !form.agree_terms}
+        disabled={loading || !form.pack || !form.first_name || !form.last_name || !form.email || !form.phone || !form.agree_terms}
         className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
@@ -357,8 +359,8 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="text-xl font-bold">Join the Wolf Run</h3>
-      <p className="text-sm text-muted-foreground">Pay your £45 entry fee to secure your spot</p>
+      <h3 className="text-xl font-bold">Applications Over</h3>
+      <p className="text-sm text-muted-foreground">{applicationsClosedMessage}</p>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
@@ -487,8 +489,8 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
 
       <button
         type="submit"
-        disabled={loading || !form.first_name || !form.last_name || !form.email || !form.phone || !form.age || !form.city || !form.pack || !form.agree_terms}
-        className="w-full py-3 bg-amber-500 text-slate-900 rounded-lg font-bold hover:bg-amber-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        disabled
+        className="w-full py-3 bg-muted text-muted-foreground rounded-lg font-bold cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
@@ -497,20 +499,19 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
           </>
         ) : (
           <>
-            Pay £45 &amp; Secure Your Spot
-            <ArrowRight className="w-4 h-4" />
+            Applications Over
           </>
         )}
       </button>
 
       <p className="text-xs text-muted-foreground text-center">
-        You&apos;ll be redirected to Stripe to complete your payment securely.
+        Registration payments are closed for this event.
       </p>
     </form>
   )
 }
 
-function SupportFundraiserPopup({ onClose, onBecomeAFundraiser }: { onClose: () => void; onBecomeAFundraiser: () => void }) {
+function SupportFundraiserPopup({ onClose }: { onClose: () => void }) {
   return (
     <div className="text-center space-y-6 py-2">
       <h3 className="text-2xl font-bold">Support a Fundraiser</h3>
@@ -525,13 +526,14 @@ function SupportFundraiserPopup({ onClose, onBecomeAFundraiser }: { onClose: () 
           View Fundraisers
         </Link>
         <button
-          onClick={onBecomeAFundraiser}
-          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-muted text-foreground rounded-xl font-semibold text-lg hover:bg-muted/80 transition border border-border"
+          disabled
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-muted text-muted-foreground rounded-xl font-semibold text-lg border border-border cursor-not-allowed"
         >
           <Users className="w-5 h-5" />
-          Become a Fundraiser
+          Applications Over
         </button>
       </div>
+      <p className="text-sm text-muted-foreground">{applicationsClosedMessage}</p>
       <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground transition underline">
         Close
       </button>
@@ -567,17 +569,16 @@ export function WolfRunContent() {
               </span>
             </h1>
             <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-              Join the Devanhaar pack for the Wolf Run — the UK&apos;s wildest obstacle run. 
-              Become a fundraiser, share your link, and collect sponsorships to support 
+              The Devanhaar pack is now full for the Wolf Run — the UK&apos;s wildest obstacle run.
+              Follow the fundraisers, share their links, and collect sponsorships to support
               Sikh education, camps, and community programmes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => setShowPaymentForm(true)}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-bold text-lg hover:bg-amber-400 transition shadow-lg shadow-amber-500/25"
+                disabled
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/15 text-white/70 rounded-xl font-bold text-lg border border-white/20 cursor-not-allowed"
               >
-                Join Wolf Run
-                <ArrowRight className="w-5 h-5" />
+                Applications Over
               </button>
               <button
                 onClick={() => setShowSupportPopup(true)}
@@ -630,7 +631,7 @@ export function WolfRunContent() {
               <div className="bg-muted/50 rounded-xl p-6 text-center">
                 <Trophy className="w-8 h-8 mx-auto mb-3 text-amber-500" />
                 <div className="font-bold text-lg">60 Spaces</div>
-                <div className="text-sm text-muted-foreground">Book your Space NOW</div>
+                <div className="text-sm text-muted-foreground">Applications Over</div>
               </div>
             </div>
           </div>
@@ -685,11 +686,10 @@ export function WolfRunContent() {
                 and show what brotherhood means.
               </p>
               <button
-                onClick={() => setShowRegistration(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 transition"
+                disabled
+                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-100 text-amber-700 rounded-lg font-semibold cursor-not-allowed"
               >
-                Join the Singhs Pack
-                <ArrowRight className="w-4 h-4" />
+                Applications Over
               </button>
             </div>
             <div className="bg-gradient-to-br from-purple-50 to-violet-50 border-2 border-purple-200 rounded-2xl p-8 text-center">
@@ -702,11 +702,10 @@ export function WolfRunContent() {
                 make an impact for sisterhood.
               </p>
               <button
-                onClick={() => setShowRegistration(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-500 text-white rounded-lg font-semibold hover:bg-purple-600 transition"
+                disabled
+                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-100 text-purple-700 rounded-lg font-semibold cursor-not-allowed"
               >
-                Join the Kaurs Pack
-                <ArrowRight className="w-4 h-4" />
+                Applications Over
               </button>
             </div>
           </div>
@@ -754,11 +753,10 @@ export function WolfRunContent() {
           </div>
           <div className="text-center mt-12">
             <button
-              onClick={() => setShowRegistration(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:bg-primary/90 transition"
+              disabled
+              className="inline-flex items-center gap-2 px-8 py-4 bg-muted text-muted-foreground rounded-xl font-bold text-lg cursor-not-allowed"
             >
-              Get Started
-              <ArrowRight className="w-5 h-5" />
+              Applications Over
             </button>
           </div>
         </div>
@@ -851,16 +849,14 @@ export function WolfRunContent() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Make a Difference?</h2>
             <p className="text-lg text-white/70 mb-8">
-              Whether you&apos;re running the course or raising funds from the sidelines, 
-              every effort counts. Join the pack today.
+              Applications are now closed, but every sponsorship still counts. Support a fundraiser and help raise vital funds for Devanhaar.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => setShowPaymentForm(true)}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 text-slate-900 rounded-xl font-bold text-lg hover:bg-amber-400 transition"
+                disabled
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/15 text-white/70 rounded-xl font-bold text-lg border border-white/20 cursor-not-allowed"
               >
-                Join Wolf Run
-                <ArrowRight className="w-5 h-5" />
+                Applications Over
               </button>
               <button
                 onClick={() => setShowSupportPopup(true)}
@@ -928,10 +924,6 @@ export function WolfRunContent() {
             </button>
             <SupportFundraiserPopup
               onClose={() => setShowSupportPopup(false)}
-              onBecomeAFundraiser={() => {
-                setShowSupportPopup(false)
-                setShowRegistration(true)
-              }}
             />
           </div>
         </div>
