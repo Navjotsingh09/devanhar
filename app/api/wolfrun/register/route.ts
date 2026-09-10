@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+const wolfRunApplicationsOpen = false
+const applicationsClosedError = 'Applications for Wolf Run are now closed.'
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
@@ -23,13 +25,17 @@ function generateSlug(firstName: string, lastName: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    if (wolfRunApplicationsOpen === false) {
+      return NextResponse.json({ error: applicationsClosedError }, { status: 410 })
+    }
+
     const body = await request.json()
 
     const { first_name, last_name, email, phone, age, city, pack, fundraising_goal, profile_message, agree_whatsapp_group, agree_terms } = body
 
-    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !pack) {
+    if (!first_name?.trim() || !last_name?.trim() || !email?.trim() || !phone?.trim() || !pack) {
       return NextResponse.json(
-        { error: 'Missing required fields: first_name, last_name, email, pack' },
+        { error: 'Missing required fields: first_name, last_name, email, phone, pack' },
         { status: 400 }
       )
     }
@@ -74,7 +80,7 @@ export async function POST(request: NextRequest) {
         first_name: first_name.trim(),
         last_name: last_name.trim(),
         email: email.trim().toLowerCase(),
-        phone: phone?.trim() || null,
+        phone: phone.trim(),
         pack,
         slug,
         fundraising_goal: goal,
