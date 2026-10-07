@@ -90,7 +90,7 @@ with player_totals as (
       else 0::numeric
     end as group_points_won_pct
   from public.padel_players p
-  left join public.padel_tournament_results r
+  join public.padel_tournament_results r
     on r.player_id = p.id
    and r.source_result_id is not null
   where p.is_active = true
