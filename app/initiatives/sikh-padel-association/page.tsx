@@ -99,44 +99,21 @@ export default async function SikhPadelAssociationPage() {
           </div>
         </section>
 
-        <section className="border-t border-border bg-[#0d2b1a] py-16 text-white md:py-20">
-          <div className="container mx-auto grid max-w-5xl gap-8 px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-12">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#d6c7a4]">
-                Tournament archive
-              </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">
-                Previous tournaments, results and event highlights
-              </h2>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70">
-                Revisit past Sikh Padel Association tournaments, browse event photography and see recorded player results in one place.
-              </p>
-            </div>
-            <Link
-              href="/initiatives/sikh-padel-association/tournaments"
-              className="inline-flex w-fit rounded-full bg-[#d6c7a4] px-6 py-3 text-sm font-semibold text-[#0d2b1a]"
-            >
-              Explore previous tournaments
-            </Link>
-          </div>
-        </section>
-
-        {/* Player rankings follows the previous tournaments archive. */}
         <section className="border-t border-border py-12 md:py-16">
           <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-2">
-                Player rankings
+                Previous tournaments
               </p>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                See where every player stands
+                Explore previous Sikh Padel Association events, photos and recorded results
               </h2>
             </div>
             <Link
-              href="/initiatives/sikh-padel-association/leaderboard"
+              href="/initiatives/sikh-padel-association/tournaments"
               className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
             >
-              View player leaderboard
+              Explore the archive
             </Link>
           </div>
         </section>
