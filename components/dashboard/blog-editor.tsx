@@ -33,6 +33,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const [saved, setSaved] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [removingCover, setRemovingCover] = useState(false)
   const [dragOver, setDragOver] = useState(false)
 
   const [form, setForm] = useState<ManagedPost>(initialPost ?? {
@@ -57,6 +58,29 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const set = (key: keyof ManagedPost, value: any) => {
     setSaved(false)
     setForm((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const removeCover = async () => {
+    if (!effectiveSlug) return
+
+    setRemovingCover(true)
+    try {
+      const res = await fetch("/api/blog/cover", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: effectiveSlug }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Could not remove image")
+
+      setForm((prev) => ({ ...prev, coverImage: "", coverAlt: "" }))
+      toast.success("Cover image removed")
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not remove image")
+    } finally {
+      setRemovingCover(false)
+    }
   }
 
   const uploadCover = async (file: File) => {
@@ -231,8 +255,15 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
                 </label>
 
                 {form.coverImage && (
-                  <Button type="button" variant="outline" className="w-full text-destructive hover:text-destructive" onClick={() => set("coverImage", "")}>
-                    <Trash2 className="mr-2 h-4 w-4" /> Remove selected image
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full text-destructive hover:text-destructive"
+                    onClick={() => void removeCover()}
+                    disabled={removingCover || uploading || saving}
+                  >
+                    {removingCover ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                    {removingCover ? "Removing..." : "Remove selected image"}
                   </Button>
                 )}
 
