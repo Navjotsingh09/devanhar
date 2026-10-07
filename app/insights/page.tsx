@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { blogPosts } from "@/lib/blog"
 import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
+import { getUploadedBlogCovers } from "@/lib/blog-images"
 
 export const metadata: Metadata = {
   title: "Blog - Devanhaar",
@@ -21,7 +22,9 @@ function formatDate(date: string) {
   })
 }
 
-export default function InsightsPage() {
+export default async function InsightsPage() {
+  const uploadedCovers = await getUploadedBlogCovers()
+  const coverFor = (slug: string) => uploadedCovers[slug] || getBlogCoverImage(slug)
   const [heroPost, ...morePosts] = blogPosts
 
   return (
@@ -43,7 +46,7 @@ export default function InsightsPage() {
             <Link href={`/insights/${heroPost.slug}`} className="group block">
               <div className="relative aspect-[16/8.5] min-h-[300px] overflow-hidden rounded-[18px] bg-neutral-100">
                 <Image
-                  src={getBlogCoverImage(heroPost.slug)}
+                  src={coverFor(heroPost.slug)}
                   alt={heroPost.title}
                   fill
                   priority
@@ -93,7 +96,7 @@ export default function InsightsPage() {
                 <Link href={`/insights/${post.slug}`} className="block">
                   <div className="relative aspect-[16/10] overflow-hidden rounded-[16px] bg-neutral-100">
                     <Image
-                      src={getBlogCoverImage(post.slug)}
+                      src={coverFor(post.slug)}
                       alt={post.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
