@@ -1,6 +1,7 @@
 export type Pillar = "Develop" | "Elevate" | "Empower" | "Connect"
 
 export interface BlogPost {
+  id?: string
   slug: string
   title: string
   description: string
@@ -9,6 +10,12 @@ export interface BlogPost {
   date: string
   readTime: string
   content: string
+  author?: string
+  tags?: string[]
+  status?: "draft" | "published"
+  coverImage?: string
+  coverAlt?: string
+  persisted?: boolean
 }
 
 export const blogPosts: BlogPost[] = [
