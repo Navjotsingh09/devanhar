@@ -99,6 +99,7 @@ export default async function SikhPadelAssociationPage() {
           </div>
         </section>
 
+        {/* Player rankings intentionally appears before the previous tournaments archive. */}
         <section className="border-t border-border py-12 md:py-16">
           <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
             <div>
