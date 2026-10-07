@@ -39,19 +39,23 @@ export async function getPublicPadelEvent(): Promise<PublicPadelEvent> {
 
     if (!error && data) {
       const fee = Number(data.fee_per_person ?? 50)
+      const hasCompletePublicDetails = Boolean(
+        data.event_time?.trim() && data.venue?.trim() && data.address?.trim()
+      )
+
       return {
         id: data.id,
         name: data.name,
         date: formatDate(data.event_date),
         isoDate: data.event_date,
-        time: data.event_time || "Time TBC",
-        venue: data.venue || "Venue TBC",
+        time: data.event_time || "",
+        venue: data.venue || "",
         address: data.address || "",
         mapUrl: data.map_url || "",
         feePerPerson: fee,
         teamFee: fee * 2,
         description: data.public_description || undefined,
-        registrationOpen: data.registration_open !== false,
+        registrationOpen: data.registration_open !== false && hasCompletePublicDetails,
       }
     }
   } catch {
