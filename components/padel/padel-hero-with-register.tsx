@@ -33,10 +33,10 @@ export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
             } : undefined,
           },
           {
-            label: "Previous tournaments",
-            description: "Explore previous Sikh Padel Association events, photos and recorded results.",
-            href: "/initiatives/sikh-padel-association/tournaments",
-            ctaLabel: "Explore the archive",
+            label: "Player rankings",
+            description: "See where every player stands across Sikh Padel Association tournaments.",
+            href: "/initiatives/sikh-padel-association/leaderboard",
+            ctaLabel: "View player leaderboard",
           },
         ]}
       />
