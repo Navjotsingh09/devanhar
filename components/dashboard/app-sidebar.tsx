@@ -22,6 +22,7 @@ import {
   Video,
   TreePine,
   CalendarDays,
+  Newspaper,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -73,6 +74,10 @@ const padelNav: NavItem[] = [
   { title: 'Players', url: '/dashboard/padel/players', icon: Users },
   { title: 'Tournaments', url: '/dashboard/padel/tournaments', icon: Trophy },
   { title: 'Results', url: '/dashboard/padel/results', icon: ClipboardList },
+]
+
+const contentNav: NavItem[] = [
+  { title: 'Blog', url: '/dashboard/blog', icon: Newspaper },
 ]
 
 const shopNav: NavItem[] = [
@@ -209,6 +214,29 @@ export function AppSidebar({ user }: AppSidebarProps) {
               </SidebarGroupContent>
             </CollapsibleContent>
           </Collapsible>
+        </SidebarGroup>
+        )}
+
+        {!isVacanciesOnly && (
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <Newspaper className="h3 w3 mr-1" />
+            Content
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {contentNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url + '/')}>
+                    <Link href={item.url}>
+                      <item.icon className="h4 w4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
         )}
 

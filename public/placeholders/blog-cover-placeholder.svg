@@ -1,0 +1,10 @@
+<svg width="1600" height="850" viewBox="0 0 1600 850" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="850" fill="#F4F4F1"/>
+  <rect x="28" y="28" width="1544" height="794" rx="28" stroke="#D7D7D1" stroke-width="2" stroke-dasharray="12 12"/>
+  <circle cx="800" cy="330" r="54" fill="#E5E5DF"/>
+  <path d="M776 346L799 321L817 340L834 322L864 356H736L762 330L776 346Z" fill="#BDBDB5"/>
+  <text x="800" y="445" text-anchor="middle" fill="#171717" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">Blog cover image</text>
+  <text x="800" y="495" text-anchor="middle" fill="#6B6B66" font-family="Arial, Helvetica, sans-serif" font-size="26">Recommended size: 1600 × 850 px</text>
+  <text x="800" y="535" text-anchor="middle" fill="#8A8A84" font-family="Arial, Helvetica, sans-serif" font-size="20">Landscape · JPG / PNG / WebP · max 4 MB</text>
+  <text x="800" y="720" text-anchor="middle" fill="#A0A09A" font-family="Arial, Helvetica, sans-serif" font-size="18">Replace this placeholder from Dashboard → Blog → Featured Image</text>
+</svg>
