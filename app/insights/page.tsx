@@ -49,6 +49,7 @@ export default async function InsightsPage() {
                   src={coverFor(heroPost)}
                   alt={heroPost.title}
                   fill
+                  unoptimized
                   priority
                   sizes="(max-width: 1180px) 100vw, 1180px"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
@@ -99,6 +100,7 @@ export default async function InsightsPage() {
                       src={coverFor(post)}
                       alt={post.title}
                       fill
+                      unoptimized
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
                     />
