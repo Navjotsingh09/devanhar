@@ -69,16 +69,25 @@ export default async function SikhPadelAssociationPage() {
             </h2>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               <p>
-                Our next showcase tournament takes place on {event.date}, from {event.time}.
+                Our next showcase tournament takes place on {event.date}
+                {event.time ? `, ${event.time}` : ""}.
                 Teams of two compete across multiple rounds, with games, points and rankings
                 tracked on a live leaderboard throughout the day.
               </p>
-              <p className="font-bold text-foreground">Entry is £{event.feePerPerson} per person (£{event.teamFee} per pair).</p>
-              <p>
-                <strong className="text-foreground">{event.venue}</strong>, {event.address}. Spaces are limited, so register your team using the form above.
-              </p>
+              {event.detailsComplete ? (
+                <>
+                  <p className="font-bold text-foreground">Entry is £{event.feePerPerson} per person (£{event.teamFee} per pair).</p>
+                  <p>
+                    <strong className="text-foreground">{event.venue}</strong>, {event.address}. Spaces are limited, so register your team using the form above.
+                  </p>
+                </>
+              ) : (
+                <p className="font-medium text-foreground">
+                  Full venue, time and registration details will be published shortly.
+                </p>
+              )}
             </div>
-            {event.mapUrl ? (
+            {event.detailsComplete && event.mapUrl ? (
               <a
                 href={event.mapUrl}
                 target="_blank"
