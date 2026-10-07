@@ -13,7 +13,6 @@ import {
   padelGalleryImages,
   padelFaqs,
 } from "@/components/padel/padel-shared-data"
-import { PREVIOUS_PADEL_EVENT } from "@/components/padel/padel-event"
 import { getPublicPadelEvent } from "@/lib/padel-public-event"
 import Link from "next/link"
 
@@ -119,100 +118,25 @@ export default async function SikhPadelAssociationPage() {
           </div>
         </section>
 
-        <section className="container mx-auto grid gap-8 px-6 lg:px-12 py-16 md:py-24 max-w-5xl md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
-              Previous tournament
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {PREVIOUS_PADEL_EVENT.date} — {PREVIOUS_PADEL_EVENT.venue}
-            </h2>
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-              Revisit the previous Sikh Padel Association tournament through the event photos and live results archive.
-            </p>
-          </div>
-          <a
-            href={PREVIOUS_PADEL_EVENT.leaderboardUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
-          >
-            View previous leaderboard
-          </a>
-        </section>
-
-        <section className="bg-[#0d2b1a] py-12 md:py-16">
-          <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#d6c7a4]/25 pb-5">
-              <div>
-                <p className="text-[11px] font-semibold tracking-[0.24em] uppercase text-[#d6c7a4]">
-                  SPA match centre
-                </p>
-                <h3 className="mt-2 text-2xl md:text-3xl font-bold text-white">
-                  Previous tournament stats
-                </h3>
-              </div>
-              <span className="font-mono text-sm font-semibold tracking-[0.18em] text-[#d6c7a4]">
-                TOURNAMENT {PREVIOUS_PADEL_EVENT.tournamentNumber}
-              </span>
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#d6c7a4]/25 bg-[#d6c7a4]/25 md:grid-cols-4">
-              <div className="bg-[#0d2b1a] p-5 md:p-6">
-                <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">DATE</p>
-                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_PADEL_EVENT.fullDate}</p>
-              </div>
-              <div className="bg-[#0d2b1a] p-5 md:p-6">
-                <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">VENUE</p>
-                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_PADEL_EVENT.venueDetail}</p>
-              </div>
-              <div className="bg-[#0d2b1a] p-5 md:p-6">
-                <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">STATUS</p>
-                <p className="mt-3 text-lg font-bold text-[#d6c7a4]">COMPLETED</p>
-              </div>
-              <div className="bg-[#0d2b1a] p-5 md:p-6">
-                <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">PURPOSE</p>
-                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_PADEL_EVENT.purpose}</p>
-              </div>
-            </div>
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#d6c7a4]/25 px-5 py-4">
-              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#d6c7a4]">
-                Standings &amp; match schedule
+        <section className="border-t border-border bg-[#0d2b1a] py-16 text-white md:py-20">
+          <div className="container mx-auto grid max-w-5xl gap-8 px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-12">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#d6c7a4]">
+                Tournament archive
               </p>
-              <a
-                href={PREVIOUS_PADEL_EVENT.leaderboardUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-bold text-white underline underline-offset-4"
-              >
-                Open full results archive
-              </a>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">
+                Previous tournaments, results and event highlights
+              </h2>
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70">
+                Revisit past Sikh Padel Association tournaments, browse event photography and see recorded player results in one place.
+              </p>
             </div>
-          </div>
-        </section>
-
-        <section className="container mx-auto px-6 lg:px-12 pb-16 md:pb-24 max-w-5xl">
-          <div className="grid gap-4 md:grid-cols-3">
-            {padelGalleryImages.slice(0, 3).map((image, index) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={image}
-                src={image}
-                alt={`Previous tournament photo ${index + 1}`}
-                className="h-64 w-full rounded-xl object-cover"
-              />
-            ))}
-          </div>
-          <div className="mt-8 overflow-hidden rounded-xl bg-[#0d2b1a]">
-            <video
-              className="mx-auto max-h-[680px] w-full object-contain"
-              controls
-              playsInline
-              preload="metadata"
-              poster="/initiatives/sikh-padel-previous-tournament-poster.jpg"
+            <Link
+              href="/initiatives/sikh-padel-association/tournaments"
+              className="inline-flex w-fit rounded-full bg-[#d6c7a4] px-6 py-3 text-sm font-semibold text-[#0d2b1a]"
             >
-              <source src="/initiatives/sikh-padel-previous-tournament.mp4" type="video/mp4" />
-              Your browser does not support the tournament video.
-            </video>
+              Explore previous tournaments
+            </Link>
           </div>
         </section>
 

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { CampLandingHero } from "@/components/camps/camp-landing-hero"
 import { PadelRegistrationForm } from "@/components/padel-registration-form"
-import { PREVIOUS_PADEL_EVENT } from "@/components/padel/padel-event"
 import type { PublicPadelEvent } from "@/lib/padel-public-event"
 
 export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
@@ -34,10 +33,10 @@ export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
             } : undefined,
           },
           {
-            label: "Previous tournament results",
-            description: `View the ${PREVIOUS_PADEL_EVENT.date} tournament results from ${PREVIOUS_PADEL_EVENT.venue}.`,
-            href: PREVIOUS_PADEL_EVENT.leaderboardUrl,
-            ctaLabel: "View previous results",
+            label: "Previous tournaments",
+            description: "Explore previous Sikh Padel Association events, photos and recorded results.",
+            href: "/initiatives/sikh-padel-association/tournaments",
+            ctaLabel: "Explore the archive",
           },
         ]}
       />
