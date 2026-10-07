@@ -99,26 +99,6 @@ export default async function SikhPadelAssociationPage() {
           </div>
         </section>
 
-        {/* Player rankings intentionally appears before the previous tournaments archive. */}
-        <section className="border-t border-border py-12 md:py-16">
-          <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-2">
-                Player rankings
-              </p>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                See where every player stands
-              </h2>
-            </div>
-            <Link
-              href="/initiatives/sikh-padel-association/leaderboard"
-              className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
-            >
-              View player leaderboard
-            </Link>
-          </div>
-        </section>
-
         <section className="border-t border-border bg-[#0d2b1a] py-16 text-white md:py-20">
           <div className="container mx-auto grid max-w-5xl gap-8 px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-12">
             <div>
@@ -137,6 +117,26 @@ export default async function SikhPadelAssociationPage() {
               className="inline-flex w-fit rounded-full bg-[#d6c7a4] px-6 py-3 text-sm font-semibold text-[#0d2b1a]"
             >
               Explore previous tournaments
+            </Link>
+          </div>
+        </section>
+
+        {/* Player rankings follows the previous tournaments archive. */}
+        <section className="border-t border-border py-12 md:py-16">
+          <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-2">
+                Player rankings
+              </p>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                See where every player stands
+              </h2>
+            </div>
+            <Link
+              href="/initiatives/sikh-padel-association/leaderboard"
+              className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
+            >
+              View player leaderboard
             </Link>
           </div>
         </section>
