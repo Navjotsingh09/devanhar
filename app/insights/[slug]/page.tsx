@@ -47,7 +47,7 @@ export default async function InsightPostPage({
   if (!post) notFound()
 
   const [uploadedCovers, publishedPosts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
-  const coverFor = (item: (typeof publishedPosts)[number]) => item.coverImage || uploadedCovers[item.slug] || getBlogCoverImage(item.slug)
+  const coverFor = (item: (typeof publishedPosts)[number]) => item.coverImage || (!item.persisted ? uploadedCovers[item.slug] : undefined) || getBlogCoverImage(item.slug)
 
   const related = publishedPosts.filter((item) => item.slug !== post.slug).slice(0, 2)
 

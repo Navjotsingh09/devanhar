@@ -24,7 +24,7 @@ function formatDate(date: string) {
 
 export default async function InsightsPage() {
   const [uploadedCovers, posts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
-  const coverFor = (post: (typeof posts)[number]) => post.coverImage || uploadedCovers[post.slug] || getBlogCoverImage(post.slug)
+  const coverFor = (post: (typeof posts)[number]) => post.coverImage || (!post.persisted ? uploadedCovers[post.slug] : undefined) || getBlogCoverImage(post.slug)
   const [heroPost, ...morePosts] = posts
 
   return (
