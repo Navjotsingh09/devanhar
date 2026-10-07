@@ -1,19 +1,18 @@
-"use client"
-
-import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { PadelRegistrationForm } from "@/components/padel-registration-form"
+import { PadelRegisterPageClient } from "@/components/padel/padel-register-page-client"
+import { getPublicPadelEvent } from "@/lib/padel-public-event"
 
-export default function PadelRegisterPage() {
-  const router = useRouter()
+export const dynamic = "force-dynamic"
+
+export default async function PadelRegisterPage() {
+  const event = await getPublicPadelEvent()
+
   return (
     <>
       <Navbar />
       <main className="min-h-screen pt-20 md:pt-24">
-        <PadelRegistrationForm
-          onClose={() => router.push("/initiatives/sikh-padel-association")}
-        />
+        <PadelRegisterPageClient event={event} />
       </main>
       <FooterSection hideContact />
     </>
