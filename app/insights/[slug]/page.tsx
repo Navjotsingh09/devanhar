@@ -8,6 +8,7 @@ import { FooterSection } from "@/components/footer-section"
 import { getPostBySlug, getAllSlugs, blogPosts } from "@/lib/blog"
 import { BlogContent } from "@/components/blog-content"
 import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
+import { getUploadedBlogCovers } from "@/lib/blog-images"
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }))
@@ -43,6 +44,9 @@ export default async function InsightPostPage({
   const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) notFound()
+
+  const uploadedCovers = await getUploadedBlogCovers()
+  const coverFor = (postSlug: string) => uploadedCovers[postSlug] || getBlogCoverImage(postSlug)
 
   const related = blogPosts
     .filter((item) => item.slug !== post.slug)
@@ -89,7 +93,7 @@ export default async function InsightPostPage({
 
         <div className="relative mt-10 aspect-[16/8.5] min-h-[320px] overflow-hidden rounded-[18px] bg-neutral-100 md:mt-14">
           <Image
-            src={getBlogCoverImage(post.slug)}
+            src={coverFor(post.slug)}
             alt={post.title}
             fill
             priority
@@ -115,7 +119,7 @@ export default async function InsightPostPage({
                 <Link key={item.slug} href={`/insights/${item.slug}`} className="group block">
                   <div className="relative aspect-[16/10] overflow-hidden rounded-[16px] bg-neutral-200">
                     <Image
-                      src={getBlogCoverImage(item.slug)}
+                      src={coverFor(item.slug)}
                       alt={item.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
