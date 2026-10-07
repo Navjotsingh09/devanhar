@@ -13,7 +13,8 @@ import {
   padelGalleryImages,
   padelFaqs,
 } from "@/components/padel/padel-shared-data"
-import { PADEL_EVENT, PREVIOUS_PADEL_EVENT } from "@/components/padel/padel-event"
+import { PREVIOUS_PADEL_EVENT } from "@/components/padel/padel-event"
+import { getPublicPadelEvent } from "@/lib/padel-public-event"
 import Link from "next/link"
 
 export const metadata = {
@@ -22,13 +23,17 @@ export const metadata = {
     "The Sikh Padel Association brings the Sikh community together through padel. Register your team for the upcoming 6 September tournament.",
 }
 
-export default function SikhPadelAssociationPage() {
+export const dynamic = "force-dynamic"
+
+export default async function SikhPadelAssociationPage() {
+  const event = await getPublicPadelEvent()
+
   return (
     <>
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen">
-        <PadelHeroWithRegister />
+        <PadelHeroWithRegister event={event} />
 
         {/* Brand identity band */}
         <div className="w-full bg-[#0d2b1a] py-10 md:py-14 flex flex-col items-center gap-4">
@@ -60,27 +65,29 @@ export default function SikhPadelAssociationPage() {
               Upcoming event
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Tournament — {PADEL_EVENT.date}
+              {event.name}
             </h2>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               <p>
-                Our next showcase tournament takes place on {PADEL_EVENT.date}, from {PADEL_EVENT.time}.
+                Our next showcase tournament takes place on {event.date}, from {event.time}.
                 Teams of two compete across multiple rounds, with games, points and rankings
                 tracked on a live leaderboard throughout the day.
               </p>
-              <p className="font-bold text-foreground">Entry is £{PADEL_EVENT.feePerPerson} per person (£{PADEL_EVENT.teamFee} per pair).</p>
+              <p className="font-bold text-foreground">Entry is £{event.feePerPerson} per person (£{event.teamFee} per pair).</p>
               <p>
-                <strong className="text-foreground">{PADEL_EVENT.venue}</strong>, {PADEL_EVENT.address}. Spaces are limited, so register your team using the form above.
+                <strong className="text-foreground">{event.venue}</strong>, {event.address}. Spaces are limited, so register your team using the form above.
               </p>
             </div>
-            <a
-              href={PADEL_EVENT.mapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex text-sm font-semibold text-[hsl(43,100%,29%)] underline underline-offset-4"
-            >
-              Open venue address
-            </a>
+            {event.mapUrl ? (
+              <a
+                href={event.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex text-sm font-semibold text-[hsl(43,100%,29%)] underline underline-offset-4"
+              >
+                Open venue address
+              </a>
+            ) : null}
           </div>
         </section>
 
@@ -109,7 +116,7 @@ export default function SikhPadelAssociationPage() {
               Previous tournament
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {PREVIOUS_PADEL_EVENT.date} — {PREVIOUS_PADEL_EVENT.venue}
+              {PREVIOUS_event.date} — {PREVIOUS_event.venue}
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               Revisit the previous Sikh Padel Association tournament through the event photos and live results archive.
@@ -147,7 +154,7 @@ export default function SikhPadelAssociationPage() {
               </div>
               <div className="bg-[#0d2b1a] p-5 md:p-6">
                 <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">VENUE</p>
-                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_PADEL_EVENT.venueDetail}</p>
+                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_event.venueDetail}</p>
               </div>
               <div className="bg-[#0d2b1a] p-5 md:p-6">
                 <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">STATUS</p>
