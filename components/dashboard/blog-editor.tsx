@@ -1,9 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Eye, Save, Send, RotateCcw, Upload, ImageIcon, Trash2, Loader2 } from "lucide-react"
+import { ArrowLeft, Eye, Save, Send, RotateCcw, Upload, ImageIcon, Trash2, Loader2, Bold, Italic, Link2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +29,7 @@ function slugify(value: string) {
 
 export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const router = useRouter()
+  const contentRef = useRef<HTMLTextAreaElement>(null)
   const [preview, setPreview] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -58,6 +59,46 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const set = (key: keyof ManagedPost, value: any) => {
     setSaved(false)
     setForm((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const applyInlineFormat = (type: "bold" | "italic" | "link") => {
+    const textarea = contentRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart ?? 0
+    const end = textarea.selectionEnd ?? start
+    const selected = form.content.slice(start, end)
+
+    let replacement = selected
+    let cursorStart = start
+    let cursorEnd = end
+
+    if (type === "bold") {
+      const inner = selected || "bold text"
+      replacement = `**${inner}**`
+      cursorStart = start + 2
+      cursorEnd = cursorStart + inner.length
+    } else if (type === "italic") {
+      const inner = selected || "italic text"
+      replacement = `*${inner}*`
+      cursorStart = start + 1
+      cursorEnd = cursorStart + inner.length
+    } else {
+      const href = window.prompt("Enter the link URL", "https://")
+      if (!href) return
+      const inner = selected || "link text"
+      replacement = `[${inner}](${href})`
+      cursorStart = start + 1
+      cursorEnd = cursorStart + inner.length
+    }
+
+    const next = form.content.slice(0, start) + replacement + form.content.slice(end)
+    set("content", next)
+
+    requestAnimationFrame(() => {
+      textarea.focus()
+      textarea.setSelectionRange(cursorStart, cursorEnd)
+    })
   }
 
   const removeCover = async () => {
@@ -197,7 +238,29 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
             <CardContent className="space-y-5">
               <label className="block"><span className="mb-2 block text-sm font-medium">Title</span><input value={form.title} onChange={(e)=>{set("title",e.target.value); if(!initialPost) set("slug",slugify(e.target.value))}} placeholder="Enter your blog post title" className="h-11 w-full rounded-lg border border-input bg-background px-3 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15" /></label>
               <label className="block"><span className="mb-2 block text-sm font-medium">Excerpt</span><textarea value={form.description} onChange={(e)=>set("description",e.target.value)} rows={3} placeholder="Brief description shown on the blog listing" className="w-full rounded-lg border border-input bg-background px-3 py-3 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15" /></label>
-              <label className="block"><span className="mb-2 block text-sm font-medium">Content</span><textarea value={form.content} onChange={(e)=>set("content",e.target.value)} rows={20} placeholder={"Write the article here...\n\nUse ## for headings, ### for subheadings, - for bullet lists and > for quotes."} className="w-full rounded-lg border border-input bg-background px-3 py-3 font-mono text-sm leading-6 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15" /></label>
+              <div className="block">
+                <span className="mb-2 block text-sm font-medium">Content</span>
+                <div className="mb-2 flex flex-wrap items-center gap-1 rounded-lg border border-input bg-muted/30 p-1.5">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => applyInlineFormat("bold")} title="Bold selected text">
+                    <Bold className="mr-1.5 h-4 w-4" /> Bold
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => applyInlineFormat("italic")} title="Italicise selected text">
+                    <Italic className="mr-1.5 h-4 w-4" /> Italic
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => applyInlineFormat("link")} title="Add a hyperlink">
+                    <Link2 className="mr-1.5 h-4 w-4" /> Link
+                  </Button>
+                  <span className="ml-1 text-xs text-muted-foreground">Select text first, then choose a format.</span>
+                </div>
+                <textarea
+                  ref={contentRef}
+                  value={form.content}
+                  onChange={(e)=>set("content",e.target.value)}
+                  rows={20}
+                  placeholder={"Write the article here...\n\nUse the toolbar for bold, italic and links. Use ## for headings, ### for subheadings, - for bullet lists and > for quotes."}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-3 font-mono text-sm leading-6 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15"
+                />
+              </div>
             </CardContent>
           </Card>
 
