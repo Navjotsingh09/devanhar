@@ -25,6 +25,7 @@ const navLinks: NavLink[] = [
     ],
   },
   { label: "Events", href: "/events" },
+  { label: "Blog", href: "/insights" },
   { label: "Shop", href: "/shop" },
   { label: "Contact", href: "/contact" },
 ]
@@ -59,7 +60,9 @@ export function Navbar() {
     : "/logos/main-black-transparent.png"
 
   const isActive = (link: NavLink) =>
-    pathname === link.href || (link.children?.some((c) => pathname === c.href) ?? false)
+    pathname === link.href ||
+    pathname.startsWith(`${link.href}/`) ||
+    (link.children?.some((c) => pathname === c.href || pathname.startsWith(`${c.href}/`)) ?? false)
 
   return (
     <>
