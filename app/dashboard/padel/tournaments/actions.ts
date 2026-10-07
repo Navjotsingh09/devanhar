@@ -61,6 +61,24 @@ export async function createTournament(input: TournamentInput): Promise<ActionRe
     return { error: 'Name and event date are required' }
   }
 
+  if (input.is_public) {
+    if (!input.event_time?.trim() || !input.venue?.trim() || !input.address?.trim()) {
+      return { error: 'Time, venue and address are required before publishing to the website' }
+    }
+    if (!Number.isFinite(input.fee_per_person) || Number(input.fee_per_person) < 0) {
+      return { error: 'Enter a valid fee per player before publishing' }
+    }
+  }
+
+  if (input.is_public) {
+    if (!input.event_time?.trim() || !input.venue?.trim() || !input.address?.trim()) {
+      return { error: 'Time, venue and address are required before publishing to the website' }
+    }
+    if (!Number.isFinite(input.fee_per_person) || Number(input.fee_per_person) < 0) {
+      return { error: 'Enter a valid fee per player before publishing' }
+    }
+  }
+
   const stagesResult = validateStages(input.applicable_stages)
   if ('error' in stagesResult) return stagesResult
 
