@@ -19,7 +19,14 @@ function getSupabaseAdmin() {
 }
 
 function normalizePhone(phone: string): string {
-  return phone.replace(/[^0-9+]/g, '')
+  return phone.replace(/\D/g, '')
+}
+
+function isValidInternationalPhone(phone: string): boolean {
+  const trimmed = String(phone || '').trim()
+  if (!/^\+[1-9]\d{7,14}$/.test(trimmed)) return false
+  const digits = normalizePhone(trimmed)
+  return digits.length >= 8 && digits.length <= 15
 }
 
 export async function POST(request: NextRequest) {
@@ -41,8 +48,16 @@ export async function POST(request: NextRequest) {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(body.captain_email)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+    if (!emailRegex.test(String(body.captain_email).trim())) {
+      return NextResponse.json({ error: 'Enter a valid email address, including @ and a domain.' }, { status: 400 })
+    }
+
+    if (!isValidInternationalPhone(body.captain_phone)) {
+      return NextResponse.json({ error: 'Enter a valid captain mobile number with country code.' }, { status: 400 })
+    }
+
+    if (!isValidInternationalPhone(body.player2_phone)) {
+      return NextResponse.json({ error: 'Enter a valid partner mobile number with country code.' }, { status: 400 })
     }
 
     const supabase = getSupabaseAdmin()
