@@ -9,6 +9,10 @@ export type TournamentResultInput = {
   player_id: string
   partner_player_id: string | null
   notes?: string | null
+  match_wins?: number
+  matches_played?: number
+  group_points_scored?: number
+  group_points_conceded?: number
 }
 
 type ActionResult = { error: string } | { success: true }
@@ -123,6 +127,14 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
           finishing_position: r.finishing_position,
           points_awarded: getPointsForPosition(r.finishing_position),
           notes: r.notes || null,
+          source_result_id: `LIVE:${tournamentId}:${r.player_id}`,
+          source_tournament_code: `LIVE:${tournamentId}`,
+          match_wins: Math.max(0, Number(r.match_wins || 0)),
+          matches_played: Math.max(0, Number(r.matches_played || 0)),
+          group_points_scored: Math.max(0, Number(r.group_points_scored || 0)),
+          group_points_conceded: Math.max(0, Number(r.group_points_conceded || 0)),
+          group_point_difference: Number(r.group_points_scored || 0) - Number(r.group_points_conceded || 0),
+          group_total_points: Number(r.group_points_scored || 0) + Number(r.group_points_conceded || 0),
           updated_at: new Date().toISOString(),
         })),
         { onConflict: 'tournament_id,player_id' }
@@ -136,11 +148,12 @@ export async function saveTournamentResults(tournamentId: string, results: Tourn
     .eq('is_active', true)
   const { data: allResults } = await supabase
     .from('padel_tournament_results')
-    .select('player_id, points_awarded')
+    .select('player_id, points_awarded, source_result_id')
+    .not('source_result_id', 'is', null)
 
   const totalsByPlayer = new Map<string, number>()
   for (const row of allResults || []) {
-    totalsByPlayer.set(row.player_id, (totalsByPlayer.get(row.player_id) || 0) + row.points_awarded)
+    totalsByPlayer.set(row.player_id, (totalsByPlayer.get(row.player_id) || 0) + Number(row.points_awarded || 0))
   }
 
   for (const player of activePlayers || []) {
