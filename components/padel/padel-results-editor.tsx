@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -23,6 +24,10 @@ type ExistingResult = {
   partner_player_id: string | null
   points_awarded: number
   notes: string | null
+  match_wins?: number | null
+  matches_played?: number | null
+  group_points_scored?: number | null
+  group_points_conceded?: number | null
 }
 
 type RowState = {
@@ -31,6 +36,10 @@ type RowState = {
   player_id: string
   partner_player_id: string
   notes: string
+  match_wins: string
+  matches_played: string
+  group_points_scored: string
+  group_points_conceded: string
 }
 
 const NONE = '__none__'
@@ -42,6 +51,10 @@ function createRow(finishingPosition: string): RowState {
     player_id: '',
     partner_player_id: '',
     notes: '',
+    match_wins: '0',
+    matches_played: '0',
+    group_points_scored: '0',
+    group_points_conceded: '0',
   }
 }
 
@@ -54,6 +67,10 @@ function buildInitialRows(stages: string[], existing: ExistingResult[]): RowStat
       player_id: result.player_id,
       partner_player_id: result.partner_player_id || '',
       notes: result.notes || '',
+      match_wins: String(result.match_wins ?? 0),
+      matches_played: String(result.matches_played ?? 0),
+      group_points_scored: String(result.group_points_scored ?? 0),
+      group_points_conceded: String(result.group_points_conceded ?? 0),
     }))
 }
 
@@ -98,6 +115,10 @@ export function PadelResultsEditor({
           player_id: row.player_id,
           partner_player_id: row.partner_player_id || null,
           notes: row.notes || null,
+          match_wins: Number(row.match_wins || 0),
+          matches_played: Number(row.matches_played || 0),
+          group_points_scored: Number(row.group_points_scored || 0),
+          group_points_conceded: Number(row.group_points_conceded || 0),
         }))
       const result = await saveTournamentResults(tournamentId, results)
       if ('error' in result) {
@@ -140,7 +161,7 @@ export function PadelResultsEditor({
       <div className="rounded-lg border border-border p-4 space-y-3">
         <div>
           <h2 className="font-semibold">Bulk import teams</h2>
-          <p className="text-sm text-muted-foreground">Paste CSV or tab-separated rows: player name, partner name, finishing position.</p>
+          <p className="text-sm text-muted-foreground">Quick import still accepts player name, partner name and finishing position. After import, add match/group statistics before finalising the tournament.</p>
         </div>
         <textarea
           value={importText}
@@ -161,41 +182,63 @@ export function PadelResultsEditor({
               <span className="text-sm text-muted-foreground">{stage.points} pts per player</span>
             </div>
             {stageRows.map((row) => (
-              <div key={row.id} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
-                <div>
-                  <Label>Player</Label>
-                  <Select value={row.player_id || NONE} onValueChange={(value) => updateRow(row.id, { player_id: value === NONE ? '' : value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select player" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE}>None</SelectItem>
-                      {players.map((player) => (
-                        <SelectItem key={player.id} value={player.id}>{player.first_name} {player.last_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div key={row.id} className="rounded-lg border border-border/70 p-3 space-y-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
+                  <div>
+                    <Label>Player</Label>
+                    <Select value={row.player_id || NONE} onValueChange={(value) => updateRow(row.id, { player_id: value === NONE ? '' : value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select player" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NONE}>None</SelectItem>
+                        {players.map((player) => (
+                          <SelectItem key={player.id} value={player.id}>{player.first_name} {player.last_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Partner (optional, this event only)</Label>
+                    <Select value={row.partner_player_id || NONE} onValueChange={(value) => updateRow(row.id, { partner_player_id: value === NONE ? '' : value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select partner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NONE}>None</SelectItem>
+                        {players.filter((player) => player.id !== row.player_id).map((player) => (
+                          <SelectItem key={player.id} value={player.id}>{player.first_name} {player.last_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button type="button" variant="outline" className="self-end" onClick={() => removeRow(row.id)}>
+                    Remove
+                  </Button>
                 </div>
-                <div>
-                  <Label>Partner (optional, this event only)</Label>
-                  <Select value={row.partner_player_id || NONE} onValueChange={(value) => updateRow(row.id, { partner_player_id: value === NONE ? '' : value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select partner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={NONE}>None</SelectItem>
-                      {players.filter((player) => player.id !== row.player_id).map((player) => (
-                        <SelectItem key={player.id} value={player.id}>{player.first_name} {player.last_name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                  <div>
+                    <Label>Match wins</Label>
+                    <Input type="number" min="0" value={row.match_wins} onChange={(e) => updateRow(row.id, { match_wins: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Matches played</Label>
+                    <Input type="number" min="0" value={row.matches_played} onChange={(e) => updateRow(row.id, { matches_played: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Group points scored</Label>
+                    <Input type="number" min="0" value={row.group_points_scored} onChange={(e) => updateRow(row.id, { group_points_scored: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Group points conceded</Label>
+                    <Input type="number" min="0" value={row.group_points_conceded} onChange={(e) => updateRow(row.id, { group_points_conceded: e.target.value })} />
+                  </div>
                 </div>
-                <Button type="button" variant="outline" className="self-end" onClick={() => removeRow(row.id)}>
-                  Remove
-                </Button>
+
                 {row.player_id && (
-                  <p className="text-xs text-muted-foreground md:col-span-2">
-                    {playerName(row.player_id)}{row.partner_player_id && <> &amp; {playerName(row.partner_player_id)}</>}
+                  <p className="text-xs text-muted-foreground">
+                    {playerName(row.player_id)}{row.partner_player_id && <> &amp; {playerName(row.partner_player_id)}</>} · {stage.points} ranking points
                   </p>
                 )}
               </div>
