@@ -4,7 +4,7 @@ import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
 import { Trophy, ExternalLink } from "lucide-react"
 import { getPublicSupabaseClient } from "@/lib/supabase/public"
-import { computeRanksWithTies, getMovement } from "@/lib/padel-ranking"
+import { computeDenseLeaderboardRanks } from "@/lib/padel-ranking"
 import { PadelLeaderboardTable, type LeaderboardRow } from "@/components/padel/padel-leaderboard-table"
 import { PADEL_LIVE_SCORES_URL } from "@/components/padel/padel-event"
 
@@ -19,44 +19,60 @@ export const metadata = {
 async function getLeaderboardRows(): Promise<LeaderboardRow[]> {
   const supabase = getPublicSupabaseClient()
 
+  // Preferred v2 source: database view implements the spreadsheet rules exactly.
+  const { data: v2Rows, error: v2Error } = await supabase
+    .from("padel_leaderboard_v2")
+    .select("id, display_name, photo_url, ranking_points, titles, runner_up_finishes, match_wins, appearances, pending_finishes, win_percentage, matches_played, group_points_won_pct, rank")
+    .order("rank", { ascending: true })
+    .order("display_name", { ascending: true })
+
+  if (!v2Error && v2Rows) {
+    return v2Rows.map((row) => ({
+      id: row.id,
+      display_name: row.display_name,
+      photo_url: row.photo_url,
+      total_points: row.ranking_points,
+      ranking_points: row.ranking_points,
+      titles: row.titles,
+      runner_up_finishes: row.runner_up_finishes,
+      match_wins: row.match_wins,
+      appearances: row.appearances,
+      pending_finishes: row.pending_finishes,
+      win_percentage: Number(row.win_percentage || 0),
+      matches_played: row.matches_played,
+      group_points_won_pct: Number(row.group_points_won_pct || 0),
+      rank: row.rank,
+      movement: "same",
+    }))
+  }
+
+  // Backward-compatible fallback before the v2 migration is applied.
   const { data: players } = await supabase
     .from("padel_players")
     .select("id, first_name, last_name, photo_url, total_points")
     .eq("is_active", true)
 
-  const ranked = computeRanksWithTies(
+  const ranked = computeDenseLeaderboardRanks(
     (players || []).map((p) => ({
       id: p.id,
-      first_name: p.first_name,
-      last_name: p.last_name,
+      display_name: `${p.first_name} ${p.last_name}`.trim(),
       photo_url: p.photo_url,
-      total_points: p.total_points,
+      ranking_points: p.total_points,
+      titles: 0,
+      runner_up_finishes: 0,
+      match_wins: 0,
+      appearances: 0,
+      pending_finishes: 0,
+      win_percentage: 0,
+      matches_played: 0,
+      group_points_won_pct: 0,
     }))
   )
 
-  const { data: tournaments } = await supabase
-    .from("padel_tournaments")
-    .select("id, event_date")
-    .order("event_date", { ascending: false })
-
-  const { data: snapshots } = await supabase
-    .from("padel_ranking_snapshots")
-    .select("tournament_id, player_id, rank")
-
-  const snapshotTournamentIds = new Set((snapshots || []).map((s) => s.tournament_id))
-  const orderedSnapshotTournaments = (tournaments || []).filter((t) => snapshotTournamentIds.has(t.id))
-  const previousTournamentId = orderedSnapshotTournaments[1]?.id || null
-
-  const previousRankByPlayer = new Map<string, number>()
-  if (previousTournamentId) {
-    for (const s of snapshots || []) {
-      if (s.tournament_id === previousTournamentId) previousRankByPlayer.set(s.player_id, s.rank)
-    }
-  }
-
   return ranked.map((p) => ({
     ...p,
-    movement: getMovement(p.rank, previousRankByPlayer.get(p.id) ?? null),
+    total_points: p.ranking_points,
+    movement: "same",
   }))
 }
 
@@ -67,7 +83,7 @@ export default async function PadelLeaderboardPage() {
     <>
       <Navbar />
       <main className="min-h-screen pt-24">
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-20 max-w-4xl">
+        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-20 max-w-6xl">
           <div className="text-center mb-10">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(43,100%,29%)]/10">
               <Trophy className="h-8 w-8 text-[hsl(43,100%,29%)]" />
@@ -76,7 +92,7 @@ export default async function PadelLeaderboardPage() {
               Player leaderboard
             </h1>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-              Season-long individual player rankings, updated after every Sikh Padel Association tournament.
+              Rankings update automatically from tournament results using SPA&apos;s official points and tie-break rules.
             </p>
             {PADEL_LIVE_SCORES_URL && (
               <a
