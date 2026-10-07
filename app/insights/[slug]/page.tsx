@@ -5,10 +5,11 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { getPostBySlug, getAllSlugs, blogPosts } from "@/lib/blog"
+import { getAllSlugs } from "@/lib/blog"
 import { BlogContent } from "@/components/blog-content"
 import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
 import { getUploadedBlogCovers } from "@/lib/blog-images"
+import { getPublishedBlogPostBySlug, getPublishedBlogPosts } from "@/lib/blog-db"
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }))
@@ -20,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = getPostBySlug(slug)
+  const post = await getPublishedBlogPostBySlug(slug)
   if (!post) return { title: "Not Found - Devanhaar" }
   return {
     title: `${post.title} - Devanhaar Blog`,
@@ -42,15 +43,13 @@ export default async function InsightPostPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const post = getPostBySlug(slug)
+  const post = await getPublishedBlogPostBySlug(slug)
   if (!post) notFound()
 
-  const uploadedCovers = await getUploadedBlogCovers()
-  const coverFor = (postSlug: string) => uploadedCovers[postSlug] || getBlogCoverImage(postSlug)
+  const [uploadedCovers, publishedPosts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
+  const coverFor = (item: (typeof publishedPosts)[number]) => item.coverImage || uploadedCovers[item.slug] || getBlogCoverImage(item.slug)
 
-  const related = blogPosts
-    .filter((item) => item.slug !== post.slug)
-    .slice(0, 2)
+  const related = publishedPosts.filter((item) => item.slug !== post.slug).slice(0, 2)
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -79,7 +78,7 @@ export default async function InsightPostPage({
                 D
               </div>
               <div>
-                <div className="text-sm font-semibold">{blogAuthor.name}</div>
+                <div className="text-sm font-semibold">{post.author || blogAuthor.name}</div>
                 <div className="text-xs text-black/45">{blogAuthor.role}</div>
               </div>
             </div>
@@ -93,8 +92,8 @@ export default async function InsightPostPage({
 
         <div className="relative mt-10 aspect-[16/8.5] min-h-[320px] overflow-hidden rounded-[18px] bg-neutral-100 md:mt-14">
           <Image
-            src={coverFor(post.slug)}
-            alt={post.title}
+            src={coverFor(post)}
+            alt={post.coverAlt || post.title}
             fill
             priority
             sizes="(max-width: 1180px) 100vw, 1180px"
@@ -119,7 +118,7 @@ export default async function InsightPostPage({
                 <Link key={item.slug} href={`/insights/${item.slug}`} className="group block">
                   <div className="relative aspect-[16/10] overflow-hidden rounded-[16px] bg-neutral-200">
                     <Image
-                      src={coverFor(item.slug)}
+                      src={coverFor(item)}
                       alt={item.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
