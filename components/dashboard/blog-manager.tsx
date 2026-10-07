@@ -32,10 +32,6 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
   const drafts = posts.filter((p) => p.status === "draft").length
 
   const deletePost = async (post: BlogPost) => {
-    if (!post.persisted) {
-      toast.info("This is a legacy fallback article. Edit and save it first to move it into the CMS.")
-      return
-    }
     if (!window.confirm(`Permanently delete "${post.title}"?`)) return
 
     setDeleting(post.slug)
@@ -104,7 +100,6 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
               <div className="min-w-0">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <Badge variant={postStatus === "published" ? "default" : "secondary"} className={postStatus === "published" ? "bg-emerald-600" : ""}>{postStatus}</Badge>
-                  {!post.persisted && <Badge variant="outline">Legacy</Badge>}
                   <span className="text-xs text-muted-foreground">{post.author || "Devanhaar"}</span>
                 </div>
                 <h3 className="truncate font-semibold text-foreground">{post.title}</h3>
@@ -118,7 +113,7 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
               <div className="flex justify-end gap-1.5">
                 {postStatus === "published" && <Button size="icon" variant="ghost" asChild title="View"><Link href={`/insights/${post.slug}`} target="_blank"><Eye className="h-4 w-4" /></Link></Button>}
                 <Button size="icon" variant="ghost" asChild title="Edit"><Link href={`/dashboard/blog/${post.slug}/edit`}><Edit3 className="h-4 w-4" /></Link></Button>
-                <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive" disabled={deleting===post.slug || !post.persisted} onClick={()=>void deletePost(post)} title={post.persisted ? "Delete" : "Save legacy post first"}>
+                <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive" disabled={deleting===post.slug} onClick={()=>void deletePost(post)} title="Delete">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -128,7 +123,6 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
         {filtered.length===0 && <div className="px-5 py-14 text-center text-sm text-muted-foreground">No posts match your filters.</div>}
       </div>
 
-      <p className="text-xs text-muted-foreground">Posts marked Legacy are the original site articles. Opening one and saving it moves it into the Supabase CMS.</p>
     </div>
   )
 }
