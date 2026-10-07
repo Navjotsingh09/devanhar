@@ -103,17 +103,17 @@ export default async function SikhPadelAssociationPage() {
           <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-2">
-                Previous tournaments
+                Player rankings
               </p>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                Explore previous Sikh Padel Association events, photos and recorded results
+                See where every player stands
               </h2>
             </div>
             <Link
-              href="/initiatives/sikh-padel-association/tournaments"
+              href="/initiatives/sikh-padel-association/leaderboard"
               className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
             >
-              Explore the archive
+              View player leaderboard
             </Link>
           </div>
         </section>
