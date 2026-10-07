@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Search, Plus, Eye, Edit3, Trash2, Calendar, Clock, FileText, CheckCircle2, PencilLine } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,6 +14,23 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<"all" | "published" | "draft">("all")
   const [deleting, setDeleting] = useState<string | null>(null)
+
+  useEffect(() => {
+    const cleanupLegacyRows = async () => {
+      try {
+        const res = await fetch("/api/blog/legacy-cleanup", { method: "DELETE" })
+        if (!res.ok) return
+        const data = await res.json()
+        if (Array.isArray(data.deletedSlugs) && data.deletedSlugs.length > 0) {
+          const deleted = new Set<string>(data.deletedSlugs)
+          setPosts((prev) => prev.filter((post) => !deleted.has(post.slug)))
+        }
+      } catch {
+        // Cleanup is best-effort; normal CMS operations remain available.
+      }
+    }
+    void cleanupLegacyRows()
+  }, [])
 
   const filtered = useMemo(() => {
     return posts.filter((post) => {

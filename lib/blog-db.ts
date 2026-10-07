@@ -1,6 +1,17 @@
 import { createClient } from "@/lib/supabase/server"
-import { blogPosts, type BlogPost, type Pillar } from "@/lib/blog"
+import { type BlogPost, type Pillar } from "@/lib/blog"
 
+
+const DELETED_LEGACY_SLUGS = new Set([
+  "sikhi-vidyala-launches-new-curriculum",
+  "over-1000-hours-of-workshops-delivered",
+  "university-talks-programme-expands",
+  "mentorship-programme-connects-generations",
+  "singhs-camp-2026-registrations-open",
+  "400-youth-empowered-through-devanhaar",
+  "50-events-annually-building-sangat",
+  "devanhaar-community-network-launches",
+])
 
 type BlogRow = {
   id: string
@@ -51,7 +62,7 @@ export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
     .order("created_at", { ascending: false })
 
   if (error || !data) return []
-  return (data as BlogRow[]).map(mapRow)
+  return (data as BlogRow[]).map(mapRow).filter((post) => !DELETED_LEGACY_SLUGS.has(post.slug))
 }
 
 export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
@@ -61,11 +72,10 @@ export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
     .select("*")
     .order("updated_at", { ascending: false })
 
-  return !error && data ? (data as BlogRow[]).map(mapRow) : []
+  return !error && data ? (data as BlogRow[]).map(mapRow).filter((post) => !DELETED_LEGACY_SLUGS.has(post.slug)) : []
 }
 
 export async function getDashboardBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-  await ensureLegacyBlogPostsMigrated()
   const supabase = await createClient()
   const { data } = await supabase
     .from("blog_posts")
@@ -73,7 +83,7 @@ export async function getDashboardBlogPostBySlug(slug: string): Promise<BlogPost
     .eq("slug", slug)
     .maybeSingle()
 
-  return data ? mapRow(data as BlogRow) : undefined
+  return data && !DELETED_LEGACY_SLUGS.has(slug) ? mapRow(data as BlogRow) : undefined
 }
 
 export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
@@ -85,5 +95,5 @@ export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost
     .eq("status", "published")
     .maybeSingle()
 
-  return data ? mapRow(data as BlogRow) : undefined
+  return data && !DELETED_LEGACY_SLUGS.has(slug) ? mapRow(data as BlogRow) : undefined
 }
