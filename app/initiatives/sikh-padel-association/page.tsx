@@ -116,7 +116,7 @@ export default async function SikhPadelAssociationPage() {
               Previous tournament
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              {PREVIOUS_event.date} — {PREVIOUS_event.venue}
+              {PREVIOUS_PADEL_EVENT.date} — {PREVIOUS_PADEL_EVENT.venue}
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
               Revisit the previous Sikh Padel Association tournament through the event photos and live results archive.
@@ -154,7 +154,7 @@ export default async function SikhPadelAssociationPage() {
               </div>
               <div className="bg-[#0d2b1a] p-5 md:p-6">
                 <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">VENUE</p>
-                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_event.venueDetail}</p>
+                <p className="mt-3 text-lg font-bold text-white">{PREVIOUS_PADEL_EVENT.venueDetail}</p>
               </div>
               <div className="bg-[#0d2b1a] p-5 md:p-6">
                 <p className="font-mono text-[10px] tracking-[0.2em] text-[#d6c7a4]/70">STATUS</p>
