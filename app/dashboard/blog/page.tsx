@@ -1,6 +1,7 @@
-import { blogPosts } from "@/lib/blog"
 import { BlogManager } from "@/components/dashboard/blog-manager"
+import { getDashboardBlogPosts } from "@/lib/blog-db"
 
-export default function DashboardBlogPage() {
-  return <BlogManager initialPosts={blogPosts.map((post) => ({ ...post, author: "Devanhaar", tags: [post.pillar], status: "published" as const }))} />
+export default async function DashboardBlogPage() {
+  const posts = await getDashboardBlogPosts()
+  return <BlogManager initialPosts={posts} />
 }
