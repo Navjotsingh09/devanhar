@@ -4,9 +4,9 @@ import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { blogPosts } from "@/lib/blog"
 import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
 import { getUploadedBlogCovers } from "@/lib/blog-images"
+import { getPublishedBlogPosts } from "@/lib/blog-db"
 
 export const metadata: Metadata = {
   title: "Blog - Devanhaar",
@@ -23,9 +23,9 @@ function formatDate(date: string) {
 }
 
 export default async function InsightsPage() {
-  const uploadedCovers = await getUploadedBlogCovers()
-  const coverFor = (slug: string) => uploadedCovers[slug] || getBlogCoverImage(slug)
-  const [heroPost, ...morePosts] = blogPosts
+  const [uploadedCovers, posts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
+  const coverFor = (post: (typeof posts)[number]) => post.coverImage || uploadedCovers[post.slug] || getBlogCoverImage(post.slug)
+  const [heroPost, ...morePosts] = posts
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -46,7 +46,7 @@ export default async function InsightsPage() {
             <Link href={`/insights/${heroPost.slug}`} className="group block">
               <div className="relative aspect-[16/8.5] min-h-[300px] overflow-hidden rounded-[18px] bg-neutral-100">
                 <Image
-                  src={coverFor(heroPost.slug)}
+                  src={coverFor(heroPost)}
                   alt={heroPost.title}
                   fill
                   priority
@@ -75,7 +75,7 @@ export default async function InsightsPage() {
                     D
                   </div>
                   <div>
-                    <div className="text-sm font-semibold">{blogAuthor.name}</div>
+                    <div className="text-sm font-semibold">{heroPost.author || blogAuthor.name}</div>
                     <div className="text-xs text-black/45">{heroPost.readTime} read</div>
                   </div>
                 </div>
@@ -96,7 +96,7 @@ export default async function InsightsPage() {
                 <Link href={`/insights/${post.slug}`} className="block">
                   <div className="relative aspect-[16/10] overflow-hidden rounded-[16px] bg-neutral-100">
                     <Image
-                      src={coverFor(post.slug)}
+                      src={coverFor(post)}
                       alt={post.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -122,7 +122,7 @@ export default async function InsightsPage() {
                   </p>
                   <div className="mt-5 flex items-center gap-2.5 text-sm font-semibold">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-[11px] text-white">D</div>
-                    <span>{blogAuthor.name}</span>
+                    <span>{post.author || blogAuthor.name}</span>
                   </div>
                 </div>
               </article>
