@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { blogPosts, type BlogPost, type Pillar } from "@/lib/blog"
+import { type BlogPost, type Pillar } from "@/lib/blog"
 
 
 type BlogRow = {
@@ -65,7 +65,6 @@ export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getDashboardBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-  await ensureLegacyBlogPostsMigrated()
   const supabase = await createClient()
   const { data } = await supabase
     .from("blog_posts")
