@@ -105,6 +105,12 @@ function mapRow(row: BlogRow): BlogPost {
 }
 
 export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
+  try {
+    await ensureLegacyBlogPostsMigrated()
+  } catch (error) {
+    console.error("[blog] legacy migration failed during public read:", error)
+  }
+
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("blog_posts")
@@ -118,6 +124,7 @@ export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
+  await ensureLegacyBlogPostsMigrated()
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("blog_posts")
@@ -128,6 +135,7 @@ export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function getDashboardBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
+  await ensureLegacyBlogPostsMigrated()
   const supabase = await createClient()
   const { data } = await supabase
     .from("blog_posts")
