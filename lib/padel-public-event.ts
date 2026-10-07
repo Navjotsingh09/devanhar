@@ -14,6 +14,7 @@ export type PublicPadelEvent = {
   teamFee: number
   description?: string
   registrationOpen: boolean
+  detailsComplete: boolean
 }
 
 function formatDate(value: string) {
@@ -56,6 +57,7 @@ export async function getPublicPadelEvent(): Promise<PublicPadelEvent> {
         teamFee: fee * 2,
         description: data.public_description || undefined,
         registrationOpen: data.registration_open !== false && hasCompletePublicDetails,
+        detailsComplete: hasCompletePublicDetails,
       }
     }
   } catch {
@@ -72,5 +74,6 @@ export async function getPublicPadelEvent(): Promise<PublicPadelEvent> {
     feePerPerson: PADEL_EVENT.feePerPerson,
     teamFee: PADEL_EVENT.teamFee,
     registrationOpen: true,
+    detailsComplete: true,
   }
 }
