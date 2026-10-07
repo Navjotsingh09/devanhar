@@ -95,6 +95,7 @@ export default async function InsightPostPage({
             src={coverFor(post)}
             alt={post.coverAlt || post.title}
             fill
+            unoptimized
             priority
             sizes="(max-width: 1180px) 100vw, 1180px"
             className="object-cover"
@@ -121,6 +122,7 @@ export default async function InsightPostPage({
                       src={coverFor(item)}
                       alt={item.title}
                       fill
+                      unoptimized
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
                     />
