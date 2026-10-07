@@ -1,19 +1,13 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Clock } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { ScrollAnimations } from "@/components/scroll-animations"
-import { getPostBySlug, getAllSlugs, blogPosts, type Pillar } from "@/lib/blog"
+import { getPostBySlug, getAllSlugs, blogPosts } from "@/lib/blog"
 import { BlogContent } from "@/components/blog-content"
-
-const pillarColors: Record<Pillar, string> = {
-  Develop: "bg-blue-50 text-blue-700 border-blue-200",
-  Elevate: "bg-purple-50 text-purple-700 border-purple-200",
-  Empower: "bg-amber-50 text-amber-700 border-amber-200",
-  Connect: "bg-emerald-50 text-emerald-700 border-emerald-200",
-}
+import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }))
@@ -28,9 +22,17 @@ export async function generateMetadata({
   const post = getPostBySlug(slug)
   if (!post) return { title: "Not Found - Devanhaar" }
   return {
-    title: `${post.title} - Devanhaar Insights`,
+    title: `${post.title} - Devanhaar Blog`,
     description: post.description,
   }
+}
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
 }
 
 export default async function InsightPostPage({
@@ -43,86 +45,85 @@ export default async function InsightPostPage({
   if (!post) notFound()
 
   const related = blogPosts
-    .filter((p) => p.pillar === post.pillar && p.slug !== post.slug)
-    .slice(0, 3)
+    .filter((item) => item.slug !== post.slug)
+    .slice(0, 2)
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <ScrollAnimations />
+    <main className="min-h-screen bg-white text-black">
       <Navbar />
 
-      <article className="pt-32 pb-16">
-        <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
-          <Link
-            href="/insights"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            All Insights
-          </Link>
+      <article className="mx-auto w-full max-w-[1180px] px-5 pb-24 pt-32 md:px-8 md:pb-32 md:pt-40">
+        <Link
+          href="/insights"
+          className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-black/55 transition-colors hover:text-black"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          All Blog
+        </Link>
 
-          <div className="mb-6">
-            <span
-              className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${pillarColors[post.pillar]}`}
-            >
-              {post.pillar}
-            </span>
+        <header>
+          <div className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-black/45">
+            {post.pillar}
           </div>
-
-          <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
+          <h1 className="max-w-[1050px] text-[clamp(3.2rem,8vw,7.75rem)] font-semibold leading-[0.9] tracking-[-0.065em]">
             {post.title}
           </h1>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-10">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              {new Date(post.date).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              {post.readTime} read
-            </span>
+          <div className="mt-10 flex flex-col gap-5 border-t border-black/10 pt-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-xs font-semibold text-white">
+                D
+              </div>
+              <div>
+                <div className="text-sm font-semibold">{blogAuthor.name}</div>
+                <div className="text-xs text-black/45">{blogAuthor.role}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-black/50">
+              <span>{formatDate(post.date)}</span>
+              <span className="text-black/20">/</span>
+              <span>{post.readTime} read</span>
+            </div>
           </div>
+        </header>
 
-          <p className="text-lg text-muted-foreground mb-10 leading-relaxed border-l-4 border-primary pl-4">
+        <div className="relative mt-10 aspect-[16/8.5] min-h-[320px] overflow-hidden rounded-[18px] bg-neutral-100 md:mt-14">
+          <Image
+            src={getBlogCoverImage(post.slug)}
+            alt={post.title}
+            fill
+            priority
+            sizes="(max-width: 1180px) 100vw, 1180px"
+            className="object-cover"
+          />
+        </div>
+
+        <div className="mx-auto mt-12 max-w-[760px] md:mt-16">
+          <p className="mb-12 text-2xl leading-[1.45] tracking-[-0.02em] text-black/70 md:text-3xl">
             {post.description}
           </p>
-
           <BlogContent content={post.content} />
         </div>
       </article>
 
       {related.length > 0 && (
-        <section className="py-16 border-t border-border">
-          <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
-            <h2 className="text-2xl font-bold text-foreground mb-8">
-              More from {post.pillar}
-            </h2>
-            <div className="grid gap-4">
-              {related.map((r) => (
-                <Link
-                  key={r.slug}
-                  href={`/insights/${r.slug}`}
-                  className="group flex items-center justify-between rounded-xl border border-border p-5 hover:border-primary/30 transition-colors"
-                >
-                  <div>
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {r.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {r.readTime} &middot;{" "}
-                      {new Date(r.date).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
+        <section className="border-t border-black/10 bg-[#f7f7f5]">
+          <div className="mx-auto max-w-[1180px] px-5 py-20 md:px-8 md:py-28">
+            <h2 className="mb-10 text-5xl font-semibold tracking-[-0.055em] md:text-7xl">More Posts</h2>
+            <div className="grid gap-12 md:grid-cols-2">
+              {related.map((item) => (
+                <Link key={item.slug} href={`/insights/${item.slug}`} className="group block">
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-[16px] bg-neutral-200">
+                    <Image
+                      src={getBlogCoverImage(item.slug)}
+                      alt={item.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
+                    />
                   </div>
-                  <ArrowLeft className="h-4 w-4 rotate-180 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <div className="mt-5 text-xs font-semibold uppercase tracking-[0.16em] text-black/40">{item.pillar}</div>
+                  <h3 className="mt-2 text-3xl font-medium leading-[1.08] tracking-[-0.04em] group-hover:underline">{item.title}</h3>
                 </Link>
               ))}
             </div>
