@@ -91,9 +91,9 @@ const navLinks: NavLink[] = [
     ],
   },
   { label: "Events", href: "/events" },
-  { label: "Blog", href: "/insights" },
   { label: "Shop", href: "/shop" },
   { label: "Contact", href: "/contact" },
+  { label: "Blog", href: "/insights" },
 ]
 
 export function Navbar() {
