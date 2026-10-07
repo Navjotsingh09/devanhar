@@ -20,7 +20,6 @@ type ManagedPost = BlogPost & {
   coverAlt?: string
 }
 
-const STORAGE_KEY = "devanhaar-blog-preview-posts"
 const pillars: Pillar[] = ["Develop", "Elevate", "Empower", "Connect"]
 const MAX_IMAGE_SIZE = 4 * 1024 * 1024
 
@@ -33,6 +32,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const [preview, setPreview] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [dragOver, setDragOver] = useState(false)
 
   const [form, setForm] = useState<ManagedPost>(initialPost ?? {
@@ -96,15 +96,37 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
     }
   }
 
-  const persist = (status: "draft" | "published") => {
+  const persist = async (status: "draft" | "published") => {
     const finalSlug = form.slug || slugify(form.title)
-    const next: ManagedPost = { ...form, slug: finalSlug, status, tags: form.tags ?? [] }
-    const existing = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "[]") as ManagedPost[]
-    const without = existing.filter((p) => p.slug !== (initialPost?.slug ?? finalSlug))
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([next, ...without]))
-    setForm(next)
-    setSaved(true)
-    setTimeout(() => router.push("/dashboard/blog"), 350)
+    if (!finalSlug || !form.title.trim()) {
+      toast.error("Add a title before saving.")
+      return
+    }
+
+    setSaving(true)
+    try {
+      const next: ManagedPost = { ...form, slug: finalSlug, status, tags: form.tags ?? [] }
+      const res = await fetch("/api/blog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...next,
+          originalSlug: initialPost?.slug,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Save failed")
+
+      setForm({ ...next, persisted: true })
+      setSaved(true)
+      toast.success(status === "published" ? "Post published" : "Draft saved")
+      router.push("/dashboard/blog")
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save post")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -121,14 +143,14 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
           <Button variant="outline" onClick={() => setPreview((v) => !v)}>
             <Eye className="mr-2 h-4 w-4" />{preview ? "Back to editor" : "Preview"}
           </Button>
-          <Button variant="outline" onClick={() => persist("draft")}><Save className="mr-2 h-4 w-4" />Save draft</Button>
-          <Button className="bg-amber-500 text-black hover:bg-amber-400" onClick={() => persist("published")} disabled={!form.title.trim() || !form.content.trim()}>
+          <Button variant="outline" onClick={() => void persist("draft")} disabled={saving || uploading}>{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save draft</Button>
+          <Button className="bg-amber-500 text-black hover:bg-amber-400" onClick={() => void persist("published")} disabled={saving || uploading || !form.title.trim() || !form.content.trim()}>
             <Send className="mr-2 h-4 w-4" />Publish
           </Button>
         </div>
       </div>
 
-      {saved && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Saved to the staging blog workspace.</div>}
+      {saved && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Saved to Supabase successfully.</div>}
 
       {preview ? (
         <Card>
