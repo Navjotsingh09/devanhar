@@ -3,16 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 import { sendPadelRegistrationOwnerNotification } from '@/lib/padel-registration-emails'
 import { sendPadelPaymentPendingEmail, sendPadelRegistrationReceivedEmail } from '@/lib/padel-registration-emails'
 import { signPadelResumeToken } from '@/lib/padel-resume-token'
-import { PADEL_EVENT } from '@/components/padel/padel-event'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
-// Entry fee is per player; a team has two players. Override per-player amount via STRIPE_PADEL_FEE_PER_PERSON_GBP.
-const padelFeePerPersonGbp = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || '50')
+const DEFAULT_PADEL_FEE_PER_PERSON_GBP = Number(process.env.STRIPE_PADEL_FEE_PER_PERSON_GBP || '50')
 const PADEL_PLAYERS_PER_TEAM = 2
-const eventName = process.env.PADEL_EVENT_NAME || PADEL_EVENT.name
 
 function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceKey) {
@@ -55,6 +52,23 @@ export async function POST(request: NextRequest) {
       .eq('slug', body.initiative_slug || 'sikh-padel-association')
       .maybeSingle()
 
+    let eventName = process.env.PADEL_EVENT_NAME || 'Sikh Padel Association tournament'
+    let feePerPersonGbp = DEFAULT_PADEL_FEE_PER_PERSON_GBP
+
+    if (body.tournament_id) {
+      const { data: tournament } = await supabase
+        .from('padel_tournaments')
+        .select('name, fee_per_person, is_public, registration_open')
+        .eq('id', body.tournament_id)
+        .maybeSingle()
+
+      if (tournament?.name) eventName = tournament.name
+      if (tournament?.fee_per_person != null) feePerPersonGbp = Number(tournament.fee_per_person)
+      if (tournament && tournament.registration_open === false) {
+        return NextResponse.json({ error: 'Registration for this tournament is closed.' }, { status: 409 })
+      }
+    }
+
     const phoneNormalized = normalizePhone(body.captain_phone)
     if (phoneNormalized.length >= 7) {
       try {
@@ -80,7 +94,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const entryFeePence = padelFeePerPersonGbp * PADEL_PLAYERS_PER_TEAM * 100
+    const entryFeePence = Math.round(feePerPersonGbp * PADEL_PLAYERS_PER_TEAM * 100)
     const teamLabel = `${String(body.captain_first_name).trim()} & ${String(body.player2_first_name).trim()}`
 
     const payload: Record<string, unknown> = {

@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { CheckCircle2, Loader2, X } from "lucide-react"
-import { PADEL_EVENT } from "@/components/padel/padel-event"
+import type { PublicPadelEvent } from "@/lib/padel-public-event"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const NAME_REGEX = /^[a-zA-Z\s'\-]{2,50}$/
@@ -27,11 +27,13 @@ const GENDER_OPTIONS = [
 
 interface PadelRegistrationFormProps {
   initiativeSlug?: string
+  event: PublicPadelEvent
   onClose: () => void
 }
 
 export function PadelRegistrationForm({
   initiativeSlug = "sikh-padel-association",
+  event,
   onClose,
 }: PadelRegistrationFormProps) {
   const [submitting, setSubmitting] = useState(false)
@@ -121,7 +123,7 @@ export function PadelRegistrationForm({
       const res = await fetch("/api/padel-registrations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, initiative_slug: initiativeSlug }),
+        body: JSON.stringify({ ...form, initiative_slug: initiativeSlug, tournament_id: event.id || null }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -173,7 +175,7 @@ export function PadelRegistrationForm({
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Register your pair</h2>
             <p className="mt-3 text-sm md:text-base text-muted-foreground">
               Padel is played in pairs. Complete your details and your partner&apos;s name below.
-              The {PADEL_EVENT.date} tournament takes place from {PADEL_EVENT.time} at {PADEL_EVENT.venue}, {PADEL_EVENT.address}. The entry fee is £{PADEL_EVENT.feePerPerson} per player (£{PADEL_EVENT.teamFee} per pair). Payment is processed securely via our donation manager.
+              The {event.date} tournament takes place from {event.time} at {event.venue}, {event.address}. The entry fee is £{event.feePerPerson} per player (£{event.teamFee} per pair). Payment is processed securely via our donation manager.
             </p>
           </div>
           <button
