@@ -59,11 +59,14 @@ export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
     .order("published_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
 
-  if (error || !data || data.length === 0) {
+  if (error || !data) {
     return blogPosts.map(legacyPost)
   }
 
-  return (data as BlogRow[]).map(mapRow)
+  const dbPosts = (data as BlogRow[]).map(mapRow)
+  const dbSlugs = new Set(dbPosts.map((post) => post.slug))
+  const legacy = blogPosts.filter((post) => !dbSlugs.has(post.slug)).map(legacyPost)
+  return [...dbPosts, ...legacy]
 }
 
 export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
