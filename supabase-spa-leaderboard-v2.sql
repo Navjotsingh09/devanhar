@@ -13,6 +13,11 @@ create unique index if not exists padel_players_canonical_player_key_key
   where canonical_player_key is not null;
 
 alter table public.padel_tournament_results
+  alter column tournament_id drop not null,
+  alter column finishing_position drop not null,
+  alter column points_awarded drop not null;
+
+alter table public.padel_tournament_results
   add column if not exists source_result_id text,
   add column if not exists source_tournament_code text,
   add column if not exists source_player_name text,
