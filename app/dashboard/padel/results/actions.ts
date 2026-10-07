@@ -23,11 +23,14 @@ export type BulkTournamentResultInput = {
   finishing_position: string
 }
 
-function playerKey(playerName: string, partnerName: string) {
-  return playerName.trim().toLocaleLowerCase() + '|' + partnerName.trim().toLocaleLowerCase()
+function normalizePlayerName(value: string) {
+  return value.trim().toLocaleLowerCase().replace(/\s+/g, ' ')
 }
 
-export async function importTournamentResults(tournamentId: string, rows: BulkTournamentResultInput[]): Promise<ActionResult & { importedPlayers?: number; importedResults?: number }> {
+export async function importTournamentResults(
+  tournamentId: string,
+  rows: BulkTournamentResultInput[]
+): Promise<ActionResult & { importedPlayers?: number; importedResults?: number }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user == null) return { error: 'Unauthorized' }
@@ -37,39 +40,105 @@ export async function importTournamentResults(tournamentId: string, rows: BulkTo
     if (row.player_name.trim() === '' || row.partner_name.trim() === '') {
       return { error: 'Every imported team needs both player names' }
     }
-    if (row.player_name.trim().toLocaleLowerCase() === row.partner_name.trim().toLocaleLowerCase()) {
+    if (normalizePlayerName(row.player_name) === normalizePlayerName(row.partner_name)) {
       return { error: 'A team cannot contain the same player twice' }
     }
-  }
-
-  const playerIdByKey = new Map<string, string>()
-  const missingPlayers = new Map<string, { first_name: string; last_name: string }>()
-
-  for (const row of rows) {
-    missingPlayers.set(playerKey(row.player_name, row.partner_name), { first_name: row.player_name.trim(), last_name: '' })
-    missingPlayers.set(playerKey(row.partner_name, row.player_name), { first_name: row.partner_name.trim(), last_name: '' })
-  }
-
-  if (missingPlayers.size > 0) {
-    const { data: createdPlayers, error: createError } = await supabase.from('padel_players').insert([...missingPlayers.values()]).select('id, first_name, last_name')
-    if (createError) return { error: createError.message }
-    for (const [index, [key]] of [...missingPlayers.entries()].entries()) {
-      const player = createdPlayers?.[index]
-      if (player) playerIdByKey.set(key, player.id)
+    if (getPointsForPosition(row.finishing_position) === 0) {
+      return { error: `Unknown finishing position: ${row.finishing_position}` }
     }
   }
 
-  const results: TournamentResultInput[] = rows.flatMap((row) => {
-    const playerId = playerIdByKey.get(playerKey(row.player_name, row.partner_name))
-    const partnerId = playerIdByKey.get(playerKey(row.partner_name, row.player_name))
-    if (playerId === undefined || partnerId === undefined) return []
-    return [{ finishing_position: row.finishing_position, player_id: playerId, partner_player_id: partnerId }, { finishing_position: row.finishing_position, player_id: partnerId, partner_player_id: playerId }]
-  })
-  if (results.length !== rows.length * 2) return { error: 'Could not resolve every imported player' }
+  const { data: players, error: playersError } = await supabase
+    .from('padel_players')
+    .select('id, first_name, last_name, display_name, canonical_player_key')
+    .eq('is_active', true)
+  if (playersError) return { error: playersError.message }
+
+  const { data: aliases, error: aliasesError } = await supabase
+    .from('padel_player_aliases')
+    .select('player_id, alias_normalized')
+  if (aliasesError) return { error: aliasesError.message }
+
+  const exact = new Map<string, string[]>()
+  for (const player of players || []) {
+    const display = player.display_name || `${player.first_name} ${player.last_name}`.trim()
+    const key = normalizePlayerName(display)
+    const ids = exact.get(key) || []
+    ids.push(player.id)
+    exact.set(key, ids)
+  }
+
+  const aliasMap = new Map<string, string[]>()
+  for (const alias of aliases || []) {
+    const ids = aliasMap.get(alias.alias_normalized) || []
+    ids.push(alias.player_id)
+    aliasMap.set(alias.alias_normalized, ids)
+  }
+
+  let importedPlayers = 0
+
+  async function resolvePlayer(name: string): Promise<{ id?: string; error?: string }> {
+    const normalized = normalizePlayerName(name)
+    const exactIds = exact.get(normalized) || []
+    if (exactIds.length === 1) return { id: exactIds[0] }
+    if (exactIds.length > 1) {
+      return { error: `"${name}" matches more than one existing player. Select the correct player manually; this name will not be auto-merged.` }
+    }
+
+    const aliasIds = aliasMap.get(normalized) || []
+    if (aliasIds.length === 1) return { id: aliasIds[0] }
+    if (aliasIds.length > 1) {
+      return { error: `"${name}" is an ambiguous alias. Select the player manually.` }
+    }
+
+    const { data: created, error } = await supabase
+      .from('padel_players')
+      .insert({
+        first_name: name.trim(),
+        last_name: '',
+        display_name: name.trim(),
+        identity_status: 'Name as supplied',
+        is_active: true,
+      })
+      .select('id')
+      .single()
+
+    if (error || !created) return { error: error?.message || `Could not create player "${name}"` }
+
+    importedPlayers += 1
+    const ids = exact.get(normalized) || []
+    ids.push(created.id)
+    exact.set(normalized, ids)
+    return { id: created.id }
+  }
+
+  const results: TournamentResultInput[] = []
+  for (const row of rows) {
+    const player = await resolvePlayer(row.player_name)
+    if (player.error || !player.id) return { error: player.error || 'Could not resolve player' }
+
+    const partner = await resolvePlayer(row.partner_name)
+    if (partner.error || !partner.id) return { error: partner.error || 'Could not resolve partner' }
+
+    if (player.id === partner.id) return { error: 'A team cannot contain the same player twice' }
+
+    results.push(
+      {
+        finishing_position: row.finishing_position,
+        player_id: player.id,
+        partner_player_id: partner.id,
+      },
+      {
+        finishing_position: row.finishing_position,
+        player_id: partner.id,
+        partner_player_id: player.id,
+      }
+    )
+  }
 
   const result = await saveTournamentResults(tournamentId, results)
   if ('error' in result) return result
-  return { success: true, importedPlayers: missingPlayers.size, importedResults: results.length }
+  return { success: true, importedPlayers, importedResults: results.length }
 }
 
 export async function saveTournamentResults(tournamentId: string, results: TournamentResultInput[]): Promise<ActionResult> {
