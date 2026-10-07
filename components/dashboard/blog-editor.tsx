@@ -183,7 +183,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
                 >
                   {uploading ? <Loader2 className="mx-auto h-6 w-6 animate-spin text-amber-600" /> : <Upload className="mx-auto h-6 w-6 text-muted-foreground" />}
                   <p className="mt-2 text-sm font-medium">{uploading ? "Uploading..." : currentCover ? "Replace image" : "Upload cover image"}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Drag & drop or click to browse · JPG, PNG, WebP · max 4 MB</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Recommended 1600 × 850 px · landscape · JPG, PNG or WebP · max 4 MB</p>
                   <input
                     id="blog-cover-upload"
                     type="file"
