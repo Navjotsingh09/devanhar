@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { createClient as createAdminClient } from "@supabase/supabase-js"
 
@@ -28,12 +29,37 @@ export async function DELETE(
       .eq("id", user.id)
       .maybeSingle()
 
-    if (!profile || !["admin", "super_admin"].includes(profile.role)) {
-      return NextResponse.json({ error: "Only admins can permanently delete posts" }, { status: 403 })
+    const allowed = !profile || ["staff", "admin", "super_admin"].includes(profile.role)
+    if (!allowed) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+
+    const { data: images } = await admin
+      .from("site_images")
+      .select("storage_path")
+      .eq("section", "blog")
+      .eq("category", slug)
+
+    const storagePaths = (images || [])
+      .map((image) => image.storage_path)
+      .filter((value): value is string => Boolean(value))
+
+    if (storagePaths.length > 0) {
+      await admin.storage.from("site-images").remove(storagePaths)
+    }
+
+    await admin
+      .from("site_images")
+      .delete()
+      .eq("section", "blog")
+      .eq("category", slug)
 
     const { error } = await admin.from("blog_posts").delete().eq("slug", slug)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    revalidatePath("/insights")
+    revalidatePath(`/insights/${slug}`)
+    revalidatePath("/dashboard/blog")
 
     return NextResponse.json({ success: true })
   } catch (error) {
