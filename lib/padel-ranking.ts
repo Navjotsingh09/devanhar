@@ -1,5 +1,6 @@
-// Single source of truth for padel finishing-position points; keep in sync with
-// the CHECK constraint + comment in supabase-padel-leaderboard.sql.
+// SPA ranking rules.
+// Keep finishing-position values in sync with supabase-spa-leaderboard-v2.sql.
+
 export type PadelFinishingPosition =
   | "winner"
   | "runner_up"
@@ -27,6 +28,18 @@ export const FINISHING_POSITIONS: Array<{
   { value: "group_5th", label: "Group stage, 5th", points: 25 },
 ]
 
+export const SOURCE_FINISH_CODE_TO_POSITION: Record<string, PadelFinishingPosition> = {
+  WIN: "winner",
+  RUNNER_UP: "runner_up",
+  THIRD: "third",
+  FOURTH: "fourth",
+  QF: "quarterfinal",
+  R16: "round_of_16",
+  GROUP_3: "group_3rd",
+  GROUP_4: "group_4th",
+  GROUP_5: "group_5th",
+}
+
 export function getPositionLabel(value: string): string {
   return FINISHING_POSITIONS.find((p) => p.value === value)?.label || value
 }
@@ -35,23 +48,77 @@ export function getPointsForPosition(value: string): number {
   return FINISHING_POSITIONS.find((p) => p.value === value)?.points || 0
 }
 
-export type RankedPlayer<T extends { id: string; total_points: number }> = T & {
-  rank: number
+export type LeaderboardCriteria = {
+  id: string
+  ranking_points: number
+  titles: number
+  runner_up_finishes: number
+  match_wins: number
+  win_percentage: number
+  group_points_won_pct: number
+  display_name?: string
+}
+
+export type RankedPlayer<T extends LeaderboardCriteria> = T & { rank: number }
+
+/**
+ * Spreadsheet source-of-truth ranking:
+ * points -> titles -> runner-ups -> match wins -> weighted win % ->
+ * aggregate group-points-won %. All descending. Dense rank.
+ * Alphabetical display order only applies when all six ranking criteria tie.
+ */
+export function computeDenseLeaderboardRanks<T extends LeaderboardCriteria>(
+  players: T[]
+): RankedPlayer<T>[] {
+  const sorted = [...players].sort((a, b) => {
+    const criteria =
+      b.ranking_points - a.ranking_points ||
+      b.titles - a.titles ||
+      b.runner_up_finishes - a.runner_up_finishes ||
+      b.match_wins - a.match_wins ||
+      b.win_percentage - a.win_percentage ||
+      b.group_points_won_pct - a.group_points_won_pct
+
+    if (criteria !== 0) return criteria
+    return (a.display_name || "").localeCompare(b.display_name || "")
+  })
+
+  let rank = 0
+  let previousKey: string | null = null
+
+  return sorted.map((player) => {
+    const key = [
+      player.ranking_points,
+      player.titles,
+      player.runner_up_finishes,
+      player.match_wins,
+      player.win_percentage,
+      player.group_points_won_pct,
+    ].join("|")
+
+    if (key !== previousKey) {
+      rank += 1
+      previousKey = key
+    }
+
+    return { ...player, rank }
+  })
 }
 
 /**
- * Competition ranking (ties share a rank; the next distinct score skips ahead
- * by the number of tied players), e.g. points 100,100,80 -> ranks 1,1,3.
+ * Backward-compatible helper for any older screens that only have points.
+ * Dense ranking: 100,100,80 => 1,1,2.
  */
 export function computeRanksWithTies<T extends { id: string; total_points: number }>(
   players: T[]
-): RankedPlayer<T>[] {
+): Array<T & { rank: number }> {
   const sorted = [...players].sort((a, b) => b.total_points - a.total_points)
   let rank = 0
   let lastPoints: number | null = null
-  return sorted.map((player, index) => {
+
+  return sorted.map((player) => {
     if (lastPoints === null || player.total_points !== lastPoints) {
-      rank = index + 1
+      rank += 1
       lastPoints = player.total_points
     }
     return { ...player, rank }
