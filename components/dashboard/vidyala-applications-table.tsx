@@ -140,6 +140,27 @@ function filterMatches(application: VidyalaApplicationRow, filter: ActiveFilter)
 
   return normalise(raw).includes(normalise(filter.value))
 }
+function displayFilterValue(application: VidyalaApplicationRow, filter: ActiveFilter) {
+  const config = FILTER_FIELDS.find((item) => item.key === filter.field)
+  const raw = application[filter.field]
+
+  if (!config) return ''
+  if (config.kind === 'boolean') {
+    if (raw === null || raw === undefined) return 'Not answered'
+    return raw ? 'Yes' : 'No'
+  }
+  if (config.kind === 'date') {
+    if (!raw) return 'Not answered'
+    return new Date(String(raw)).toLocaleDateString('en-GB')
+  }
+  if (raw === null || raw === undefined || String(raw).trim() === '') return 'Not answered'
+  return String(raw)
+}
+
+function activeFilterLabel(filter: ActiveFilter) {
+  return FILTER_FIELDS.find((item) => item.key === filter.field)?.label || String(filter.field)
+}
+
 
 function FilterValueInput({
   field,
@@ -352,8 +373,15 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
               ))
             )}
 
-            <div className="flex items-center justify-between border-t border-border pt-2 text-xs text-muted-foreground">
-              <span>{filteredApplications.length} of {applications.length} applications match</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-medium text-foreground">Showing {filteredApplications.length} of {applications.length}</span>
+                {filters.filter((filter) => filter.value).map((filter) => (
+                  <span key={filter.id} className="rounded-full border border-border bg-background px-2.5 py-1 text-foreground">
+                    {activeFilterLabel(filter)}: {filter.value === 'blank' ? 'Not answered' : filter.value}
+                  </span>
+                ))}
+              </div>
               <Button type="button" variant="ghost" size="sm" onClick={addFilter}><Plus className="mr-1 h-3.5 w-3.5" />Add another</Button>
             </div>
           </div>
@@ -374,6 +402,9 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
                 <th className="px-4 py-3 font-semibold text-foreground">Phone</th>
                 <th className="px-4 py-3 font-semibold text-foreground">Status</th>
                 <th className="px-4 py-3 font-semibold text-foreground">Applied</th>
+                {filters.some((filter) => filter.value) && (
+                  <th className="px-4 py-3 font-semibold text-foreground">Matching answer</th>
+                )}
                 <th className="px-4 py-3 font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
@@ -389,6 +420,20 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
                     <td className="px-4 py-3 text-xs text-muted-foreground">
                       {new Date(application.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </td>
+                    {filters.some((filter) => filter.value) && (
+                      <td className="px-4 py-3">
+                        <div className="space-y-1.5">
+                          {filters.filter((filter) => filter.value).map((filter) => (
+                            <div key={filter.id} className="max-w-[360px]">
+                              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{activeFilterLabel(filter)}</div>
+                              <div className="truncate text-sm text-foreground" title={displayFilterValue(application, filter)}>
+                                {displayFilterValue(application, filter)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                    )}
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <Button
