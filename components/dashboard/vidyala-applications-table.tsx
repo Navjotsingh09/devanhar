@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Eye, Filter, Plus, Search, X } from 'lucide-react'
+import { Download, Eye, Filter, Plus, Search, X } from 'lucide-react'
 import { VidyalaRowActions } from '@/components/dashboard/vidyala-row-actions'
 import { VidyalaApplicationDetailDialog } from '@/components/dashboard/vidyala-application-detail-dialog'
 
@@ -161,6 +161,51 @@ function activeFilterLabel(filter: ActiveFilter) {
   return FILTER_FIELDS.find((item) => item.key === filter.field)?.label || String(filter.field)
 }
 
+const EXPORT_COLUMNS: Array<{ key: keyof VidyalaApplicationRow; label: string }> = [
+  { key: 'id', label: 'Application ID' },
+  { key: 'first_name', label: 'First name' },
+  { key: 'middle_name', label: 'Middle name' },
+  { key: 'last_name', label: 'Last name' },
+  { key: 'date_of_birth', label: 'Date of birth' },
+  { key: 'email', label: 'Email' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'address', label: 'Address' },
+  { key: 'has_dbs_check', label: 'Has DBS check' },
+  { key: 'emergency_contact_1_name', label: 'Emergency contact 1 name' },
+  { key: 'emergency_contact_1_relationship', label: 'Emergency contact 1 relationship' },
+  { key: 'emergency_contact_1_phone', label: 'Emergency contact 1 phone' },
+  { key: 'emergency_contact_2_name', label: 'Emergency contact 2 name' },
+  { key: 'emergency_contact_2_relationship', label: 'Emergency contact 2 relationship' },
+  { key: 'emergency_contact_2_phone', label: 'Emergency contact 2 phone' },
+  { key: 'is_amritdhari', label: 'Amritdhari' },
+  { key: 'sikhi_journey', label: 'Sikhi journey' },
+  { key: 'english_ability', label: 'English ability' },
+  { key: 'panjabi_ability', label: 'Panjabi ability' },
+  { key: 'can_commit', label: 'Can commit' },
+  { key: 'funding_option', label: 'Funding option' },
+  { key: 'accommodation_option', label: 'Accommodation option' },
+  { key: 'requires_visa', label: 'Requires visa' },
+  { key: 'requires_visa_support', label: 'Requires visa support' },
+  { key: 'motivation', label: 'Motivation' },
+  { key: 'current_seva', label: 'Current seva' },
+  { key: 'what_to_learn', label: 'What they want to learn' },
+  { key: 'continue_parchaar', label: 'Continue parchaar' },
+  { key: 'how_heard', label: 'How heard about Vidyala' },
+  { key: 'status', label: 'Status' },
+  { key: 'internal_notes', label: 'Internal notes' },
+  { key: 'source', label: 'Source' },
+  { key: 'medium', label: 'Medium' },
+  { key: 'page_url', label: 'Page URL' },
+  { key: 'created_at', label: 'Applied at' },
+  { key: 'updated_at', label: 'Updated at' },
+]
+
+function exportCellValue(value: unknown) {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  return value
+}
+
 
 function FilterValueInput({
   field,
@@ -226,6 +271,32 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
   const [search, setSearch] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<ActiveFilter[]>([])
+
+  const exportExcel = async (rows: VidyalaApplicationRow[], scope: 'all' | 'filtered') => {
+    const XLSX = await import('xlsx')
+    const exportRows = rows.map((application) => {
+      const row: Record<string, unknown> = {}
+      for (const column of EXPORT_COLUMNS) {
+        row[column.label] = exportCellValue(application[column.key])
+      }
+      return row
+    })
+
+    const workbook = XLSX.utils.book_new()
+    const worksheet = XLSX.utils.json_to_sheet(exportRows, { header: EXPORT_COLUMNS.map((column) => column.label) })
+
+    worksheet['!cols'] = EXPORT_COLUMNS.map((column) => {
+      if (['Sikhi journey', 'Motivation', 'Current seva', 'What they want to learn', 'Internal notes', 'Address'].includes(column.label)) {
+        return { wch: 42 }
+      }
+      if (['Email', 'Page URL'].includes(column.label)) return { wch: 30 }
+      return { wch: Math.max(14, Math.min(24, column.label.length + 3)) }
+    })
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vidyala Applications')
+    const today = new Date().toISOString().slice(0, 10)
+    XLSX.writeFile(workbook, `sikhi-vidyala-applications-${scope}-${today}.xlsx`, { compression: true })
+  }
 
   const filteredApplications = useMemo(() => {
     const query = normalise(search)
@@ -318,6 +389,19 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
               Clear all
             </Button>
           )}
+          <Button type="button" variant="outline" onClick={() => void exportExcel(applications, 'all')}>
+            <Download className="mr-2 h-4 w-4" /> Export all
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void exportExcel(filteredApplications, 'filtered')}
+            disabled={filteredApplications.length === 0}
+          >
+            <Download className="mr-2 h-4 w-4" /> Export filtered ({filteredApplications.length})
+          </Button>
+
         </div>
 
         {showFilters && (
