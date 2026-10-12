@@ -1,4 +1,7 @@
-import { CalendarDays, Users } from "lucide-react"
+"use client"
+
+import { CalendarDays, Download, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export type FamilyInterestSubmission = {
   id: string
@@ -14,6 +17,37 @@ function textValue(value: unknown) {
   return String(value)
 }
 
+function csvEscape(value: unknown) {
+  const text = value === null || value === undefined ? "" : String(value)
+  return `"${text.replace(/"/g, '""')}"`
+}
+
+function exportCsv(submissions: FamilyInterestSubmission[]) {
+  const headers = ["Lead name", "Email", "Phone", "Interest / event", "Group size", "Submitted"]
+  const rows = submissions.map((submission) => {
+    const data = submission.form_data || {}
+    return [
+      submission.full_name,
+      submission.email,
+      submission.phone || "",
+      data.interest_for || data.event || data.project || "",
+      data.number_of_people_in_group || "",
+      new Date(submission.created_at).toLocaleString("en-GB"),
+    ]
+  })
+
+  const csv = [headers, ...rows].map((row) => row.map(csvEscape).join(",")).join("\n")
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = `family-interest-registrations-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
 export function FamilyInterestTable({
   submissions,
   emptyLabel = "No interest registrations yet.",
@@ -26,7 +60,14 @@ export function FamilyInterestTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <Button type="button" variant="outline" size="sm" onClick={() => exportCsv(submissions)}>
+          <Download className="mr-2 h-4 w-4" />
+          Export CSV ({submissions.length})
+        </Button>
+      </div>
+      <div className="overflow-x-auto rounded-xl border border-border">
       <table className="w-full min-w-[900px] text-sm">
         <thead>
           <tr className="bg-muted/50 text-left">
@@ -62,6 +103,7 @@ export function FamilyInterestTable({
           })}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }
