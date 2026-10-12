@@ -43,16 +43,8 @@ const projects: Project[] = [
     icon: Sparkles,
   },
   {
-    title: "Sikh Family Retreat",
-    description: "A family-focused retreat bringing parents, children and young people together through Gurbani, Sikh history, seva and time in sangat.",
-    image: "/initiatives/sikh-family-retreat-top.png",
-    href: "/initiatives/sikh-family-retreat",
-    tag: "Youth",
-    icon: Home,
-  },
-  {
     title: "Sikh Family Initiative",
-    description: "Family Fun Day - Summer Extravaganza on 31 August 2026, bringing families together through community, connection and shared memories.",
+    description: "The umbrella for Sikh Family Retreat, Sikh Family Extravaganza and Wedding Fair — a year-round family programme built around connection, community and shared experiences.",
     image: "/initiatives/sikh-family-retreat-top.png",
     href: "/initiatives/sikh-family-initiative",
     tag: "Family",
