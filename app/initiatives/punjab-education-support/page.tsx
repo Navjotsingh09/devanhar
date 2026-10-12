@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Punjab Education Support | Devanhaar",
     description:
-      "Supporting education, opportunity and long-term development for children and young people in Punjab.",
+      "Supporting education, opportunity and long-term development for children and young people across Punjab.",
     url: "https://devanhaar.vercel.app/initiatives/punjab-education-support",
   },
   alternates: {
