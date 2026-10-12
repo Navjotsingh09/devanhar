@@ -101,11 +101,11 @@ const rootsNav: NavItem[] = [
   { title: 'Roots Bookings', url: '/dashboard/roots', icon: TreePine },
 ]
 
-const familyRetreatNav: NavItem[] = [
-  { title: 'Family Retreat Bookings', url: '/dashboard/family-retreat', icon: Users },
-]
 const familyInitiativeNav: NavItem[] = [
-  { title: "Family Fun Day Bookings", url: "/dashboard/family-initiative", icon: CalendarDays },
+  { title: "Overview", url: "/dashboard/family-initiative", icon: CalendarDays },
+  { title: "Sikh Family Retreat", url: "/dashboard/family-initiative/retreat", icon: Users },
+  { title: "Sikh Family Extravaganza", url: "/dashboard/family-initiative/extravaganza", icon: CalendarDays },
+  { title: "Wedding Fair", url: "/dashboard/family-initiative/wedding-fair", icon: Users },
 ]
 const systemNav: NavItem[] = [
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -342,41 +342,27 @@ export function AppSidebar({ user }: AppSidebarProps) {
         )}
 
 
-        {!isVacanciesOnly && (
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            <Users className="h3 w3 mr-1" />
-            Sikh Family Retreat
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {familyRetreatNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
-                    <Link href={item.url}>
-                      <item.icon className="h4 w4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        )}
-
         {isVacanciesOnly === false && (
         <SidebarGroup>
-          <SidebarGroupLabel><CalendarDays className="h3 w3 mr-1" />Sikh Family Initiative</SidebarGroupLabel>
-          <SidebarGroupContent><SidebarMenu>
-            {familyInitiativeNav.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url)}>
-                  <Link href={item.url}><item.icon className="h4 w4" /><span>{item.title}</span></Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu></SidebarGroupContent>
+          <Collapsible defaultOpen className="group/family-initiative">
+            <CollapsibleTrigger asChild>
+              <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between">
+                <span className="flex items-center"><CalendarDays className="h3 w3 mr-1" />Sikh Family Initiative</span>
+                <ChevronDown className="h3 w3 transition-transform group-data-[state=open]/family-initiative:rotate-180" />
+              </SidebarGroupLabel>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarGroupContent><SidebarMenu>
+                {familyInitiativeNav.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
+                      <Link href={item.url}><item.icon className="h4 w4" /><span>{item.title}</span></Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu></SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarGroup>
         )}
 
