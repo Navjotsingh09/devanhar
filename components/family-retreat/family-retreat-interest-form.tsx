@@ -10,7 +10,15 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_REGEX = /^[\d\s+()\-]{7,20}$/
 const NAME_REGEX = /^[\p{L}\p{M}\s'.\-]{1,60}$/u
 
-export function FamilyRetreatInterestForm() {
+export function FamilyRetreatInterestForm({
+  interestFor = "Spring and Summer 2027",
+  sourcePage = "Sikh Family Retreat",
+  successMessage = "Thank you. The Sikh Family Initiative team has received your details and can contact you as information for the 2027 retreats is released.",
+}: {
+  interestFor?: string
+  sourcePage?: string
+  successMessage?: string
+}) {
   const [form, setForm] = useState({ first_name: "", surname: "", email: "", phone: "", group_size: "1" })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -36,13 +44,13 @@ export function FamilyRetreatInterestForm() {
           name: `${form.first_name.trim()} ${form.surname.trim()}`,
           email: form.email.trim(),
           phone: form.phone.trim(),
-          subject: "Sikh Family Retreat 2027 - Register interest",
-          message: "New Sikh Family Retreat register-interest submission.",
-          source_page: "Sikh Family Retreat",
+          subject: `Sikh Family Retreat - ${interestFor} - Register interest`,
+          message: `New Sikh Family Retreat register-interest submission for ${interestFor}.`,
+          source_page: sourcePage,
           save_submission: true,
           form_fields: {
             project: "Sikh Family Retreat",
-            interest_for: "Spring and Summer 2027",
+            interest_for: interestFor,
             first_name: form.first_name.trim(),
             surname: form.surname.trim(),
             lead_email: form.email.trim(),
@@ -67,7 +75,7 @@ export function FamilyRetreatInterestForm() {
         <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
         <h3 className="mt-4 text-2xl font-bold text-foreground">Interest registered</h3>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-          Thank you. The Sikh Family Initiative team has received your details and can contact you as information for the 2027 retreats is released.
+          {successMessage}
         </p>
       </div>
     )

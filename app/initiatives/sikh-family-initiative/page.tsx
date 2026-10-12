@@ -3,6 +3,7 @@ import { CalendarDays, ArrowRight, HeartHandshake, Sparkles, UsersRound } from "
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
+import { FamilyInitiativeUpcomingCards } from "@/components/family-initiative/family-initiative-upcoming-cards"
 
 export const metadata = {
   title: "Sikh Family Initiative | Devanhaar",
@@ -15,7 +16,7 @@ const projects = [
     description: "Residential family retreats built around sangat, Sikhi, learning and shared memories.",
     href: "/initiatives/sikh-family-retreat",
     icon: HeartHandshake,
-    dates: ["1–4 April 2027", "22–25 July 2027"],
+    dates: ["31 Dec 2026–3 Jan 2027 · New Year Reset", "1–4 April 2027 · Spring", "22–25 July 2027 · Summer"],
     cta: "Explore the retreat",
   },
   {
@@ -23,7 +24,7 @@ const projects = [
     description: "A large family celebration bringing generations together through activities, connection and community.",
     href: "/initiatives/sikh-family-extravaganza",
     icon: Sparkles,
-    dates: ["Provisional: Dec 2027 – Jan 2028"],
+    dates: ["May 2027"],
     cta: "Explore the extravaganza",
   },
   {
@@ -34,13 +35,6 @@ const projects = [
     dates: ["13 February 2027"],
     cta: "Explore the wedding fair",
   },
-]
-
-const upcoming = [
-  { label: "Wedding Fair", date: "13 February 2027", href: "/initiatives/wedding-fair" },
-  { label: "Sikh Family Retreat · Spring", date: "1–4 April 2027", href: "/initiatives/sikh-family-retreat" },
-  { label: "Sikh Family Retreat · Summer", date: "22–25 July 2027", href: "/initiatives/sikh-family-retreat" },
-  { label: "Sikh Family Extravaganza", date: "Provisional · Dec 2027 – Jan 2028", href: "/initiatives/sikh-family-extravaganza" },
 ]
 
 export default function SikhFamilyInitiativePage() {
@@ -62,23 +56,7 @@ export default function SikhFamilyInitiativePage() {
               Sikh Family Initiative brings together our family-focused projects: Sikh Family Retreat, Sikh Family Extravaganza and Wedding Fair.
             </p>
 
-            <div className="mt-10 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {upcoming.map((event, index) => (
-                <Link key={event.label + event.date} href={event.href} className="group rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-md transition hover:bg-white/15">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400 text-slate-950">
-                      <CalendarDays className="h-4 w-4" />
-                    </span>
-                    <span className="text-xs font-semibold text-white/60">0{index + 1}</span>
-                  </div>
-                  <p className="mt-5 text-sm font-semibold text-white">{event.label}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-amber-200">{event.date}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-white/80 group-hover:text-white">
-                    View project <ArrowRight className="h-3.5 w-3.5" />
-                  </span>
-                </Link>
-              ))}
-            </div>
+            <FamilyInitiativeUpcomingCards />
           </div>
         </section>
 
