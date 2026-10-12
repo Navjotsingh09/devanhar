@@ -57,6 +57,14 @@ const projects: Project[] = [
     href: "/initiatives/sikhi-vidyala",
     tag: "Education",
     icon: BookOpen,
+  },
+  {
+    title: "Punjab Education Support",
+    description: "A dedicated education initiative focused on supporting children and young people in Punjab through practical, needs-led support.",
+    image: "/images/initiatives-hero.jpg",
+    href: "/initiatives/punjab-education-support",
+    tag: "Education",
+    icon: GraduationCap,
   },  {
     title: "University Projects",
     description: "Engaging talks and workshops at universities across the UK, introducing Sikhi and creating spaces for interfaith dialogue.",
@@ -113,7 +121,7 @@ const projects: Project[] = [
 
 const stats = [
   { value: "Est. 2019", label: "UK Based with Global Reach." },
-  { value: "11", label: "Live Projects" },
+  { value: "12", label: "Live Projects" },
   { value: "800+", label: "Adult Campers Annually" },
   { value: "3000+", label: "People Impacted Annually" },
 ]
@@ -154,7 +162,7 @@ export function ProjectsPageContent() {
                 <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Projects" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                <p className="text-3xl font-bold">11</p>
+                <p className="text-3xl font-bold">12</p>
                 <p className="text-sm text-primary-foreground/80">Live Projects</p>
               </div>
             </div>
