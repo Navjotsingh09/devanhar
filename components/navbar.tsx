@@ -44,15 +44,8 @@ const MEGA_MENU_PROJECTS = [
     tag: "Youth",
   },
   {
-    title: "Sikh Family Retreat",
-    description: "Families united through Gurbani, Sikh history, seva and time in sangat.",
-    image: "/initiatives/sikh-family-retreat-top.png",
-    href: "/initiatives/sikh-family-retreat",
-    tag: "Family",
-  },
-  {
     title: "Sikh Family Initiative",
-    description: "Family Fun Day - Summer Extravaganza on 31 August 2026.",
+    description: "The umbrella for Sikh Family Retreat, Sikh Family Extravaganza and Wedding Fair.",
     image: "/initiatives/sikh-family-retreat-top.png",
     href: "/initiatives/sikh-family-initiative",
     tag: "Family",
