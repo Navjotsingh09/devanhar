@@ -23,15 +23,17 @@ function csvEscape(value: unknown) {
 }
 
 function exportCsv(submissions: FamilyInterestSubmission[]) {
-  const headers = ["Lead name", "Email", "Phone", "Interest / event", "Group size", "Submitted"]
-  const rows = submissions.map((submission) => {
+  const headers: string[] = ["Lead name", "Email", "Phone", "Interest / event", "Group size", "Submitted"]
+  const rows: string[][] = submissions.map((submission) => {
     const data = submission.form_data || {}
+    const interest = textValue(data.interest_for || data.event || data.project)
+    const groupSize = textValue(data.number_of_people_in_group)
     return [
       submission.full_name,
       submission.email,
       submission.phone || "",
-      data.interest_for || data.event || data.project || "",
-      data.number_of_people_in_group || "",
+      interest === "—" ? "" : interest,
+      groupSize === "—" ? "" : groupSize,
       new Date(submission.created_at).toLocaleString("en-GB"),
     ]
   })
