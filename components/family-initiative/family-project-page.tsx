@@ -23,7 +23,7 @@ export function FamilyProjectPage({
 }) {
   return (
     <>
-      <Navbar />
+      {showNavbar ? <Navbar /> : null}
       <main className="min-h-screen">
         <section className="relative flex min-h-[620px] items-end overflow-hidden bg-[#101b2d] text-white">
           <img src="/initiatives/sikh-family-retreat-top.png" alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />

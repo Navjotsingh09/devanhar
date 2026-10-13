@@ -8,7 +8,7 @@ export const metadata = {
 export default function WeddingFairPage() {
   return (
     <FamilyProjectPage
-      eyebrow="Sikh Family Initiative"
+      showNavbar={false}\n      eyebrow="Sikh Family Initiative"
       title="Wedding Fair"
       subtitle="A Sikh-focused wedding fair bringing families, couples and trusted suppliers together in one welcoming space."
       date="13 February 2027"
