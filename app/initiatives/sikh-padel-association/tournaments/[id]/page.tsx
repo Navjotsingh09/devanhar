@@ -28,7 +28,7 @@ export default async function PadelTournamentArchiveDetailPage({ params }: { par
       <main className="min-h-screen bg-background">
         <section className="border-b border-border bg-[#0d2b1a] text-white">
           <div className="container mx-auto max-w-6xl px-6 py-14 lg:px-12 md:py-20">
-            <Link href="/initiatives/sikh-padel-association/tournaments" className="inline-flex items-center gap-2 text-sm font-semibold text-[#d6c7a4]">
+            <Link href="/spa/tournaments" className="inline-flex items-center gap-2 text-sm font-semibold text-[#d6c7a4]">
               <ArrowLeft className="h-4 w-4" />
               Previous tournaments
             </Link>
