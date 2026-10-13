@@ -56,7 +56,7 @@ type FormState = {
 
 const emptyForm: FormState = { first_name: '', last_name: '', gender: '', city_country: '', country_code: 'GB', photo_url: '' }
 
-export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) {
+export function PadelPlayersManager({ players, canEdit = true }: { players: PadelPlayerRow[]; canEdit?: boolean }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -153,7 +153,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={openCreate}>
+        <Button onClick={openCreate} disabled={!canEdit}>
           <Plus className="h-4 w-4 mr-1" />
           Add player
         </Button>
@@ -191,15 +191,15 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
                   </span>
                 </TableCell>
                 <TableCell className="text-right space-x-1">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(player)} disabled={isPending}>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(player)} disabled={isPending || !canEdit}>
                     <Pencil className="h-4 w-4 mr-1" /> Edit
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleToggleActive(player)} disabled={isPending}>
+                  <Button variant="ghost" size="sm" onClick={() => handleToggleActive(player)} disabled={isPending || !canEdit}>
                     {player.is_active
                       ? <><Archive className="h-4 w-4 mr-1" /> Archive</>
                       : <><ArchiveRestore className="h-4 w-4 mr-1" /> Restore</>}
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(player)} disabled={isPending}>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(player)} disabled={isPending || !canEdit}>
                     <Trash2 className="h-4 w-4 mr-1 text-destructive" /> Delete
                   </Button>
                 </TableCell>
@@ -278,7 +278,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={isPending || uploading}>Save</Button>
+            <Button onClick={handleSave} disabled={isPending || uploading || !canEdit}>Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
