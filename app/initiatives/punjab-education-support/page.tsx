@@ -61,23 +61,25 @@ export default function PunjabEducationSupportPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-white">
-        <section className="relative overflow-hidden bg-[#101b2d] text-white">
+        <section className="relative min-h-[690px] overflow-hidden bg-[#101b2d] text-white md:min-h-[740px]">
           <img
             src="/images/pes-school-group-original-hd.webp"
             alt="Students and teachers from Maharaja Ranjit Singh Public School gathered at the school entrance"
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-100"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#101b2d]/82 via-[#101b2d]/45 to-transparent" />
-          <div className="relative z-10 container mx-auto max-w-6xl px-6 pb-32 pt-36 lg:px-12 lg:pb-40 lg:pt-44">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-amber-300">
-              Punjab Education Support Project
-            </p>
-            <h1 className="mt-4 max-w-5xl text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
-              Building stronger schools through partnership, opportunity and shared learning
-            </h1>
-            <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/85 md:text-xl">
-              The Punjab Education Support Project is an educational initiative working with schools in Punjab to create sustainable improvements in teaching, learning and opportunities for young people.
-            </p>
+          <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-[#101b2d]/10 via-[#101b2d]/20 to-[#101b2d]/65" />
+          <div className="relative z-10 container mx-auto flex min-h-[690px] max-w-6xl items-end px-6 pb-28 pt-36 md:min-h-[740px] lg:px-12 lg:pb-36">
+            <div className="max-w-[800px] rounded-[1.5rem] border border-white/20 bg-[#101b2d]/90 p-6 shadow-2xl shadow-black/35 backdrop-blur-sm md:p-9">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 md:text-sm">
+                Punjab Education Support Project
+              </p>
+              <h1 className="mt-4 text-3xl font-bold leading-[1.12] tracking-tight text-white md:text-5xl lg:text-[3.25rem]">
+                Building stronger schools through partnership, opportunity and shared learning
+              </h1>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/90 md:text-lg">
+                The Punjab Education Support Project is an educational initiative working with schools in Punjab to create sustainable improvements in teaching, learning and opportunities for young people.
+              </p>
+            </div>
           </div>
         </section>
 
