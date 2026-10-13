@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -14,18 +15,22 @@ import {
   padelFaqs,
 } from "@/components/padel/padel-shared-data"
 import { getPublicPadelEvent } from "@/lib/padel-public-event"
-import Link from "next/link"
+import { formatCountryFlag, getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
 
 export const metadata = {
   title: "Sikh Padel Association | Devanhaar",
   description:
-    "The Sikh Padel Association brings the Sikh community together through padel. Register your team for the upcoming 6 September tournament.",
+    "The Sikh Padel Association brings the Sikh community together through padel, tournaments and an ongoing player ranking system.",
 }
 
 export const dynamic = "force-dynamic"
 
 export default async function SikhPadelAssociationPage() {
-  const event = await getPublicPadelEvent()
+  const [event, leaderboard] = await Promise.all([
+    getPublicPadelEvent(),
+    getPublicPadelLeaderboard(),
+  ])
+  const topPlayers = leaderboard.slice(0, 3)
 
   return (
     <>
@@ -34,7 +39,88 @@ export default async function SikhPadelAssociationPage() {
       <main className="min-h-screen">
         <PadelHeroWithRegister event={event} />
 
-        {/* Brand identity band */}
+        <section className="bg-[#fafafb] py-10 md:py-14">
+          <div className="container mx-auto max-w-6xl px-6 lg:px-12">
+            <div className="rounded-[18px] border border-[#dedfe3] bg-white p-5 shadow-[0_8px_28px_rgba(0,0,0,0.06)] md:p-7">
+              <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-[10px] font-bold tracking-[0.18em] text-[#e0a126]">
+                    OFFICIAL SPA RANKINGS
+                  </p>
+                  <h2 className="mt-2 text-2xl font-bold tracking-tight text-[#0f2940] md:text-3xl">
+                    See where every player stands.
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6a6d77]">
+                    Rankings update from finalised tournament results using points, titles,
+                    runner-up finishes, match wins, win percentage and group-points-won percentage.
+                  </p>
+                </div>
+                <Link
+                  href="/initiatives/sikh-padel-association/leaderboard"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-[#0f2940] px-6 py-3 text-sm font-semibold text-white md:w-auto"
+                >
+                  View player rankings
+                </Link>
+              </div>
+
+              {topPlayers.length > 0 ? (
+                <div className="mt-6 grid gap-3 md:grid-cols-3">
+                  {topPlayers.map((player, index) => (
+                    <Link
+                      key={player.id}
+                      href={"/initiatives/sikh-padel-association/leaderboard/" + player.id}
+                      className={
+                        "rounded-[14px] border p-4 transition-transform hover:-translate-y-0.5 " +
+                        (index === 0
+                          ? "border-[#0f2940] bg-[#0f2940] text-white"
+                          : "border-[#dedfe3] bg-[#fafafb] text-[#0f2940]")
+                      }
+                    >
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={
+                            "text-2xl font-bold " +
+                            (index === 0 ? "text-[#e6a429]" : "text-[#0f2940]")
+                          }
+                        >
+                          #{player.rank}
+                        </span>
+                        <span className="text-[10px] font-semibold">
+                          {player.movement === "up"
+                            ? "↑ Up"
+                            : player.movement === "down"
+                              ? "↓ Down"
+                              : player.movement === "new"
+                                ? "New"
+                                : "Same"}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm font-semibold">
+                        {formatCountryFlag(player.country_code)} {player.first_name} {player.last_name}
+                      </p>
+                      <p className="mt-1 text-lg font-bold">
+                        {player.total_points.toLocaleString()} pts
+                      </p>
+                      <p
+                        className={
+                          "mt-1 text-[10px] " +
+                          (index === 0 ? "text-[#b9c8d1]" : "text-[#6a6d77]")
+                        }
+                      >
+                        {player.titles} titles · {Math.round(player.win_percentage)}% win
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+
+              <p className="mt-5 text-[11px] font-medium text-[#6a6d77]">
+                SPA rankings update after every finalised tournament.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <div className="w-full bg-[#0d2b1a] py-10 md:py-14 flex flex-col items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -52,8 +138,8 @@ export default async function SikhPadelAssociationPage() {
             About the Sikh Padel Association
           </h2>
           <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-            {padelDescription.map((p, i) => (
-              <p key={i}>{p}</p>
+            {padelDescription.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
             ))}
           </div>
         </section>
@@ -69,15 +155,17 @@ export default async function SikhPadelAssociationPage() {
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
               <p>
                 Our next showcase tournament takes place on {event.date}
-                {event.time ? `, ${event.time}` : ""}.
-                Teams of two compete across multiple rounds, with games, points and rankings
-                tracked on a live leaderboard throughout the day.
+                {event.time ? `, ${event.time}` : ""}. Teams of two compete across multiple
+                rounds, with games, points and rankings tracked throughout the day.
               </p>
               {event.detailsComplete ? (
                 <>
-                  <p className="font-bold text-foreground">Entry is £{event.feePerPerson} per person (£{event.teamFee} per pair).</p>
+                  <p className="font-bold text-foreground">
+                    Entry is £{event.feePerPerson} per person (£{event.teamFee} per pair).
+                  </p>
                   <p>
-                    <strong className="text-foreground">{event.venue}</strong>, {event.address}. Spaces are limited, so register your team using the form above.
+                    <strong className="text-foreground">{event.venue}</strong>, {event.address}.
+                    Spaces are limited, so register your team using the form above.
                   </p>
                 </>
               ) : (
@@ -96,25 +184,6 @@ export default async function SikhPadelAssociationPage() {
                 Open venue address
               </a>
             ) : null}
-          </div>
-        </section>
-
-        <section className="border-t border-border py-12 md:py-16">
-          <div className="container mx-auto px-6 lg:px-12 max-w-5xl flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-2">
-                Player rankings
-              </p>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                See where every player stands
-              </h2>
-            </div>
-            <Link
-              href="/initiatives/sikh-padel-association/leaderboard"
-              className="inline-flex w-fit rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white"
-            >
-              View player leaderboard
-            </Link>
           </div>
         </section>
 
