@@ -61,7 +61,7 @@ const projects: Project[] = [
   {
     title: "Punjab Education Support Project",
     description: "Building stronger schools through partnership, teacher development and long-term educational opportunity in Punjab.",
-    image: "/images/initiatives-hero.jpg",
+    image: "/images/pes-school-group-original-hd.webp",
     href: "/pes",
     tag: "Education",
     icon: GraduationCap,
