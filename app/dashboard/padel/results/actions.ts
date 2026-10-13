@@ -107,7 +107,13 @@ export async function saveTournamentResults(
   const supabase = await checkPadelStaffAccess()
   if (!supabase) return { error: 'Only authorised SPA staff may save tournament results' }
 
+  if (!Array.isArray(results) || results.length > 2000) {
+    return { error: 'Invalid result submission' }
+  }
   const submitted = results.filter((result) => result.player_id)
+  if (submitted.length === 0) {
+    return { error: 'Add at least one result. Empty saves are blocked to protect existing tournament rankings.' }
+  }
   const seenPlayers = new Set<string>()
 
   for (const result of submitted) {
@@ -118,10 +124,16 @@ export async function saveTournamentResults(
       return { error: 'A player cannot be their own partner' }
     }
 
-    const matchesPlayed = Math.max(0, result.matches_played || 0)
-    const matchWins = Math.max(0, result.match_wins || 0)
-    const groupPointsWon = Math.max(0, result.group_points_won || 0)
-    const groupPointsPossible = Math.max(0, result.group_points_possible || 0)
+    const performance = [
+      result.matches_played ?? 0,
+      result.match_wins ?? 0,
+      result.group_points_won ?? 0,
+      result.group_points_possible ?? 0,
+    ]
+    if (performance.some((value) => !Number.isSafeInteger(value) || value < 0)) {
+      return { error: 'Match and group point statistics must be non-negative whole numbers' }
+    }
+    const [matchesPlayed, matchWins, groupPointsWon, groupPointsPossible] = performance
 
     if (matchWins > matchesPlayed) return { error: 'Match wins cannot exceed matches played' }
     if (groupPointsWon > groupPointsPossible) {
