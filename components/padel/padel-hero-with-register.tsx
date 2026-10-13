@@ -35,7 +35,7 @@ export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
           {
             label: "Previous tournaments",
             description: "Explore previous Sikh Padel Association events, photos and recorded results.",
-            href: "/initiatives/sikh-padel-association/tournaments",
+            href: "/spa/tournaments",
             ctaLabel: "Explore the archive",
           },
         ]}
