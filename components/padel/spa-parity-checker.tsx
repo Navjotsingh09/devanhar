@@ -9,7 +9,7 @@ type SpreadsheetPlayer = { rank: number; name: string; points: number }
 type Issue = { kind: string; details: string }
 
 function normalizeName(value: string) {
-  return value.normalize("NFKC").trim().replace(/\\s+/g, " ").toLocaleLowerCase("en-GB")
+  return value.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase("en-GB")
 }
 
 function splitSpreadsheetRow(line: string, separator: string) {
@@ -39,8 +39,8 @@ function splitSpreadsheetRow(line: string, separator: string) {
 
 function parseSpreadsheet(value: string) {
   const issues: Issue[] = []
-  const lines = value.split(/\\r?\\n/).filter((line) => line.trim())
-  const separator = lines[0]?.includes("\\t") ? "\\t" : ","
+  const lines = value.split(/\r?\n/).filter((line) => line.trim())
+  const separator = lines[0]?.includes("\t") ? "\t" : ","
   const entries: SpreadsheetPlayer[] = []
 
   lines.forEach((line, index) => {
@@ -125,7 +125,7 @@ export function SPAParityChecker({ leaderboard }: { leaderboard: Player[] }) {
         </p>
       </div>
       <Textarea rows={7} value={spreadsheetText} onChange={(event) => setSpreadsheetText(event.target.value)}
-        placeholder={`Rank,Player,Points\\n1,Example Player,1000\\n2,Another Player,700`}
+        placeholder={`Rank,Player,Points\n1,Example Player,1000\n2,Another Player,700`}
         className="font-mono text-xs" />
       {report && (
         <div className="space-y-3">
