@@ -9,6 +9,7 @@ type PlayerInput = {
   photo_url?: string | null
   gender?: string | null
   city_country?: string | null
+  country_code?: string | null
 }
 
 // Next.js redacts thrown Server Action error messages in production (replaced
@@ -31,10 +32,12 @@ export async function createPlayer(input: PlayerInput): Promise<ActionResult> {
     photo_url: input.photo_url || null,
     gender: input.gender || null,
     city_country: input.city_country || null,
+    country_code: (input.country_code || 'GB').trim().toUpperCase(),
   })
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/initiatives/sikh-padel-association')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
   return { success: true }
 }
@@ -56,6 +59,7 @@ export async function updatePlayer(playerId: string, input: PlayerInput): Promis
       photo_url: input.photo_url || null,
       gender: input.gender || null,
       city_country: input.city_country || null,
+      country_code: (input.country_code || 'GB').trim().toUpperCase(),
       updated_at: new Date().toISOString(),
     })
     .eq('id', playerId)
