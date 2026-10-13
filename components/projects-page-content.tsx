@@ -61,7 +61,7 @@ const projects: Project[] = [
   {
     title: "Punjab Education Support",
     description: "A dedicated education initiative focused on supporting children and young people in Punjab through practical, needs-led support.",
-    image: "/images/initiatives-hero.jpg",
+    image: "/images/punjab-education-support-hero.jpg",
     href: "/initiatives/punjab-education-support",
     tag: "Education",
     icon: GraduationCap,
