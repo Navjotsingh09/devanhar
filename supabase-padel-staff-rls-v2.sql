@@ -34,6 +34,12 @@ begin
   ] loop
     execute format('drop policy if exists %I on public.%I',
       table_name || '_staff_write', table_name);
+    execute format('drop policy if exists %I on public.%I',
+      table_name || '_staff_insert_v2', table_name);
+    execute format('drop policy if exists %I on public.%I',
+      table_name || '_staff_update_v2', table_name);
+    execute format('drop policy if exists %I on public.%I',
+      table_name || '_staff_delete_v2', table_name);
 
     execute format(
       'create policy %I on public.%I for insert to authenticated with check (public.spa_is_authorized_staff())',
