@@ -15,11 +15,25 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      {
-        source: "/initiatives/sikh-family-initiative",
-        destination: "/sikh-family-initiative",
-        permanent: true,
-      },
+      { source: "/initiatives/sikh-family-initiative", destination: "/sikh-family-initiative", permanent: true },
+      { source: "/initiatives/forums", destination: "/forums", permanent: true },
+      { source: "/initiatives/gurmat-academy", destination: "/gurmat-academy", permanent: true },
+      { source: "/initiatives/kaurs-camp", destination: "/kaurs-camp", permanent: true },
+      { source: "/initiatives/khalsa-catalyst", destination: "/khalsa-catalyst", permanent: true },
+      { source: "/initiatives/kids-camps", destination: "/kids-camps", permanent: true },
+      { source: "/initiatives/roots-residential", destination: "/roots-residential", permanent: true },
+      { source: "/initiatives/self-defence-academy", destination: "/self-defence-academy", permanent: true },
+      { source: "/initiatives/sikh-family-extravaganza", destination: "/sikh-family-extravaganza", permanent: true },
+      { source: "/initiatives/sikh-family-retreat", destination: "/sikh-family-retreat", permanent: true },
+      { source: "/initiatives/sikh-padel-association", destination: "/sikh-padel-association", permanent: true },
+      { source: "/initiatives/sikh-professional-network", destination: "/sikh-professional-network", permanent: true },
+      { source: "/initiatives/sikhi-vidyala", destination: "/sikhi-vidyala", permanent: true },
+      { source: "/initiatives/singhs-camp-eu", destination: "/singhs-camp-eu", permanent: true },
+      { source: "/initiatives/singhs-camp", destination: "/singhs-camp", permanent: true },
+      { source: "/initiatives/spn", destination: "/spn", permanent: true },
+      { source: "/initiatives/sweb3", destination: "/sweb3", permanent: true },
+      { source: "/initiatives/university-projects", destination: "/university-projects", permanent: true },
+      { source: "/initiatives/wedding-fair", destination: "/wedding-fair", permanent: true },
     ]
   },
   async headers() {
