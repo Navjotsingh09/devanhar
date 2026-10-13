@@ -63,8 +63,8 @@ export default function PunjabEducationSupportPage() {
       <main className="min-h-screen bg-white">
         <section className="relative overflow-hidden bg-[#101b2d] text-white">
           <img
-            src="/images/pes-school-group-hero-live.webp"
-            alt="Punjab Education Support Project"
+            src="/images/pes-school-group-original-hd.webp"
+            alt="Students and teachers from Maharaja Ranjit Singh Public School gathered at the school entrance"
             className="absolute inset-0 h-full w-full object-cover object-center opacity-100"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#101b2d]/82 via-[#101b2d]/45 to-transparent" />
@@ -275,7 +275,7 @@ export default function PunjabEducationSupportPage() {
                 Donations help us develop teacher training, pupil activities, educational resources and the practical work needed to sustain partnerships between schools in Punjab and the UK.
               </p>
               <Button asChild className="mt-7 rounded-full bg-amber-400 px-7 text-slate-950 hover:bg-amber-300">
-                <Link href="/donate">
+                <Link href="https://www.nowdonate.com/checkout/nyb88cq73k85q0l9q3z6" target="_blank" rel="noopener noreferrer">
                   Donate to the project <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
