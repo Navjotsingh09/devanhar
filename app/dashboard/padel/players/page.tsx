@@ -1,14 +1,18 @@
-import { createClient } from '@/lib/supabase/server'
+import { requirePadelStaff } from '@/lib/padel-admin'
 import { PadelPlayersManager, type PadelPlayerRow } from '@/components/padel/padel-players-manager'
 
 export const dynamic = 'force-dynamic'
 
 async function getPlayers(): Promise<PadelPlayerRow[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const supabase = await requirePadelStaff()
+  const { data, error } = await supabase
     .from('padel_players')
-    .select('id, first_name, last_name, photo_url, gender, city_country, is_active, total_points')
+    .select('id, first_name, last_name, photo_url, gender, city_country, country_code, is_active, total_points')
     .order('total_points', { ascending: false })
+  if (error) {
+    // The migration is an explicit dependency; do not silently hide broken records.
+    throw new Error(`SPA player data unavailable: ${error.message}. Check supabase-padel-ranking-v2.sql.`)
+  }
   return data || []
 }
 
