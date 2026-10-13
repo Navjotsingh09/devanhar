@@ -8,7 +8,7 @@ export const metadata = {
 export default function WeddingFairPage() {
   return (
     <FamilyProjectPage
-      showNavbar={false}
+      heroVariant="wedding"
       eyebrow="Sikh Family Initiative"
       title="Wedding Fair"
       subtitle="A Sikh-focused wedding fair bringing families, couples and trusted suppliers together in one welcoming space."
