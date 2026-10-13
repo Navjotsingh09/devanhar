@@ -5,7 +5,7 @@ import { requirePadelStaff } from "@/lib/padel-admin"
 export const dynamic = "force-dynamic"
 
 function normalize(value: string) {
-  return value.normalize("NFKC").trim().replace(/\\s+/g, " ").toLowerCase()
+  return value.normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase()
 }
 
 export default async function SPAIdentitiesPage() {
