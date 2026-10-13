@@ -57,7 +57,7 @@ export async function importTournamentResults(
   if (playerError) return { error: playerError.message }
 
   const normalize = (name: string) =>
-    name.normalize('NFKC').trim().replace(/\\s+/g, ' ').toLocaleLowerCase('en-GB')
+    name.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en-GB')
 
   const byName = new Map<string, string[]>()
   for (const player of players || []) {
