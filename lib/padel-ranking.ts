@@ -40,8 +40,8 @@ export type RankedPlayer<T extends { id: string; total_points: number }> = T & {
 }
 
 /**
- * Competition ranking (ties share a rank; the next distinct score skips ahead
- * by the number of tied players), e.g. points 100,100,80 -> ranks 1,1,3.
+ * Legacy competition ranking, retained for older call-sites while SPA Ranking
+ * System V2 migrates to computeDenseRanks.
  */
 export function computeRanksWithTies<T extends { id: string; total_points: number }>(
   players: T[]
@@ -55,6 +55,89 @@ export function computeRanksWithTies<T extends { id: string; total_points: numbe
       lastPoints = player.total_points
     }
     return { ...player, rank }
+  })
+}
+
+export type RankingMetrics = {
+  id: string
+  total_points: number
+  titles: number
+  runner_up_finishes: number
+  match_wins: number
+  matches_played: number
+  group_points_won: number
+  group_points_possible: number
+}
+
+export type DenseRankedPlayer<T extends RankingMetrics> = T & {
+  rank: number
+  win_percentage: number
+  group_points_won_percentage: number
+}
+
+function safeRate(numerator: number, denominator: number) {
+  return denominator > 0 ? numerator / denominator : 0
+}
+
+function rankingTuple(player: RankingMetrics) {
+  return [
+    player.total_points,
+    player.titles,
+    player.runner_up_finishes,
+    player.match_wins,
+    safeRate(player.match_wins, player.matches_played),
+    safeRate(player.group_points_won, player.group_points_possible),
+  ] as const
+}
+
+function compareRankingMetrics(a: RankingMetrics, b: RankingMetrics) {
+  const aTuple = rankingTuple(a)
+  const bTuple = rankingTuple(b)
+
+  for (let index = 0; index < aTuple.length; index += 1) {
+    if (aTuple[index] !== bTuple[index]) return bTuple[index] - aTuple[index]
+  }
+
+  // Deterministic ordering for exact ties without changing their shared rank.
+  return a.id.localeCompare(b.id)
+}
+
+function hasSameRankingTuple(a: RankingMetrics, b: RankingMetrics) {
+  const aTuple = rankingTuple(a)
+  const bTuple = rankingTuple(b)
+  return aTuple.every((value, index) => value === bTuple[index])
+}
+
+/**
+ * SPA Ranking System V2 ranking order:
+ * 1. Ranking points
+ * 2. Titles
+ * 3. Runner-up finishes
+ * 4. Match wins
+ * 5. Match win percentage
+ * 6. Group-points-won percentage
+ *
+ * Dense rank means equal six-level tuples share a rank and the next distinct
+ * tuple receives the next integer rank: 1, 1, 2 (not 1, 1, 3).
+ */
+export function computeDenseRanks<T extends RankingMetrics>(
+  players: T[]
+): DenseRankedPlayer<T>[] {
+  const sorted = [...players].sort(compareRankingMetrics)
+  let rank = 0
+  let previous: T | null = null
+
+  return sorted.map((player) => {
+    if (previous === null || !hasSameRankingTuple(previous, player)) rank += 1
+    previous = player
+
+    return {
+      ...player,
+      rank,
+      win_percentage: safeRate(player.match_wins, player.matches_played) * 100,
+      group_points_won_percentage:
+        safeRate(player.group_points_won, player.group_points_possible) * 100,
+    }
   })
 }
 
