@@ -2,6 +2,7 @@
 
 import { checkPadelStaffAccess } from '@/lib/padel-admin'
 import { revalidatePath } from 'next/cache'
+import { isValidCountryCode } from '@/lib/countries'
 
 type PlayerInput = {
   first_name: string
@@ -25,7 +26,7 @@ export async function createPlayer(input: PlayerInput): Promise<ActionResult> {
     return { error: 'A player name is required' }
   }
   const country = (input.country_code || 'GB').trim().toUpperCase()
-  if (!/^[A-Z]{2}$/.test(country)) return { error: 'Nationality must be a valid two-letter ISO code' }
+  if (!isValidCountryCode(country)) return { error: 'Choose a valid country' }
 
   const { error } = await supabase.from('padel_players').insert({
     first_name: input.first_name.trim(),
@@ -56,7 +57,7 @@ export async function updatePlayer(playerId: string, input: PlayerInput): Promis
     return { error: 'A player name is required' }
   }
   const country = (input.country_code || 'GB').trim().toUpperCase()
-  if (!/^[A-Z]{2}$/.test(country)) return { error: 'Nationality must be a valid two-letter ISO code' }
+  if (!isValidCountryCode(country)) return { error: 'Choose a valid country' }
 
   const { error } = await supabase
     .from('padel_players')

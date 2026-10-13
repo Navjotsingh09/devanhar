@@ -174,6 +174,11 @@ type AwaitingSubState = 'abandoned' | 'expired' | 'reminder' | 'not_started'
 type NeedsActionSubState = 'dispute' | 'radar_review'
 
 function getPaymentHealth(sub: Submission): PaymentHealth {
+  if (sub.source_table === 'padel_registrations') {
+    if (sub.form_data.payment_status === 'paid' || sub.stripe_pi_status === 'succeeded') return 'captured'
+    if (['declined', 'archived', 'cancelled', 'rejected'].includes(sub.status)) return 'declined'
+    return 'awaiting_payment'
+  }
   if (sub.source_table !== 'camp_applications' && sub.source_table !== 'padel_registrations') return 'na'
   const review = sub.stripe_review_state
   const pi = sub.stripe_pi_status
@@ -634,13 +639,15 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           return
         }
         if (sourceTable === 'padel_registrations' && status === 'approved') {
-          await capturePadelPayment(id)
-          toast.success('Application approved')
+          const result = await capturePadelPayment(id)
+          toast.success('Application approved — payment status unchanged')
+          if (!result.emailSent) toast.warning('Approval saved, but applicant email was not delivered')
           return
         }
         if (sourceTable === 'padel_registrations' && status === 'declined') {
-          await cancelPadelPayment(id)
-          toast.success('Application declined')
+          const result = await cancelPadelPayment(id)
+          toast.success('Application declined — no refund issued')
+          if (!result.emailSent) toast.warning('Decline saved, but applicant email was not delivered')
           return
         }
         await updateSubmissionStatus(id, status, sourceTable)
@@ -665,12 +672,12 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   const handlePadelApprove = (id: string) => {
     startTransition(async () => {
-      try { await capturePadelPayment(id); toast.success('Application approved') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
+      try { const result = await capturePadelPayment(id); toast.success('Application approved — payment status unchanged'); if (!result.emailSent) toast.warning('Approval saved, but applicant email was not delivered') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
     })
   }
   const handlePadelDecline = (id: string) => {
     startTransition(async () => {
-      try { await cancelPadelPayment(id); toast.success('Application declined') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
+      try { const result = await cancelPadelPayment(id); toast.success('Application declined — no refund issued'); if (!result.emailSent) toast.warning('Decline saved, but applicant email was not delivered') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
     })
   }
 
@@ -923,7 +930,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
       {showUnpaidPadel && unpaidPadelCount > 0 && (
         <div className="mb-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-300">
-          Showing {unpaidPadelCount} Padel team{unpaidPadelCount !== 1 ? 's' : ''} awaiting payment — they submitted the form but have not completed their entry fee on NowDonate yet, so they are not confirmed and are hidden from the main view by default.
+          Showing {unpaidPadelCount} Padel team{unpaidPadelCount !== 1 ? 's' : ''} awaiting payment — they submitted the form but have no verified entry fee payment yet (Amsterdam uses TotalGiving), so they are not confirmed and are hidden from the main view by default.
         </div>
       )}
 
@@ -1038,9 +1045,6 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         </>
                       ) : sub.source_table === 'padel_registrations' ? (
                         <>
-                          <SelectItem value="pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500" />Pending</span></SelectItem>
-                          <SelectItem value="payment_pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-orange-500" />Awaiting Payment</span></SelectItem>
-                          <SelectItem value="payment_authorized"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-indigo-500" />Payment Authorized</span></SelectItem>
                           <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
                           <SelectItem value="declined"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Declined</span></SelectItem>
                           <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
@@ -1057,6 +1061,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                     </SelectContent>
                   </Select>
                   )}
+                  {sub.source_table === 'padel_registrations' && <p className="mt-1 text-xs text-muted-foreground">{getPaymentHealth(sub) === 'captured' ? 'Payment verified' : 'Payment unverified'}</p>}
                 </TableCell>
                 <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
                   {new Date(sub.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -1115,7 +1120,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         className="h-7 gap-1 px-2.5 text-xs font-semibold bg-green-600 hover:bg-green-700 text-white shadow-sm"
                         onClick={() => handlePadelApprove(sub.id)}
                         disabled={isPending}
-                        title={'Approve application; this does not collect payment'}
+                        title="Approve application only — payment status stays unchanged"
                       >
                         <CheckCircle className="h-3.5 w-3.5" />
                         Approve
@@ -1126,7 +1131,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                         onClick={() => handlePadelDecline(sub.id)}
                         disabled={isPending}
-                        title={'Decline application; refunds are handled separately'}
+                        title="Decline application — no refund or payment release"
                       >
                         <XCircle className="h-4 w-4" />
                         <span className="sr-only">Decline</span>
@@ -1288,11 +1293,11 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             <div className="flex gap-2 pt-2">
                               <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handlePadelApprove(sub.id)} disabled={isPending}>
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                {getPaymentHealth(sub) === 'authorized' ? 'Approve application' : 'Approve Registration'}
+                                Approve Registration
                               </Button>
                               <Button variant="destructive" className="flex-1" onClick={() => handlePadelDecline(sub.id)} disabled={isPending}>
                                 <XCircle className="h-4 w-4 mr-2" />
-                                {getPaymentHealth(sub) === 'authorized' ? 'Decline application' : 'Decline Registration'}
+                                Decline Registration
                               </Button>
                             </div>
                           )}
@@ -1473,3 +1478,4 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
     </>
   )
 }
+

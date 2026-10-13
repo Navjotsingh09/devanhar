@@ -6,8 +6,8 @@ import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
 import { sendApplicationPaymentReminderEmail, sendApplicationApprovedEmail, sendApplicationDeclinedEmail } from '@/lib/camp-applicant-emails'
 import { sendVidyalaApprovalEmail, sendVidyalaDeclineEmail, sendVidyalaCustomMessage } from '@/lib/vidyala-emails'
-import { decidePadelRegistration, archivePadelRegistration } from '@/app/spa-admin/registration-actions'
 import { checkPadelStaffAccess } from '@/lib/padel-admin'
+import { sendPadelRegistrationApprovedEmail, sendPadelRegistrationDeclinedEmail } from '@/lib/padel-registration-emails'
 import { sendSpnApprovalEmail, sendSpnDeclineEmail } from '@/lib/spn-emails'
 
 type SourceTable = 'form_submissions' | 'camp_applications' | 'vidyala_applications' | 'padel_registrations' | 'spn_submissions' | 'register_interest'
@@ -94,9 +94,10 @@ async function findStripePiForApp(
 
 export async function updateSubmissionStatus(id: string, status: string, sourceTable: SourceTable = 'form_submissions') {
   if (sourceTable === 'padel_registrations') {
-    if (status === 'approved' || status === 'declined') return decidePadelRegistration(id, status)
-    if (status === 'archived') return archivePadelRegistration(id)
-    throw new Error('Use the SPA application controls; payment states cannot be edited as application decisions')
+    if (status === 'approved') return capturePadelPayment(id)
+    if (status === 'declined') return cancelPadelPayment(id)
+    if (status === 'archived') return archiveSubmission(id, sourceTable)
+    throw new Error('Use application decisions; payment status requires verified evidence')
   }
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -292,23 +293,51 @@ export async function cancelApplicationPayment(applicationId: string) {
   revalidatePath('/dashboard/submissions')
 }
 
-// -- Padel registrations: approve / decline a team --------------------------
-// Padel entry fees are collected via NowDonate (donation manager), not Stripe --
-// there is no payment hold to capture/release here. The DonationManager webhook
-// auto-approves + emails a team once their entry fee payment completes; these
-// actions exist for an admin to manually approve/decline (e.g. cash/bank
-// transfer payment, or removing a team that never pays).
+// SPA approval changes the application decision only; it never captures money.
+async function decidePadelApplication(registrationId: string, decision: 'approved' | 'declined') {
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) throw new Error('Only authorised SPA staff may manage applications')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+  const { data: reg, error: readError } = await supabase
+    .from('padel_registrations').select('*').eq('id', registrationId).single()
+  if (readError || !reg) throw new Error('Registration not found')
+  if (['archived', 'declined', 'cancelled', 'rejected'].includes(reg.status)) {
+    throw new Error('Inactive applications cannot be changed through approval controls')
+  }
+  if (reg.status === decision) throw new Error('Already ' + decision)
+  const { data: saved, error } = await supabase.from('padel_registrations')
+    .update({ status: decision, reviewed_by: user.id, updated_at: new Date().toISOString() })
+    .eq('id', registrationId).eq('status', reg.status).select('id').single()
+  if (error || !saved) throw new Error('Application changed or could not be saved. Refresh and try again.')
+  const paymentVerified = reg.payment_status === 'paid' || reg.stripe_pi_status === 'succeeded'
+  await supabase.from('activity_log').insert({
+    admin_id: user.id, action: decision + ' SPA application (payment unchanged)',
+    entity_type: 'padel_registration', entity_id: registrationId,
+  })
+  revalidatePath('/dashboard/submissions')
+  revalidatePath('/dashboard/padel')
+  const params = {
+    to: reg.captain_email, firstName: reg.captain_first_name || 'Player',
+    teamName: [reg.captain_first_name, reg.player2_first_name].filter(Boolean).join(' & '),
+    paymentVerified,
+  }
+  const emailSent = !reg.captain_email ? false : decision === 'approved'
+    ? await sendPadelRegistrationApprovedEmail(params)
+    : await sendPadelRegistrationDeclinedEmail(params)
+  return { success: true, emailSent, paymentVerified }
+}
 
 export async function capturePadelPayment(registrationId: string) {
-  return decidePadelRegistration(registrationId, 'approved')
+  return decidePadelApplication(registrationId, 'approved')
 }
 
 export async function cancelPadelPayment(registrationId: string) {
-  return decidePadelRegistration(registrationId, 'declined')
+  return decidePadelApplication(registrationId, 'declined')
 }
 
 export async function archiveSubmission(id: string, sourceTable: SourceTable = 'form_submissions') {
-  if (sourceTable === 'padel_registrations') return archivePadelRegistration(id)
+  if (sourceTable === 'padel_registrations' && !await checkPadelStaffAccess()) throw new Error('Unauthorized')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
@@ -1056,3 +1085,4 @@ export async function sendVidyalaMessage(params: {
   revalidatePath('/dashboard/vidyala/webinar')
   revalidatePath('/dashboard/vidyala/interest')
 }
+
