@@ -62,6 +62,7 @@ type NavItem = {
 
 const managementNav: NavItem[] = [
   { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
+  { title: 'SPA Operations', url: '/dashboard/padel', icon: Trophy },
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },

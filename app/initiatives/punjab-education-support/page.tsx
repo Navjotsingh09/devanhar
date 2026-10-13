@@ -63,7 +63,7 @@ export default function PunjabEducationSupportPage() {
       <main className="min-h-screen bg-white">
         <section className="relative overflow-hidden bg-[#101b2d] text-white">
           <img
-            src="/images/pes-school-group-hero-final.webp"
+            src="/images/pes-school-group-hero-live.webp"
             alt="Punjab Education Support Project"
             className="absolute inset-0 h-full w-full object-cover object-center opacity-100"
           />
