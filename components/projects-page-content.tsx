@@ -46,7 +46,7 @@ const projects: Project[] = [
     title: "Sikh Family Initiative",
     description: "The umbrella for Sikh Family Retreat, Sikh Family Extravaganza and Wedding Fair — a year-round family programme built around connection, community and shared experiences.",
     image: "/initiatives/sikh-family-retreat-top.png",
-    href: "/initiatives/sikh-family-initiative",
+    href: "/sfi",
     tag: "Family",
     icon: Home,
   },
@@ -57,7 +57,16 @@ const projects: Project[] = [
     href: "/initiatives/sikhi-vidyala",
     tag: "Education",
     icon: BookOpen,
-  },  {
+  },
+  {
+    title: "Punjab Education Support Project",
+    description: "Building stronger schools through partnership, teacher development and long-term educational opportunity in Punjab.",
+    image: "/images/initiatives-hero.jpg",
+    href: "/pes",
+    tag: "Education",
+    icon: GraduationCap,
+  },
+  {
     title: "University Projects",
     description: "Engaging talks and workshops at universities across the UK, introducing Sikhi and creating spaces for interfaith dialogue.",
     image: "/initiatives/university-projects-top.jpg",
@@ -105,7 +114,7 @@ const projects: Project[] = [
     title: "Sikh Padel Association",
     description: "Bringing the Sikh community together through padel — team tournaments, friendly competition and a live leaderboard.",
     image: "/initiatives/sikh-padel-association-top.jpg",
-    href: "/initiatives/sikh-padel-association",
+    href: "/spa",
     tag: "Sports",
     icon: Trophy,
   },
@@ -113,7 +122,7 @@ const projects: Project[] = [
 
 const stats = [
   { value: "Est. 2019", label: "UK Based with Global Reach." },
-  { value: "11", label: "Live Projects" },
+  { value: "12", label: "Live Projects" },
   { value: "800+", label: "Adult Campers Annually" },
   { value: "3000+", label: "People Impacted Annually" },
 ]
@@ -154,7 +163,7 @@ export function ProjectsPageContent() {
                 <img src={cmsImageMap["hero"] || "/images/initiatives-hero.jpg"} alt="Our Projects" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg hidden md:block">
-                <p className="text-3xl font-bold">11</p>
+                <p className="text-3xl font-bold">12</p>
                 <p className="text-sm text-primary-foreground/80">Live Projects</p>
               </div>
             </div>

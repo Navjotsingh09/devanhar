@@ -56,7 +56,7 @@ export default async function SikhPadelAssociationPage() {
                   </p>
                 </div>
                 <Link
-                  href="/initiatives/sikh-padel-association/leaderboard"
+                  href="/spa/leaderboard"
                   className="inline-flex w-full items-center justify-center rounded-full bg-[#0f2940] px-6 py-3 text-sm font-semibold text-white md:w-auto"
                 >
                   View player rankings
@@ -68,7 +68,7 @@ export default async function SikhPadelAssociationPage() {
                   {topPlayers.map((player, index) => (
                     <Link
                       key={player.id}
-                      href={"/initiatives/sikh-padel-association/leaderboard/" + player.id}
+                      href={"/spa/leaderboard/" + player.id}
                       className={
                         "rounded-[14px] border p-4 transition-transform hover:-translate-y-0.5 " +
                         (index === 0
@@ -124,7 +124,7 @@ export default async function SikhPadelAssociationPage() {
         <div className="w-full bg-[#0d2b1a] py-10 md:py-14 flex flex-col items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/initiatives/sikh-padel-association-logo.png"
+            src="/spa-logo.png"
             alt="Sikh Padel Association crest"
             className="h-32 w-32 md:h-40 md:w-40 object-contain drop-shadow-xl"
           />

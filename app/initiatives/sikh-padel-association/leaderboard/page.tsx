@@ -33,13 +33,13 @@ export default async function PadelLeaderboardPage() {
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
-                  href="/initiatives/sikh-padel-association"
+                  href="/spa"
                   className="inline-flex rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                 >
                   ← Back to SPA
                 </Link>
                 <Link
-                  href="/initiatives/sikh-padel-association/tournaments"
+                  href="/spa/tournaments"
                   className="inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0f2940]"
                 >
                   Previous tournaments
