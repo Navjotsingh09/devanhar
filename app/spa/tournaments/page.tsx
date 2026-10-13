@@ -1,1 +1,1 @@
-export { default, metadata, dynamic } from "../../initiatives/sikh-padel-association/tournaments/page"
+export { default, metadata } from "../../initiatives/sikh-padel-association/tournaments/page"
