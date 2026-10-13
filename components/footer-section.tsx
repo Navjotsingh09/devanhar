@@ -6,7 +6,7 @@ import { NewsletterForm } from "@/components/newsletter-form"
 import Image from "next/image"
 import Link from "next/link"
 
-export function FooterSection({ hideContact = false }: { hideContact?: boolean }) {
+export function FooterSection({ hideContact = false, donationHref = "/donate" }: { hideContact?: boolean; donationHref?: string }) {
   return (
     <>
       {!hideContact && <>
@@ -146,7 +146,7 @@ export function FooterSection({ hideContact = false }: { hideContact?: boolean }
                   </Link>
                 </li>
                 <li>
-                  <FooterDonateLink />
+                  <FooterDonateLink href={donationHref} />
                 </li>
               </ul>
             </div>
