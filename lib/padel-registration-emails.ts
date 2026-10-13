@@ -26,6 +26,8 @@ export async function sendPadelPaymentPendingEmail(params: {
   teamName: string
   resumeUrl?: string
   paymentUrl?: string
+  registrationId?: string
+  eventName?: string
 }): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Padel Email] Skipping payment-pending email - RESEND_API_KEY not configured')
@@ -37,16 +39,17 @@ export async function sendPadelPaymentPendingEmail(params: {
   const team = escapeHtml(params.teamName)
   const html = shell('Team registered — payment required', `
     <p>Dear ${name},</p>
-    <p>Your team <strong>${team}</strong> has been registered for the Sikh Padel Association tournament. To secure your place, please complete your entry fee payment using the link below.</p>
+    <p>Your team <strong>${team}</strong> has been registered for ${escapeHtml(params.eventName || 'the Sikh Padel Association tournament')}. Please complete your entry fee using the link below. Registration and payment are recorded separately; the team will confirm your place.</p>
+    ${params.registrationId ? `<p>Registration reference: <strong>${escapeHtml(params.registrationId)}</strong>. Keep your payment receipt so the team can match it to your registration.</p>` : ''}
     <p style="text-align:center;margin:28px 0;">
-      <a href="${params.paymentUrl || params.resumeUrl}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
+      <a href="${escapeHtml(params.paymentUrl || params.resumeUrl)}" style="display:inline-block;background:#92400e;color:white;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Complete payment</a>
     </p>
   `)
   const text = `Team registered — payment required
 
 Dear ${params.firstName},
 
-Your team ${params.teamName} has been registered. To secure your place, please complete your entry fee payment:
+Your team ${params.teamName} has been registered for ${params.eventName || 'the Sikh Padel Association tournament'}. Complete your entry fee payment and keep your receipt. Registration reference: ${params.registrationId || 'see your registration'}. Payment and application approval are recorded separately:
 
 ${params.paymentUrl || params.resumeUrl}
 
@@ -54,7 +57,8 @@ Sat Sri Akal,
 Sikh Padel Association
 Devanhaar`
   try {
-    await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Complete your Sikh Padel Association team entry', html, text })
+    const result = await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Complete your Sikh Padel Association team entry', html, text })
+    if (result.error) { console.error('[Padel Email] Provider rejected email:', result.error.message); return false }
     return true
   } catch (err) {
     console.error('[Padel Email] payment-pending send failed:', err)
@@ -77,7 +81,8 @@ export async function sendPadelRegistrationReceivedEmail(params: {
     <p>Thank you for registering your team <strong>${team}</strong> for the Sikh Padel Association. The team will be in touch with next steps, including payment instructions.</p>
   `)
   try {
-    await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — registration received', html })
+    const result = await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — registration received', html })
+    if (result.error) { console.error('[Padel Email] Provider rejected email:', result.error.message); return false }
     return true
   } catch (err) {
     console.error('[Padel Email] received send failed:', err)
@@ -152,7 +157,8 @@ export async function sendPadelRegistrationUnderReviewEmail(params: {
     <p>We have received the entry fee for <strong>${team}</strong>. Your payment is being held securely while the team confirms places. You will receive a confirmation email once your place is secured.</p>
   `)
   try {
-    await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — payment received', html })
+    const result = await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — payment received', html })
+    if (result.error) { console.error('[Padel Email] Provider rejected email:', result.error.message); return false }
     return true
   } catch (err) {
     console.error('[Padel Email] under-review send failed:', err)
@@ -198,12 +204,13 @@ export async function sendPadelRegistrationOwnerNotification(params: {
     </div>
   `
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: 'Devanhaar Alerts <noreply@devanhaar.com>',
       to: adminEmail,
       subject: `New padel registration — ${p.captain_first_name ?? ''} ${p.captain_last_name ?? ''}`,
       html,
     })
+    if (result.error) { console.error('[Padel Email] Provider rejected email:', result.error.message); return false }
     return true
   } catch (err) {
     console.error('[Padel Email] owner notification failed:', err)

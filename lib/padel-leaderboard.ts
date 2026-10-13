@@ -1,4 +1,5 @@
 import { getPublicSupabaseClient } from "@/lib/supabase/public"
+export { formatCountryFlag } from '@/lib/countries'
 import {
   computeDenseRanks,
   getMovement,
@@ -13,6 +14,7 @@ type PlayerRecord = {
   last_name: string
   photo_url: string | null
   country_code: string
+  canonical_player_id?: string | null
   is_active: boolean
 }
 
@@ -79,13 +81,15 @@ async function loadPlayers() {
 
   const nationality = await supabase
     .from("padel_players")
-    .select("id, country_code")
+    .select("id, country_code, canonical_player_id")
     .eq("is_active", true)
 
   const countryById = new Map<string, string>()
+  const canonicalById = new Map<string, string | null>()
   if (!nationality.error) {
     for (const row of nationality.data || []) {
       if (row.country_code) countryById.set(row.id, row.country_code)
+      canonicalById.set(row.id, row.canonical_player_id)
     }
   }
 
@@ -93,6 +97,7 @@ async function loadPlayers() {
     const player = row as BasicPlayerRecord
     return {
       ...player,
+      canonical_player_id: canonicalById.get(player.id) || null,
       country_code:
         countryById.get(player.id) ||
         fallbackCountryCode(player.first_name, player.last_name),
@@ -169,17 +174,17 @@ export async function getPublicPadelLeaderboard(): Promise<PublicLeaderboardRow[
 
   for (const player of players) {
     const metrics = emptyMetrics(player.id)
-    metrics.total_points = player.total_points || 0
+    metrics.display_name = [player.first_name, player.last_name].filter(Boolean).join(' ')
+    // Results own the ranking calculation; cached totals are a legacy fallback.
+    metrics.total_points = results.length === 0 ? player.total_points || 0 : 0
     metricsById.set(player.id, metrics)
   }
-
-  const hasStoredTotals = players.some((player) => (player.total_points || 0) > 0)
 
   for (const result of results) {
     const metrics = metricsById.get(result.player_id)
     if (!metrics) continue
 
-    if (!hasStoredTotals) metrics.total_points += result.points_awarded || 0
+    metrics.total_points += result.points_awarded || 0
     metrics.titles += result.finishing_position === "winner" ? 1 : 0
     metrics.runner_up_finishes += result.finishing_position === "runner_up" ? 1 : 0
   }
@@ -221,16 +226,11 @@ export async function getPublicPadelLeaderboard(): Promise<PublicLeaderboardRow[
       last_name: player?.last_name || "",
       photo_url: player?.photo_url || null,
       country_code: player?.country_code || "GB",
+      canonical_player_id: player?.canonical_player_id || null,
       movement: getMovement(
         rankedPlayer.rank,
         previousRankByPlayer.get(rankedPlayer.id) ?? null
       ),
     }
   })
-}
-
-export function formatCountryFlag(countryCode: string) {
-  const normalized = countryCode.toUpperCase()
-  if (!/^[A-Z]{2}$/.test(normalized)) return "🏳️"
-  return String.fromCodePoint(...[...normalized].map((char) => 127397 + char.charCodeAt(0)))
 }

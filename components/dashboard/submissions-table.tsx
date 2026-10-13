@@ -605,12 +605,12 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
             return
           }
           await captureApplicationPayment(id)
-          toast.success('Approved — payment captured')
+          toast.success('Application approved')
           return
         }
         if (sourceTable === 'camp_applications' && status === 'declined') {
           await cancelApplicationPayment(id)
-          toast.success('Declined — funds released')
+          toast.success('Application declined')
           return
         }
         if (sourceTable === 'camp_applications' && status === 'withdrawn') {
@@ -660,13 +660,13 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   const handleApprove = (id: string) => {
     startTransition(async () => {
-      try { await captureApplicationPayment(id); toast.success('Approved - payment captured') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
+      try { await captureApplicationPayment(id); toast.success('Application approved') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
     })
   }
 
   const handleDecline = (id: string) => {
     startTransition(async () => {
-      try { await cancelApplicationPayment(id); toast.success('Declined - funds released') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
+      try { await cancelApplicationPayment(id); toast.success('Application declined') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
     })
   }
 

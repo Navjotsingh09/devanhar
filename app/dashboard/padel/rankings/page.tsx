@@ -3,6 +3,8 @@ import { AlertTriangle, ArrowUpRight, CheckCircle2, ClipboardCheck, Trophy, User
 import { requirePadelStaff } from "@/lib/padel-admin"
 import { getPublicPadelLeaderboard, formatCountryFlag } from "@/lib/padel-leaderboard"
 import { SPAParityChecker } from "@/components/padel/spa-parity-checker"
+import { checkSPAWorkbookParity } from '@/lib/spa-handoff'
+import { SPAWorkbookUploader } from '@/components/padel/spa-workbook-uploader'
 
 export const dynamic = "force-dynamic"
 
@@ -13,11 +15,12 @@ function normalizeName(value: string) {
 export default async function SPARankingsAdminPage() {
   const supabase = await requirePadelStaff()
 
-  const [rawPlayers, schemaCheck, rawResults] = await Promise.all([
+  const [rawPlayers, schemaCheck, rawResults, events] = await Promise.all([
     supabase.from("padel_players").select("id, first_name, last_name, is_active"),
     supabase.from("padel_players").select("id, country_code").limit(1),
     supabase.from("padel_tournament_results")
       .select("id, matches_played, match_wins, group_points_won, group_points_possible").limit(1),
+    supabase.from('padel_tournaments').select('id, name, event_date').order('event_date'),
   ])
 
   let leaderboard: Awaited<ReturnType<typeof getPublicPadelLeaderboard>> = []
@@ -38,6 +41,7 @@ export default async function SPARankingsAdminPage() {
   const schemaReady = !schemaCheck.error && !rawResults.error
   const activeCount = (rawPlayers.data || []).filter((player) => player.is_active).length
   const errorMessage = rawPlayers.error?.message || leaderboardError
+  const parity = checkSPAWorkbookParity(leaderboard)
 
   return (
     <div className="space-y-6">
@@ -74,14 +78,16 @@ export default async function SPARankingsAdminPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+      <SPAWorkbookUploader events={events.data || []} importReady />
+
+      <div className={`rounded-xl border p-4 text-sm ${parity.passed ? 'border-emerald-300 bg-emerald-50 text-emerald-950' : 'border-amber-300 bg-amber-50 text-amber-950'}`}>
         <div className="flex items-start gap-3">
           <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0" />
           <div>
-            <p className="font-semibold">Spreadsheet parity not yet signed off</p>
-            <p className="mt-1">The source spreadsheet must match all 99 player names, points and dense ranks.
-              Having 99 records alone is not proof of parity. Preview comparison below does not
-              change database rankings or mark the release verified.</p>
+            <p className="font-semibold">{parity.passed ? 'Workbook parity verified — all 99 players' : `Workbook parity: ${parity.issues.length} issue(s)`}</p>
+            <p className="mt-1">Live comparison checks immutable player identities, names, points, dense ranks and all six ranking inputs against the October 2026 handoff. Country flags remain independently editable.</p>
+            {!parity.passed && <ul className="mt-2 list-disc pl-5">{parity.issues.slice(0, 5).map((issue) => <li key={issue}>{issue}</li>)}</ul>}
+            <p className="mt-2">London group scores use the handoff's 32-points-per-game assumption. Correct the scored and total points if shortened games or walkovers are confirmed. The London date is retained from the existing event record.</p>
           </div>
         </div>
       </div>

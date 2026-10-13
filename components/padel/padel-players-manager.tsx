@@ -31,6 +31,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { preparePhotoForUpload } from '@/lib/image-compression'
+import { COUNTRIES, formatCountryFlag } from '@/lib/countries'
 import { createPlayer, deletePlayer, updatePlayer, setPlayerActive } from '@/app/dashboard/padel/players/actions'
 
 export type PadelPlayerRow = {
@@ -182,7 +183,7 @@ export function PadelPlayersManager({ players, canEdit = true }: { players: Pade
                   </Avatar>
                 </TableCell>
                 <TableCell className="font-medium">{player.first_name} {player.last_name}</TableCell>
-                <TableCell className="font-medium">{player.country_code === 'NO' ? '🇳🇴' : player.country_code === 'GB' ? '🇬🇧' : '🌐'} {player.country_code || 'GB'}</TableCell>
+                <TableCell className="font-medium">{formatCountryFlag(player.country_code || 'GB')} {COUNTRIES.find((country) => country.code === player.country_code)?.name || player.country_code}</TableCell>
                 <TableCell className="text-muted-foreground">{player.city_country || '—'}</TableCell>
                 <TableCell className="font-semibold">{player.total_points}</TableCell>
                 <TableCell>
@@ -252,11 +253,13 @@ export function PadelPlayersManager({ players, canEdit = true }: { players: Pade
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="country_code">Nationality (ISO code)</Label>
-                <Input id="country_code" maxLength={2} autoCapitalize="characters"
-                  placeholder="GB, NO, US…" value={form.country_code}
-                  onChange={(event) => setForm((p) => ({ ...p, country_code: event.target.value.toUpperCase() }))} />
-                <p className="mt-1 text-xs text-muted-foreground">GB = UK, NO = Norway. Use an ISO two-letter code for international players.</p>
+                <Label htmlFor="country_code">Country / flag</Label>
+                <select id="country_code" value={form.country_code}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  onChange={(event) => setForm((p) => ({ ...p, country_code: event.target.value }))}>
+                  {COUNTRIES.map((country) => <option key={country.code} value={country.code}>{formatCountryFlag(country.code)} {country.name}</option>)}
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">The saved country controls this player's public leaderboard flag.</p>
               </div>
               <div>
                 <Label htmlFor="gender">Gender</Label>

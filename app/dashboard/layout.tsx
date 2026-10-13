@@ -30,6 +30,12 @@ export default async function DashboardLayout({
 
 
   const role = profile?.role || 'staff'
+  if (!profile) {
+    const { data: member } = await supabase.from('spa_members').select('user_id')
+      .eq('user_id', user.id).eq('is_active', true).maybeSingle()
+    if (member) redirect('/spa-admin')
+    redirect('/auth/login?error=access_denied')
+  }
   const isAdmin = role === 'admin' || role === 'super_admin'
   const isVacanciesOnly = role === 'vacancies_only'
 

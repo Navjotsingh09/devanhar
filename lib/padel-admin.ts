@@ -10,7 +10,7 @@ export async function requirePadelStaff() {
   const supabase = await createClient()
   const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-  if (userError || !user) redirect("/auth/login")
+  if (userError || !user) redirect("/spa-admin/login")
 
   const { data: profile, error: profileError } = await supabase
     .from("admin_profiles")
@@ -19,7 +19,9 @@ export async function requirePadelStaff() {
     .single()
 
   if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
-    redirect("/dashboard")
+    const { data: membership } = await supabase.from('spa_members')
+      .select('user_id').eq('user_id', user.id).eq('is_active', true).maybeSingle()
+    if (!membership) redirect('/spa-admin/login?error=access_denied')
   }
 
   return supabase
@@ -37,7 +39,9 @@ export async function checkPadelStaffAccess() {
     .single()
 
   if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
-    return null
+    const { data: membership } = await supabase.from('spa_members')
+      .select('user_id').eq('user_id', user.id).eq('is_active', true).maybeSingle()
+    if (!membership) return null
   }
   return supabase
 }

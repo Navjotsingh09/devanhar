@@ -122,6 +122,7 @@ export async function updateSubmissionStatus(id: string, status: string, sourceT
 }
 
 export async function updateSubmissionNotes(id: string, notes: string, sourceTable: SourceTable = 'form_submissions') {
+  if (sourceTable === 'padel_registrations' && !await checkPadelStaffAccess()) throw new Error('Unauthorised')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')

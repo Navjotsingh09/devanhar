@@ -1,3 +1,4 @@
+import { getPadelAdminBasePath } from '@/lib/padel-admin-path'
 import Link from 'next/link'
 import { requirePadelStaff } from '@/lib/padel-admin'
 import { Button } from '@/components/ui/button'
@@ -17,6 +18,7 @@ async function getTournaments() {
 }
 
 export default async function PadelResultsIndexPage() {
+  const basePath = await getPadelAdminBasePath()
   const tournaments = await getTournaments()
 
   return (
@@ -43,7 +45,7 @@ export default async function PadelResultsIndexPage() {
                 <TableCell className="font-medium">{tournament.name}</TableCell>
                 <TableCell className="text-muted-foreground">{tournament.event_date}</TableCell>
                 <TableCell className="text-right">
-                  <Link href={`/dashboard/padel/tournaments/${tournament.id}/results`}>
+                  <Link href={`${basePath}/tournaments/${tournament.id}/results`}>
                     <Button variant="outline" size="sm">
                       <ClipboardList className="h-4 w-4 mr-1" />
                       Enter results

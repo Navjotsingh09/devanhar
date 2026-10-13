@@ -258,6 +258,7 @@ export async function saveTournamentResults(
   revalidatePath('/dashboard/padel/tournaments/' + tournamentId + '/results')
   revalidatePath('/dashboard/padel/players')
   revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/spa/leaderboard')
   revalidatePath('/spa')

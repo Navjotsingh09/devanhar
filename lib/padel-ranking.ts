@@ -60,6 +60,7 @@ export function computeRanksWithTies<T extends { id: string; total_points: numbe
 
 export type RankingMetrics = {
   id: string
+  display_name?: string
   total_points: number
   titles: number
   runner_up_finishes: number
@@ -99,7 +100,7 @@ function compareRankingMetrics(a: RankingMetrics, b: RankingMetrics) {
   }
 
   // Deterministic ordering for exact ties without changing their shared rank.
-  return a.id.localeCompare(b.id)
+  return (a.display_name || a.id).localeCompare(b.display_name || b.id, 'en-GB') || a.id.localeCompare(b.id)
 }
 
 function hasSameRankingTuple(a: RankingMetrics, b: RankingMetrics) {

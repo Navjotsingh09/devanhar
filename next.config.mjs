@@ -15,6 +15,8 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      { source: "/spa/admin", destination: "/spa-admin", permanent: false },
+      { source: "/spa/admin/:path*", destination: "/spa-admin/:path*", permanent: false },
       { source: "/initiatives/gurmat-academy", destination: "/ga", permanent: true },
       { source: "/gurmat-academy", destination: "/ga", permanent: true },
       { source: "/initiatives/kaurs-camp", destination: "/kc", permanent: true },
