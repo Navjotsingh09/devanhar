@@ -13,6 +13,23 @@ const nextConfig = {
       { protocol: "https", hostname: "img.youtube.com" },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/initiatives/sikh-family-initiative",
+        destination: "/sikh-family-initiative",
+        permanent: true,
+      },
+    ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/sikh-family-initiative",
+        destination: "/initiatives/sikh-family-initiative",
+      },
+    ]
+  },
   async headers() {
     return [
       {
