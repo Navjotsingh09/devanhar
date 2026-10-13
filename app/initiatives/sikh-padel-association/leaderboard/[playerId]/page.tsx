@@ -1,11 +1,11 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
-import { Button } from "@/components/ui/button"
-import { UserCircle2, ArrowLeft } from "lucide-react"
 import { getPublicSupabaseClient } from "@/lib/supabase/public"
-import { computeRanksWithTies, getPositionLabel } from "@/lib/padel-ranking"
+import { formatCountryFlag, getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
+import { getPositionLabel } from "@/lib/padel-ranking"
 
 export const dynamic = "force-dynamic"
 
@@ -17,111 +17,278 @@ export default async function PadelPlayerProfilePage({
   const { playerId } = await params
   const supabase = getPublicSupabaseClient()
 
-  const { data: player } = await supabase
-    .from("padel_players")
-    .select("id, first_name, last_name, photo_url, city_country, total_points, is_active")
-    .eq("id", playerId)
-    .single()
+  const leaderboard = await getPublicPadelLeaderboard()
+  const rankedPlayer = leaderboard.find((player) => player.id === playerId)
+  if (!rankedPlayer) notFound()
 
-  if (!player) notFound()
+  const [{ data: player }, { data: results }, { data: snapshots }, { data: tournaments }] =
+    await Promise.all([
+      supabase
+        .from("padel_players")
+        .select("id, city_country, is_active")
+        .eq("id", playerId)
+        .single(),
+      supabase
+        .from("padel_tournament_results")
+        .select(
+          "finishing_position, points_awarded, partner_player_id, matches_played, match_wins, group_points_won, group_points_possible, tournament_id"
+        )
+        .eq("player_id", playerId),
+      supabase
+        .from("padel_ranking_snapshots")
+        .select("tournament_id, rank, total_points")
+        .eq("player_id", playerId),
+      supabase
+        .from("padel_tournaments")
+        .select("id, name, event_date")
+        .order("event_date", { ascending: false }),
+    ])
 
-  const { data: activePlayers } = await supabase
-    .from("padel_players")
-    .select("id, total_points")
-    .eq("is_active", true)
-  const ranked = computeRanksWithTies((activePlayers || []).map((p) => ({ id: p.id, total_points: p.total_points })))
-  const currentRank = ranked.find((p) => p.id === player.id)?.rank ?? null
+  const tournamentById = new Map(
+    (tournaments || []).map((tournament) => [tournament.id, tournament])
+  )
 
-  const { data: results } = await supabase
-    .from("padel_tournament_results")
-    .select("finishing_position, points_awarded, partner_player_id, padel_tournaments(name, event_date)")
-    .eq("player_id", player.id)
+  const partnerIds = (results || [])
+    .map((result) => result.partner_player_id)
+    .filter((id): id is string => Boolean(id))
 
-  const partnerIds = (results || []).map((r) => r.partner_player_id).filter((id): id is string => Boolean(id))
   const { data: partners } = partnerIds.length
-    ? await supabase.from("padel_players").select("id, first_name, last_name").in("id", partnerIds)
+    ? await supabase
+        .from("padel_players")
+        .select("id, first_name, last_name")
+        .in("id", partnerIds)
     : { data: [] }
-  const partnerNameById = new Map((partners || []).map((p) => [p.id, `${p.first_name} ${p.last_name}`]))
+
+  const partnerNameById = new Map(
+    (partners || []).map((partner) => [
+      partner.id,
+      [partner.first_name, partner.last_name].filter(Boolean).join(" "),
+    ])
+  )
 
   const history = (results || [])
-    .map((r) => {
-      const tournament = Array.isArray(r.padel_tournaments) ? r.padel_tournaments[0] : r.padel_tournaments
+    .map((result) => {
+      const tournament = tournamentById.get(result.tournament_id)
       return {
         tournamentName: tournament?.name || "Tournament",
         eventDate: tournament?.event_date || "",
-        finishingPosition: r.finishing_position,
-        partnerName: r.partner_player_id ? partnerNameById.get(r.partner_player_id) || null : null,
-        points: r.points_awarded,
+        finishingPosition: result.finishing_position,
+        partnerName: result.partner_player_id
+          ? partnerNameById.get(result.partner_player_id) || null
+          : null,
+        points: result.points_awarded,
+        matchWins: result.match_wins || 0,
+        matchesPlayed: result.matches_played || 0,
       }
     })
-    .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+    )
+
+  const trajectory = (snapshots || [])
+    .map((snapshot) => {
+      const tournament = tournamentById.get(snapshot.tournament_id)
+      return {
+        rank: snapshot.rank,
+        tournamentName: tournament?.name || "Tournament",
+        eventDate: tournament?.event_date || "",
+      }
+    })
+    .sort(
+      (a, b) =>
+        new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+    )
+    .slice(-5)
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-24">
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-20 max-w-3xl">
-          <Link
-            href="/initiatives/sikh-padel-association/leaderboard"
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back to leaderboard
-          </Link>
-
-          <div className="flex items-center gap-6 mb-10">
-            {player.photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={player.photo_url} alt={`${player.first_name} ${player.last_name}`} className="h-24 w-24 rounded-full object-cover" />
-            ) : (
-              <UserCircle2 className="h-24 w-24 text-muted-foreground" />
-            )}
+      <main className="min-h-screen bg-[#fafafb] pt-20">
+        <section className="bg-[#0f2940]">
+          <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-10 lg:flex-row lg:items-center lg:justify-between lg:px-12 lg:py-12">
             <div>
-              <h1 className="text-2xl md:text-4xl font-bold text-foreground">{player.first_name} {player.last_name}</h1>
-              {player.city_country && <p className="text-muted-foreground">{player.city_country}</p>}
-              <div className="mt-2 flex items-center gap-4 text-sm">
-                {currentRank && <span className="font-semibold text-foreground">Rank #{currentRank}</span>}
-                <span className="font-semibold text-[hsl(43,100%,29%)]">{player.total_points} points</span>
+              <Link
+                href="/initiatives/sikh-padel-association/leaderboard"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[#c8d4dc] hover:text-white"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back to leaderboard
+              </Link>
+
+              <span className="mt-6 inline-flex rounded-full bg-[#e6a429] px-3 py-1.5 text-[10px] font-semibold text-[#0f2940]">
+                {formatCountryFlag(rankedPlayer.country_code)} {rankedPlayer.country_code === "NO" ? "NORWAY" : rankedPlayer.country_code === "GB" ? "UNITED KINGDOM" : rankedPlayer.country_code}
+              </span>
+
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-5xl">
+                {rankedPlayer.first_name} {rankedPlayer.last_name}
+              </h1>
+              <p className="mt-2 text-sm text-[#b9c8d1]">
+                SPA player · {history.length} ranked {history.length === 1 ? "event" : "events"}
+                {player?.city_country ? " · " + player.city_country : ""}
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-8">
+                <div>
+                  <p className="text-[9px] font-bold text-[#e6a429]">CURRENT RANK</p>
+                  <p className="mt-1 text-lg font-semibold text-white">#{rankedPlayer.rank}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold text-[#e6a429]">RANKING POINTS</p>
+                  <p className="mt-1 text-lg font-semibold text-white">
+                    {rankedPlayer.total_points.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold text-[#e6a429]">BEST FINISH</p>
+                  <p className="mt-1 text-lg font-semibold text-white">
+                    {rankedPlayer.titles > 0 ? "Champion" : rankedPlayer.runner_up_finishes > 0 ? "Runner-up" : "—"}
+                  </p>
+                </div>
               </div>
             </div>
+
+            <div className="w-full max-w-[270px] rounded-[16px] bg-white p-5 text-[#0f2940] shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+              <p className="text-[9px] font-bold text-[#e6a429]">CURRENT POSITION</p>
+              <p className="mt-2 text-5xl font-bold">#{rankedPlayer.rank}</p>
+              <p className="mt-3 text-xs font-semibold text-[#2f7d5a]">
+                {rankedPlayer.movement === "up"
+                  ? "↑ Up since previous update"
+                  : rankedPlayer.movement === "down"
+                    ? "↓ Down since previous update"
+                    : rankedPlayer.movement === "new"
+                      ? "New to the ranking"
+                      : "No change"}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl space-y-6 px-6 py-8 lg:px-12 lg:py-10">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            {[
+              [rankedPlayer.total_points.toLocaleString(), "Points"],
+              [String(rankedPlayer.titles), "Titles"],
+              [String(rankedPlayer.runner_up_finishes), "Runner-up"],
+              [String(rankedPlayer.match_wins), "Match wins"],
+              [Math.round(rankedPlayer.win_percentage) + "%", "Win rate"],
+              [Math.round(rankedPlayer.group_points_won_percentage) + "%", "Group pts won"],
+            ].map(([value, label]) => (
+              <div
+                key={label}
+                className="rounded-[14px] border border-[#dedfe3] bg-white p-4"
+              >
+                <p className="text-2xl font-bold text-[#0f2940]">{value}</p>
+                <p className="mt-1 text-[10px] font-semibold text-[#6a6d77]">{label}</p>
+              </div>
+            ))}
           </div>
 
-          <h2 className="text-lg font-semibold mb-4">Tournament history</h2>
-          {history.length === 0 ? (
-            <p className="text-muted-foreground">No tournament results recorded yet.</p>
-          ) : (
-            <>
-              <div className="divide-y divide-border overflow-hidden rounded-lg border border-border md:hidden">
-                {history.map((row, index) => (
-                  <div key={index} className="space-y-3 px-4 py-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground">{row.tournamentName}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">{row.eventDate}</p>
-                      </div>
-                      <p className="shrink-0 text-right font-semibold text-[hsl(43,100%,29%)]">{row.points} <span className="text-xs font-normal">pts</span></p>
+          {trajectory.length > 0 ? (
+            <section className="rounded-[14px] border border-[#dedfe3] bg-white p-5 shadow-[0_6px_20px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-[#0f2940]">Ranking trajectory</h2>
+                  <p className="mt-1 text-xs text-[#6a6d77]">Last {trajectory.length} ranking updates.</p>
+                </div>
+                <span className="rounded-full bg-[#f4f4f6] px-3 py-1 text-[9px] font-semibold text-[#0f2940]">
+                  RANK HISTORY
+                </span>
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
+                {trajectory.map((point, index) => (
+                  <div key={point.tournamentName + point.eventDate} className="text-center">
+                    <div
+                      className={
+                        "mx-auto flex h-24 w-12 items-end justify-center rounded-[10px] pb-2 text-xs font-bold text-white " +
+                        (index === trajectory.length - 1 ? "bg-[#e6a429]" : "bg-[#183f5d]")
+                      }
+                    >
+                      #{point.rank}
                     </div>
-                    <dl className="grid grid-cols-2 gap-3 text-sm">
-                      <div><dt className="text-xs text-muted-foreground">Finish</dt><dd className="mt-1 font-medium text-foreground">{getPositionLabel(row.finishingPosition)}</dd></div>
-                      <div><dt className="text-xs text-muted-foreground">Partner</dt><dd className="mt-1 text-foreground">{row.partnerName || "-"}</dd></div>
-                    </dl>
+                    <p className="mt-2 truncate text-[9px] font-medium text-[#6a6d77]">
+                      {point.tournamentName}
+                    </p>
                   </div>
                 ))}
               </div>
-              <div className="hidden overflow-hidden rounded-lg border border-border md:block">
-                <table className="w-full text-sm">
-                  <thead className="bg-secondary/40"><tr><th className="text-left px-4 py-3 font-medium text-muted-foreground">Tournament</th><th className="text-left px-4 py-3 font-medium text-muted-foreground">Finishing position</th><th className="text-left px-4 py-3 font-medium text-muted-foreground">Partner</th><th className="text-right px-4 py-3 font-medium text-muted-foreground">Points</th></tr></thead>
-                  <tbody>{history.map((row, index) => (<tr key={index} className="border-t border-border"><td className="px-4 py-3"><div className="font-medium text-foreground">{row.tournamentName}</div><div className="text-xs text-muted-foreground">{row.eventDate}</div></td><td className="px-4 py-3">{getPositionLabel(row.finishingPosition)}</td><td className="px-4 py-3 text-muted-foreground">{row.partnerName || "-"}</td><td className="px-4 py-3 text-right font-semibold text-foreground">{row.points}</td></tr>))}</tbody>
-                </table>
-              </div>
-            </>
-                    )}
+            </section>
+          ) : null}
 
-          <div className="mt-10 text-center">
-            <Link href="/initiatives/sikh-padel-association">
-              <Button variant="secondary" className="rounded-full px-6">
-                Back to Sikh Padel Association
-              </Button>
-            </Link>
+          <section className="overflow-hidden rounded-[14px] border border-[#dedfe3] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.05)]">
+            <div className="px-5 py-4">
+              <h2 className="text-lg font-bold text-[#0f2940]">Tournament history</h2>
+              <p className="mt-1 text-[10px] text-[#6a6d77]">
+                Each finalised event contributes to the player&apos;s competitive record.
+              </p>
+            </div>
+
+            {history.length === 0 ? (
+              <p className="border-t border-[#dedfe3] px-5 py-10 text-sm text-[#6a6d77]">
+                No tournament results recorded yet.
+              </p>
+            ) : (
+              <>
+                <div className="divide-y divide-[#dedfe3] md:hidden">
+                  {history.map((row) => (
+                    <div key={row.tournamentName + row.eventDate} className="space-y-3 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-[#0f2940]">{row.tournamentName}</p>
+                          <p className="mt-1 text-[10px] text-[#6a6d77]">{row.eventDate}</p>
+                        </div>
+                        <p className="text-sm font-bold text-[#0f2940]">+{row.points} pts</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <p className="text-[9px] text-[#6a6d77]">Finish</p>
+                          <p className="mt-1 font-semibold text-[#15171c]">
+                            {getPositionLabel(row.finishingPosition)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] text-[#6a6d77]">Match record</p>
+                          <p className="mt-1 font-semibold text-[#15171c]">
+                            {row.matchWins}–{Math.max(0, row.matchesPlayed - row.matchWins)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="hidden md:block">
+                  <div className="grid grid-cols-[minmax(260px,1fr)_180px_150px_150px_120px] bg-[#f4f4f6] px-5 py-2.5 text-[9px] font-bold text-[#6a6d77]">
+                    <span>EVENT</span>
+                    <span>FINISH</span>
+                    <span>PARTNER</span>
+                    <span>MATCH RECORD</span>
+                    <span>POINTS</span>
+                  </div>
+                  {history.map((row) => (
+                    <div
+                      key={row.tournamentName + row.eventDate}
+                      className="grid grid-cols-[minmax(260px,1fr)_180px_150px_150px_120px] items-center border-t border-[#dedfe3] px-5 py-3 text-[11px]"
+                    >
+                      <span>
+                        <span className="block font-semibold text-[#0f2940]">{row.tournamentName}</span>
+                        <span className="mt-0.5 block text-[9px] text-[#6a6d77]">{row.eventDate}</span>
+                      </span>
+                      <span>{getPositionLabel(row.finishingPosition)}</span>
+                      <span className="truncate text-[#6a6d77]">{row.partnerName || "—"}</span>
+                      <span>
+                        {row.matchWins}–{Math.max(0, row.matchesPlayed - row.matchWins)}
+                      </span>
+                      <span className="font-semibold text-[#0f2940]">+{row.points}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
+
+          <div className="rounded-[12px] bg-[#f4f4f6] px-4 py-3 text-[10px] leading-5 text-[#6a6d77]">
+            Nationality and identity come from the canonical player record. Performance
+            statistics and ranking position are derived from finalised tournament data.
           </div>
         </section>
       </main>
