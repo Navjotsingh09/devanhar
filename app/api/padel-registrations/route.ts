@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendPadelRegistrationOwnerNotification } from '@/lib/padel-registration-emails'
 import { sendPadelPaymentPendingEmail, sendPadelRegistrationReceivedEmail } from '@/lib/padel-registration-emails'
-import { signPadelResumeToken } from '@/lib/padel-resume-token'
+import { getPadelPaymentDestination } from '@/lib/padel-payment'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -70,19 +70,21 @@ export async function POST(request: NextRequest) {
     let eventName = process.env.PADEL_EVENT_NAME || 'Sikh Padel Association tournament'
     let feePerPersonGbp = DEFAULT_PADEL_FEE_PER_PERSON_GBP
 
-    if (body.tournament_id) {
-      const { data: tournament } = await supabase
-        .from('padel_tournaments')
-        .select('name, fee_per_person, is_public, registration_open')
-        .eq('id', body.tournament_id)
-        .maybeSingle()
-
-      if (tournament?.name) eventName = tournament.name
-      if (tournament?.fee_per_person != null) feePerPersonGbp = Number(tournament.fee_per_person)
-      if (tournament && tournament.registration_open === false) {
-        return NextResponse.json({ error: 'Registration for this tournament is closed.' }, { status: 409 })
-      }
+    // Resolve the event on the server: a stale or forged tournament id cannot
+    // register a pair for a closed/private event or select its payment destination.
+    let tournamentQuery = supabase.from('padel_tournaments').select('*').eq('is_public', true)
+      .gte('event_date', new Date().toISOString().slice(0, 10))
+    if (body.tournament_id) tournamentQuery = tournamentQuery.eq('id', body.tournament_id)
+    const { data: tournament, error: tournamentError } = await tournamentQuery
+      .order('event_date').limit(1).maybeSingle()
+    if (tournamentError) throw new Error('Unable to load tournament')
+    if (!tournament || tournament.registration_open === false) {
+      return NextResponse.json({ error: 'Registration for this tournament is unavailable.' }, { status: 409 })
     }
+    eventName = tournament.name
+    feePerPersonGbp = Number(tournament.fee_per_person ?? DEFAULT_PADEL_FEE_PER_PERSON_GBP)
+    if (!Number.isFinite(feePerPersonGbp) || feePerPersonGbp < 0) throw new Error('Invalid tournament fee')
+    const payment = getPadelPaymentDestination(tournament)
 
     const phoneNormalized = normalizePhone(body.captain_phone)
     if (phoneNormalized.length >= 7) {
@@ -94,6 +96,7 @@ export async function POST(request: NextRequest) {
           .select('id')
           .eq('captain_phone_normalized', phoneNormalized)
           .eq('status', 'approved')
+          .eq('tournament_id', tournament.id)
         if (initiative?.id) {
           dupeQuery.eq('initiative_id', initiative.id)
         }
@@ -114,6 +117,7 @@ export async function POST(request: NextRequest) {
 
     const payload: Record<string, unknown> = {
       initiative_id: initiative?.id || null,
+      tournament_id: tournament.id,
       event_name: eventName,
       captain_first_name: body.captain_first_name.trim(),
       captain_last_name: body.captain_last_name.trim(),
@@ -147,6 +151,8 @@ export async function POST(request: NextRequest) {
       source: typeof body.source === 'string' && body.source.trim() ? body.source.trim().slice(0, 255) : null,
       medium: typeof body.medium === 'string' && body.medium.trim() ? body.medium.trim().slice(0, 255) : null,
       status: 'payment_pending',
+      payment_status: 'pending',
+      payment_provider: payment.provider,
     }
 
     const { data, error } = await supabase
@@ -184,27 +190,28 @@ export async function POST(request: NextRequest) {
       },
     }).then(undefined, () => {})
 
-    // Redirect to NowDonate for payment processing -- reference/custom carries the
-    // registration id so the DonationManager webhook can auto-confirm this team on payment.
-    const initiativePath = `/initiatives/${body.initiative_slug || 'sikh-padel-association'}`
-    const nowDonateReference = `padel_registration:${data.id}`
-    const nowDonateUrlObj = new URL("https://www.nowdonate.com/checkout/63hzpepp0m54p65i54d0")
-    nowDonateUrlObj.searchParams.set('amount', String(entryFeePence / 100))
-    nowDonateUrlObj.searchParams.set('reference', nowDonateReference)
-    nowDonateUrlObj.searchParams.set('custom', nowDonateReference)
-    if (payload.captain_email) {
-      nowDonateUrlObj.searchParams.set('prefilled_email', payload.captain_email as string)
+    // TotalGiving must use the team's exact supplied appeal URL. Do not invent
+    // unsupported reference/return parameters or treat opening the link as paid.
+    const paymentUrlObj = new URL(payment.url)
+    if (payment.provider === 'nowdonate') {
+      const reference = `padel_registration:${data.id}`
+      paymentUrlObj.searchParams.set('amount', String(entryFeePence / 100))
+      paymentUrlObj.searchParams.set('reference', reference)
+      paymentUrlObj.searchParams.set('custom', reference)
+      paymentUrlObj.searchParams.set('prefilled_email', String(payload.captain_email))
+      paymentUrlObj.searchParams.set('success_url', `${siteUrl}/spa?paid=1`)
+      paymentUrlObj.searchParams.set('cancel_url', `${siteUrl}/spa?paid=0`)
     }
-    nowDonateUrlObj.searchParams.set('success_url', `${siteUrl}${initiativePath}?paid=1`)
-    nowDonateUrlObj.searchParams.set('cancel_url', `${siteUrl}${initiativePath}?paid=0`)
-    const nowDonateUrl = nowDonateUrlObj.toString()
+    const paymentUrl = paymentUrlObj.toString()
 
     try {
       await sendPadelPaymentPendingEmail({
         to: payload.captain_email as string,
         firstName: body.captain_first_name.trim(),
         teamName: teamLabel,
-        resumeUrl: nowDonateUrl,
+        paymentUrl,
+        registrationId: String(data.id),
+        eventName,
       })
     } catch (emailErr) {
       console.error('[Padel Email] Payment-pending email failed (non-blocking):', emailErr)
@@ -213,11 +220,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        payment_mode: 'donation_manager',
+        payment_mode: payment.provider,
         title: 'Registration received — payment required',
         message: 'Your team registration is complete. Please proceed to complete your entry fee payment.',
-        payment_url: nowDonateUrl,
-        redirect_url: nowDonateUrl,
+        registration_id: data.id,
+        payment_url: paymentUrl,
+        redirect_url: paymentUrl,
       }, 
       { status: 201 }
     )

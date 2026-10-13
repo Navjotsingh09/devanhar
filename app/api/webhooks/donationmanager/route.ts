@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { canAutoConfirmPadelRegistration } from '@/lib/padel-payment'
 import { sendPadelRegistrationApprovedEmail } from '@/lib/padel-registration-emails'
 
 const WEBHOOK_SECRET = process.env.DONATIONMANAGER_WEBHOOK_SECRET
@@ -197,39 +198,28 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Sikh Padel Association: auto-confirm a team once their entry fee donation completes
+    // Legacy reference-based payment confirmation. A payment must never reverse
+    // a staff decline/archive, or be inferred from visiting the payment page.
     const padelRegistrationId = extractIdFromReference(reference, 'padel_registration:')
     if (padelRegistrationId && isCompletedDonation(payload)) {
-      const { data: reg, error: regFetchError } = await supabase
-        .from('padel_registrations')
-        .select('id, status, captain_email, captain_first_name, player2_first_name')
-        .eq('id', padelRegistrationId)
-        .maybeSingle()
-
-      if (regFetchError) {
-        console.error('[DonationManager Webhook] Failed to fetch padel registration:', regFetchError)
-      } else if (reg && reg.status !== 'approved') {
-        const { error: regUpdateError } = await supabase
-          .from('padel_registrations')
-          .update({ status: 'approved', updated_at: new Date().toISOString() })
-          .eq('id', padelRegistrationId)
-
-        if (regUpdateError) {
-          console.error('[DonationManager Webhook] Failed to approve padel registration:', regUpdateError)
-        } else {
-          await supabase.from('activity_log').insert({
-            action: 'Padel entry fee received via DonationManager — team auto-confirmed',
-            entity_type: 'padel_registration',
-            entity_id: padelRegistrationId,
-          }).then(undefined, () => {})
-
-          if (reg.captain_email) {
-            sendPadelRegistrationApprovedEmail({
-              to: reg.captain_email,
-              firstName: reg.captain_first_name || 'Player',
-              teamName: reg.player2_first_name ? `${reg.captain_first_name || 'Player'} & ${reg.player2_first_name}` : undefined,
-            }).catch((err: unknown) => console.error('[DonationManager Webhook] Padel approved email failed (non-blocking):', err))
-          }
+      if (!WEBHOOK_SECRET) return NextResponse.json({ error: 'Payment verification is not configured' }, { status: 503 })
+      const { data: reg, error: fetchError } = await supabase.from('padel_registrations')
+        .select('*').eq('id', padelRegistrationId).maybeSingle()
+      if (fetchError) throw fetchError
+      // TotalGiving appeal payments are verified through receipt records until
+      // a provider-specific confirmation integration is actually configured.
+      if (reg && reg.payment_provider !== 'totalgiving' && reg.payment_status !== 'paid' && canAutoConfirmPadelRegistration(reg.status)) {
+        const { data: updated, error: updateError } = await supabase.from('padel_registrations')
+          .update({ status: 'approved', payment_status: 'paid', payment_provider: reg.payment_provider || 'nowdonate',
+            payment_reference: reference, payment_verified_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq('id', reg.id).eq('status', reg.status).eq('payment_status', reg.payment_status).select('id').maybeSingle()
+        if (updateError) throw updateError
+        if (updated) {
+          await supabase.from('padel_activity_log').insert({ registration_id: reg.id, action: 'legacy_payment_confirmed' })
+          if (reg.captain_email) await sendPadelRegistrationApprovedEmail({
+            to: reg.captain_email, firstName: reg.captain_first_name || 'Player',
+            teamName: `${reg.captain_first_name || 'Player'} & ${reg.player2_first_name || 'Partner'}`, paymentVerified: true,
+          })
         }
       }
     }

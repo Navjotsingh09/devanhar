@@ -1,3 +1,4 @@
+import { getPadelAdminBasePath } from '@/lib/padel-admin-path'
 import Link from "next/link"
 import { AlertTriangle, CheckCircle2, Users } from "lucide-react"
 import { requirePadelStaff } from "@/lib/padel-admin"
@@ -9,6 +10,7 @@ function normalize(value: string) {
 }
 
 export default async function SPAIdentitiesPage() {
+  const basePath = await getPadelAdminBasePath()
   const supabase = await requirePadelStaff()
   const { data: players, error } = await supabase.from("padel_players")
     .select("id, first_name, last_name, is_active, total_points")
@@ -49,7 +51,7 @@ export default async function SPAIdentitiesPage() {
       <div className="rounded-xl border bg-card">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
           <h2 className="font-semibold">Potential duplicate identities</h2>
-          <Link href="/dashboard/padel/players" className="text-sm font-medium text-primary hover:underline">Open player records →</Link>
+          <Link href={`${basePath}/players`} className="text-sm font-medium text-primary hover:underline">Open player records →</Link>
         </div>
         {collisions.length === 0 ? <p className="p-6 text-sm text-muted-foreground">No identical normalised names found. Different spellings and near-matches still require source-note review.</p> :
           <div className="divide-y">

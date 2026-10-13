@@ -62,10 +62,8 @@ export async function updateSession(request: NextRequest) {
 
   // Domain restriction: only @devanhaar.com emails may access the dashboard
   if (pathname.startsWith("/dashboard") && user && !user.email?.toLowerCase().endsWith("@devanhaar.com")) {
-    await supabase.auth.signOut()
     const url = request.nextUrl.clone()
-    url.pathname = "/auth/login"
-    url.searchParams.set("error", "access_denied")
+    url.pathname = "/spa-admin"
     return NextResponse.redirect(url)
   }
 

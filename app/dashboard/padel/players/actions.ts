@@ -38,6 +38,7 @@ export async function createPlayer(input: PlayerInput): Promise<ActionResult> {
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
@@ -72,6 +73,7 @@ export async function updatePlayer(playerId: string, input: PlayerInput): Promis
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
   revalidatePath('/spa/leaderboard')
@@ -92,6 +94,7 @@ export async function setPlayerActive(playerId: string, isActive: boolean): Prom
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
   revalidatePath('/spa/leaderboard')
@@ -116,6 +119,7 @@ export async function deletePlayer(playerId: string): Promise<ActionResult> {
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
   revalidatePath('/spa/leaderboard')

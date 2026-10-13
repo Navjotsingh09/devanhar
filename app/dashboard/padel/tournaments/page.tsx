@@ -1,3 +1,4 @@
+import { getPadelAdminBasePath } from '@/lib/padel-admin-path'
 import { requirePadelStaff } from '@/lib/padel-admin'
 import { PadelTournamentsManager, type PadelTournamentRow } from '@/components/padel/padel-tournaments-manager'
 
@@ -8,7 +9,7 @@ async function getTournaments(): Promise<PadelTournamentRow[]> {
 
   const full = await supabase
     .from('padel_tournaments')
-    .select('id, name, event_date, category, applicable_stages, status, event_time, venue, address, map_url, fee_per_person, public_description, is_public, registration_open')
+    .select('id, name, event_date, category, applicable_stages, status, event_time, venue, address, map_url, fee_per_person, public_description, is_public, registration_open, payment_url')
     .order('event_date', { ascending: false })
 
   if (!full.error) return full.data || []
@@ -25,6 +26,7 @@ async function getTournaments(): Promise<PadelTournamentRow[]> {
     event_time: null,
     venue: null,
     address: null,
+    payment_url: null,
     map_url: null,
     fee_per_person: 50,
     public_description: null,
@@ -35,6 +37,7 @@ async function getTournaments(): Promise<PadelTournamentRow[]> {
 
 export default async function PadelTournamentsPage() {
   const tournaments = await getTournaments()
+  const basePath = await getPadelAdminBasePath()
 
   return (
     <div className="space-y-6">
@@ -44,7 +47,7 @@ export default async function PadelTournamentsPage() {
           Create tournaments, manage scoring stages, and choose which event is published on the live Sikh Padel Association page.
         </p>
       </div>
-      <PadelTournamentsManager tournaments={tournaments} />
+      <PadelTournamentsManager tournaments={tournaments} basePath={basePath} />
     </div>
   )
 }

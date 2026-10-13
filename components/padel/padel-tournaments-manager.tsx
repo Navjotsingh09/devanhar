@@ -28,6 +28,7 @@ export type PadelTournamentRow = {
   event_time: string | null
   venue: string | null
   address: string | null
+  payment_url: string | null
   map_url: string | null
   fee_per_person: number
   public_description: string | null
@@ -43,6 +44,7 @@ type FormState = {
   event_time: string
   venue: string
   address: string
+  payment_url: string
   map_url: string
   fee_per_person: string
   public_description: string
@@ -58,6 +60,7 @@ const emptyForm: FormState = {
   event_time: '',
   venue: '',
   address: '',
+  payment_url: '',
   map_url: '',
   fee_per_person: '50',
   public_description: '',
@@ -65,7 +68,7 @@ const emptyForm: FormState = {
   registration_open: true,
 }
 
-export function PadelTournamentsManager({ tournaments }: { tournaments: PadelTournamentRow[] }) {
+export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/padel" }: { tournaments: PadelTournamentRow[]; basePath?: string }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -88,6 +91,7 @@ export function PadelTournamentsManager({ tournaments }: { tournaments: PadelTou
       event_time: tournament.event_time || '',
       venue: tournament.venue || '',
       address: tournament.address || '',
+      payment_url: tournament.payment_url || '',
       map_url: tournament.map_url || '',
       fee_per_person: String(tournament.fee_per_person ?? 50),
       public_description: tournament.public_description || '',
@@ -116,6 +120,7 @@ export function PadelTournamentsManager({ tournaments }: { tournaments: PadelTou
         event_time: form.event_time || null,
         venue: form.venue || null,
         address: form.address || null,
+        payment_url: form.payment_url || null,
         map_url: form.map_url || null,
         fee_per_person: Number(form.fee_per_person || 50),
         public_description: form.public_description || null,
@@ -184,7 +189,7 @@ export function PadelTournamentsManager({ tournaments }: { tournaments: PadelTou
                 <TableCell className="text-muted-foreground">{tournament.venue || '—'}</TableCell>
                 <TableCell className="text-muted-foreground">{tournament.applicable_stages.length} stages</TableCell>
                 <TableCell className="text-right space-x-1">
-                  <Link href={`/dashboard/padel/tournaments/${tournament.id}/results`}>
+                  <Link href={`${basePath}/tournaments/${tournament.id}/results`}>
                     <Button variant="ghost" size="icon" title="Enter results"><ClipboardList className="h-4 w-4" /></Button>
                   </Link>
                   <Button variant="ghost" size="icon" onClick={() => openEdit(tournament)} disabled={isPending}><Pencil className="h-4 w-4" /></Button>
@@ -233,6 +238,7 @@ export function PadelTournamentsManager({ tournaments }: { tournaments: PadelTou
               </div>
               <div><Label htmlFor="venue">Venue</Label><Input id="venue" value={form.venue} onChange={(e)=>setForm(p=>({...p,venue:e.target.value}))} placeholder="e.g. Plaza Padel Amsterdam" /></div>
               <div><Label htmlFor="address">Address</Label><Input id="address" value={form.address} onChange={(e)=>setForm(p=>({...p,address:e.target.value}))} /></div>
+              <div><Label htmlFor="payment_url">Tournament payment link</Label><Input id="payment_url" type="url" value={form.payment_url} onChange={(e)=>setForm(p=>({...p,payment_url:e.target.value}))} placeholder="https://www.totalgiving.co.uk/appeal/.../donate" /><p className="mt-1 text-xs text-muted-foreground">Used after registration and in the payment email.</p></div>
               <div><Label htmlFor="map_url">Map URL</Label><Input id="map_url" type="url" value={form.map_url} onChange={(e)=>setForm(p=>({...p,map_url:e.target.value}))} placeholder="https://..." /></div>
               <div>
                 <Label htmlFor="public_description">Public description</Label>

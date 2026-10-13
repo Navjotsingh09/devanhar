@@ -295,7 +295,7 @@ export function PadelRegistrationForm({
       if (!res.ok) {
         setError(data.error || "Failed to submit. Please try again.")
       } else {
-        // Redirect to NowDonate for payment
+        // The server returns the payment destination for this tournament.
         if (data.redirect_url) {
           window.location.href = data.redirect_url
           return

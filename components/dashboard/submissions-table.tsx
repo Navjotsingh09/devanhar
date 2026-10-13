@@ -600,12 +600,12 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
             return
           }
           await captureApplicationPayment(id)
-          toast.success('Approved — payment captured')
+          toast.success('Application approved')
           return
         }
         if (sourceTable === 'camp_applications' && status === 'declined') {
           await cancelApplicationPayment(id)
-          toast.success('Declined — funds released')
+          toast.success('Application declined')
           return
         }
         if (sourceTable === 'camp_applications' && status === 'withdrawn') {
@@ -635,12 +635,12 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
         }
         if (sourceTable === 'padel_registrations' && status === 'approved') {
           await capturePadelPayment(id)
-          toast.success('Approved — payment captured')
+          toast.success('Application approved')
           return
         }
         if (sourceTable === 'padel_registrations' && status === 'declined') {
           await cancelPadelPayment(id)
-          toast.success('Declined — funds released')
+          toast.success('Application declined')
           return
         }
         await updateSubmissionStatus(id, status, sourceTable)
@@ -653,24 +653,24 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   const handleApprove = (id: string) => {
     startTransition(async () => {
-      try { await captureApplicationPayment(id); toast.success('Approved - payment captured') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
+      try { await captureApplicationPayment(id); toast.success('Application approved') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
     })
   }
 
   const handleDecline = (id: string) => {
     startTransition(async () => {
-      try { await cancelApplicationPayment(id); toast.success('Declined - funds released') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
+      try { await cancelApplicationPayment(id); toast.success('Application declined') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
     })
   }
 
   const handlePadelApprove = (id: string) => {
     startTransition(async () => {
-      try { await capturePadelPayment(id); toast.success('Approved - payment captured') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
+      try { await capturePadelPayment(id); toast.success('Application approved') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to approve') }
     })
   }
   const handlePadelDecline = (id: string) => {
     startTransition(async () => {
-      try { await cancelPadelPayment(id); toast.success('Declined - funds released') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
+      try { await cancelPadelPayment(id); toast.success('Application declined') } catch (err) { toast.error(err instanceof Error ? err.message : 'Failed to decline') }
     })
   }
 
@@ -1115,10 +1115,10 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         className="h-7 gap-1 px-2.5 text-xs font-semibold bg-green-600 hover:bg-green-700 text-white shadow-sm"
                         onClick={() => handlePadelApprove(sub.id)}
                         disabled={isPending}
-                        title={getPaymentHealth(sub) === 'authorized' ? 'Payment on hold — click to capture' : 'Approve registration'}
+                        title={'Approve application; this does not collect payment'}
                       >
                         <CheckCircle className="h-3.5 w-3.5" />
-                        {getPaymentHealth(sub) === 'authorized' ? 'Capture' : 'Approve'}
+                        Approve
                       </Button>
                       <Button
                         variant="ghost"
@@ -1126,7 +1126,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                         className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                         onClick={() => handlePadelDecline(sub.id)}
                         disabled={isPending}
-                        title={getPaymentHealth(sub) === 'authorized' ? 'Release hold — decline and return funds' : 'Decline registration'}
+                        title={'Decline application; refunds are handled separately'}
                       >
                         <XCircle className="h-4 w-4" />
                         <span className="sr-only">Decline</span>
@@ -1288,11 +1288,11 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
                             <div className="flex gap-2 pt-2">
                               <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handlePadelApprove(sub.id)} disabled={isPending}>
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                {getPaymentHealth(sub) === 'authorized' ? 'Approve — Capture £100' : 'Approve Registration'}
+                                {getPaymentHealth(sub) === 'authorized' ? 'Approve application' : 'Approve Registration'}
                               </Button>
                               <Button variant="destructive" className="flex-1" onClick={() => handlePadelDecline(sub.id)} disabled={isPending}>
                                 <XCircle className="h-4 w-4 mr-2" />
-                                {getPaymentHealth(sub) === 'authorized' ? 'Release Hold — Decline' : 'Decline Registration'}
+                                {getPaymentHealth(sub) === 'authorized' ? 'Decline application' : 'Decline Registration'}
                               </Button>
                             </div>
                           )}

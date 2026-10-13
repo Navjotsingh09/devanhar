@@ -1,3 +1,4 @@
+import { getPadelAdminBasePath } from '@/lib/padel-admin-path'
 import Link from "next/link"
 import { AlertTriangle, ArrowUpRight, CheckCircle2, ClipboardCheck, Trophy, Users } from "lucide-react"
 import { requirePadelStaff } from "@/lib/padel-admin"
@@ -11,6 +12,7 @@ function normalizeName(value: string) {
 }
 
 export default async function SPARankingsAdminPage() {
+  const basePath = await getPadelAdminBasePath()
   const supabase = await requirePadelStaff()
 
   const [rawPlayers, schemaCheck, rawResults] = await Promise.all([
@@ -105,7 +107,7 @@ export default async function SPARankingsAdminPage() {
           <strong>{potentialDuplicates.length} possible duplicate player names.</strong>
           {" "}Review before importing results. Identical names are not sufficient proof that
           two records represent the same person.{" "}
-          <Link href="/dashboard/padel/identities" className="font-semibold underline">Review identities</Link>
+          <Link href={`${basePath}/identities`} className="font-semibold underline">Review identities</Link>
         </div>
       )}
 
@@ -152,7 +154,7 @@ export default async function SPARankingsAdminPage() {
         </div>
       </div>
 
-      <SPAParityChecker leaderboard={leaderboard.map((row) => ({
+      <div id="parity" /><SPAParityChecker leaderboard={leaderboard.map((row) => ({
         id: row.id,
         name: [row.first_name, row.last_name].filter(Boolean).join(" "),
         rank: row.rank,
@@ -160,9 +162,9 @@ export default async function SPARankingsAdminPage() {
       }))} />
 
       <div className="flex flex-wrap gap-3 text-sm">
-        <Link href="/dashboard/padel/players" className="rounded-lg border px-4 py-2 hover:bg-muted">Manage players</Link>
-        <Link href="/dashboard/padel/tournaments" className="rounded-lg border px-4 py-2 hover:bg-muted">Manage tournaments</Link>
-        <Link href="/dashboard/padel/results" className="rounded-lg border px-4 py-2 hover:bg-muted">Enter results</Link>
+        <Link href={`${basePath}/players`} className="rounded-lg border px-4 py-2 hover:bg-muted">Manage players</Link>
+        <Link href={`${basePath}/tournaments`} className="rounded-lg border px-4 py-2 hover:bg-muted">Manage tournaments</Link>
+        <Link href={`${basePath}/results`} className="rounded-lg border px-4 py-2 hover:bg-muted">Enter results</Link>
       </div>
     </div>
   )

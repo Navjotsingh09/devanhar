@@ -2,6 +2,7 @@
 
 import { checkPadelStaffAccess } from '@/lib/padel-admin'
 import { revalidatePath } from 'next/cache'
+import { validatePadelPaymentUrl } from '@/lib/padel-payment'
 import { FINISHING_POSITIONS } from '@/lib/padel-ranking'
 
 type TournamentInput = {
@@ -12,6 +13,7 @@ type TournamentInput = {
   event_time?: string | null
   venue?: string | null
   address?: string | null
+  payment_url?: string | null
   map_url?: string | null
   fee_per_person?: number | null
   public_description?: string | null
@@ -38,6 +40,7 @@ function clean(input: TournamentInput, stages: string[]) {
     event_time: input.event_time?.trim() || null,
     venue: input.venue?.trim() || null,
     address: input.address?.trim() || null,
+    payment_url: input.payment_url?.trim() || null,
     map_url: input.map_url?.trim() || null,
     fee_per_person: Number.isFinite(input.fee_per_person) ? input.fee_per_person : 50,
     public_description: input.public_description?.trim() || null,
@@ -50,6 +53,7 @@ async function refreshTournamentPages() {
   revalidatePath('/dashboard/padel/tournaments')
   revalidatePath('/dashboard/padel/results')
   revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association')
 }
@@ -69,6 +73,10 @@ export async function createTournament(input: TournamentInput): Promise<ActionRe
     if (!Number.isFinite(input.fee_per_person) || Number(input.fee_per_person) < 0) {
       return { error: 'Enter a valid fee per player before publishing' }
     }
+  }
+
+  if (input.payment_url?.trim() && !validatePadelPaymentUrl(input.payment_url.trim())) {
+    return { error: 'Use a valid HTTPS TotalGiving or NowDonate payment link' }
   }
 
   const stagesResult = validateStages(input.applicable_stages)
@@ -107,6 +115,10 @@ export async function updateTournament(tournamentId: string, input: TournamentIn
     if (!Number.isFinite(input.fee_per_person) || Number(input.fee_per_person) < 0) {
       return { error: 'Enter a valid fee per player before publishing' }
     }
+  }
+
+  if (input.payment_url?.trim() && !validatePadelPaymentUrl(input.payment_url.trim())) {
+    return { error: 'Use a valid HTTPS TotalGiving or NowDonate payment link' }
   }
 
   const stagesResult = validateStages(input.applicable_stages)
