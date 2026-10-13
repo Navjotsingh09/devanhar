@@ -7,7 +7,7 @@ import { SPAParityChecker } from "@/components/padel/spa-parity-checker"
 export const dynamic = "force-dynamic"
 
 function normalizeName(value: string) {
-  return value.normalize("NFKC").trim().replace(/\\s+/g, " ").toLocaleLowerCase("en-GB")
+  return value.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase("en-GB")
 }
 
 export default async function SPARankingsAdminPage() {
