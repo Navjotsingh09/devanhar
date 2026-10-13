@@ -49,7 +49,7 @@ export function FamilyProjectPage({
               <ArrowLeft className="h-4 w-4" /> Sikh Family Initiative
             </Link>
             <p className={`mb-4 text-xs font-semibold uppercase tracking-[0.24em] ${isWeddingHero ? "text-[#976b2a]" : "text-amber-300"}`}>{eyebrow}</p>
-            <h1 className={`max-w-4xl text-5xl font-bold leading-tight md:text-7xl ${isWeddingHero ? "font-serif tracking-tight" : ""}`}>{title}</h1>
+            <h1 className={`max-w-4xl text-5xl font-bold leading-tight md:text-7xl ${isWeddingHero ? "tracking-tight" : ""}`}>{title}</h1>
             <p className={`mt-5 max-w-2xl text-lg leading-relaxed md:text-xl ${isWeddingHero ? "text-[#485260]" : "text-white/85"}`}>{subtitle}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <div className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold ${isWeddingHero ? "border-[#dec7a3] bg-white/85 text-[#3e3833]" : "border-white/20 bg-white/10 backdrop-blur-sm"}`}>
