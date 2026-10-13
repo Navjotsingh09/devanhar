@@ -140,6 +140,18 @@ export async function deleteTournament(tournamentId: string): Promise<ActionResu
   const supabase = await checkPadelStaffAccess()
   if (!supabase) return { error: 'Only authorised SPA staff may manage tournaments' }
 
+  // Deleting an event cascades its results. That would leave stored player
+  // totals and historical ranking snapshots inconsistent with the ledger.
+  // Do not allow this destructive operation for scored tournaments.
+  const { count, error: countError } = await supabase
+    .from('padel_tournament_results')
+    .select('id', { count: 'exact', head: true })
+    .eq('tournament_id', tournamentId)
+  if (countError) return { error: countError.message }
+  if (count && count > 0) {
+    return { error: 'This tournament has recorded results. Deleting it would corrupt official rankings. Correct its results first; scored tournaments cannot be deleted from this screen.' }
+  }
+
   const { error } = await supabase.from('padel_tournaments').delete().eq('id', tournamentId)
   if (error) return { error: error.message }
 
