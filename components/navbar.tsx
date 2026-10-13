@@ -47,8 +47,15 @@ const MEGA_MENU_PROJECTS = [
     title: "Sikh Family Initiative",
     description: "The umbrella for Sikh Family Retreat, Sikh Family Extravaganza and Wedding Fair.",
     image: "/initiatives/sikh-family-retreat-top.png",
-    href: "/initiatives/sikh-family-initiative",
+    href: "/sfi",
     tag: "Family",
+  },
+  {
+    title: "Punjab Education Support Project",
+    description: "Building stronger schools through partnership, teacher development and long-term educational opportunity in Punjab.",
+    image: "/images/initiatives-hero.jpg",
+    href: "/pes",
+    tag: "Education",
   },
   {
     title: "Sikhi Vidyala",
@@ -61,7 +68,7 @@ const MEGA_MENU_PROJECTS = [
     title: "Sikh Padel Association",
     description: "Community through padel — team tournaments, friendly competition and a live leaderboard.",
     image: "/initiatives/sikh-padel-association-top.jpg",
-    href: "/initiatives/sikh-padel-association",
+    href: "/spa",
     tag: "Sports",
   },
 ]
