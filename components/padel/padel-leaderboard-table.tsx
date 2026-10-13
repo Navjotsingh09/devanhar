@@ -72,7 +72,7 @@ function TopPlayerCard({ row, leader }: { row: LeaderboardRow; leader?: boolean 
 
   return (
     <Link
-      href={'/initiatives/sikh-padel-association/leaderboard/' + row.id}
+      href={'/spa/leaderboard/' + row.id}
       className={classes}
     >
       <div className="flex items-center justify-between">
@@ -209,7 +209,7 @@ export function PadelLeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
         {pageRows.map((row) => (
           <Link
             key={row.id}
-            href={'/initiatives/sikh-padel-association/leaderboard/' + row.id}
+            href={'/spa/leaderboard/' + row.id}
             className="flex items-center gap-3 rounded-[14px] border border-[#dedfe3] bg-white p-3"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#f4f4f6] text-xs font-bold text-[#0f2940]">
@@ -246,7 +246,7 @@ export function PadelLeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
         {pageRows.map((row) => (
           <Link
             key={row.id}
-            href={'/initiatives/sikh-padel-association/leaderboard/' + row.id}
+            href={'/spa/leaderboard/' + row.id}
             className="grid grid-cols-[55px_minmax(240px,1fr)_95px_75px_95px_75px_90px_110px_78px] items-center border-t border-[#dedfe3] px-4 py-3 text-[11px] transition-colors hover:bg-[#fafafb]"
           >
             <span className="font-semibold text-[#15171c]">{row.rank}</span>
