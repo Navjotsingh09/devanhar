@@ -184,8 +184,8 @@ export async function POST(request: NextRequest) {
       },
     }).then(undefined, () => {})
 
-    // Redirect to NowDonate for payment processing -- reference/custom carries the
-    // registration id so the DonationManager webhook can auto-confirm this team on payment.
+    // Amsterdam uses the supplied TotalGiving appeal; registration is already saved.
+    // Existing checkout parameters apply only to the other tournaments.
     const initiativePath = `/initiatives/${body.initiative_slug || 'sikh-padel-association'}`
     const nowDonateReference = `padel_registration:${data.id}`
     const nowDonateUrlObj = new URL("https://www.nowdonate.com/checkout/63hzpepp0m54p65i54d0")
@@ -197,14 +197,17 @@ export async function POST(request: NextRequest) {
     }
     nowDonateUrlObj.searchParams.set('success_url', `${siteUrl}${initiativePath}?paid=1`)
     nowDonateUrlObj.searchParams.set('cancel_url', `${siteUrl}${initiativePath}?paid=0`)
-    const nowDonateUrl = nowDonateUrlObj.toString()
+    const isAmsterdam = /\bamsterdam\b/i.test(eventName)
+    const paymentUrl = isAmsterdam
+      ? 'https://www.totalgiving.co.uk/appeal/SPAEU/donate'
+      : nowDonateUrlObj.toString()
 
     try {
       await sendPadelPaymentPendingEmail({
         to: payload.captain_email as string,
         firstName: body.captain_first_name.trim(),
         teamName: teamLabel,
-        resumeUrl: nowDonateUrl,
+        paymentUrl,
       })
     } catch (emailErr) {
       console.error('[Padel Email] Payment-pending email failed (non-blocking):', emailErr)
@@ -213,11 +216,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        payment_mode: 'donation_manager',
+        payment_mode: isAmsterdam ? 'totalgiving' : 'donation_manager',
         title: 'Registration received — payment required',
         message: 'Your team registration is complete. Please proceed to complete your entry fee payment.',
-        payment_url: nowDonateUrl,
-        redirect_url: nowDonateUrl,
+        payment_url: paymentUrl,
+        redirect_url: paymentUrl,
       }, 
       { status: 201 }
     )
