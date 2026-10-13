@@ -58,6 +58,13 @@ const MEGA_MENU_PROJECTS = [
     tag: "Education",
   },
   {
+    title: "Punjab Education Support",
+    description: "Building stronger schools in Punjab through teacher development, educational support and long-term partnerships.",
+    image: "/images/punjab-education-support-hero.jpg",
+    href: "/initiatives/punjab-education-support",
+    tag: "Education",
+  },
+  {
     title: "Sikh Padel Association",
     description: "Community through padel — team tournaments, friendly competition and a live leaderboard.",
     image: "/initiatives/sikh-padel-association-top.jpg",
@@ -390,7 +397,7 @@ export function Navbar() {
                       onClick={() => setOpenMenu(null)}
                       className="hidden text-sm font-semibold text-gray-700 transition-colors hover:text-amber-700 lg:inline-flex lg:items-center lg:gap-1"
                     >
-                      All 11 initiatives
+                      All 12 initiatives
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
