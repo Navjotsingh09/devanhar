@@ -40,6 +40,7 @@ export type PadelPlayerRow = {
   photo_url: string | null
   gender: string | null
   city_country: string | null
+  country_code: string
   is_active: boolean
   total_points: number
 }
@@ -49,10 +50,11 @@ type FormState = {
   last_name: string
   gender: string
   city_country: string
+  country_code: string
   photo_url: string
 }
 
-const emptyForm: FormState = { first_name: '', last_name: '', gender: '', city_country: '', photo_url: '' }
+const emptyForm: FormState = { first_name: '', last_name: '', gender: '', city_country: '', country_code: 'GB', photo_url: '' }
 
 export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) {
   const router = useRouter()
@@ -76,6 +78,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
       last_name: player.last_name,
       gender: player.gender || '',
       city_country: player.city_country || '',
+      country_code: player.country_code || 'GB',
       photo_url: player.photo_url || '',
     })
     setDialogOpen(true)
@@ -108,6 +111,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
         last_name: form.last_name,
         gender: form.gender || null,
         city_country: form.city_country || null,
+        country_code: form.country_code.trim().toUpperCase(),
         photo_url: form.photo_url || null,
       }
       const result = editingId ? await updatePlayer(editingId, input) : await createPlayer(input)
@@ -161,6 +165,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
             <TableRow>
               <TableHead>Photo</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Nationality</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Total points</TableHead>
               <TableHead>Status</TableHead>
@@ -177,6 +182,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
                   </Avatar>
                 </TableCell>
                 <TableCell className="font-medium">{player.first_name} {player.last_name}</TableCell>
+                <TableCell className="font-medium">{player.country_code === 'NO' ? '🇳🇴' : player.country_code === 'GB' ? '🇬🇧' : '🌐'} {player.country_code || 'GB'}</TableCell>
                 <TableCell className="text-muted-foreground">{player.city_country || '—'}</TableCell>
                 <TableCell className="font-semibold">{player.total_points}</TableCell>
                 <TableCell>
@@ -201,7 +207,7 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
             ))}
             {players.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   No players yet. Add your first player to get started.
                 </TableCell>
               </TableRow>
@@ -245,6 +251,13 @@ export function PadelPlayersManager({ players }: { players: PadelPlayerRow[] }) 
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="country_code">Nationality (ISO code)</Label>
+                <Input id="country_code" maxLength={2} autoCapitalize="characters"
+                  placeholder="GB, NO, US…" value={form.country_code}
+                  onChange={(event) => setForm((p) => ({ ...p, country_code: event.target.value.toUpperCase() }))} />
+                <p className="mt-1 text-xs text-muted-foreground">GB = UK, NO = Norway. Use an ISO two-letter code for international players.</p>
+              </div>
               <div>
                 <Label htmlFor="gender">Gender</Label>
                 <Select value={form.gender || undefined} onValueChange={(v) => setForm((p) => ({ ...p, gender: v }))}>
