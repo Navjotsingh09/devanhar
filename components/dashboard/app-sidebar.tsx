@@ -86,6 +86,8 @@ const padelNav: NavItem[] = [
   { title: 'Players', url: '/dashboard/padel/players', icon: Users },
   { title: 'Tournaments', url: '/dashboard/padel/tournaments', icon: Trophy },
   { title: 'Results', url: '/dashboard/padel/results', icon: ClipboardList },
+  { title: 'Rankings V2', url: '/dashboard/padel/rankings', icon: Trophy },
+  { title: 'Player identities', url: '/dashboard/padel/identities', icon: Shield },
 ]
 
 const rootsNav: NavItem[] = [
