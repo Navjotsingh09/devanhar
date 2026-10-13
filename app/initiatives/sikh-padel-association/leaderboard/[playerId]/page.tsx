@@ -109,7 +109,7 @@ export default async function PadelPlayerProfilePage({
           <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-10 lg:flex-row lg:items-center lg:justify-between lg:px-12 lg:py-12">
             <div>
               <Link
-                href="/initiatives/sikh-padel-association/leaderboard"
+                href="/spa/leaderboard"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[#c8d4dc] hover:text-white"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to leaderboard
