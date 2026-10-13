@@ -341,37 +341,7 @@ export default function SikhFamilyInitiativePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24">
-          <div className="container mx-auto max-w-5xl px-6 lg:px-12">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">
-              Sikh Wedding Fair · 13 February 2027
-            </p>
-            <h2 className="mt-3 max-w-4xl text-3xl font-bold tracking-tight md:text-5xl">
-              Prepare not just for a wedding day, but for a life together.
-            </h2>
-            <div className="mt-8 grid gap-8 md:grid-cols-2">
-              <div className="space-y-5 text-base leading-7 text-muted-foreground">
-                <p>
-                  A welcoming event for couples and their families to explore ideas for a Sikh wedding and connect with relevant Sikh wedding businesses. Discover inspiration for your celebrations and speak directly with suppliers about creating a day that reflects your values and personal style.
-                </p>
-                <p>
-                  Whatever your stage of planning, there will be space to ask questions and consider the options together as a family.
-                </p>
-              </div>
-              <div className="space-y-5 text-base leading-7 text-muted-foreground">
-                <p>
-                  At the heart of the event is an opportunity to explore the deeper meaning of Anand Karaj. More than a wedding ceremony, it marks the beginning of a shared spiritual journey, with Guru Sahib’s guidance at the centre of married life.
-                </p>
-                <p>
-                  Explore how that commitment can be nurtured through mutual respect and how couples can support one another’s connection with Sikhi while navigating everyday responsibilities. For families, it is also a chance to reflect on how to support the couple and keep the meaning of Anand Karaj at the heart of the preparations.
-                </p>
-              </div>
-            </div>
-            <Button asChild className="mt-8 rounded-full bg-[hsl(43,100%,29%)] px-7 text-white hover:bg-[hsl(43,100%,25%)]">
-              <Link href="/initiatives/wedding-fair">Explore the Sikh Wedding Fair <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          </div>
-        </section>
+        <section className="py-16 md:py-24">\n          <div className="container mx-auto max-w-5xl px-6 lg:px-12">\n            <div className="rounded-[2rem] border border-border bg-[#f8f8f5] p-8 md:p-12">\n              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">\n                Sikh Wedding Fair · 13 February 2027\n              </p>\n              <h2 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight md:text-5xl">\n                Planning a Sikh wedding?\n              </h2>\n              <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">\n                The Wedding Fair has its own dedicated page with the full event details, Anand Karaj guidance, supplier information and everything families need to know.\n              </p>\n              <Button asChild className="mt-7 rounded-full bg-[hsl(43,100%,29%)] px-7 text-white hover:bg-[hsl(43,100%,25%)]">\n                <Link href="/wf">Visit the Sikh Wedding Fair page <ArrowRight className="ml-2 h-4 w-4" /></Link>\n              </Button>\n            </div>\n          </div>\n        </section>
       </main>
       <FooterSection />
     </>
