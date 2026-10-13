@@ -20,6 +20,7 @@ export default function SpaLoginPage() {
         <div className="space-y-2"><Label htmlFor="password">Password</Label><Input id="password" name="password" type="password" autoComplete="current-password" required /></div>
         <Button type="submit" disabled={pending} className="w-full rounded-full bg-[#0f2940] text-white hover:bg-[#183f5d]">{pending ? 'Signing in…' : 'Sign in to SPA'}</Button>
       </form>
+      <Link href="/spa-admin/forgot-password" className="mt-4 inline-block text-sm font-medium underline underline-offset-4">Forgot your password?</Link>
       <p className="mt-6 text-xs text-[#6a6d77]">Use your existing organiser credentials. Access is granted by the SPA team.</p>
       <Link href="/spa/leaderboard" className="mt-5 inline-block text-sm font-medium underline underline-offset-4">View public rankings</Link>
     </section>
