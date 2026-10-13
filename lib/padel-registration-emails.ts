@@ -89,19 +89,22 @@ export async function sendPadelRegistrationApprovedEmail(params: {
   to: string
   firstName: string
   teamName?: string
+  paymentVerified?: boolean
 }): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) return false
   const { Resend } = await import('resend')
   const resend = new Resend(process.env.RESEND_API_KEY)
   const name = escapeHtml(params.firstName)
   const team = escapeHtml(params.teamName || 'your team')
-  const html = shell('Your place is confirmed', `
+  const html = shell(params.paymentVerified ? 'Your place is confirmed' : 'Application approved — payment verification pending', `
     <p>Dear ${name},</p>
-    <p>Great news — <strong>${team}</strong> is confirmed for the Sikh Padel Association tournament. Your entry fee payment has been completed.</p>
+    <p>Great news — the application for <strong>${team}</strong> has been approved for the Sikh Padel Association tournament.</p>
+    <p>${params.paymentVerified ? 'Your entry fee payment has been verified.' : 'This approval does not confirm payment. If you have already paid, keep your receipt while the team verifies it; otherwise complete the payment using your registration email.'}</p>
     <p>Please refer to the Sikh Padel Association event page for the latest confirmed date, venue and event details.</p>
   `)
   try {
-    await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — your place is confirmed', html })
+    const result = await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: params.paymentVerified ? 'Sikh Padel Association — your place is confirmed' : 'Sikh Padel Association — application approved, payment verification pending', html })
+    if (result.error) { console.error('[Padel Email] Provider rejected email:', result.error.message); return false }
     return true
   } catch (err) {
     console.error('[Padel Email] approved send failed:', err)
@@ -120,11 +123,13 @@ export async function sendPadelRegistrationDeclinedEmail(params: {
   const name = escapeHtml(params.firstName)
   const html = shell('Registration update', `
     <p>Dear ${name},</p>
-    <p>Thank you for your interest in the Sikh Padel Association. Unfortunately we are unable to confirm your team's place on this occasion, and any held payment has been released.</p>
+    <p>Thank you for your interest in the Sikh Padel Association. Unfortunately we are unable to confirm your team's place on this occasion.</p>
+    <p>If you have already paid, contact the team with your receipt to discuss the payment. This email does not confirm a refund or release of funds.</p>
     <p>We would love to see you at a future event.</p>
   `)
   try {
-    await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — registration update', html })
+    const result = await resend.emails.send({ from: PADEL_FROM_EMAIL, to: params.to, subject: 'Sikh Padel Association — registration update', html })
+    if (result.error) { console.error('[Padel Email] Provider rejected email:', result.error.message); return false }
     return true
   } catch (err) {
     console.error('[Padel Email] declined send failed:', err)
@@ -205,3 +210,4 @@ export async function sendPadelRegistrationOwnerNotification(params: {
     return false
   }
 }
+
