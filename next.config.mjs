@@ -37,6 +37,8 @@ const nextConfig = {
       { source: "/sikh-padel-association", destination: "/spa", permanent: true },
       { source: "/initiatives/sikh-padel-association/leaderboard", destination: "/spa/leaderboard", permanent: true },
       { source: "/initiatives/sikh-padel-association/leaderboard/:playerId", destination: "/spa/leaderboard/:playerId", permanent: true },
+      { source: "/initiatives/sikh-padel-association/tournaments", destination: "/spa/tournaments", permanent: true },
+      { source: "/initiatives/sikh-padel-association/tournaments/:id", destination: "/spa/tournaments/:id", permanent: true },
       { source: "/initiatives/sikh-professional-network", destination: "/sikhpn", permanent: true },
       { source: "/sikh-professional-network", destination: "/sikhpn", permanent: true },
       { source: "/initiatives/sikhi-vidyala", destination: "/sv", permanent: true },
