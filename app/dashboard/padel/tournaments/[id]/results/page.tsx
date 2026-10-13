@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { requirePadelStaff } from '@/lib/padel-admin'
 import { PadelResultsEditor } from '@/components/padel/padel-results-editor'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +10,7 @@ export default async function PadelTournamentResultsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
+  const supabase = await requirePadelStaff()
 
   const [{ data: tournament }, { data: players }, { data: results }] = await Promise.all([
     supabase.from('padel_tournaments').select('id, name, event_date, applicable_stages').eq('id', id).single(),

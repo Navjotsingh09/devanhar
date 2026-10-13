@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { checkPadelStaffAccess } from '@/lib/padel-admin'
 import { revalidatePath } from 'next/cache'
 import { FINISHING_POSITIONS } from '@/lib/padel-ranking'
 
@@ -49,13 +49,14 @@ function clean(input: TournamentInput, stages: string[]) {
 async function refreshTournamentPages() {
   revalidatePath('/dashboard/padel/tournaments')
   revalidatePath('/dashboard/padel/results')
+  revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association')
 }
 
 export async function createTournament(input: TournamentInput): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may manage tournaments' }
 
   if (!input.name.trim() || !input.event_date) {
     return { error: 'Name and event date are required' }
@@ -92,9 +93,8 @@ export async function createTournament(input: TournamentInput): Promise<ActionRe
 }
 
 export async function updateTournament(tournamentId: string, input: TournamentInput): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may manage tournaments' }
 
   if (!input.name.trim() || !input.event_date) {
     return { error: 'Name and event date are required' }
@@ -137,9 +137,20 @@ export async function updateTournament(tournamentId: string, input: TournamentIn
 }
 
 export async function deleteTournament(tournamentId: string): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may manage tournaments' }
+
+  // Deleting an event cascades its results. That would leave stored player
+  // totals and historical ranking snapshots inconsistent with the ledger.
+  // Do not allow this destructive operation for scored tournaments.
+  const { count, error: countError } = await supabase
+    .from('padel_tournament_results')
+    .select('id', { count: 'exact', head: true })
+    .eq('tournament_id', tournamentId)
+  if (countError) return { error: countError.message }
+  if (count && count > 0) {
+    return { error: 'This tournament has recorded results. Deleting it would corrupt official rankings. Correct its results first; scored tournaments cannot be deleted from this screen.' }
+  }
 
   const { error } = await supabase.from('padel_tournaments').delete().eq('id', tournamentId)
   if (error) return { error: error.message }

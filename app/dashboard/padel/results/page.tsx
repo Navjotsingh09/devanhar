@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { requirePadelStaff } from '@/lib/padel-admin'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ClipboardList } from 'lucide-react'
@@ -7,11 +7,12 @@ import { ClipboardList } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 async function getTournaments() {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const supabase = await requirePadelStaff()
+  const { data, error } = await supabase
     .from('padel_tournaments')
     .select('id, name, event_date')
     .order('event_date', { ascending: false })
+  if (error) throw new Error('Unable to load SPA tournaments: ' + error.message)
   return data || []
 }
 

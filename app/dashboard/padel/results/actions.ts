@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { checkPadelStaffAccess } from '@/lib/padel-admin'
 import { revalidatePath } from 'next/cache'
 import { computeDenseRanks, getPointsForPosition, type RankingMetrics } from '@/lib/padel-ranking'
 
@@ -44,77 +44,76 @@ export async function importTournamentResults(
   tournamentId: string,
   rows: BulkTournamentResultInput[]
 ): Promise<ActionResult & { importedPlayers?: number; importedResults?: number }> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
-  if (rows.length === 0) return { error: 'Add at least one team to import' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may import tournament results' }
+  if (!Array.isArray(rows) || rows.length === 0) return { error: 'Add at least one team to import' }
+  if (rows.length > 1000) return { error: 'Import is limited to 1,000 teams at once' }
 
-  for (const row of rows) {
-    if (row.player_name.trim() === '' || row.partner_name.trim() === '') {
-      return { error: 'Every imported team needs both player names' }
-    }
-    if (row.player_name.trim().toLocaleLowerCase() === row.partner_name.trim().toLocaleLowerCase()) {
-      return { error: 'A team cannot contain the same player twice' }
-    }
+  // Resolve only existing player identities. Creating names here silently
+  // duplicates approved spreadsheet records and corrupts official rankings.
+  const { data: players, error: playerError } = await supabase.from('padel_players')
+    .select('id, first_name, last_name, is_active')
+    .eq('is_active', true)
+  if (playerError) return { error: playerError.message }
+
+  const normalize = (name: string) =>
+    name.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en-GB')
+
+  const byName = new Map<string, string[]>()
+  for (const player of players || []) {
+    const name = normalize([player.first_name, player.last_name].filter(Boolean).join(' '))
+    byName.set(name, [...(byName.get(name) || []), player.id])
   }
 
-  const playerIdByKey = new Map<string, string>()
-  const missingPlayers = new Map<string, { first_name: string; last_name: string }>()
+  const seenPlayers = new Set<string>()
+  const results: TournamentResultInput[] = []
 
-  for (const row of rows) {
-    missingPlayers.set(playerKey(row.player_name, row.partner_name), {
-      first_name: row.player_name.trim(),
-      last_name: '',
+  for (const [index, row] of rows.entries()) {
+    if (!row.player_name?.trim() || !row.partner_name?.trim()) {
+      return { error: `Row ${index + 1}: both player names are required` }
+    }
+    const first = byName.get(normalize(row.player_name)) || []
+    const second = byName.get(normalize(row.partner_name)) || []
+    if (first.length !== 1 || second.length !== 1) {
+      const problem = first.length !== 1 ? row.player_name : row.partner_name
+      return { error: `Row ${index + 1}: "${problem}" is ${(byName.get(normalize(problem)) || []).length === 0 ? 'not yet registered' : 'ambiguous'}. Review identities in Players before import. No records were created.` }
+    }
+    if (first[0] === second[0]) return { error: `Row ${index + 1}: a player cannot partner with themselves` }
+    if (seenPlayers.has(first[0]) || seenPlayers.has(second[0])) {
+      return { error: `Row ${index + 1}: a player appears more than once in this tournament` }
+    }
+    if (getPointsForPosition(row.finishing_position) <= 0) {
+      return { error: `Row ${index + 1}: unknown finishing position "${row.finishing_position}"` }
+    }
+
+    seenPlayers.add(first[0])
+    seenPlayers.add(second[0])
+    results.push({
+      finishing_position: row.finishing_position, player_id: first[0], partner_player_id: second[0],
+    }, {
+      finishing_position: row.finishing_position, player_id: second[0], partner_player_id: first[0],
     })
-    missingPlayers.set(playerKey(row.partner_name, row.player_name), {
-      first_name: row.partner_name.trim(),
-      last_name: '',
-    })
   }
 
-  if (missingPlayers.size > 0) {
-    const { data: createdPlayers, error: createError } = await supabase
-      .from('padel_players')
-      .insert([...missingPlayers.values()])
-      .select('id, first_name, last_name')
-    if (createError) return { error: createError.message }
-
-    for (const [index, [key]] of [...missingPlayers.entries()].entries()) {
-      const player = createdPlayers?.[index]
-      if (player) playerIdByKey.set(key, player.id)
-    }
-  }
-
-  const results: TournamentResultInput[] = rows.flatMap((row) => {
-    const playerId = playerIdByKey.get(playerKey(row.player_name, row.partner_name))
-    const partnerId = playerIdByKey.get(playerKey(row.partner_name, row.player_name))
-    if (playerId === undefined || partnerId === undefined) return []
-    return [
-      { finishing_position: row.finishing_position, player_id: playerId, partner_player_id: partnerId },
-      { finishing_position: row.finishing_position, player_id: partnerId, partner_player_id: playerId },
-    ]
-  })
-
-  if (results.length !== rows.length * 2) return { error: 'Could not resolve every imported player' }
-
-  const result = await saveTournamentResults(tournamentId, results)
-  if ('error' in result) return result
-  return { success: true, importedPlayers: missingPlayers.size, importedResults: results.length }
+  const saved = await saveTournamentResults(tournamentId, results)
+  if ('error' in saved) return saved
+  return { success: true, importedPlayers: 0, importedResults: results.length }
 }
 
 export async function saveTournamentResults(
   tournamentId: string,
   results: TournamentResultInput[]
 ): Promise<ActionResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may save tournament results' }
 
+  if (!Array.isArray(results) || results.length > 2000) {
+    return { error: 'Invalid result submission' }
+  }
   const submitted = results.filter((result) => result.player_id)
+  if (submitted.length === 0) {
+    return { error: 'Add at least one result. Empty saves are blocked to protect existing tournament rankings.' }
+  }
   const seenPlayers = new Set<string>()
 
   for (const result of submitted) {
@@ -125,10 +124,16 @@ export async function saveTournamentResults(
       return { error: 'A player cannot be their own partner' }
     }
 
-    const matchesPlayed = Math.max(0, result.matches_played || 0)
-    const matchWins = Math.max(0, result.match_wins || 0)
-    const groupPointsWon = Math.max(0, result.group_points_won || 0)
-    const groupPointsPossible = Math.max(0, result.group_points_possible || 0)
+    const performance = [
+      result.matches_played ?? 0,
+      result.match_wins ?? 0,
+      result.group_points_won ?? 0,
+      result.group_points_possible ?? 0,
+    ]
+    if (performance.some((value) => !Number.isSafeInteger(value) || value < 0)) {
+      return { error: 'Match and group point statistics must be non-negative whole numbers' }
+    }
+    const [matchesPlayed, matchWins, groupPointsWon, groupPointsPossible] = performance
 
     if (matchWins > matchesPlayed) return { error: 'Match wins cannot exceed matches played' }
     if (groupPointsWon > groupPointsPossible) {
@@ -157,10 +162,18 @@ export async function saveTournamentResults(
     }
   }
 
-  const { data: existing } = await supabase
+  const schemaCheck = await supabase.from('padel_tournament_results')
+    .select('id, matches_played, match_wins, group_points_won, group_points_possible')
+    .limit(1)
+  if (schemaCheck.error) {
+    return { error: 'SPA Ranking V2 database fields are unavailable. Apply supabase-padel-ranking-v2.sql before saving results: ' + schemaCheck.error.message }
+  }
+
+  const { data: existing, error: existingError } = await supabase
     .from('padel_tournament_results')
     .select('id, player_id')
     .eq('tournament_id', tournamentId)
+  if (existingError) return { error: existingError.message }
 
   const keepPlayerIds = new Set(submitted.map((result) => result.player_id))
   const toDelete = (existing || [])
@@ -192,7 +205,7 @@ export async function saveTournamentResults(
     if (upsertError) return { error: upsertError.message }
   }
 
-  const [{ data: activePlayers }, { data: allResults }] = await Promise.all([
+  const [{ data: activePlayers, error: activeError }, { data: allResults, error: resultsError }] = await Promise.all([
     supabase.from('padel_players').select('id').eq('is_active', true),
     supabase
       .from('padel_tournament_results')
@@ -200,6 +213,8 @@ export async function saveTournamentResults(
         'player_id, finishing_position, points_awarded, matches_played, match_wins, group_points_won, group_points_possible'
       ),
   ])
+
+  if (activeError || resultsError) return { error: activeError?.message || resultsError?.message || 'Unable to recompute rankings' }
 
   const metricsByPlayer = new Map<string, RankingMetrics>()
   for (const player of activePlayers || []) metricsByPlayer.set(player.id, emptyMetrics(player.id))
@@ -242,6 +257,10 @@ export async function saveTournamentResults(
   revalidatePath('/dashboard/padel/results')
   revalidatePath('/dashboard/padel/tournaments/' + tournamentId + '/results')
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/dashboard/padel')
+  revalidatePath('/spa/leaderboard')
+  revalidatePath('/spa')
   revalidatePath('/initiatives/sikh-padel-association')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
   return { success: true }

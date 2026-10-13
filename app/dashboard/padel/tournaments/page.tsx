@@ -1,10 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
+import { requirePadelStaff } from '@/lib/padel-admin'
 import { PadelTournamentsManager, type PadelTournamentRow } from '@/components/padel/padel-tournaments-manager'
 
 export const dynamic = 'force-dynamic'
 
 async function getTournaments(): Promise<PadelTournamentRow[]> {
-  const supabase = await createClient()
+  const supabase = await requirePadelStaff()
 
   const full = await supabase
     .from('padel_tournaments')
@@ -19,6 +19,7 @@ async function getTournaments(): Promise<PadelTournamentRow[]> {
     .select('id, name, event_date, category, applicable_stages, status')
     .order('event_date', { ascending: false })
 
+  if (legacy.error) throw new Error('SPA tournaments unavailable: ' + legacy.error.message)
   return (legacy.data || []).map((row) => ({
     ...row,
     event_time: null,

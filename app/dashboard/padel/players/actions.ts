@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { checkPadelStaffAccess } from '@/lib/padel-admin'
 import { revalidatePath } from 'next/cache'
 
 type PlayerInput = {
@@ -18,13 +18,14 @@ type PlayerInput = {
 type ActionResult = { error: string } | { success: true }
 
 export async function createPlayer(input: PlayerInput): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may modify players' }
 
-  if (!input.first_name.trim() || !input.last_name.trim()) {
-    return { error: 'First and last name are required' }
+  if (!input.first_name.trim()) {
+    return { error: 'A player name is required' }
   }
+  const country = (input.country_code || 'GB').trim().toUpperCase()
+  if (!/^[A-Z]{2}$/.test(country)) return { error: 'Nationality must be a valid two-letter ISO code' }
 
   const { error } = await supabase.from('padel_players').insert({
     first_name: input.first_name.trim(),
@@ -32,24 +33,29 @@ export async function createPlayer(input: PlayerInput): Promise<ActionResult> {
     photo_url: input.photo_url || null,
     gender: input.gender || null,
     city_country: input.city_country || null,
-    country_code: (input.country_code || 'GB').trim().toUpperCase(),
+    country_code: country,
   })
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
+  revalidatePath('/spa/leaderboard')
+  revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/dashboard/padel/identities')
   return { success: true }
 }
 
 export async function updatePlayer(playerId: string, input: PlayerInput): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may modify players' }
 
-  if (!input.first_name.trim() || !input.last_name.trim()) {
-    return { error: 'First and last name are required' }
+  if (!input.first_name.trim()) {
+    return { error: 'A player name is required' }
   }
+  const country = (input.country_code || 'GB').trim().toUpperCase()
+  if (!/^[A-Z]{2}$/.test(country)) return { error: 'Nationality must be a valid two-letter ISO code' }
 
   const { error } = await supabase
     .from('padel_players')
@@ -59,22 +65,25 @@ export async function updatePlayer(playerId: string, input: PlayerInput): Promis
       photo_url: input.photo_url || null,
       gender: input.gender || null,
       city_country: input.city_country || null,
-      country_code: (input.country_code || 'GB').trim().toUpperCase(),
+      country_code: country,
       updated_at: new Date().toISOString(),
     })
     .eq('id', playerId)
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
+  revalidatePath('/spa/leaderboard')
+  revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/dashboard/padel/identities')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard/' + playerId)
   return { success: true }
 }
 
 export async function setPlayerActive(playerId: string, isActive: boolean): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may modify players' }
 
   const { error } = await supabase
     .from('padel_players')
@@ -83,14 +92,17 @@ export async function setPlayerActive(playerId: string, isActive: boolean): Prom
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
+  revalidatePath('/spa/leaderboard')
+  revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/dashboard/padel/identities')
   return { success: true }
 }
 
 export async function deletePlayer(playerId: string): Promise<ActionResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user == null) return { error: 'Unauthorized' }
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA staff may modify players' }
 
   const { count } = await supabase
     .from('padel_tournament_results')
@@ -104,6 +116,10 @@ export async function deletePlayer(playerId: string): Promise<ActionResult> {
   if (error) return { error: error.message }
 
   revalidatePath('/dashboard/padel/players')
+  revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
+  revalidatePath('/spa/leaderboard')
+  revalidatePath('/dashboard/padel/rankings')
+  revalidatePath('/dashboard/padel/identities')
   return { success: true }
 }

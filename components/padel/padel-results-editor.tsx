@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -23,6 +23,10 @@ type ExistingResult = {
   partner_player_id: string | null
   points_awarded: number
   notes: string | null
+  matches_played?: number
+  match_wins?: number
+  group_points_won?: number
+  group_points_possible?: number
 }
 
 type RowState = {
@@ -31,6 +35,10 @@ type RowState = {
   player_id: string
   partner_player_id: string
   notes: string
+  matches_played: number
+  match_wins: number
+  group_points_won: number
+  group_points_possible: number
 }
 
 const NONE = '__none__'
@@ -42,6 +50,10 @@ function createRow(finishingPosition: string): RowState {
     player_id: '',
     partner_player_id: '',
     notes: '',
+    matches_played: 0,
+    match_wins: 0,
+    group_points_won: 0,
+    group_points_possible: 0,
   }
 }
 
@@ -54,6 +66,10 @@ function buildInitialRows(stages: string[], existing: ExistingResult[]): RowStat
       player_id: result.player_id,
       partner_player_id: result.partner_player_id || '',
       notes: result.notes || '',
+      matches_played: result.matches_played ?? 0,
+      match_wins: result.match_wins ?? 0,
+      group_points_won: result.group_points_won ?? 0,
+      group_points_possible: result.group_points_possible ?? 0,
     }))
 }
 
@@ -75,6 +91,10 @@ export function PadelResultsEditor({
     buildInitialRows(orderedStages.map((s) => s.value), existingResults)
   )
   const [importText, setImportText] = useState('')
+
+  useEffect(() => {
+    setRows(buildInitialRows(applicableStages, existingResults))
+  }, [applicableStages, existingResults])
 
   const updateRow = (id: string, patch: Partial<RowState>) => {
     setRows((previous) => previous.map((row) => (row.id === id ? { ...row, ...patch } : row)))
@@ -98,6 +118,10 @@ export function PadelResultsEditor({
           player_id: row.player_id,
           partner_player_id: row.partner_player_id || null,
           notes: row.notes || null,
+          matches_played: row.matches_played,
+          match_wins: row.match_wins,
+          group_points_won: row.group_points_won,
+          group_points_possible: row.group_points_possible,
         }))
       const result = await saveTournamentResults(tournamentId, results)
       if ('error' in result) {
@@ -129,7 +153,7 @@ export function PadelResultsEditor({
         toast.error(result.error)
         return
       }
-      toast.success('Imported ' + result.importedResults + ' player results and ' + result.importedPlayers + ' new profiles')
+      toast.success('Imported ' + result.importedResults + ' verified player results. Rankings recalculated.')
       setImportText('')
       router.refresh()
     })
@@ -140,7 +164,7 @@ export function PadelResultsEditor({
       <div className="rounded-lg border border-border p-4 space-y-3">
         <div>
           <h2 className="font-semibold">Bulk import teams</h2>
-          <p className="text-sm text-muted-foreground">Paste CSV or tab-separated rows: player name, partner name, finishing position.</p>
+          <p className="text-sm text-muted-foreground">Paste CSV or tab-separated rows: player name, partner name, finishing position. Both players must already exist as unique approved profiles. The import replaces this tournament's results; names are never automatically merged or created.</p>
         </div>
         <textarea
           value={importText}
@@ -193,6 +217,24 @@ export function PadelResultsEditor({
                 <Button type="button" variant="outline" className="self-end" onClick={() => removeRow(row.id)}>
                   Remove
                 </Button>
+                {row.player_id && (
+                  <div className="grid gap-3 rounded-lg border bg-muted/20 p-3 md:col-span-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {([
+                      { key: 'matches_played' as const, label: 'Matches played' },
+                      { key: 'match_wins' as const, label: 'Match wins' },
+                      { key: 'group_points_won' as const, label: 'Group points won' },
+                      { key: 'group_points_possible' as const, label: 'Group points possible' },
+                    ]).map((metric) => (
+                      <label key={metric.key} className="space-y-1 text-xs font-medium">
+                        <span>{metric.label}</span>
+                        <input type="number" min="0" step="1" value={row[metric.key]}
+                          onChange={(event) => updateRow(row.id, { [metric.key]: Number(event.target.value) })}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          aria-label={metric.label} />
+                      </label>
+                    ))}
+                  </div>
+                )}
                 {row.player_id && (
                   <p className="text-xs text-muted-foreground md:col-span-2">
                     {playerName(row.player_id)}{row.partner_player_id && <> &amp; {playerName(row.partner_player_id)}</>}
