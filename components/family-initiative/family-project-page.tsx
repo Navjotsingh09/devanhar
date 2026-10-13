@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 
 export function FamilyProjectPage({
   eyebrow,
+  showNavbar = true,
   title,
   subtitle,
   date,
@@ -14,6 +15,7 @@ export function FamilyProjectPage({
   ctaLabel,
 }: {
   eyebrow: string
+  showNavbar?: boolean
   title: string
   subtitle: string
   date: string
