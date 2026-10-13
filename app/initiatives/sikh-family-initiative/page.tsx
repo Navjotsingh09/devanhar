@@ -130,7 +130,7 @@ const faqs = [
 export default function SikhFamilyInitiativePage() {
   return (
     <>
-      <Navbar />
+      <Navbar donationHref="https://www.nowdonate.com/checkout/nyb88cq73k85q0l9q3z6" />
       <main className="min-h-screen bg-white">
         <section className="relative overflow-hidden bg-[#101b2d] text-white">
           <img
@@ -343,7 +343,7 @@ export default function SikhFamilyInitiativePage() {
 
         
       </main>
-      <FooterSection />
+      <FooterSection donationHref="https://www.nowdonate.com/checkout/nyb88cq73k85q0l9q3z6" />
     </>
   )
 }
