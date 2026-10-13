@@ -96,7 +96,7 @@ const navLinks: NavLink[] = [
   { label: "Blog", href: "/insights" },
 ]
 
-export function Navbar() {
+export function Navbar({ donationHref = "/donate" }: { donationHref?: string } = {}) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -266,6 +266,7 @@ export function Navbar() {
               </button>
               <DonateButton
                 source="navbar"
+                href={donationHref}
                 className={`rounded-full px-6 py-2 text-sm font-semibold ${
                   isTransparent
                     ? "bg-white text-black hover:bg-white/90"
@@ -539,6 +540,7 @@ export function Navbar() {
               </button>
               <DonateButton
                 source="navbar-mobile"
+                href={donationHref}
                 className="w-full rounded-full px-6 py-3 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
               />
             </div>
