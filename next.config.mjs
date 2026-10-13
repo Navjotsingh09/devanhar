@@ -22,14 +22,6 @@ const nextConfig = {
       },
     ]
   },
-  async rewrites() {
-    return [
-      {
-        source: "/sikh-family-initiative",
-        destination: "/initiatives/sikh-family-initiative",
-      },
-    ]
-  },
   async headers() {
     return [
       {
