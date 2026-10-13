@@ -70,7 +70,7 @@ export default function PunjabEducationSupportPage() {
           eyebrow="Education · Punjab"
           title="Punjab Education Support Project"
           subtitle="Building stronger schools through partnership, opportunity and shared learning."
-          heroImage="/images/initiatives-hero.jpg"
+          heroImage="/images/punjab-education-support-hero.webp"
           ctas={[
             {
               label: "Support the project",
