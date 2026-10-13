@@ -63,11 +63,11 @@ export default function PunjabEducationSupportPage() {
       <main className="min-h-screen bg-white">
         <section className="relative overflow-hidden bg-[#101b2d] text-white">
           <img
-            src="/images/punjab-education-support-hero.webp"
+            src="/images/pes-school-group-hero-v2.webp"
             alt="Punjab Education Support Project"
             className="absolute inset-0 h-full w-full object-cover object-center opacity-75"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#101b2d]/95 via-[#101b2d]/72 to-[#101b2d]/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#101b2d]/88 via-[#101b2d]/56 to-[#101b2d]/10" />
           <div className="relative z-10 container mx-auto max-w-6xl px-6 pb-32 pt-36 lg:px-12 lg:pb-40 lg:pt-44">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-amber-300">
               Punjab Education Support Project

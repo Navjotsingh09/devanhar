@@ -40,7 +40,7 @@ const upcomingEvents = [
     eyebrow: "Sikh Wedding Fair",
     title: "Planning a wedding, with Sikhi at its heart",
     date: "13 February 2027",
-    href: "/initiatives/wedding-fair",
+    href: "/wf",
     icon: UsersRound,
     intro:
       "A welcoming event for couples and their families to explore ideas for a Sikh wedding and connect with relevant Sikh wedding businesses.",
@@ -341,24 +341,7 @@ export default function SikhFamilyInitiativePage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24">
-          <div className="container mx-auto max-w-5xl px-6 lg:px-12">
-            <div className="rounded-[2rem] border border-border bg-[#f8f8f5] p-8 md:p-12">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">
-                Sikh Wedding Fair · 13 February 2027
-              </p>
-              <h2 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight md:text-5xl">
-                Planning a Sikh wedding?
-              </h2>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-                The Wedding Fair has its own dedicated page with the full event details, Anand Karaj guidance, supplier information and everything families need to know.
-              </p>
-              <Button asChild className="mt-7 rounded-full bg-[hsl(43,100%,29%)] px-7 text-white hover:bg-[hsl(43,100%,25%)]">
-                <Link href="/wf">Visit the Sikh Wedding Fair page <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
-            </div>
-          </div>
-        </section>
+        
       </main>
       <FooterSection />
     </>
