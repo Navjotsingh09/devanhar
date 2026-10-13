@@ -8,6 +8,7 @@ interface DonateButtonProps {
   variant?: "default" | "outline" | "ghost"
   size?: "default" | "sm" | "lg" | "icon"
   source?: string
+  href?: string
 }
 
 export function DonateButton({
@@ -15,10 +16,11 @@ export function DonateButton({
   className,
   variant = "default",
   size = "default",
+  href = "/donate",
 }: DonateButtonProps) {
   return (
     <Button asChild variant={variant} size={size} className={className}>
-      <Link href="/donate">
+      <Link href={href} target={href.startsWith("https://") ? "_blank" : undefined} rel={href.startsWith("https://") ? "noopener noreferrer" : undefined}>
         {children ?? (
           <>
             Donate Now
