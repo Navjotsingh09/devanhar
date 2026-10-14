@@ -22,7 +22,7 @@ for select to anon, authenticated using (true);
 -- Singhs Camp UK 2026 has ended; SPA uses padel_tournaments directly.
 insert into public.registration_windows (id,title,kind,href,is_open,event_date,sort_order) values
 ('singhs-camp-uk-2026','Singhs Camp UK 2026','application','/sc',false,'2026-07-31',90),
-('vidyala-2026-2027','Sikhi Vidyala 2026–2027','application','/initiatives/sikhi-vidyala/apply',true,null,20),
+('vidyala-2026-2027','Sikhi Vidyala 2026–2027','application','/initiatives/sikhi-vidyala/apply',false,null,20),
 ('singhs-camp-eu-2027','Singhs Camp EU 2027','interest','/sce',true,null,40),
 ('kaurs-camp-eu-2027','Kaurs Camp EU 2027','interest','/initiatives/kaurs-camp/eu',true,null,50),
 ('family-new-year-reset','SFR – New Year Reset','interest','/sfi',true,'2026-12-31',30),

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 import { sendVidyalaConfirmationEmail, sendVidyalaInternalNotification } from "@/lib/vidyala-emails"
 
 
@@ -18,6 +19,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DUPLICATE_CHECK_EXEMPT_EMAILS = new Set(["karnjit.kaur@devanhaar.com"])
 
 export async function POST(req: NextRequest) {
+  if (isVidyalaApplicationsClosed()) {
+    return NextResponse.json({ error: "Applications for the 2026–2027 Sikhi Vidyala cohort are closed." }, { status: 403 })
+  }
   try {
     const body = await req.json()
 

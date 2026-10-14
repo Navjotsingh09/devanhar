@@ -1,4 +1,5 @@
 import 'server-only'
+import { isVidyalaApplicationsClosed } from '@/lib/vidyala-application-window'
 import { createClient } from '@/lib/supabase/server'
 import { isRegistrationWindowOpen, type OpenOpportunity, type RegistrationWindow } from '@/lib/registration-window-status'
 
@@ -19,6 +20,7 @@ export async function getOpenRegistrationOpportunities(): Promise<OpenOpportunit
     opportunities.push({ id: `spa-${tournament.id}`, title: tournament.name, kind: 'application', href: '/spa' })
   }
   for (const window of (windows.data || []) as RegistrationWindow[]) {
+    if (window.id === 'vidyala-2026-2027' && isVidyalaApplicationsClosed(now)) continue
     if (isRegistrationWindowOpen(window, now)) opportunities.push({ id: window.id, title: window.title, kind: window.kind, href: window.href })
   }
   return opportunities

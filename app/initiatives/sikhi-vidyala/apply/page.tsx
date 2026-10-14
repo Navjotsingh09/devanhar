@@ -61,9 +61,9 @@ export default function VidyalaApplyPage() {
 
       {/* CTA */}
       <section className="py-12 px-6 text-center" style={{ backgroundColor: "#1E3461" }}>
-        <h2 className="text-2xl font-bold text-white mb-4">Ready to Apply?</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{closed ? "Applications are closed" : "Ready to Apply?"}</h2>
         <p className="text-gray-300 mb-6 max-w-xl mx-auto">
-          Fill in your application below. Applications are reviewed by our team and we will be in touch.
+          {closed ? "Applications for the 2026–2027 cohort have closed." : "Fill in your application below. Applications are reviewed by our team and we will be in touch."}
         </p>
         <Button
           onClick={() => setOpen(true)}

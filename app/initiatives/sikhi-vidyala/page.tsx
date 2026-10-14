@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { ArrowRight, Clock, Calendar, Users, UserRound, BookOpen, Mic2, Globe, Shield, Heart, Star } from "lucide-react"
+import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 import { VidyalaGallery } from "@/components/vidyala-gallery"
 
 export const metadata = {
@@ -15,7 +16,10 @@ export const metadata = {
 const NAVY = "#1E3461"
 const GOLD = "#F5A623"
 
+export const dynamic = "force-dynamic"
+
 export default function SikhiVidyalaPage() {
+  const closed = isVidyalaApplicationsClosed()
   return (
     <>
       <Navbar />
@@ -37,7 +41,7 @@ export default function SikhiVidyalaPage() {
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-[0.18em] mb-6"
               style={{ backgroundColor: GOLD, color: NAVY }}
             >
-              Applications Open
+              {closed ? "Applications closed" : "Applications open"}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
               Sikhi <em className="not-italic" style={{ color: GOLD }}>Vidyala</em>
@@ -51,7 +55,7 @@ export default function SikhiVidyalaPage() {
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
                 style={{ backgroundColor: GOLD, color: NAVY }}
               >
-                Apply for Vidyala 2026-2027 <ArrowRight className="h-4 w-4" />
+                {closed ? "View application status" : "Apply for Vidyala 2026-2027"} <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="/vidyala-handbook-2026.pdf"
@@ -141,9 +145,9 @@ export default function SikhiVidyalaPage() {
                   >
                     Students
                   </span>
-                  <h3 className="text-2xl font-bold text-white mb-3">Apply for Vidyala 2026-2027</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">{closed ? "Applications for 2026–2027 are closed" : "Apply for Vidyala 2026-2027"}</h3>
                   <p className="text-white/70 mb-6 text-sm leading-relaxed">
-                    Applications are reviewed by our team. We welcome anyone with a sincere desire to learn and do parchaar. Applicants must be 18+.
+                    {closed ? "Applications for the 2026–2027 cohort have closed. You can explore the course and handbook below." : "Applications are reviewed by our team. We welcome anyone with a sincere desire to learn and do parchaar. Applicants must be 18+."}
                   </p>
                   <ul className="space-y-2 mb-8">
                     {[
@@ -160,7 +164,7 @@ export default function SikhiVidyalaPage() {
                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm transition hover:opacity-90"
                     style={{ backgroundColor: GOLD, color: NAVY }}
                   >
-                    Apply Now <ArrowRight className="h-4 w-4" />
+                    {closed ? "View application status" : "Apply Now"} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
                 <div className="px-8 pb-8">
@@ -339,10 +343,10 @@ export default function SikhiVidyalaPage() {
               className="inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
               style={{ backgroundColor: `${GOLD}33`, color: GOLD }}
             >
-              Applications Open
+              {closed ? "Applications closed" : "Applications open"}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Be part of the next <em className="italic" style={{ color: GOLD }}>Vidyala cohort</em>
+              {closed ? "Explore Sikhi Vidyala" : <>Be part of the next <em className="italic" style={{ color: GOLD }}>Vidyala cohort</em></>}
             </h2>
             <p className="text-white/70 mb-8 max-w-lg mx-auto">
               Join a community of students dedicated to learning Sikhi and spreading Guru Ji&apos;s message.
@@ -352,7 +356,7 @@ export default function SikhiVidyalaPage() {
               className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-semibold text-base transition hover:opacity-90"
               style={{ backgroundColor: GOLD, color: NAVY }}
             >
-              Apply Now <ArrowRight className="h-4 w-4" />
+              {closed ? "View application status" : "Apply Now"} <ArrowRight className="h-4 w-4" />
             </Link>
             <p className="text-white/40 text-xs mt-4">All applications are reviewed by our admin team</p>
           </div>
