@@ -25,7 +25,7 @@ insert into public.registration_windows (id,title,kind,href,is_open,event_date,s
 ('vidyala-2026-2027','Sikhi Vidyala 2026–2027','application','/initiatives/sikhi-vidyala/apply',false,null,20),
 ('singhs-camp-eu-2027','Singhs Camp EU 2027','interest','/sce',true,null,40),
 ('kaurs-camp-eu-2027','Kaurs Camp EU 2027','interest','/initiatives/kaurs-camp/eu',true,null,50),
-('family-new-year-reset','SFR – New Year Reset','interest','/sfi',true,'2026-12-31',30),
-('family-spring-2027','Sikh Family Retreat – Spring 2027','interest','/sfr#interest-form',true,'2027-04-01',60),
-('family-summer-2027','Sikh Family Retreat – Summer 2027','interest','/sfr#interest-form',true,'2027-07-22',70)
+('family-new-year-reset','SFR – New Year Reset','interest','/sfr/register?event=new-year-reset',true,'2026-12-31',30),
+('family-spring-2027','Sikh Family Retreat – Spring 2027','interest','/sfr/register?event=spring',true,'2027-04-01',60),
+('family-summer-2027','Sikh Family Retreat – Summer 2027','interest','/sfr/register?event=summer',true,'2027-07-22',70)
 on conflict (id) do nothing;
