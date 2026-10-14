@@ -24,7 +24,7 @@ const upcomingEvents = [
     eyebrow: "Sikh Family Retreat",
     title: "New Year Reset",
     date: "31 December 2026 – 3 January 2027",
-    href: "/initiatives/sikh-family-retreat",
+    href: "/sfr/register?event=new-year-reset",
     icon: HeartHandshake,
     intro:
       "Begin the year with intention, in saadh sangat. Step away from the usual rush and make space for reflection with your family.",
