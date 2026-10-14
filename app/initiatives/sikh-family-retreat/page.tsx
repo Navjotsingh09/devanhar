@@ -3,14 +3,13 @@ import { CalendarDays } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
-import { FAQSection } from "@/components/faq-section"
+import { FamilyRetreatFAQ } from "@/components/family-retreat/family-retreat-faq"
 import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
 import { FamilyRetreatHero } from "@/components/family-retreat/family-retreat-hero"
 import { FamilyRetreatInterestForm } from "@/components/family-retreat/family-retreat-interest-form"
 import {
   retreatDetailCards,
   retreatExperienceCards,
-  retreatFAQs,
   retreatDescription,
 } from "@/components/family-retreat/family-retreat-shared-data"
 import { Button } from "@/components/ui/button"
@@ -74,7 +73,7 @@ export default function SikhFamilyRetreatPage() {
           </div>
         </section>
 
-        <FAQSection items={retreatFAQs} heading="Frequently asked questions" subheading="Common questions about the Sikh Family Retreat." />
+        <FamilyRetreatFAQ />
 
         <section className="border-t border-border py-16 md:py-20">
           <div className="container mx-auto max-w-3xl px-6 lg:px-12">
