@@ -1,10 +1,12 @@
 "use client"
 
-import { ArrowRight, CalendarDays } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { OpenRegistrationNotices } from "@/components/open-registration-notices"
+import type { OpenOpportunity } from "@/lib/registration-window-status"
 
 const slides = [
   { subtitle: "Empowering Communities" },
@@ -25,7 +27,7 @@ const BLUR_PLACEHOLDERS = [
   "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAcFBQYFBAcGBgYIBwcICxILCwoKCxYPEA0SGhYbGhkWGRgcICgiHB4mHhgZIzAkJiorLS4tGyIyNTEsNSgsLSz/wAALCAAIAAgBASIA/8QAFAABAAAAAAAAAAAAAAAAAAAABv/EABoQAAICAwAAAAAAAAAAAAAAAAECAwQABiH/2gAIAQEAAD8ANxbi1OgqxcBGf//Z",
 ]
 
-export function HeroOptionA() {
+export function HeroOptionA({ opportunities = [] }: { opportunities?: OpenOpportunity[] }) {
   const [cur, setCur] = useState(0)
   const [ready, setReady] = useState(false)
 
@@ -36,7 +38,7 @@ export function HeroOptionA() {
   }, [])
 
   return (
-    <section className="relative w-full h-screen overflow-hidden">
+    <section className="relative w-full min-h-[100svh] overflow-hidden">
       {imgs.map((src, i) => (
         <div key={i} className="absolute inset-0 transition-opacity duration-[1500ms]" style={{ opacity: i === cur ? 1 : 0 }}>
           <Image
@@ -54,25 +56,14 @@ export function HeroOptionA() {
         </div>
       ))}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent z-10" />
-      <div className="absolute inset-x-0 bottom-0 z-20 px-8 lg:px-16 pb-16 pt-32">
+      <div className="relative z-20 flex min-h-[100svh] flex-col justify-end px-6 lg:px-16 pb-12 pt-32">
         <div style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(30px)", transition: "all 0.8s ease 0.3s" }}>
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[11px] tracking-[0.3em] uppercase text-white/60 font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
             {slides[cur].subtitle}
           </span>
         </div>
-        <div className="mt-6 flex flex-col sm:flex-row gap-3" style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(20px)", transition: "all 0.8s ease 0.8s" }}>
-          <Link href="/initiatives/singhs-camp" className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 transition-all hover:bg-white/10 hover:border-amber-400/30">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10">
-              <CalendarDays className="h-4 w-4 text-amber-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white">Singhs Camp UK</p>
-              <p className="text-[11px] text-white/50">Applications are open.</p>
-            </div>
-            <ArrowRight className="ml-auto h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-amber-400" />
-          </Link>
-        </div>
+        <OpenRegistrationNotices initialOpportunities={opportunities} />
         <h2 className="mt-5 text-4xl md:text-5xl lg:text-6xl font-bold leading-[0.95] tracking-tight text-white" style={{ opacity: ready ? 1 : 0, transform: ready ? "translateY(0)" : "translateY(30px)", transition: "all 0.8s ease 0.5s" }}>
           Develop. Elevate.{" "}
           <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Empower.</span>{" "}
@@ -105,3 +96,4 @@ export function HeroOptionA() {
     </section>
   )
 }
+
