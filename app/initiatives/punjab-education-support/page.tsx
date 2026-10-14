@@ -222,12 +222,12 @@ export default function PunjabEducationSupportPage() {
                 </p>
                 <div className="mt-4 flex items-center gap-3">
                   <CalendarDays className="h-6 w-6 text-amber-300" />
-                  <p className="text-2xl font-bold">Monday 26 October 2026</p>
+                  <p className="text-2xl font-bold">Saturday 31 October 2026</p>
                 </div>
               </div>
               <div>
                 <h2 className="text-3xl font-bold md:text-4xl">
-                  Turning the partnership into a long-term programme.
+                  UK - Punjab School Twinning Project launch celebration
                 </h2>
                 <p className="mt-4 max-w-3xl text-base leading-7 text-white/75">
                   The launch marks the next stage of the Punjab Education Support Project: bringing educators, supporters and partners together around a clear programme for teacher development, pupil opportunity and long-term school collaboration.
@@ -307,8 +307,9 @@ export default function PunjabEducationSupportPage() {
           </div>
         </section>
       </main>
-      <FooterSection />
+      <FooterSection hideContact />
     </>
   )
 }
+
 

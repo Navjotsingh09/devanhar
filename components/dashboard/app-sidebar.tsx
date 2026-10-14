@@ -107,6 +107,7 @@ const contentCommerceNav: NavItem[] = [
 
 const operationsNav: NavItem[] = [
   { title: 'Recovered Payments', url: '/dashboard/recovery-payments', icon: ReceiptText },
+  { title: 'Registration Windows', url: '/dashboard/registration-windows', icon: CalendarDays },
   { title: 'Site Images', url: '/dashboard/images', icon: ImageIcon },
   { title: 'User Management', url: '/dashboard/users', icon: Users, adminOnly: true },
   { title: 'Settings', url: '/dashboard/settings', icon: Settings, adminOnly: true },
@@ -347,3 +348,4 @@ export function AppSidebar({ user }: AppSidebarProps) {
     </Sidebar>
   )
 }
+

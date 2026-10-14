@@ -1,5 +1,6 @@
 import { ScrollAnimations } from "@/components/scroll-animations"
 import { Navbar } from "@/components/navbar"
+import { getOpenRegistrationOpportunities } from "@/lib/open-registration-opportunities"
 import { HeroOptionA } from "@/components/hero-option-a"
 import { MetricsTicker } from "@/components/metrics-ticker"
 import { PillarsSection } from "@/components/pillars-section"
@@ -33,12 +34,15 @@ const homeFAQs = [
   },
 ]
 
-export default function Page() {
+export const dynamic = 'force-dynamic'
+
+export default async function Page() {
+  const opportunities = await getOpenRegistrationOpportunities().catch(() => [])
   return (
     <main className="min-h-screen bg-background text-foreground">
       <ScrollAnimations />
       <Navbar />
-      <HeroOptionA />
+      <HeroOptionA opportunities={opportunities} />
       <MetricsTicker />
       <PillarsSection />
       <PlatformSection />
@@ -52,3 +56,4 @@ export default function Page() {
     </main>
   )
 }
+
