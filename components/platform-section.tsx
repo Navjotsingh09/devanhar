@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Users, Heart, Globe, BookOpen, GraduationCap, School, Shield } from "lucide-react"
+import { Users, Heart, Globe, BookOpen, GraduationCap, School, Shield, House } from "lucide-react"
 
 const initiatives = [
   {
@@ -22,6 +22,13 @@ const initiatives = [
       "Bespoke camps around the UK that are tailored to engage with youth in an interactive, fun and memorable way.",
     icon: <Globe className="w-5 h-5" />,
     href: "/initiatives/kids-camps",
+  },
+  {
+    title: "Sikh Family Initiative",
+    description:
+      "Bringing families together through retreats, shared experiences and community events, with Sikhi at the heart of everything we do.",
+    icon: <House className="w-5 h-5" />,
+    href: "/sfi",
   },
   {
     title: "Sikhi Vidyala",
