@@ -1,11 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import type { OpenOpportunity } from '@/lib/registration-window-status'
 
 const SLIDE_DURATION = 5000
+
+function announcementImage(item: OpenOpportunity): string {
+  if (item.id.startsWith('spa-') || item.href === '/spa') return '/initiatives/sikh-padel-association-top.jpg'
+  if (item.href.includes('sikhi-vidyala')) return '/vidyala-classroom.png'
+  if (item.href === '/sce' || item.href.includes('singhs-camp')) return '/initiatives/singhs-camp-top.jpg'
+  if (item.href.includes('kaurs-camp')) return '/initiatives/kaurs-camp-top.jpg'
+  if (item.href === '/sfi' || item.href.startsWith('/sfr') || item.href.includes('sikh-family')) return '/initiatives/sikh-family-retreat-top.png'
+  return '/hero-slide-1.jpg'
+}
 
 export function OpenRegistrationNotices({ initialOpportunities }: { initialOpportunities: OpenOpportunity[] }) {
   const [opportunities, setOpportunities] = useState(initialOpportunities)
@@ -86,10 +96,12 @@ export function OpenRegistrationNotices({ initialOpportunities }: { initialOppor
       <div className="flex transition-transform duration-500 ease-out motion-reduce:transition-none" style={{ transform: `translateX(-${activeIndex * 100}%)` }}>
         {opportunities.map((item, position) => <div key={item.id} role="group" aria-roledescription="slide" aria-label={`${position + 1} of ${count}`} aria-hidden={position !== activeIndex} className="w-full shrink-0">
           <Link href={item.href} tabIndex={position === activeIndex ? 0 : -1}
-            className="group flex min-h-[108px] items-center gap-3 px-4 py-4 outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400 sm:gap-4 sm:px-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-400/10"><CalendarDays aria-hidden="true" className="h-5 w-5 text-amber-400" /></span>
+            className="group flex h-[132px] items-stretch outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400">
+            <span className="relative w-24 shrink-0 overflow-hidden border-r border-white/10 sm:w-36"><Image src={announcementImage(item)} alt="" fill sizes="(min-width: 640px) 144px, 96px" quality={80} className="object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none" /><span className="absolute inset-0 bg-gradient-to-r from-transparent to-[#101b2d]/20" /></span>
+            <div className="flex min-w-0 flex-1 items-center gap-3 p-3 sm:gap-4 sm:p-5">
             <div className="min-w-0 flex-1"><p className="text-base font-semibold leading-snug text-white sm:text-lg">{item.title}</p><p className="mt-1.5 text-xs font-medium text-white/70">{item.kind === 'application' ? 'Applications open' : 'Register interest'}</p></div>
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-400 text-[#101b2d] transition-transform group-hover:translate-x-0.5"><ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
+            </div>
           </Link>
         </div>)}
       </div>
