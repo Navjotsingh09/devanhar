@@ -83,7 +83,6 @@ export default function SikhFamilyRetreatPage() {
             </p>
             <div className="mt-6 space-y-2 text-sm text-muted-foreground">
               <p>Email: <a href="mailto:TheSikhFI@devanhaar.com" className="font-medium text-foreground hover:underline">TheSikhFI@devanhaar.com</a></p>
-              <p>Phone / WhatsApp: <a href="https://wa.me/447780334940" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground hover:underline">07780 334 940</a></p>
             </div>
           </div>
         </section>
