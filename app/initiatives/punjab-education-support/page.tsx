@@ -13,6 +13,7 @@ import {
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
+import { PesGallery } from "@/components/pes-gallery"
 
 export const metadata: Metadata = {
   title: "Punjab Education Support Project | Devanhaar",
@@ -135,6 +136,8 @@ export default function PunjabEducationSupportPage() {
             </div>
           </div>
         </section>
+
+        <PesGallery />
 
         <section className="bg-[#f8f8f5] py-16 md:py-24">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
@@ -308,3 +311,4 @@ export default function PunjabEducationSupportPage() {
     </>
   )
 }
+
