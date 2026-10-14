@@ -71,11 +71,17 @@ const MEGA_MENU_PROJECTS = [
     href: "/spa",
     tag: "Sports",
   },
+  {
+    title: "Gurmat Academy",
+    description: "Advanced learning in Sikh theology, Gurbani vichar and spiritual practice.",
+    image: "/initiatives/gurmat-academy-top.jpg",
+    href: "/ga",
+    tag: "Coming soon",
+  },
 ]
 
 const MEGA_MENU_COMING_SOON = [
   { title: "University Projects", href: "/initiatives/university-projects" },
-  { title: "Gurmat Academy", href: "/initiatives/gurmat-academy" },
   { title: "Self Defence Academy", href: "/initiatives/self-defence-academy" },
   { title: "Sikh Professional Network", href: "/initiatives/sikh-professional-network" },
 ]
@@ -398,7 +404,7 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
                       onClick={() => setOpenMenu(null)}
                       className="hidden text-sm font-semibold text-gray-700 transition-colors hover:text-amber-700 lg:inline-flex lg:items-center lg:gap-1"
                     >
-                      All 11 initiatives
+                      All projects
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
