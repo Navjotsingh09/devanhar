@@ -13,7 +13,10 @@ export const metadata = {
 }
 
 export default async function PadelLeaderboardPage() {
-  const rows = await getPublicPadelLeaderboard()
+  const rows = await getPublicPadelLeaderboard().catch(() => {
+    console.error("[SPA] Public rankings are temporarily unavailable")
+    return null
+  })
 
   return (
     <>
@@ -49,7 +52,7 @@ export default async function PadelLeaderboardPage() {
 
             <div className="w-full max-w-sm rounded-[14px] bg-[#183f5d] p-5 text-white">
               <p className="text-[9px] font-bold text-[#e6a429]">RANKING STATUS</p>
-              <p className="mt-2 text-2xl font-bold">{rows.length} ranked players</p>
+              <p className="mt-2 text-2xl font-bold">{rows === null ? "Temporarily unavailable" : `${rows.length} ranked players`}</p>
               <div className="my-4 h-px bg-[#35546a]" />
               <p className="text-[11px] font-semibold">6 tie-break levels</p>
               <p className="mt-1 text-[10px] text-[#b8c8d2]">
@@ -60,7 +63,14 @@ export default async function PadelLeaderboardPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 py-10 lg:px-12 lg:py-12">
-          <PadelLeaderboardTable rows={rows} />
+          {rows === null ? (
+            <div role="status" className="rounded-[14px] border border-[#dedfe3] bg-white p-6">
+              <h2 className="text-xl font-bold text-[#0f2940]">Rankings will be back shortly</h2>
+              <p className="mt-2 text-sm leading-6 text-[#6a6d77]">
+                We cannot load the player rankings right now. Please try again later.
+              </p>
+            </div>
+          ) : <PadelLeaderboardTable rows={rows} />}
 
           <section
             id="ranking-method"

@@ -15,6 +15,7 @@ export type PublicPadelEvent = {
   description?: string
   registrationOpen: boolean
   detailsComplete: boolean
+  dataUnavailable?: boolean
 }
 
 function formatDate(value: string) {
@@ -61,19 +62,20 @@ export async function getPublicPadelEvent(): Promise<PublicPadelEvent> {
       }
     }
   } catch {
-    // Fall through to the established event so a missing migration never breaks the page.
+    // Fail closed: never advertise an old tournament as open during an outage.
   }
 
   return {
-    name: PADEL_EVENT.name,
-    date: PADEL_EVENT.date,
-    time: PADEL_EVENT.time,
-    venue: PADEL_EVENT.venue,
-    address: PADEL_EVENT.address,
-    mapUrl: PADEL_EVENT.mapUrl,
+    name: "Upcoming SPA tournament",
+    date: "To be announced",
+    time: "",
+    venue: "",
+    address: "",
+    mapUrl: "",
     feePerPerson: PADEL_EVENT.feePerPerson,
     teamFee: PADEL_EVENT.teamFee,
-    registrationOpen: true,
-    detailsComplete: true,
+    registrationOpen: false,
+    detailsComplete: false,
+    dataUnavailable: true,
   }
 }

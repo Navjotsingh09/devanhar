@@ -28,9 +28,12 @@ export const dynamic = "force-dynamic"
 export default async function SikhPadelAssociationPage() {
   const [event, leaderboard] = await Promise.all([
     getPublicPadelEvent(),
-    getPublicPadelLeaderboard(),
+    getPublicPadelLeaderboard().catch(() => {
+      console.error("[SPA] Public rankings are temporarily unavailable")
+      return null
+    }),
   ])
-  const topPlayers = leaderboard.slice(0, 3)
+  const topPlayers = leaderboard?.slice(0, 3) ?? []
 
   return (
     <>
@@ -63,7 +66,11 @@ export default async function SikhPadelAssociationPage() {
                 </Link>
               </div>
 
-              {topPlayers.length > 0 ? (
+              {leaderboard === null ? (
+                <p role="status" className="mt-6 rounded-xl bg-[#fff4df] p-4 text-sm text-[#6a521e]">
+                  Player rankings are temporarily unavailable. Please try again later.
+                </p>
+              ) : topPlayers.length > 0 ? (
                 <div className="mt-6 grid gap-3 md:grid-cols-3">
                   {topPlayers.map((player, index) => (
                     <Link
@@ -153,11 +160,15 @@ export default async function SikhPadelAssociationPage() {
               {event.name}
             </h2>
             <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-              <p>
+              {event.dataUnavailable ? (
+                <p role="status">
+                  Tournament details and registration are temporarily unavailable. Please check back shortly.
+                </p>
+              ) : <p>
                 Our next showcase tournament takes place on {event.date}
                 {event.time ? `, ${event.time}` : ""}. Teams of two compete across multiple
                 rounds, with games, points and rankings tracked throughout the day.
-              </p>
+              </p>}
               {event.detailsComplete ? (
                 <>
                   <p className="font-bold text-foreground">
@@ -168,11 +179,11 @@ export default async function SikhPadelAssociationPage() {
                     Spaces are limited, so register your team using the form above.
                   </p>
                 </>
-              ) : (
+              ) : !event.dataUnavailable ? (
                 <p className="font-medium text-foreground">
                   Full venue, time and registration details will be published shortly.
                 </p>
-              )}
+              ) : null}
             </div>
             {event.detailsComplete && event.mapUrl ? (
               <a
