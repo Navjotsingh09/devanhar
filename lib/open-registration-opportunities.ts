@@ -20,8 +20,12 @@ export async function getOpenRegistrationOpportunities(): Promise<OpenOpportunit
     opportunities.push({ id: `spa-${tournament.id}`, title: tournament.name, kind: 'application', href: '/spa' })
   }
   for (const window of (windows.data || []) as RegistrationWindow[]) {
+    if (window.id === 'family-spring-2027' || window.id === 'family-summer-2027') continue
     if (window.id === 'vidyala-2026-2027' && isVidyalaApplicationsClosed(now)) continue
     if (isRegistrationWindowOpen(window, now)) opportunities.push({ id: window.id, title: window.title, kind: window.kind, href: window.href })
+  }
+  if (today <= '2026-11-21') {
+    opportunities.push({ id: 'sikh-tactical-airsoft-2026', title: 'Sikh Tactical Airsoft', kind: 'application', href: 'https://sikhtacticalairsoft.zite.so/' })
   }
   return opportunities
 }
