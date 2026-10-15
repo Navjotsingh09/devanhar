@@ -9,6 +9,7 @@ import type { OpenOpportunity } from '@/lib/registration-window-status'
 const SLIDE_DURATION = 5000
 
 function announcementImage(item: OpenOpportunity): string {
+  if (item.id === 'sikh-tactical-airsoft-2026') return 'https://images.fillout.com/orgid-845831/flowpublicid-ta3ecvykrc/widgetid-default/3RFhX74FsCcGe6D6PZT5jN/485cf137-9b87-4668-9866-7ad4f87b2f57.JPG'
   if (item.id.startsWith('spa-') || item.href === '/spa') return '/initiatives/sikh-padel-association-top.jpg'
   if (item.href.includes('sikhi-vidyala')) return '/vidyala-classroom.png'
   if (item.href === '/sce' || item.href.includes('singhs-camp')) return '/initiatives/singhs-camp-top.jpg'
@@ -97,9 +98,9 @@ export function OpenRegistrationNotices({ initialOpportunities }: { initialOppor
         {opportunities.map((item, position) => <div key={item.id} role="group" aria-roledescription="slide" aria-label={`${position + 1} of ${count}`} aria-hidden={position !== activeIndex} className="w-full shrink-0">
           <Link href={item.href} tabIndex={position === activeIndex ? 0 : -1}
             className="group flex h-[132px] items-stretch outline-none transition-colors hover:bg-white/5 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400">
-            <span className="relative w-24 shrink-0 overflow-hidden border-r border-white/10 sm:w-36"><Image src={announcementImage(item)} alt="" fill sizes="(min-width: 640px) 144px, 96px" quality={80} className="object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none" /><span className="absolute inset-0 bg-gradient-to-r from-transparent to-[#101b2d]/20" /></span>
+            <span className="relative w-24 shrink-0 overflow-hidden border-r border-white/10 sm:w-36"><Image src={announcementImage(item)} alt="" fill unoptimized={item.id === 'sikh-tactical-airsoft-2026'} sizes="(min-width: 640px) 144px, 96px" quality={80} className={`${item.id === 'sikh-tactical-airsoft-2026' ? 'object-contain bg-[#10131d] p-2' : 'object-cover'} transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none`} /><span className="absolute inset-0 bg-gradient-to-r from-transparent to-[#101b2d]/20" /></span>
             <div className="flex min-w-0 flex-1 items-center gap-3 p-3 sm:gap-4 sm:p-5">
-            <div className="min-w-0 flex-1"><p className="text-base font-semibold leading-snug text-white sm:text-lg">{item.title}</p><p className="mt-1.5 text-xs font-medium text-white/70">{item.kind === 'application' ? 'Applications open' : 'Register interest'}</p></div>
+            <div className="min-w-0 flex-1"><p className="text-base font-semibold leading-snug text-white sm:text-lg">{item.title}</p><p className="mt-1.5 text-xs font-medium text-white/70">{item.id === 'sikh-tactical-airsoft-2026' ? 'Registration open' : item.kind === 'application' ? 'Applications open' : 'Register interest'}</p></div>
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-400 text-[#101b2d] transition-transform group-hover:translate-x-0.5"><ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
             </div>
           </Link>
