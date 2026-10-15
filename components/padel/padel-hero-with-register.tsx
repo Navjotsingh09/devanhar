@@ -20,8 +20,8 @@ export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
         ctas={[
           {
             label: `Tournament — ${event.name}`,
-            description: event.description || `Our upcoming team tournament takes place ${eventLine}. Register your pair now to secure your place.`,
-            ctaLabel: event.registrationOpen ? "Register your team" : "Registration closed",
+            description: event.dataUnavailable ? "Tournament details and registration are temporarily unavailable. Please check back shortly." : event.description || `Our upcoming team tournament takes place ${eventLine}. Register your pair now to secure your place.`,
+            ctaLabel: event.dataUnavailable ? "Registration unavailable" : event.registrationOpen ? "Register your team" : "Registration closed",
             primary: true,
             onClick: event.registrationOpen ? () => {
               setShowForm(true)
