@@ -189,12 +189,6 @@ export function PadelLeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
               </option>
             ))}
           </select>
-          <Link
-            href="#ranking-method"
-            className="inline-flex h-11 items-center rounded-full border border-[#dedfe3] bg-white px-4 text-xs font-semibold text-[#0f2940]"
-          >
-            Ranking rules
-          </Link>
           <button
             type="button"
             onClick={shareRankings}
