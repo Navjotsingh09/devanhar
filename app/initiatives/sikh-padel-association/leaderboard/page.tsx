@@ -72,34 +72,6 @@ export default async function PadelLeaderboardPage() {
             </div>
           ) : <PadelLeaderboardTable rows={rows} />}
 
-          <section
-            id="ranking-method"
-            className="mt-8 grid gap-4 rounded-[14px] border border-[#dedfe3] bg-white p-5 md:grid-cols-[1.2fr_1fr]"
-          >
-            <div>
-              <p className="text-[9px] font-bold text-[#e6a429]">RANKING METHOD</p>
-              <h2 className="mt-2 text-xl font-bold text-[#0f2940]">
-                No manual ranking edits.
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6a6d77]">
-                Every position is derived from saved tournament data. If something is wrong,
-                the underlying result or player record is corrected and the ranking is recalculated.
-              </p>
-            </div>
-            <ol className="grid gap-2 text-sm text-[#15171c] sm:grid-cols-2">
-              <li><strong>1.</strong> Ranking points</li>
-              <li><strong>2.</strong> Titles</li>
-              <li><strong>3.</strong> Runner-up finishes</li>
-              <li><strong>4.</strong> Match wins</li>
-              <li><strong>5.</strong> Win percentage</li>
-              <li><strong>6.</strong> Group-points-won percentage</li>
-            </ol>
-          </section>
-
-          <div className="mt-4 rounded-[14px] bg-[#fff4df] px-5 py-4 text-sm text-[#6a521e]">
-            Spreadsheet parity remains the release gate: names, points and ranking positions
-            must match the approved source before this table is promoted publicly.
-          </div>
         </section>
       </main>
       <FooterSection />
