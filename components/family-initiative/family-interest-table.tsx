@@ -1,5 +1,7 @@
 "use client"
 
+import { deviceLabel } from '@/lib/booking-device'
+
 import { CalendarDays, Download, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -23,7 +25,7 @@ function csvEscape(value: unknown) {
 }
 
 function exportCsv(submissions: FamilyInterestSubmission[]) {
-  const headers: string[] = ["Lead name", "Email", "Phone", "Interest / event", "Group size", "Submitted"]
+  const headers: string[] = ["Lead name", "Email", "Phone", "Interest / event", "Group size", "Device", "Submitted"]
   const rows: string[][] = submissions.map((submission) => {
     const data = submission.form_data || {}
     const interest = textValue(data.interest_for || data.event || data.project)
@@ -34,6 +36,7 @@ function exportCsv(submissions: FamilyInterestSubmission[]) {
       submission.phone || "",
       interest === "—" ? "" : interest,
       groupSize === "—" ? "" : groupSize,
+      deviceLabel(data.booking_device),
       new Date(submission.created_at).toLocaleString("en-GB"),
     ]
   })
@@ -77,6 +80,7 @@ export function FamilyInterestTable({
             <th className="px-4 py-3 font-semibold">Contact</th>
             <th className="px-4 py-3 font-semibold">Interest / event</th>
             <th className="px-4 py-3 font-semibold">Group size</th>
+            <th className="px-4 py-3 font-semibold">Device</th>
             <th className="px-4 py-3 font-semibold">Submitted</th>
           </tr>
         </thead>
@@ -99,6 +103,7 @@ export function FamilyInterestTable({
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" />{textValue(data.number_of_people_in_group)}</div>
                 </td>
+                <td className="px-4 py-3">{deviceLabel(data.booking_device)}</td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(submission.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
               </tr>
             )

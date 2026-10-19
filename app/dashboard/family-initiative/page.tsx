@@ -1,16 +1,17 @@
 import Link from "next/link"
+import { FamilyInterestTable } from "@/components/family-initiative/family-interest-table"
 import { ArrowRight, HeartHandshake, Sparkles, UsersRound } from "lucide-react"
-import { createClient } from "@supabase/supabase-js"
+import { requireProgramme } from "@/lib/staff-programme-server"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Sikh Family Initiative | Dashboard" }
 
 async function getCounts() {
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "", process.env.SUPABASE_SERVICE_ROLE_KEY || "")
+  const supabase = await requireProgramme('family')
   const [retreatBookings, initiativeBookings, interests] = await Promise.all([
     supabase.from("family_retreat_bookings").select("id", { count: "exact", head: true }),
     supabase.from("family_initiative_bookings").select("id", { count: "exact", head: true }),
-    supabase.from("form_submissions").select("id, form_data").order("created_at", { ascending: false }).limit(5000),
+    supabase.from("form_submissions").select("*").order("created_at", { ascending: false }).limit(5000),
   ])
 
   const rows = interests.data || []
@@ -20,6 +21,7 @@ async function getCounts() {
     retreat: (retreatBookings.count || 0) + countProject("Sikh Family Retreat"),
     extravaganza: (initiativeBookings.count || 0) + countProject("Sikh Family Extravaganza"),
     wedding: countProject("Wedding Fair"),
+    general: rows.filter((row: any) => !row.form_data?.project),
   }
 }
 
@@ -72,6 +74,7 @@ export default async function FamilyInitiativeDashboardPage() {
           )
         })}
       </div>
+      <section className="space-y-3"><h2 className="text-xl font-semibold">General family enquiries</h2><FamilyInterestTable submissions={counts.general} /></section>
     </div>
   )
 }

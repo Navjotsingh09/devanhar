@@ -1,3 +1,4 @@
+import { detectBookingDevice } from '@/lib/booking-device'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -103,6 +104,7 @@ export async function POST(request: NextRequest) {
       page_url: body.page_url?.slice(0, 2048) || null,
       source: body.source?.trim() || null,
       medium: body.medium?.trim() || null,
+      booking_device: detectBookingDevice(request.headers),
       status: 'pending',
     }
 
