@@ -48,9 +48,18 @@ export async function GET(request: NextRequest) {
 
     // Generate a signed URL valid for 1 hour
     const bucketName = source === 'vidyala' ? vidyalaBucketName : campBucketName
-    const { data, error } = await admin.storage
+    let { data, error } = await admin.storage
       .from(bucketName)
       .createSignedUrl(filePath, 3600)
+
+    // Older Vidyala uploads used the shared camp bucket under this prefix.
+    // Keep authentication and signed URLs; never expose either bucket publicly.
+    if ((error || !data?.signedUrl) && source === 'vidyala'
+      && filePath.startsWith('sikhi-vidyala/') && bucketName !== campBucketName) {
+      const legacy = await admin.storage.from(campBucketName).createSignedUrl(filePath, 3600)
+      data = legacy.data
+      error = legacy.error
+    }
 
     if (error || !data?.signedUrl) {
       console.error('[View ID] Signed URL error:', error)
