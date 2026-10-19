@@ -3,6 +3,7 @@ import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { canVisitDashboard, programmeHome, type StaffProgramme } from '@/lib/staff-programme-access'
 import { headers } from 'next/headers'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -30,6 +31,9 @@ export default async function DashboardLayout({
 
 
   const role = profile?.role || 'staff'
+  const { data: grants, error: grantError } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
+  if (grantError) redirect('/auth/login?error=access_check_failed')
+  const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
   if (!profile) {
     const { data: member } = await supabase.from('spa_members').select('user_id')
       .eq('user_id', user.id).eq('is_active', true).maybeSingle()
@@ -42,6 +46,7 @@ export default async function DashboardLayout({
   // Protect admin-only routes
   const headerList = await headers()
   const pathname = headerList.get('x-pathname') || ''
+  if (!canVisitDashboard(pathname, programmes)) redirect(programmeHome(programmes))
   if (!isAdmin && adminOnlyRoutes.some((r) => pathname.startsWith(r))) {
     redirect('/dashboard')
   }
@@ -53,14 +58,15 @@ export default async function DashboardLayout({
   const userData = {
     email: user.email || '',
     fullName: profile?.full_name || user.email || 'Staff',
-    role,
+    role: programmes.length ? 'programme_manager' : role,
+    programmes,
   }
 
   return (
     <SidebarProvider>
       <AppSidebar user={userData} />
       <SidebarInset>
-        <DashboardHeader />
+        <DashboardHeader programmes={programmes} fullName={userData.fullName} />
         <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}
         </main>

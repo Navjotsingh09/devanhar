@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
   const onlyMissing = body.onlyMissing !== false
   const limit = Math.min(Number(body.limit ?? 200), 500)
 
-  let query = admin
+  let query = supabase
     .from("camp_applications")
     .select("id, email, first_name, last_name, status, stripe_payment_intent_id, stripe_checkout_session_id, stripe_pi_status, stripe_review_state")
     .order("created_at", { ascending: false })

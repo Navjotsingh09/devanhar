@@ -57,7 +57,7 @@ export async function GET(_request: NextRequest) {
   // Fetch all camp applications.
   // Only select columns guaranteed to exist – stripe_pi_status and stripe_review_state
   // require a migration that may not have run yet on the database.
-  const { data: apps, error: appsErr } = await admin
+  const { data: apps, error: appsErr } = await supabase
     .from("camp_applications")
     .select(
       "id, first_name, last_name, email, status, stripe_payment_intent_id, stripe_checkout_session_id"

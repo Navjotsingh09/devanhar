@@ -1,3 +1,4 @@
+import { canVisitDashboard, programmeHome, type StaffProgramme } from "@/lib/staff-programme-access"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
@@ -53,6 +54,21 @@ export async function updateSession(request: NextRequest) {
   const user = session?.user ?? null
 
   const pathname = request.nextUrl.pathname
+
+  if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/spa-admin') || pathname.startsWith('/api/'))) {
+    // Fresh database assignments apply to existing sessions; never trust editable metadata.
+    const { data: grants, error } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
+    if (error) return NextResponse.json({ error: 'Unable to verify account access' }, { status: 503 })
+    const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
+    if (pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, programmes)) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      const url = request.nextUrl.clone(); url.pathname = programmeHome(programmes); url.search = ''
+      return NextResponse.redirect(url)
+    }
+    if (programmes.length && (pathname.startsWith('/spa-admin') || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
+      return NextResponse.json({ error: 'Your account is limited to Kaurs, Sikhi Vidyala and Devanhaar Monthly Newsletter.' }, { status: 403 })
+    }
+  }
 
   if (pathname.startsWith("/dashboard") && !user) {
     const url = request.nextUrl.clone()
