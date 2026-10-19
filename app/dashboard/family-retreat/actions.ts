@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
+import { requireGeneralStaff } from '@/lib/staff-programme-server'
 import { revalidatePath } from "next/cache"
 
 type RetreatStatus = "pending" | "confirmed" | "waitlisted" | "declined" | "archived"
@@ -73,7 +74,8 @@ const SIGNATURE_HTML =
   '<p style="margin-top:24px">Best wishes,<br><br><strong>Daljit Kaur</strong><br>Specialist Lead<br>Mob: 07780 334 940<br>Email: <a href="mailto:Daljit.Kaur@devanhaar.com">Daljit.Kaur@devanhaar.com</a><br>LinkedIn: daljitkaurstem</p>' +
   '<p>Follow The Sikh Family Initiative on Instagram:<br><a href="https://www.instagram.com/thesikhfamilyinitiative">https://www.instagram.com/thesikhfamilyinitiative</a></p>'
 
-function getSupabaseAdmin() {
+async function getSupabaseAdmin() {
+  await requireGeneralStaff()
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ""
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
   if (!url || !key) {
@@ -121,7 +123,7 @@ async function sendEmail(params: { to: string; subject: string; text: string; ht
 }
 
 async function getBooking(id: string): Promise<Booking> {
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const { data, error } = await supabase
     .from("family_retreat_bookings")
     .select("id, first_name, last_name, email, payment_status, amount_due, amount_paid, nowdonate_payment_url, stripe_payment_link_id, adults_attending")
@@ -340,7 +342,7 @@ export async function updateFamilyRetreatStatus(
   status: RetreatStatus,
   details?: { adults?: number; amount?: number },
 ) {
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const booking = await getBooking(id)
 
   const updatePayload: Record<string, unknown> = {
@@ -426,7 +428,7 @@ export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: bool
     return { paid: false }
   }
 
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const { default: Stripe } = await import("stripe")
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -487,7 +489,7 @@ export async function sendFamilyRetreatAdditionalCharge(
     throw new Error("Booking email is missing")
   }
 
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const { url, id: linkId, provider } = await createExactAmountPaymentLink(
     Math.round(amount * 100),
     id,
@@ -535,7 +537,7 @@ export async function sendFamilyRetreatAdditionalCharge(
 }
 
 export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "delete") {
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
 
   if (mode === "archive") {
     const { error } = await supabase
@@ -569,7 +571,7 @@ export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "
 }
 
 export async function updateFamilyRetreatNotes(id: string, notes: string) {
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const { error } = await supabase
     .from("family_retreat_bookings")
     .update({ internal_notes: notes })

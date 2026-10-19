@@ -10,3 +10,15 @@ export async function requireProgramme(programme: StaffProgramme) {
  if (error || !data) redirect('/dashboard')
  return supabase
 }
+
+export async function requireGeneralStaff() {
+ const supabase = await createClient()
+ const { data: { user } } = await supabase.auth.getUser()
+ if (!user) throw new Error('Unauthorized')
+ const [profile,grants] = await Promise.all([
+  supabase.from('admin_profiles').select('role').eq('id',user.id).single(),
+  supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
+ ])
+ if (profile.error || !profile.data || !['staff','admin','super_admin'].includes(profile.data.role) || grants.error || grants.data?.length) throw new Error('Your account does not have access to this section')
+ return supabase
+}

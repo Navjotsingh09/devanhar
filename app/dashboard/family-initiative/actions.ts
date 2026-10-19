@@ -1,11 +1,13 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
+import { requireGeneralStaff } from '@/lib/staff-programme-server'
 import { revalidatePath } from "next/cache"
 
 type InitiativeStatus = "pending" | "confirmed" | "waitlisted" | "declined" | "archived"
 
-function getSupabaseAdmin() {
+async function getSupabaseAdmin() {
+  await requireGeneralStaff()
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || ""
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
   if (!url || !key) throw new Error("Supabase service role configuration is missing")
@@ -17,7 +19,7 @@ function escapeHtml(value: string) {
 }
 
 export async function updateFamilyInitiativeStatus(id: string, status: InitiativeStatus, internalNotes?: string) {
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const { data: booking, error: bookingError } = await supabase.from("family_initiative_bookings").select("status, contact_name, email, estimated_total_pence, travel_option").eq("id", id).single()
   if (bookingError || !booking) throw new Error("Booking not found")
   const { error } = await supabase.from("family_initiative_bookings").update({ status, internal_notes: internalNotes?.trim() || null }).eq("id", id)
@@ -50,7 +52,7 @@ The Sikh Family Initiative Team`
 }
 
 export async function sendFamilyInitiativePaymentReminder(id: string) {
-  const supabase = getSupabaseAdmin()
+  const supabase = (await getSupabaseAdmin())
   const { data: booking, error: bookingError } = await supabase.from("family_initiative_bookings").select("status, contact_name, email, estimated_total_pence").eq("id", id).single()
   if (bookingError || booking == null) throw new Error("Booking not found")
   if (booking.status === "declined" || booking.status === "archived") throw new Error("A reminder cannot be sent for this booking")
@@ -78,7 +80,7 @@ The Sikh Family Initiative Team`
 }
 
 export async function deleteFamilyInitiativeBooking(id: string) {
-  const { error } = await getSupabaseAdmin().from("family_initiative_bookings").delete().eq("id", id)
+  const { error } = await (await getSupabaseAdmin()).from("family_initiative_bookings").delete().eq("id", id)
   if (error) throw new Error("Failed to delete booking")
   revalidatePath("/dashboard/family-initiative")
 }

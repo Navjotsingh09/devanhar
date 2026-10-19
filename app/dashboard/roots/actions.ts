@@ -1,12 +1,14 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
+import { requireGeneralStaff } from '@/lib/staff-programme-server'
 import { revalidatePath } from "next/cache"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 
-function getSupabase() {
+async function getSupabase() {
+  await requireGeneralStaff()
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 
@@ -27,7 +29,7 @@ const SIG = `<p style="margin-top:24px;">Waheguru Ji Ka Khalsa, Waheguru Ji Ki F
 const SIG_TEXT = "\n\nWaheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh,\nRoots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882"
 
 async function getBooking(id: string) {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   const { data } = await supabase
     .from("roots_bookings")
     .select("*")
@@ -37,7 +39,7 @@ async function getBooking(id: string) {
 }
 
 async function addActivityLog(id: string, entry: object) {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   const { data } = await supabase
     .from("roots_bookings")
     .select("activity_log")
@@ -55,7 +57,7 @@ export async function confirmRootsBooking(
   id: string,
   amount: number
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   const booking = await getBooking(id)
   if (!booking) return { ok: false, error: "Booking not found" }
 
@@ -138,7 +140,7 @@ We look forward to welcoming ${booking.camper_first_name} to the Roots family.${
 export async function declineRootsBooking(
   id: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   const booking = await getBooking(id)
   if (!booking) return { ok: false, error: "Booking not found" }
 
@@ -259,7 +261,7 @@ export async function sendRootsPaymentReminder(
 
 // ------- ARCHIVE / UNARCHIVE -------
 export async function archiveRootsBooking(id: string, archive: boolean): Promise<void> {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   await supabase
     .from("roots_bookings")
     .update({ archived: archive, archived_at: archive ? new Date().toISOString() : null })
@@ -273,7 +275,7 @@ export async function markRootsBookingAsPaid(
   id: string,
   amountPaid: number
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   const booking = await getBooking(id)
   if (!booking) return { ok: false, error: "Booking not found" }
   if (booking.payment_status === "paid") return { ok: false, error: "Already marked as paid" }
@@ -296,7 +298,7 @@ export async function markRootsBookingAsPaid(
 
 // ------- DELETE -------
 export async function deleteRootsBooking(id: string): Promise<void> {
-  const supabase = getSupabase()
+  const supabase = (await getSupabase())
   await supabase.from("roots_bookings").delete().eq("id", id)
   revalidatePath("/dashboard/roots")
 }
