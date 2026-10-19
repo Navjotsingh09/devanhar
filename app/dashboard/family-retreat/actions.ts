@@ -404,13 +404,13 @@ export async function updateFamilyRetreatStatus(
     },
   })
 
-  revalidatePath("/dashboard/family-retreat")
+  revalidatePath("/dashboard/family-initiative/retreat")
 }
 
 export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: boolean }> {
   const booking = await getBooking(id)
   if (booking.payment_status === "paid") {
-    revalidatePath("/dashboard/family-retreat")
+    revalidatePath("/dashboard/family-initiative/retreat")
     return { paid: true }
   }
 
@@ -451,13 +451,13 @@ export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: bool
     if (error) throw new Error(error.message)
 
     await supabase.from("activity_log").insert({
-      action: "family_retreat_payment_synced",
+      admin_id: (await supabase.auth.getUser()).data.user?.id,      action: "family_retreat_payment_synced",
       entity_type: "family_retreat_booking",
       entity_id: id,
       metadata: { stripe_session_id: paidSession.id, amount_paid: amountPaid },
     })
 
-    revalidatePath("/dashboard/family-retreat")
+    revalidatePath("/dashboard/family-initiative/retreat")
     return { paid: true }
   } catch (error) {
     console.error("[family-retreat] sync payment failed", error)
@@ -521,13 +521,13 @@ export async function sendFamilyRetreatAdditionalCharge(
   }
 
   await supabase.from("activity_log").insert({
-    action: "family_retreat_additional_charge_sent",
+      admin_id: (await supabase.auth.getUser()).data.user?.id,    action: "family_retreat_additional_charge_sent",
     entity_type: "family_retreat_booking",
     entity_id: id,
     metadata: { amount, reference_note: referenceNote, payment_link_id: linkId },
   })
 
-  revalidatePath("/dashboard/family-retreat")
+  revalidatePath("/dashboard/family-initiative/retreat")
 }
 
 export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "delete") {
@@ -542,7 +542,7 @@ export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "
     if (error) throw new Error(error.message)
 
     await supabase.from("activity_log").insert({
-      action: "family_retreat_archived",
+      admin_id: (await supabase.auth.getUser()).data.user?.id,      action: "family_retreat_archived",
       entity_type: "family_retreat_booking",
       entity_id: id,
     })
@@ -555,13 +555,13 @@ export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "
     if (error) throw new Error(error.message)
 
     await supabase.from("activity_log").insert({
-      action: "family_retreat_deleted",
+      admin_id: (await supabase.auth.getUser()).data.user?.id,      action: "family_retreat_deleted",
       entity_type: "family_retreat_booking",
       entity_id: id,
     })
   }
 
-  revalidatePath("/dashboard/family-retreat")
+  revalidatePath("/dashboard/family-initiative/retreat")
 }
 
 export async function updateFamilyRetreatNotes(id: string, notes: string) {
@@ -575,7 +575,7 @@ export async function updateFamilyRetreatNotes(id: string, notes: string) {
     throw new Error(error.message)
   }
 
-  revalidatePath("/dashboard/family-retreat")
+  revalidatePath("/dashboard/family-initiative/retreat")
 }
 
 export async function logFamilyRetreatReminder(id: string) {
