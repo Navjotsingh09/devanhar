@@ -53,6 +53,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+import { programmeHome, type StaffProgramme } from '@/lib/staff-programme-access'
+
 type NavItem = {
   title: string
   url: string
@@ -118,6 +120,7 @@ interface AppSidebarProps {
     email: string
     fullName: string
     role: string
+    programmes?: StaffProgramme[]
   }
 }
 
@@ -194,9 +197,15 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const isAdmin = user.role === 'admin' || user.role === 'super_admin'
-  const isVacanciesOnly = user.role === 'vacancies_only'
+  const programmes = user.programmes || []
+  const isScoped = programmes.length > 0
+  const isVacanciesOnly = user.role === 'vacancies_only' || isScoped
 
-  const managementItems = isVacanciesOnly
+  const managementItems: NavItem[] = isScoped ? [
+    ...(programmes.includes('kaurs') ? [{ title: 'Kaurs', url: '/dashboard/kaurs', icon: Users }] : []),
+    ...(programmes.includes('vidyala') ? [{ title: 'Sikhi Vidyala', url: '/dashboard/vidyala', icon: BookOpen }] : []),
+    ...(programmes.includes('newsletter') ? [{ title: 'Devanhaar Monthly Newsletter', url: '/dashboard/newsletter', icon: Newspaper }] : []),
+  ] : isVacanciesOnly
     ? managementNav.filter((item) => item.url === '/dashboard/vacancies')
     : managementNav
 
@@ -224,7 +233,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href={programmeHome(programmes)}>
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Shield className="h-4 w-4" />
                 </div>
@@ -260,13 +269,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 items={familyInitiativeNav}
                 pathname={pathname}
                 groupName="family"
-              />
-              <ProgrammeGroup
-                label="Sikhi Vidyala"
-                icon={BookOpen}
-                items={vidyalaNav}
-                pathname={pathname}
-                groupName="vidyala"
               />
               <ProgrammeGroup
                 label="Sikh Padel Association"

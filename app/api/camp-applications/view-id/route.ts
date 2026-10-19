@@ -24,10 +24,8 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    // A missing admin_profiles row defaults to 'staff' (matches app/dashboard/layout.tsx),
-    // since staff Auth accounts and their admin_profiles rows are recreated separately
-    // after a recovery — only an EXISTING profile with a disallowed role is blocked.
-    if (profile && !['admin', 'super_admin', 'staff'].includes(profile.role)) {
+    // Document access requires a verified staff profile and programme permission.
+    if (!profile || !['admin', 'super_admin', 'staff'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -45,6 +43,9 @@ export async function GET(request: NextRequest) {
     if (!supabaseUrl || !supabaseServiceKey) {
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
+
+    const { data: canView, error: accessError } = await supabase.rpc('staff_can_view_document', { file_path: filePath })
+    if (accessError || canView !== true) return NextResponse.json({ error: 'You do not have access to this programme document' }, { status: 403 })
 
     // Generate a signed URL valid for 1 hour
     const bucketName = source === 'vidyala' ? vidyalaBucketName : campBucketName

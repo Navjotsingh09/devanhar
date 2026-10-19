@@ -12,6 +12,9 @@ export async function requirePadelStaff() {
 
   if (userError || !user) redirect("/spa-admin/login")
 
+  const { data: programmeGrants, error: grantError } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
+  if (grantError || programmeGrants?.length) redirect('/dashboard/kaurs')
+
   const { data: profile, error: profileError } = await supabase
     .from("admin_profiles")
     .select("role")

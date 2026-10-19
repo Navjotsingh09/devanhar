@@ -1,12 +1,13 @@
 'use server'
 
+import { requireGeneralStaff } from '@/lib/staff-programme-server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 export async function saveRegistrationWindow(id: string, form: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireGeneralStaff()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Please sign in')
   const { data: profile } = await supabase.from('admin_profiles').select('role').eq('id', user.id).single()
