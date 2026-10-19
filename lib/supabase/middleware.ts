@@ -66,7 +66,7 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url)
     }
     if (programmes.length && (pathname.startsWith('/spa-admin') || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
-      return NextResponse.json({ error: 'Your account is limited to Kaurs, Sikhi Vidyala and Devanhaar Monthly Newsletter.' }, { status: 403 })
+      return NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 })
     }
   }
 

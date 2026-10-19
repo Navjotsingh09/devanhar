@@ -202,6 +202,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
   const isVacanciesOnly = user.role === 'vacancies_only' || isScoped
 
   const managementItems: NavItem[] = isScoped ? [
+    ...(programmes.includes('family') ? familyInitiativeNav : []),
     ...(programmes.includes('kaurs') ? [{ title: 'Kaurs', url: '/dashboard/kaurs', icon: Users }] : []),
     ...(programmes.includes('vidyala') ? [{ title: 'Sikhi Vidyala', url: '/dashboard/vidyala', icon: BookOpen }] : []),
     ...(programmes.includes('newsletter') ? [{ title: 'Devanhaar Monthly Newsletter', url: '/dashboard/newsletter', icon: Newspaper }] : []),
@@ -263,13 +264,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
               Programmes
             </SidebarGroupLabel>
             <div className="space-y-1">
-              <ProgrammeGroup
-                label="Sikh Family Initiative"
-                icon={CalendarDays}
-                items={familyInitiativeNav}
-                pathname={pathname}
-                groupName="family"
-              />
               <ProgrammeGroup
                 label="Sikh Padel Association"
                 icon={CircleDot}

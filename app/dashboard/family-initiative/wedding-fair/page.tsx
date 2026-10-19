@@ -1,11 +1,11 @@
-import { createClient } from "@supabase/supabase-js"
+import { requireProgramme } from "@/lib/staff-programme-server"
 import { FamilyInterestTable, type FamilyInterestSubmission } from "@/components/family-initiative/family-interest-table"
 
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Wedding Fair | Sikh Family Initiative | Dashboard" }
 
 async function getData(): Promise<FamilyInterestSubmission[]> {
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "", process.env.SUPABASE_SERVICE_ROLE_KEY || "")
+  const supabase = await requireProgramme('family')
   const { data } = await supabase.from("form_submissions").select("id, full_name, email, phone, form_data, created_at").order("created_at", { ascending: false }).limit(5000)
   return (data || []).filter((row: any) => String(row.form_data?.project || "").toLowerCase() === "wedding fair") as FamilyInterestSubmission[]
 }

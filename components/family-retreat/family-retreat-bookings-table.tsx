@@ -1,5 +1,6 @@
 "use client"
 
+import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
 import { format } from "date-fns"
 import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle } from "lucide-react"
@@ -12,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea"
 import {
   removeFamilyRetreatBooking,
+  logFamilyRetreatReminder,
   sendFamilyRetreatAdditionalCharge,
   syncFamilyRetreatPayment,
   updateFamilyRetreatStatus,
@@ -43,6 +45,9 @@ type AdultPerson = {
 
 export type FamilyRetreatBooking = {
   id: string
+  booking_device?: string | null
+  paid_at: string | null
+  payment_reminder_sent_at?: string | null
   created_at: string
   status: RetreatStatus
   first_name: string | null
@@ -66,7 +71,6 @@ export type FamilyRetreatBooking = {
   amount_due: number | null
   amount_paid: number | null
   payment_status: string | null
-  paid_at: string | null
   stripe_payment_link: string | null
   stripe_payment_link_id: string | null
 }
@@ -439,6 +443,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                 <TableHead>Location</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Payment</TableHead>
+                <TableHead>Device</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="w-[420px]">Actions</TableHead>
               </TableRow>
@@ -446,7 +451,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-12">No applications found for current filters.</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-12">No applications found for current filters.</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((booking) => {
@@ -475,6 +480,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                           <div className="text-xs text-muted-foreground mt-1">Due: {formatMoney(booking.amount_due)}</div>
                           <div className="text-xs text-muted-foreground">Paid: {formatMoney(booking.amount_paid)}</div>
                         </TableCell>
+                        <TableCell>{deviceLabel(booking.booking_device)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{format(new Date(booking.created_at), "dd MMM yyyy, HH:mm")}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
@@ -491,6 +497,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                                 </Button>
                               </>
                             )}
+                            <Button size="sm" variant="outline" title="Log a reminder you have already sent outside the dashboard" disabled={isPending || booking.payment_status === 'paid'} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged. No email was sent.')}>Log reminder sent</Button>
                             <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check payment</Button>
                             <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>
                             <Button size="sm" variant="outline" onClick={() => handleArchive(booking)} disabled={isPending}><Archive className="h-3.5 w-3.5 mr-1" />Archive</Button>
