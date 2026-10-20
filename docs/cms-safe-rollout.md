@@ -140,7 +140,7 @@ does not imply a separate database. Avoid test publications/uploads there.
 
 The rollout covers the overall Devanhaar website and CRM. SFI remains the first
 page-editor pilot, not the project boundary. `/dashboard/website` is the central
-entry point to existing tools. `/dashboard/website/pages` lists 35 canonical
+entry point to existing tools. `/dashboard/website/pages` lists 41 canonical
 content pages and distinguishes existing management tools, the SFI editor and
 pages still managed in code. Alias routes, transactional screens and individual
 records are excluded. This inventory does not imply that other page editors exist.
