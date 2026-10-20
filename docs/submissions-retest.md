@@ -70,3 +70,66 @@ production database policy was changed by this patch.
 This patch does not implement the remaining page builders, homepage, delegation
 UI, content modules, full blog versioning, privacy workflows or generic CMS
 settings. Those remain in the main test pack. Do not report their tests as passed.
+
+## Follow-up: range handling, Padel and Roots
+
+Historical acceptance: the user reported RET01–RET05, RET11 (read) and RET12
+passing on `dpl_BQt54yUU7LYEReRXWiDJefyYTMpD`, 20 October 2026, Staff,
+with RET09 failing only for an out-of-range page. RET06/07/10 remained blocked
+and RET08 was not run. The prior large-response FORM04 failure remains part of
+the older build's historical result; it is not overwritten by a later pass.
+
+The follow-up recognises only PostgREST `PGRST103` on a positive offset. It
+performs a count-only request with identical source/search/status/programme
+filters, and returns an empty page only when that count confirms the offset is
+outside the dataset. Genuine errors and failed count checks remain errors.
+The protocol reference is
+https://docs.postgrest.org/en/stable/references/errors.html#group-1-api-request.
+
+Clear filters now resets search, status, page and sort (Newest first). Friendly
+status labels, such as Awaiting Payment for `payment_pending`, change display
+only; the exact stored status/filter value is preserved.
+
+Padel and Roots now have separate Live records and Recovered evidence datasets,
+each with 25 minimal summary rows per request, server search/status/order and
+private page-scoped exports. Recovered evidence retains the old programme
+predicate (`%Padel%` or `%Roots Residential%`) on both rows and counts. Separate
+evidence records may refer to a live registration; do not add the two datasets'
+counts and interpret the sum as unique applicants. No records are merged or
+deleted. A read-only count query during implementation returned 39 Padel live
+registrations, 69 Padel evidence rows, 0 Roots live bookings and 172 Roots evidence
+rows; these are point-in-time counts, not fixed acceptance constants.
+
+Opening a live record fetches only that ID and retains the existing Padel or Roots
+controls. Archived records initialise the existing selected-record controls in
+the archived view rather than disappearing. Historical evidence detail URLs also
+apply the programme predicate, so another programme's ledger ID cannot be read
+through that programme-specific route. Record/navigation links do not prefetch
+full detail payloads. Roots list reads now use the authenticated/RLS client,
+without a service-role bypass. Existing mutation workflows are retained and are
+not exercised against live data.
+
+71 submissions/programme tests plus 87 existing tests pass (158 total), with
+targeted TypeScript checks. Tests include the actual Padel selected-record
+loader, scoped CSV behaviour, precise range errors, count failure, unrelated
+errors and forged sources. The separate SPA portal's existing registration list,
+other CRM pages and the broad Staff access policy remain outside this follow-up.
+No database schema, roles, payment data or published content is changed.
+
+### Focused follow-up retest
+
+| ID | Mode | Steps | Expected result |
+|---|---|---|---|
+| RET13 | Read-only | Open submissions and recovered payments at `page=99999`, including filtered datasets with zero or a few matches. | Empty page, accurate matching total and First page link; no outage message. First page restores the same filters and sort. Genuine errors are not silently hidden. |
+| RET14 | Read-only | Search/filter/sort Oldest first, go to page 2, then Clear filters. | Page resets to 1, blank search/status and Newest first; selected dataset stays selected. |
+| RET15 | Read-only | Inspect statuses on list and detail views; filter by raw `payment_pending` and exact `archived`. | Friendly labels appear; status meanings and case-sensitive exact filtering remain intact. |
+| RET16 | Read-only | Open `/dashboard/padel`; inspect initial document/RSC payloads, then page 2. | Up to 25 live summaries; no phones/full answers/Stripe references or hidden recovered dump; page 2 has remaining live records. Existing SPA management links still resolve. |
+| RET17 | Read-only | Switch Padel to Recovered evidence; page through and search/filter; inspect source and rows. | Up to 25 evidence summaries per request, scoped to Padel. Rows do not include other programmes or merge into live registrations. Each detail link stays on the Padel route. |
+| RET18 | Read-only | Open `/dashboard/roots`, then Recovered evidence; test Next/Previous and a high out-of-range page. | Live empty state is valid if no bookings exist. Roots evidence is scoped, paginated and minimal, with the same range recovery. No service-role bulk response. |
+| RET19 | Read-only / isolated fixtures for mutations | Open an existing labelled QA live record and an authorised evidence detail; inspect controls, then return. In isolation test an archived fixture and try another programme's ledger ID through this detail route. | Exactly one permitted record loads without prefetch. Existing Padel/Roots actions remain available; archived selection is visible. Unrelated evidence returns no record. Do not approve, charge, email, archive or delete live records during read-only retest. |
+| RET20 | Isolated CSV/error fixtures | Export programme-filtered page with synthetic data; inject a normal database failure, a count failure and a valid out-of-range error. | Export remains at most 25 summaries with matching programme scope. Only a confirmed out-of-range condition becomes an empty page; other failures remain explicit. |
+
+Record end-to-end request times separately for normal, malformed and out-of-range
+requests. No numeric latency improvement is claimed from mocked tests; the
+fallback adds a count-only query only for a specific range error. If slow invalid
+requests persist, inspect auth/middleware/database timings independently.

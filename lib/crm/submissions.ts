@@ -39,17 +39,33 @@ export function listHref(params: ListParams, changes: Partial<ListParams> = {}, 
   if (p.direction === 'oldest') query.set('order', 'oldest')
   return pathname + '?' + query.toString()
 }
-/** Only one allowlisted dataset and one bounded database range per list request. */
-export async function loadSubmissionList(client: any, params: ListParams) {
+export function statusLabel(status: string) {
+  const labels: Record<string, string> = { payment_pending: 'Awaiting Payment', pending: 'Pending', approved: 'Approved', confirmed: 'Confirmed', declined: 'Declined', archived: 'Archived', new: 'New', in_progress: 'In Progress', resolved: 'Resolved', paid: 'Paid', payment_verified: 'Payment verified', withdrawn: 'Withdrawn', waitlisted: 'Waitlisted', registered: 'Registered', succeeded: 'Paid', requires_capture: 'Authorised hold', cancelled: 'Cancelled' }
+  return labels[status] || status.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase()) || '—'
+}
+export type ListScope = { descriptionContains?: string }
+/** One selected dataset, bounded rows; an out-of-range offset is not an outage. */
+export async function loadSubmissionList(client: any, params: ListParams, scope: ListScope = {}) {
   const config = sources[params.source]
   const columns = ['id', ...config.names, config.email, config.status, config.date].join(',')
-  let query = client.from(params.source).select(columns, { count: 'exact' })
-  if (params.q) query = query.or([...config.names, config.email].map(column => `${column}.ilike.%${params.q}%`).join(','))
-  if (params.status) query = query.eq(config.status, params.status)
+  const filtered = (head = false) => {
+    let query = client.from(params.source).select(head ? 'id' : columns, { count: 'exact', ...(head ? { head: true } : {}) })
+    if (scope.descriptionContains) query = query.ilike('description', `%${scope.descriptionContains}%`)
+    if (params.q) query = query.or([...config.names, config.email].map(column => `${column}.ilike.%${params.q}%`).join(','))
+    if (params.status) query = query.eq(config.status, params.status)
+    return query
+  }
   const ascending = params.direction === 'oldest'
   const start = (params.page - 1) * PAGE_SIZE
-  const result = await query.order(config.date, { ascending, nullsFirst: false }).order('id', { ascending }).range(start, start + PAGE_SIZE - 1)
-  if (result.error) throw new Error('Unable to load this dataset. Please try again or contact your administrator.')
+  const result = await filtered().order(config.date, { ascending, nullsFirst: false }).order('id', { ascending }).range(start, start + PAGE_SIZE - 1)
+  if (result.error) {
+    // Do not parse database error strings or turn permission/outage errors into empty lists.
+    if (result.error.code === 'PGRST103' && start > 0) {
+      const counted = await filtered(true)
+      if (!counted.error && Number.isSafeInteger(counted.count) && counted.count >= 0 && start >= counted.count) return { rows: [] as ListRow[], count: counted.count as number }
+    }
+    throw new Error('Unable to load this dataset. Please try again or contact your administrator.')
+  }
   const rows: ListRow[] = (result.data || []).map((row: Record<string, unknown>) => ({
     id: String(row.id), name: config.names.map(key => String(row[key] || '')).filter(Boolean).join(' ') || 'Unknown',
     email: String(row[config.email] || ''), status: String(row[config.status] || ''), date: String(row[config.date] || ''),

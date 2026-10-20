@@ -119,12 +119,12 @@ function detailValue(v: unknown): string {
   return s ? s : "Not provided"
 }
 
-export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
+export function RootsBookingsTable({ bookings, recordOnly = false }: { bookings: Booking[]; recordOnly?: boolean }) {
   const [confirming, setConfirming] = useState<string | null>(null)
   const [amount, setAmount] = useState("")
   const [loading, setLoading] = useState<string | null>(null)
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
-  const [showArchived, setShowArchived] = useState(false)
+  const [showArchived, setShowArchived] = useState(recordOnly && bookings[0]?.archived === true)
   const [statusFilter, setStatusFilter] = useState<"all" | "confirmed" | "pending" | "declined">("all")
   const [expanded, setExpanded] = useState<string | null>(null)
 

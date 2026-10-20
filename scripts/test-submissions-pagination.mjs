@@ -150,6 +150,7 @@ let exportAllowed = true
 let exportCalls = 0
 const exporter = load('app/api/crm/submissions/export/route.ts', {
   '@/lib/staff-programme-server': { requireGeneralStaff: async () => { if (!exportAllowed) throw new Error('Denied'); return {} } },
+  '@/lib/crm/programme-records': load('lib/crm/programme-records.ts', { './submissions': model }),
   '@/lib/crm/submissions': { ...model, loadSubmissionList: async (_client, params) => { exportCalls++; assert.equal(params.page, 2); return { rows: [{ name: '=SUM(1,2)', email: 'test@example.test', status: 'new', date: '2026-10-20' }], count: 1000 } } },
 })
 test('CSV export is page-scoped, private, formula-safe and permission checked', async () => {
@@ -159,4 +160,120 @@ test('CSV export is page-scoped, private, formula-safe and permission checked', 
   exportAllowed = false
   assert.equal((await exporter.GET(new Request('https://test.invalid/api/crm/submissions/export?page=2'))).status, 403)
   assert.equal(exportCalls, 1)
+})
+function rangeFailure({ code = 'PGRST103', count = 747, countError = false } = {}) {
+  const calls = []
+  return { calls, client: { from(table) {
+    calls.push(['from', table]); let head = false
+    const chain = {
+      select(columns, options) { head = !!options?.head; calls.push(['select', columns, options]); return this },
+      eq(key, value) { calls.push(['eq', key, value]); return this }, or(value) { calls.push(['or', value]); return this },
+      ilike(key, value) { calls.push(['ilike', key, value]); return this },
+      order() { return this }, range(start, end) { calls.push(['range', start, end]); return this },
+      then(resolve, reject) { return Promise.resolve(head ? { data: null, count, error: countError ? { code: '42501' } : null } : { data: null, count: null, error: { code, message: 'internal error' } }).then(resolve, reject) },
+    }
+    return chain
+  } } }
+}
+test('out-of-range PGRST103 returns an empty list with an exact count, not an outage', async () => {
+  const db = rangeFailure()
+  const result = await model.loadSubmissionList(db.client, model.listParams({ source: 'recovery_payment_ledger', page: '99999' }))
+  assert.equal(result.rows.length, 0); assert.equal(result.count, 747)
+  assert.equal(db.calls.filter(c => c[0] === 'from').length, 2)
+  assert.equal(db.calls.filter(c => c[0] === 'range').length, 1)
+  const counted = db.calls.filter(c => c[0] === 'select').at(-1)
+  assert.equal(counted[1], 'id'); assert.equal(counted[2].head, true)
+})
+test('range recovery count uses the same status/search/programme scope as the failed range', async () => {
+  const db = rangeFailure({ count: 8 })
+  await model.loadSubmissionList(db.client, model.listParams({ source: 'recovery_payment_ledger', page: '30', q: 'Test', status: 'paid' }), { descriptionContains: 'Padel' })
+  assert.equal(db.calls.filter(c => c[0] === 'eq' && c[1] === 'payment_status' && c[2] === 'paid').length, 2)
+  assert.equal(db.calls.filter(c => c[0] === 'or').length, 2)
+  assert.equal(db.calls.filter(c => c[0] === 'ilike' && c[2] === '%Padel%').length, 2)
+})
+for (const options of [{ code: 'PGRST000' }, { code: '42501' }, { countError: true }, { count: null }, { count: 1000000 }]) test(`real failure is not disguised as empty data: ${JSON.stringify(options)}`, async () => {
+  const db = rangeFailure(options)
+  await assert.rejects(() => model.loadSubmissionList(db.client, model.listParams({ page: '2' })), /Unable to load/)
+})
+test('range error on the first page remains an explicit failure', async () => {
+  const db = rangeFailure({ count: 0 })
+  await assert.rejects(() => model.loadSubmissionList(db.client, model.listParams({})), /Unable to load/)
+  assert.equal(db.calls.filter(c => c[0] === 'from').length, 1)
+})
+const programmes = load('lib/crm/programme-records.ts', { './submissions': model })
+for (const programme of ['padel', 'roots']) test(`${programme}: fixed dataset, bounded rows, scoped recovered evidence and matching CSV links`, async () => {
+  const live = programmes.programmeList(programme, { source: 'auth.users', page: '2' })
+  assert.equal(live.params.source, programme === 'padel' ? 'padel_registrations' : 'roots_bookings')
+  const recovered = programmes.programmeList(programme, { source: 'recovery_payment_ledger', page: '2', q: 'Test', status: 'Paid' })
+  assert.equal(recovered.scope.descriptionContains, programme === 'padel' ? 'Padel' : 'Roots Residential')
+  assert.match(recovered.exportHref, new RegExp('programme='+programme))
+  assert.equal(new URL(recovered.exportHref, 'https://test.invalid').searchParams.get('q'), 'Test')
+  assert.equal(recovered.recordHref({ id: '1' }), `/dashboard/${programme}/recovered/1`)
+  const db = database();
+  // Existing fixture only needs this extra server filter recorded here.
+  const original = db.client.from.bind(db.client)
+  db.client.from = table => { const chain = original(table); chain.ilike = (key, value) => { db.calls.push(['ilike', key, value]); return chain }; return chain }
+  const result = await model.loadSubmissionList(db.client, recovered.params, recovered.scope)
+  assert.equal(result.rows.length, 25)
+  assert.equal(db.calls.filter(c=>c[0]==='from').length, 1)
+  assert.equal(db.calls.find(c=>c[0]==='ilike')[1], 'description')
+})
+test('friendly statuses preserve raw filter values; Clear filters resets order too', () => {
+  assert.equal(model.statusLabel('payment_pending'), 'Awaiting Payment')
+  assert.equal(model.statusLabel('in_progress'), 'In Progress')
+  assert.equal(model.statusLabel('custom_state'), 'Custom State')
+  const component = fs.readFileSync('components/dashboard/submissions-list.tsx', 'utf8')
+  assert.match(component, /statusLabel\(row.status\)/)
+  assert.match(component, /page: 1, q: '', status: '', direction: 'newest'/)
+  assert.equal(model.listParams({ status: 'archived' }).status, 'archived')
+})
+const programmeDetail = load('lib/crm/programme-record-detail.ts', {
+  'server-only': {}, './programme-records': programmes, './submission-detail': detail,
+  '@/lib/padel-entries': { getPadelEntries: async (_client, id) => { assert.equal(id, '123'); return [{ id, status: 'archived' }] } },
+})
+test('Padel selected-record workflow fetches only its ID, including archived records', async () => {
+  const result = await programmeDetail.programmeRecord({}, 'padel', 'records', '123')
+  assert.equal(result.entry.id, '123'); assert.equal(result.entry.status, 'archived')
+})
+test('programme recovered-detail queries include the selected ID and programme predicate', async () => {
+  const calls=[]
+  const client={from(table){calls.push(['from',table]);const chain={select(){return chain},eq(k,v){calls.push(['eq',k,v]);return chain},ilike(k,v){calls.push(['ilike',k,v]);return chain},maybeSingle:async()=>({data:{id:'123'},error:null})};return chain}}
+  await programmeDetail.programmeRecord(client,'roots','recovered','123')
+  assert.deepEqual(calls,[['from','recovery_payment_ledger'],['eq','id','123'],['ilike','description','%Roots Residential%']])
+  const prior=calls.length
+  assert.equal(await programmeDetail.programmeRecord(client,'roots','unknown','123'),null)
+  assert.equal(await programmeDetail.programmeRecord(client,'roots','records','bad-id'),null)
+  assert.equal(calls.length,prior)
+})
+test('programme pages authorise before lists/details and do not preload full datasets', () => {
+  for(const programme of ['padel','roots']){
+    const page=fs.readFileSync(`app/dashboard/${programme}/page.tsx`,'utf8')
+    assert.match(page, programme==='padel' ? /await requirePadelStaff\(\)/ : /await requireGeneralStaff\(\)/)
+    assert.doesNotMatch(page,/SERVICE_ROLE_KEY|\.select\(['"]\*['"]\)/)
+    const record=fs.readFileSync(`app/dashboard/${programme}/[kind]/[id]/page.tsx`,'utf8')
+    assert.ok(record.indexOf('await require') < record.indexOf('return <ProgrammeRecordDetail'))
+  }
+})
+const actualPadelEntries = load('lib/padel-entries.ts', { '@/lib/padel-payment': load('lib/padel-payment.ts') })
+test('actual Padel detail loader applies ID and LIMIT 1 before serialising full fields', async () => {
+  const calls=[]
+  const client={from(table){calls.push(['from',table]);const chain={select(){return chain},eq(k,v){calls.push(['eq',k,v]);return chain},limit(n){calls.push(['limit',n]);return chain},order(){return chain},then(resolve){return Promise.resolve({data:[{id:'123',captain_first_name:'QA',captain_last_name:'Fixture',status:'archived',created_at:'2026-10-20'}],error:null}).then(resolve)}};return chain}}
+  const entries=await actualPadelEntries.getPadelEntries(client,'123')
+  assert.equal(entries.length,1);assert.equal(entries[0].status,'archived')
+  assert.deepEqual(calls,[['from','padel_registrations'],['eq','id','123'],['limit',1]])
+})
+test('programme CSV forces live table or scoped evidence and rejects invalid programme without data calls', async () => {
+  let observed
+  const route=load('app/api/crm/submissions/export/route.ts',{
+    '@/lib/staff-programme-server':{requireGeneralStaff:async()=>({})},
+    '@/lib/crm/programme-records':programmes,
+    '@/lib/crm/submissions':{...model,loadSubmissionList:async(_c,params,scope)=>{observed={params,scope};return {rows:[],count:0}}},
+  })
+  assert.equal((await route.GET(new Request('https://test.invalid/api/crm/submissions/export?programme=roots&source=auth.users&page=2'))).status,200)
+  assert.equal(observed.params.source,'roots_bookings')
+  assert.equal((await route.GET(new Request('https://test.invalid/api/crm/submissions/export?programme=padel&source=recovery_payment_ledger&page=2'))).status,200)
+  assert.equal(observed.scope.descriptionContains,'Padel')
+  observed=null
+  assert.equal((await route.GET(new Request('https://test.invalid/api/crm/submissions/export?programme=__proto__'))).status,400)
+  assert.equal(observed,null)
 })
