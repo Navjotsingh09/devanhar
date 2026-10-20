@@ -16,6 +16,9 @@ import { PROGRAMME_LABELS, programmeHome, type StaffProgramme } from '@/lib/staf
 
 const routeLabels: Record<string, string> = {
   '/dashboard': 'Overview',
+  '/dashboard/website': 'Website & content',
+  '/dashboard/website/pages': 'Website pages',
+  '/dashboard/website/sfi': 'SFI page editor',
   '/dashboard/kaurs': 'Kaurs',
   '/dashboard/vidyala': 'Sikhi Vidyala',
   '/dashboard/vidyala/webinar': 'Vidyala webinar signups',

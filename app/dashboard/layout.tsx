@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect('/auth/login?error=session_expired')
   }
 
   // Fetch admin profile

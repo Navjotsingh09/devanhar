@@ -135,3 +135,35 @@ no live content should be changed merely to obtain a passing test result.
 The `.vercel.app` hostname is assigned to this CMS branch, while the charity's
 custom domains stay on main/production. This separates code deployments; it
 does not imply a separate database. Avoid test publications/uploads there.
+
+## Whole Devanhaar scope and dashboard recovery
+
+The rollout covers the overall Devanhaar website and CRM. SFI remains the first
+page-editor pilot, not the project boundary. `/dashboard/website` is the central
+entry point to existing tools. `/dashboard/website/pages` lists 35 canonical
+content pages and distinguishes existing management tools, the SFI editor and
+pages still managed in code. Alias routes, transactional screens and individual
+records are excluded. This inventory does not imply that other page editors exist.
+
+| Area | Current foundation | Remaining work |
+| --- | --- | --- |
+| Staff access | Supabase Auth, staff profiles, programme restrictions | Recovery routing repaired; signed-in end-to-end check still required |
+| CRM operations | Submissions, emergency requests, recruitment, registrations, programme tools | Evaluate individual workflows with staff; retain existing records and scopes |
+| Content | Existing blog and images; first SFI revision editor | Connect other page templates, shared navigation/footer and reusable sections |
+| Commerce | Existing products, orders and payment tools | Assess requested workflow improvements separately from content editing |
+| Publishing | Existing CMS tables, immutable revisions, explicit publishing in SFI | Extend page-by-page, with permissions, preview and public-render regression checks |
+
+Assessment: an incremental extension is supported by the current backend; a
+replacement CRM or database is not established as necessary. Site-wide editing
+still represents substantial template and workflow work. Do not describe a hub
+and inventory as completion of that work.
+
+Dashboard recovery removes the unconditional signed-in `/auth` redirect that
+could loop when the dashboard rejects the same session, keeps password recovery
+reachable, forwards refreshed request cookies and preserves them on redirects.
+Signed-out deep links retain a validated local dashboard return destination.
+Access lookup failures remain fail-closed, with a recoverable message for browser
+navigation and 503 for APIs. Existing programme/domain restrictions remain.
+Nine regression tests exercise these paths using the actual middleware and
+NextRequest/NextResponse, with mocked auth and assignment lookups. They do not
+replace verification with a real authenticated account.

@@ -211,7 +211,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
     ? managementNav.filter((item) => item.url === '/dashboard/vacancies')
     : managementNav
 
-  const canManageWebsite = user.canEditSfi === true
+  const canManageWebsite = !isVacanciesOnly
 
   const operationItems = operationsNav.filter((item) => !item.adminOnly || isAdmin)
 
@@ -243,7 +243,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">Devanhaar</span>
-                  <span className="text-xs opacity-70">Staff Dashboard</span>
+                  <span className="text-xs opacity-70">Devanhaar CRM</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -253,8 +253,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       <SidebarContent className="gap-0">
         {canManageWebsite && <SidebarGroup className="border-b border-sidebar-border pb-2">
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">Website</SidebarGroupLabel>
-          <SidebarGroupContent><SimpleNav items={[{ title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }]} pathname={pathname} /></SidebarGroupContent>
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">Website & CMS</SidebarGroupLabel>
+          <SidebarGroupContent><SimpleNav items={[{ title: 'Website & content', url: '/dashboard/website', icon: LayoutDashboard }, { title: 'All website pages', url: '/dashboard/website/pages', icon: BookOpen }, ...(user.canEditSfi ? [{ title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }] : [])]} pathname={pathname} /></SidebarGroupContent>
         </SidebarGroup>}
 
         <SidebarGroup className="pb-2">

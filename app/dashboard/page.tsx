@@ -37,6 +37,8 @@ export default async function DashboardOverview() {
         <p className="text-muted-foreground">Overview of all Devanhaar operations</p>
       </div>
 
+      <Link href="/dashboard/website"><Card className="border-primary/30 transition-shadow hover:shadow-md"><CardHeader><CardTitle>Devanhaar website & content →</CardTitle><CardDescription>Open the site-wide page inventory, blog, images, products and existing CRM tools. See which pages have editors and what remains to connect.</CardDescription></CardHeader></Card></Link>
+
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Link href="/dashboard/submissions">
