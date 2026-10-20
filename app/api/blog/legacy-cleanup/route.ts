@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/supabase/server"
+import { getBlogStaff } from "@/lib/blog-staff-server"
 import { createClient as createAdminClient } from "@supabase/supabase-js"
 
 const LEGACY_SLUGS = [
@@ -25,19 +25,11 @@ function getAdminClient() {
 
 export async function DELETE() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, allowed } = await getBlogStaff()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const admin = getAdminClient()
-    const { data: profile } = await admin
-      .from("admin_profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle()
-
-    const allowed = !profile || ["staff", "admin", "super_admin"].includes(profile.role)
-    if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
     const { data: images } = await admin
       .from("site_images")

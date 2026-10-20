@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { getBlogStaff } from "@/lib/blog-staff-server"
 import { createClient as createAdminClient } from "@supabase/supabase-js"
 
 const allowedPillars = new Set(["Develop", "Elevate", "Empower", "Connect"])
@@ -14,27 +14,9 @@ function getAdminClient() {
   })
 }
 
-async function getStaff() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { user: null, allowed: false }
-
-  const admin = getAdminClient()
-  const { data: profile } = await admin
-    .from("admin_profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle()
-
-  // Match the existing Devanhaar dashboard behaviour:
-  // a missing profile row defaults to staff; only an explicit disallowed role is blocked.
-  const allowed = !profile || ["staff", "admin", "super_admin"].includes(profile.role)
-  return { user, allowed }
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const { user, allowed } = await getStaff()
+    const { user, allowed } = await getBlogStaff()
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
