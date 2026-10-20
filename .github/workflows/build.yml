@@ -26,7 +26,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Test CMS access and publishing boundaries
-        run: node --test scripts/test-blog-access.mjs scripts/test-sfi-cms.mjs scripts/test-dashboard-access.mjs
+        run: node --test scripts/test-blog-access.mjs scripts/test-sfi-cms.mjs scripts/test-dashboard-access.mjs scripts/test-submissions-pagination.mjs
 
       - name: Build application
         run: npm run build
