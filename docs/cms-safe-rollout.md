@@ -74,3 +74,64 @@ against an isolated environment. Main/production remain unchanged by the PR.
 
 Rollback of this first slice is a code revert, with no schema rollback required;
 reverting also restores the old authorization weakness, so prefer a forward fix.
+
+## SFI editor pilot
+
+The CMS branch now includes `/dashboard/website/sfi`, `/cms-preview/sfi` and
+`/api/cms/sfi`. The existing SFI layout is extracted into one shared renderer.
+The initial JSON content preserves all five event cards, six FAQs, original
+wording, links, image paths, styles and donation URLs. Editable fields cover the
+hero, events, FAQs, SEO, and the order/visibility of the four body sections.
+The Why SFI and community section copy remains in the renderer for this pilot.
+
+Read-only inspection found existing, empty `cms_pages`, `cms_page_revisions`
+and `cms_page_assignments` tables and the `cms_create_page` RPC. This pilot
+reuses them. It does not run schema migrations or create/modify any content
+until an authorised editor explicitly saves a draft.
+
+The public SFI page reads only `published_revision_id`, with the original page
+as fallback when no published CMS content is present or data is unavailable.
+The preview requires a verified user and page access; it never publishes.
+Public metadata uses the same published content selection. Both long-route
+aliases and `/sfi` retain the shared page renderer.
+
+For this pilot, unscoped admins/super admins can edit and publish. Unscoped
+Content Managers need an existing explicit page assignment with the relevant
+view/edit/publish flags. Programme operators and ordinary staff are not
+automatically granted website editing access. Content Managers without access
+do not see the SFI editor in navigation. Assignment administration, broader
+content types and programme-editor delegation are separate follow-up work.
+
+The API validates structured content and same-origin requests before writes.
+It creates immutable draft snapshots, then compares BOTH current draft and
+published pointers in the database update. Stale/concurrent changes return 409.
+Publishing advances only to the saved draft and clears its draft pointer; a
+new draft leaves the published pointer untouched. The published pointer is
+authoritative, not the legacy revision status column. History labels therefore
+derive from those pointers. Older snapshots remain available in history.
+
+The API uses the existing server-only service key after verified session/role/
+assignment checks. It does not widen database grants. Existing CMS RPCs and RLS
+are outside this new API boundary and still need a dedicated audit, including
+the existing public security-definer RPCs and authenticated TRUNCATE grants.
+Do not describe this pilot as completion of the CMS database security review.
+
+A compare-and-swap failure after inserting a revision can leave an unattached
+revision in history. It cannot become public through this workflow. The
+auxiliary activity log is best effort; snapshots and current pointers are the
+source of truth. Atomic audit logging and history restoration remain follow-up
+work. The editor currently lists the last 20 revisions but does not restore or
+delete them.
+
+Validation: 21 additional tests exercise the real content model, server access
+layer and API with isolated database/auth mocks. They cover draft/live
+separation, missing/failed data, invalid links, assignments, stale saves,
+concurrent pointer changes, publishing, initial creation, and request origin.
+A render regression test compares original and extracted public text, links,
+image sources and alt text. Targeted TypeScript checks pass. Authenticated
+browser save/publish tests against the deployed database are still required;
+no live content should be changed merely to obtain a passing test result.
+
+The `.vercel.app` hostname is assigned to this CMS branch, while the charity's
+custom domains stay on main/production. This separates code deployments; it
+does not imply a separate database. Avoid test publications/uploads there.

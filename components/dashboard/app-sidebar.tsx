@@ -121,6 +121,7 @@ interface AppSidebarProps {
     fullName: string
     role: string
     programmes?: StaffProgramme[]
+    canEditSfi?: boolean
   }
 }
 
@@ -210,6 +211,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
     ? managementNav.filter((item) => item.url === '/dashboard/vacancies')
     : managementNav
 
+  const canManageWebsite = user.canEditSfi === true
+
   const operationItems = operationsNav.filter((item) => !item.adminOnly || isAdmin)
 
   const handleSignOut = async () => {
@@ -249,6 +252,11 @@ export function AppSidebar({ user }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="gap-0">
+        {canManageWebsite && <SidebarGroup className="border-b border-sidebar-border pb-2">
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">Website</SidebarGroupLabel>
+          <SidebarGroupContent><SimpleNav items={[{ title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }]} pathname={pathname} /></SidebarGroupContent>
+        </SidebarGroup>}
+
         <SidebarGroup className="pb-2">
           <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">
             Management

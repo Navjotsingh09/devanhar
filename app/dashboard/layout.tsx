@@ -55,11 +55,18 @@ export default async function DashboardLayout({
   if (isVacanciesOnly && pathname && !pathname.startsWith('/dashboard/vacancies')) {
     redirect('/dashboard/vacancies')
   }
+  let canEditSfi = isAdmin && programmes.length === 0
+  if (role === 'content_manager' && programmes.length === 0) {
+    const { data: assignedSfi, error: cmsAccessError } = await supabase
+      .from('cms_pages').select('id').eq('slug', 'sfi').maybeSingle()
+    canEditSfi = !cmsAccessError && !!assignedSfi
+  }
   const userData = {
     email: user.email || '',
     fullName: profile?.full_name || user.email || 'Staff',
     role: programmes.length ? 'programme_manager' : role,
     programmes,
+    canEditSfi,
   }
 
   return (
