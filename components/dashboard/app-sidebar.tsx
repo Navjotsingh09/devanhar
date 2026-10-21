@@ -49,6 +49,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import Link from 'next/link'
 import Image from 'next/image'
+import { NavigationPending } from '@/components/dashboard/navigation-pending'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -139,6 +140,7 @@ function SimpleNav({
             <Link prefetch={false} href={item.url}>
               <item.icon className="h-4 w-4" />
               <span>{item.title}</span>
+              <NavigationPending />
               {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
             </Link>
           </SidebarMenuButton>
@@ -239,7 +241,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <div className="crm-navigation">
       <SidebarHeader className="px-5 py-6">
         <Link prefetch={false} href={programmeHome(programmes)} className="flex items-center gap-3" aria-label="Devanhaar dashboard home">
-          <Image src="/logos/main-black-transparent.png" alt="Devanhaar" width={140} height={36} className="h-8 w-auto" unoptimized />
+          <Image src="/logos/main-black-transparent.png" alt="Devanhaar" width={140} height={36} className="h-8 w-auto" sizes="100px" />
           <span className="ml-auto rounded-md border border-black/10 px-1.5 py-1 text-[9px] font-medium tracking-wider">WORKSPACE</span>
         </Link>
       </SidebarHeader>

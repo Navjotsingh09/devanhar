@@ -1,7 +1,7 @@
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
-import { createClient } from '@/lib/supabase/server'
+import { getRequestStaff } from '@/lib/crm/request-staff'
 import { redirect } from 'next/navigation'
 import { canVisitDashboard, programmeHome, type StaffProgramme } from '@/lib/staff-programme-access'
 import { headers } from 'next/headers'
@@ -16,23 +16,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/auth/login?error=session_expired')
-  }
-
-  // Fetch admin profile
-  const { data: profile } = await supabase
-    .from('admin_profiles')
-    .select('full_name, role')
-    .eq('id', user.id)
-    .single()
-
-
+  const { client: supabase, user, profile: profileResult, grants: grantResult } = await getRequestStaff()
+  if (!user) redirect('/auth/login?error=session_expired')
+  const profile = profileResult.error ? null : profileResult.data
   const role = profile?.role || 'staff'
-  const { data: grants, error: grantError } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
+  const { data: grants, error: grantError } = grantResult
   if (grantError) redirect('/auth/login?error=access_check_failed')
   const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
   if (!profile) {

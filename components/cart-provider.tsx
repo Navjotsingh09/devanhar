@@ -1,5 +1,7 @@
 "use client"
 
+import { usePathname } from "next/navigation"
+
 import {
   createContext,
   useContext,
@@ -49,6 +51,8 @@ interface CartProviderProps {
 }
 
 export function CartProvider({ children }: CartProviderProps) {
+  const pathname = usePathname()
+  const isStaffArea = pathname.startsWith("/dashboard") || pathname.startsWith("/spa-admin")
   const [items, setItems] = useState<CartItem[]>([])
   const [itemCount, setItemCount] = useState(0)
   const [total, setTotal] = useState(0)
@@ -78,8 +82,9 @@ export function CartProvider({ children }: CartProviderProps) {
 
   // Load cart on mount
   useEffect(() => {
+    if (isStaffArea) { setIsLoading(false); return }
     refreshCart()
-  }, [refreshCart])
+  }, [refreshCart, isStaffArea])
 
   // Add item to cart
   const addToCart = useCallback(async (item: Omit<CartItem, "id">) => {
