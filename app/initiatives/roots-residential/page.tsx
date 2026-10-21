@@ -217,12 +217,7 @@ export default function RootsResidentialPage() {
               ))}
             </div>
           </div>
-          <style>{`
-            @keyframes roots-scroll-x {
-              from { transform: translateX(0); }
-              to { transform: translateX(-50%); }
-            }
-          `}</style>
+
         </section>
 
         <div className="roots-audience">
