@@ -73,11 +73,11 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider className="crm-shell">
       <AppSidebar user={userData} />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <DashboardHeader programmes={programmes} fullName={userData.fullName} />
-        <main id="crm-content" className="crm-main flex-1 min-w-0">
+        <div id="crm-content" tabIndex={-1} className="crm-main flex-1 min-w-0">
           {children}
-        </main>
+        </div>
         <footer className="border-t border-border px-4 md:px-6 py-3 text-center">
           <span className="text-xs text-muted-foreground">
             Dashboard by{" "}
