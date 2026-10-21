@@ -1,7 +1,8 @@
+import { type QueryParams } from '@/lib/crm/submissions'
 import { requireGeneralStaff } from '@/lib/staff-programme-server'
 import { ProgrammeRecordDetail } from '@/components/dashboard/programme-record-detail'
 export const dynamic = 'force-dynamic'
-export default async function RootsRecord({ params }: { params: Promise<{ kind: string; id: string }> }) {
+export default async function RootsRecord({ params, searchParams }: { params: Promise<{ kind: string; id: string }>; searchParams: Promise<QueryParams> }) {
   const client = await requireGeneralStaff()
-  return <ProgrammeRecordDetail client={client} programme="roots" {...await params} />
+  return <ProgrammeRecordDetail client={client} programme="roots" {...await params} query={await searchParams} />
 }

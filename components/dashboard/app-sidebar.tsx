@@ -12,7 +12,6 @@ import {
   ChevronDown,
   Shield,
   Lock,
-  ShoppingBag,
   Package,
   ClipboardList,
   ImageIcon,
@@ -23,7 +22,6 @@ import {
   TreePine,
   CalendarDays,
   Newspaper,
-  Boxes,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -50,6 +48,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -101,12 +100,6 @@ const eventsNav: NavItem[] = [
   { title: 'Wolf Run Runners', url: '/dashboard/wolfrun-runners', icon: Users },
 ]
 
-const contentCommerceNav: NavItem[] = [
-  { title: 'Blog', url: '/dashboard/blog', icon: Newspaper },
-  { title: 'Orders', url: '/dashboard/orders', icon: ClipboardList },
-  { title: 'Products', url: '/dashboard/products', icon: Package },
-]
-
 const operationsNav: NavItem[] = [
   { title: 'Recovered Payments', url: '/dashboard/recovery-payments', icon: ReceiptText },
   { title: 'Registration Windows', url: '/dashboard/registration-windows', icon: CalendarDays },
@@ -140,13 +133,13 @@ function SimpleNav({
             asChild
             isActive={
               pathname === item.url ||
-              (item.url !== '/dashboard' && pathname.startsWith(item.url + '/'))
+              (!['/dashboard', '/dashboard/website'].includes(item.url) && pathname.startsWith(item.url + '/'))
             }
           >
-            <Link href={item.url}>
-              <item.icon className="h4 w4" />
+            <Link prefetch={false} href={item.url}>
+              <item.icon className="h-4 w-4" />
               <span>{item.title}</span>
-              {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
+              {item.adminOnly && <Lock className="ml-auto h-3 w-3 opacity-40" />}
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -177,10 +170,10 @@ function ProgrammeGroup({
       <CollapsibleTrigger asChild>
         <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2 hover:bg-sidebar-accent/60">
           <span className="flex min-w-0 items-center gap-2">
-            <Icon className="h3.5 w3.5 shrink-0" />
+            <Icon className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{label}</span>
           </span>
-          <ChevronDown className={`h3.5 w3.5 shrink-0 transition-transform ${isCurrent ? '' : ''} group-data-[state=open]/${groupName}:rotate-180`} />
+          <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform ${isCurrent ? '' : ''} group-data-[state=open]/${groupName}:rotate-180`} />
         </SidebarGroupLabel>
       </CollapsibleTrigger>
       <CollapsibleContent>
@@ -212,6 +205,16 @@ export function AppSidebar({ user }: AppSidebarProps) {
     : managementNav
 
   const canManageWebsite = !isVacanciesOnly
+  const websiteItems: NavItem[] = [
+    { title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
+    { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
+    ...(user.canEditSfi ? [{ title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }] : []),
+    { title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper },
+    { title: 'Site images', url: '/dashboard/images', icon: ImageIcon },
+    { title: 'Products', url: '/dashboard/products', icon: Package },
+    { title: 'Orders', url: '/dashboard/orders', icon: ClipboardList },
+  ]
+  const isWebsite = websiteItems.some(item => pathname === item.url || pathname.startsWith(item.url + '/'))
 
   const operationItems = operationsNav.filter((item) => !item.adminOnly || isAdmin)
 
@@ -232,96 +235,47 @@ export function AppSidebar({ user }: AppSidebarProps) {
     'U'
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href={programmeHome(programmes)}>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Shield className="h-4 w-4" />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Devanhaar</span>
-                  <span className="text-xs opacity-70">Devanhaar CRM</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+    <Sidebar collapsible="offcanvas">
+      <div className="crm-navigation">
+      <SidebarHeader className="px-5 py-6">
+        <Link prefetch={false} href={programmeHome(programmes)} className="flex items-center gap-3" aria-label="Devanhaar dashboard home">
+          <Image src="/logos/main-black-transparent.png" alt="Devanhaar" width={140} height={36} className="h-8 w-auto" unoptimized />
+          <span className="ml-auto rounded-md border border-black/10 px-1.5 py-1 text-[9px] font-medium tracking-wider">WORKSPACE</span>
+        </Link>
       </SidebarHeader>
-
-      <SidebarContent className="gap-0">
-        {canManageWebsite && <SidebarGroup className="border-b border-sidebar-border pb-2">
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">Website & CMS</SidebarGroupLabel>
-          <SidebarGroupContent><SimpleNav items={[{ title: 'Website & content', url: '/dashboard/website', icon: LayoutDashboard }, { title: 'All website pages', url: '/dashboard/website/pages', icon: BookOpen }, ...(user.canEditSfi ? [{ title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }] : [])]} pathname={pathname} /></SidebarGroupContent>
-        </SidebarGroup>}
-
-        <SidebarGroup className="pb-2">
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">
-            Management
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SimpleNav items={managementItems} pathname={pathname} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {!isVacanciesOnly && (
-          <SidebarGroup className="border-t border-sidebar-border pt-2">
-            <SidebarGroupLabel className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em]">
-              Programmes
-            </SidebarGroupLabel>
+      {canManageWebsite && <nav aria-label="Workspace" className="crm-workspaces">
+        <Link prefetch={false} href={programmeHome(programmes)} aria-current={!isWebsite ? 'true' : undefined}><LayoutDashboard className="h-3.5 w-3.5" />Operations</Link>
+        <Link prefetch={false} href="/dashboard/website" aria-current={isWebsite ? 'true' : undefined}><BookOpen className="h-3.5 w-3.5" />Website</Link>
+      </nav>}
+      <SidebarContent className="gap-2">
+        {canManageWebsite && isWebsite ? <SidebarGroup>
+          <SidebarGroupLabel>Website & content</SidebarGroupLabel>
+          <SidebarGroupContent><SimpleNav items={websiteItems} pathname={pathname} /></SidebarGroupContent>
+        </SidebarGroup> : <>
+          <SidebarGroup>
+            <SidebarGroupLabel>Your workspace</SidebarGroupLabel>
+            <SidebarGroupContent><SimpleNav items={managementItems} pathname={pathname} /></SidebarGroupContent>
+          </SidebarGroup>
+          {!isVacanciesOnly && <SidebarGroup>
+            <SidebarGroupLabel>Programmes</SidebarGroupLabel>
             <div className="space-y-1">
-              <ProgrammeGroup
-                label="Sikh Padel Association"
-                icon={CircleDot}
-                items={padelNav}
-                pathname={pathname}
-                groupName="padel"
-              />
-              <ProgrammeGroup
-                label="Roots Residential"
-                icon={TreePine}
-                items={rootsNav}
-                pathname={pathname}
-                groupName="roots"
-              />
-              <ProgrammeGroup
-                label="Events"
-                icon={Trophy}
-                items={eventsNav}
-                pathname={pathname}
-                groupName="events"
-              />
+              <ProgrammeGroup label="Sikh Padel Association" icon={CircleDot} items={padelNav} pathname={pathname} groupName="padel" />
+              <ProgrammeGroup label="Roots Residential" icon={TreePine} items={rootsNav} pathname={pathname} groupName="roots" />
+              <ProgrammeGroup label="Events" icon={CalendarDays} items={eventsNav} pathname={pathname} groupName="events" />
             </div>
-          </SidebarGroup>
-        )}
-
-        {!isVacanciesOnly && (
-          <SidebarGroup className="border-t border-sidebar-border pt-2">
-            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">
-              Content & Commerce
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SimpleNav items={contentCommerceNav} pathname={pathname} />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {!isVacanciesOnly && operationItems.length > 0 && (
-          <SidebarGroup className="border-t border-sidebar-border pt-2">
-            <SidebarGroupLabel className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em]">
-              <Boxes className="h-3 w-3" />
-              Operations
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SimpleNav items={operationItems} pathname={pathname} />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+          </SidebarGroup>}
+          {!isVacanciesOnly && <SidebarGroup>
+            <SidebarGroupLabel>Operations</SidebarGroupLabel>
+            <SidebarGroupContent><SimpleNav items={operationItems.filter(item => !['/dashboard/images', '/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} /></SidebarGroupContent>
+          </SidebarGroup>}
+        </>}
+        {!isVacanciesOnly && isAdmin && <SidebarGroup className="mt-auto">
+          <SidebarGroupLabel>Administration</SidebarGroupLabel>
+          <SidebarGroupContent><SimpleNav items={operationItems.filter(item => ['/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} /></SidebarGroupContent>
+        </SidebarGroup>}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
+      <SidebarFooter className="border-t border-sidebar-border p-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -349,6 +303,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      </div>
     </Sidebar>
   )
 }

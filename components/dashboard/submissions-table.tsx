@@ -869,7 +869,7 @@ export function SubmissionsTable({ submissions, recordOnly = false }: { submissi
           isPending={isPending}
         />
       )}
-      <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
+      {!recordOnly && <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
         <div className="flex flex-1 gap-2 items-center">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -928,7 +928,7 @@ export function SubmissionsTable({ submissions, recordOnly = false }: { submissi
             Export CSV
           </Button>
         </div>
-      </div>
+      </div>}
 
       {showUnpaidPadel && unpaidPadelCount > 0 && (
         <div className="mb-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-300">
