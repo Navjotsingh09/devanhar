@@ -12,14 +12,13 @@ export async function getOpenRegistrationOpportunities(): Promise<OpenOpportunit
     supabase.from('padel_tournaments').select('id,name,event_date,event_time,venue,address,registration_open')
       .eq('is_public', true).gte('event_date', today).order('event_date'),
   ])
-  if (windows.error || tournaments.error) throw new Error('Registration availability is temporarily unavailable')
   const opportunities: OpenOpportunity[] = [{ id: 'roots-camp-registration', title: 'Roots Residential · Camp registration', kind: 'application', href: '/rr#booking-form' }]
   // The public SPA page currently accepts registrations for its earliest public event.
-  const tournament = tournaments.data?.[0]
+  const tournament = tournaments.error ? null : tournaments.data?.[0]
   if (tournament?.registration_open === true && tournament.event_time?.trim() && tournament.venue?.trim() && tournament.address?.trim()) {
     opportunities.push({ id: `spa-${tournament.id}`, title: tournament.name, kind: 'application', href: '/spa' })
   }
-  for (const window of (windows.data || []) as RegistrationWindow[]) {
+  for (const window of (windows.error ? [] : windows.data || []) as RegistrationWindow[]) {
     if (window.id === 'family-spring-2027' || window.id === 'family-summer-2027') continue
     if (window.id === 'vidyala-2026-2027' && isVidyalaApplicationsClosed(now)) continue
     if (isRegistrationWindowOpen(window, now)) opportunities.push({ id: window.id, title: window.title, kind: window.kind, href: window.href })
