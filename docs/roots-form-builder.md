@@ -4,11 +4,13 @@ Entry: `/dashboard/roots/forms`. The existing Roots bookings list links to it. S
 
 The camp template includes every requested item plus guardian name/email/phone and guardian confirmation. Activity consent permits Yes or No; the camp rules require acknowledgement. The team must supply the two PDFs before publication. No PDFs were invented or uploaded. Room requests have repeatable child/parent pairs and the non-guarantee explanation.
 
-## Activation blocker
+## Storage activated — 21 October 2026
 
-The connected Supabase tools refused access to project `igkpvudaqxkncxgslbvb` during implementation. No SQL was applied. The editor detects missing storage and enables design, preview and design export while disabling save and publish. Public forms fail closed. This is not a claim of operational submission storage or verified live checkout.
+The live application’s public client bundle confirms project `kawjcikusbqqxyczibul` (`DEVANHAAR1`). An earlier check incorrectly targeted the old project `igkpvudaqxkncxgslbvb`; the reported permission block applied to that old reference. The correct project is accessible.
 
-An authorised project administrator must apply `docs/roots-form-builder-setup.sql` through the normal migration workflow, then run the isolated acceptance checks below. The setup adds two new tables, their indexes, RLS, an atomic server-only submission/rate-limit function, and a public PDF-only bucket. It does not migrate or delete existing Roots bookings. The SQL has been reviewed but not executed against this database. Confirm the connected project's existing `admin_profiles` and `staff_programme_access` RLS lets staff read their own role/grants before activation.
+The additive setup in `docs/roots-form-builder-setup.sql` was applied through the Supabase migration `roots_form_studio_storage`. Both tables have RLS enabled, anonymous reads are revoked, the submission function is executable only by the server role, and the public PDF-only bucket enforces a 3 MB limit. Existing booking tables, records, staff roles and payment configuration were not changed. A security-advisor check reported no findings naming the new form objects.
+
+A transaction using an existing eligible staff identity verified insert/save, publication, separate live/draft versions, server response storage, duplicate request idempotency, staff response reads and denial for an unprivileged identity. Every fixture write was rolled back; zero test forms and responses remained. This tests database behaviour, not a signed-in browser session. The team can refresh the deployed editor and perform the acceptance flow below. No live payment was made or verified.
 
 The form studio preserves the existing general staff access boundary. Programme-restricted accounts cannot manage it yet; no user roles or grants were changed. Agree a Roots-specific delegation matrix before widening access. Rules/activity PDFs are public documents; child files are not accepted. Form answers remain in protected database rows. Retention/erasure should follow the charity's agreed policy; no automatic purge is introduced.
 
@@ -20,7 +22,7 @@ Use an isolated database and Stripe test keys for acceptance. Never substitute t
 
 ## Verification and retest scenarios
 
-Automated: `node scripts/test-roots-forms.mjs` (61 checks), plus the existing 190 submission/blog/SFI/dashboard/performance checks. Targeted TypeScript passed. The full repository check has a pre-existing syntax problem in `lib/events-data.ts`; this patch does not claim it passed. Database RLS, storage and real webhook delivery require post-setup integration tests.
+Automated: `node scripts/test-roots-forms.mjs` (61 checks), plus the existing 190 submission/blog/SFI/dashboard/performance checks. Targeted TypeScript passed. The full repository check has a pre-existing syntax problem in `lib/events-data.ts`; this patch does not claim it passed. Database staff/RLS/submission checks now pass as described above. Actual PDF upload and signed webhook delivery still need browser/Stripe acceptance.
 
 | Scenario | Expected result | Environment |
 | --- | --- | --- |
