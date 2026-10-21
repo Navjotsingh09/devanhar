@@ -6,6 +6,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Public cookie controls stay on the website, never over internal workspaces. */
+body:has([data-internal-app="true"]) #ccm-trigger-badge,
+body:has([data-internal-app="true"]) #custom-cookie-manager {
+  display: none !important;
+}
+
 *:focus-visible { outline: 3px solid hsl(225 55% 51%); outline-offset: 3px; }
 
 html { font-size: calc(100% * var(--a11y-text-scale, 1)); }

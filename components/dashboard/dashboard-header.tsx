@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+import { ArrowUpRight } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -16,6 +18,18 @@ import { PROGRAMME_LABELS, programmeHome, type StaffProgramme } from '@/lib/staf
 
 const routeLabels: Record<string, string> = {
   '/dashboard': 'Overview',
+  '/dashboard/padel': 'SPA Operations',
+  '/dashboard/roots': 'Roots Bookings',
+  '/dashboard/recovery-payments': 'Recovered payments',
+  '/dashboard/blog': 'Blog & insights',
+  '/dashboard/images': 'Site images',
+  '/dashboard/products': 'Products',
+  '/dashboard/orders': 'Orders',
+  '/dashboard/registration-windows': 'Registration windows',
+  '/dashboard/users': 'User management',
+  '/dashboard/website': 'Website & content',
+  '/dashboard/website/pages': 'Website pages',
+  '/dashboard/website/sfi': 'SFI page editor',
   '/dashboard/kaurs': 'Kaurs',
   '/dashboard/vidyala': 'Sikhi Vidyala',
   '/dashboard/vidyala/webinar': 'Vidyala webinar signups',
@@ -35,12 +49,14 @@ const routeLabels: Record<string, string> = {
 
 export function DashboardHeader({ programmes = [], fullName = '' }: { programmes?: StaffProgramme[]; fullName?: string }) {
   const pathname = usePathname()
-  const currentLabel = routeLabels[pathname] || 'Dashboard'
+  const parentPath = Object.keys(routeLabels).filter(path => path !== '/dashboard' && pathname.startsWith(path + '/')).sort((a, b) => b.length - a.length)[0]
+  const currentLabel = routeLabels[pathname] || (parentPath ? routeLabels[parentPath] + ' · Details' : 'Workspace')
   const isSubRoute = pathname !== '/dashboard'
 
   return (
     <div>
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+    <a href="#crm-content" className="crm-skip">Skip to content</a>
+    <header className="crm-header">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-1 h-5" />
       <Breadcrumb>
@@ -62,6 +78,7 @@ export function DashboardHeader({ programmes = [], fullName = '' }: { programmes
           )}
         </BreadcrumbList>
       </Breadcrumb>
+      <Link prefetch={false} href="/" target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground">View website<ArrowUpRight className="h-3.5 w-3.5" /><span className="sr-only"> (opens in a new tab)</span></Link>
     </header>
     {programmes.length > 0 ? <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-slate-900" role="status">
       <p className="font-semibold">{fullName} · Programme manager</p>

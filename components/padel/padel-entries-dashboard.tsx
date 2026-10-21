@@ -27,9 +27,9 @@ export type PadelEntry = {
 const applicationLabels = { approved: 'Approved', pending: 'Awaiting decision', declined: 'Declined', archived: 'Archived' }
 const paymentLabels = { paid: 'Verified paid', pending: 'Awaiting payment', unverified: 'Payment unverified', authorized: 'Authorised hold', refunded: 'Refunded' }
 
-export function PadelEntriesDashboard({ entries }: { entries: PadelEntry[] }) {
+export function PadelEntriesDashboard({ entries, recordOnly = false }: { entries: PadelEntry[]; recordOnly?: boolean }) {
   const router = useRouter()
-  const [filter, setFilter] = useState('active')
+  const [filter, setFilter] = useState(recordOnly ? entries[0]?.status || 'active' : 'active')
   const [paymentFilter, setPaymentFilter] = useState('all')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()

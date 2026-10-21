@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Eye, EyeOff, Lock } from "lucide-react"
 import Image from "next/image"
+import { dashboardReturnPath, loginErrors } from "@/lib/dashboard-navigation"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -20,6 +21,21 @@ export default function LoginPage() {
   const [linkSent, setLinkSent] = useState(false)
   const [linkLoading, setLinkLoading] = useState(false)
   const router = useRouter()
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('error')
+    if (code && loginErrors[code]) setError(loginErrors[code])
+  }, [])
+  const returnPath = () => dashboardReturnPath(new URLSearchParams(window.location.search).get('next'))
+  const handleSignOut = async () => {
+    setIsLoading(true)
+    try {
+      const { error } = await createClient().auth.signOut()
+      if (error) throw error
+      setError(null)
+      router.refresh()
+    } catch { setError('Unable to sign out. Please try again.') }
+    finally { setIsLoading(false) }
+  }
 
   const normalizeEmail = (value: string) => value.trim().toLowerCase()
   const normalizePasswordForRetry = (value: string) => value.replace(/\u00a0/g, " ").trim()
@@ -29,7 +45,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email: normalizedEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}${returnPath()}`,
       },
     })
     if (error) throw error
@@ -82,7 +98,7 @@ export default function LoginPage() {
       }
 
       if (finalError) throw finalError
-      router.push("/dashboard")
+      router.replace(returnPath())
       router.refresh()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Login failed"
@@ -180,16 +196,16 @@ export default function LoginPage() {
             <p className="text-white/50 text-center text-sm mb-8">Enter your credentials to access the dashboard</p>
             <form onSubmit={handleLogin} className="space-y-5">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg">{error}</div>
+                <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-lg" role="alert">{error}<button type="button" onClick={handleSignOut} disabled={isLoading} className="block mt-2 underline disabled:opacity-50">Sign out and try another account</button></div>
               )}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white/70 text-sm">Email</Label>
-                <Input id="email" type="email" placeholder="you@devanhaar.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12" />
+                <Input id="email" type="email" autoComplete="username" placeholder="you@devanhaar.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-white/70 text-sm">Password</Label>
                 <div className="relative">
-                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12 pr-12" />
+                  <Input id="password" autoComplete="current-password" type={showPassword ? "text" : "password"} placeholder="" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-amber-400/50 focus:ring-amber-400/20 h-12 pr-12" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors">
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>

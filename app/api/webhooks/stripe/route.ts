@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { settleFormPayment } from "@/lib/roots-forms/payments"
 import { sendApplicationApprovedEmail, sendApplicationDeclinedEmail, sendApplicationUnderReviewEmail, sendApplicationPaymentReminderEmail } from "@/lib/camp-applicant-emails"
 import { buildResumeUrl } from "@/lib/camp-resume-token"
 
@@ -58,6 +59,10 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text()
     const event = stripe.webhooks.constructEvent(rawBody, signature, stripeWebhookSecret)
     const supabase = getSupabaseAdmin()
+
+    if (event.type.startsWith("checkout.session.") && await settleFormPayment(supabase, event.data.object as Stripe.Checkout.Session, event.type)) {
+      return NextResponse.json({ received: true })
+    }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session

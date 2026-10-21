@@ -5,6 +5,7 @@ import { DonationProvider } from "@/components/donation-provider"
 import { CartProvider } from "@/components/cart-provider"
 import { CartDrawer } from "@/components/cart-drawer"
 import { AccessibilityToolbar } from "@/components/accessibility-toolbar"
+import { InternalSitePrivacy } from "@/components/internal-site-privacy"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
@@ -39,7 +40,7 @@ export default function RootLayout({
         {/* Google Tag Manager */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            __html: `(function(w,d,s,l,i){var p=w.location.pathname;if(["/dashboard","/spa-admin","/auth"].some(function(x){return p===x||p.indexOf(x+"/")===0}))return;w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
@@ -49,6 +50,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         {/* End Google Tag Manager */}
       </head>
       <body className="font-sans antialiased">
+        <InternalSitePrivacy />
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

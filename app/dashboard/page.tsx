@@ -1,207 +1,55 @@
-import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Inbox, Phone, BriefcaseBusiness, AlertTriangle, Clock, BookOpen } from 'lucide-react'
 import Link from 'next/link'
+import { ArrowRight, ArrowUpRight, Inbox, Phone, BriefcaseBusiness, BookOpen, Trophy, ImageIcon, CalendarDays } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { RecordStatus } from '@/components/dashboard/record-status'
+
+export const dynamic = 'force-dynamic'
 
 async function getStats() {
   const supabase = await createClient()
-  const [submissions, emergencies, vacancies, recentSubmissions, criticalEmergencies, vidyalaPending, recentVidyala] = await Promise.all([
+  const [submissions, emergencies, vacancies, recent, urgent] = await Promise.all([
     supabase.from('form_submissions').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     supabase.from('emergency_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'acknowledged', 'in_progress']),
     supabase.from('vacancy_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('form_submissions').select('id, full_name, email, status, created_at, initiatives(name)').order('created_at', { ascending: false }).limit(5),
-    supabase.from('emergency_requests').select('*').in('status', ['new', 'acknowledged']).order('created_at', { ascending: false }).limit(5),
-    supabase.from('vidyala_applications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('vidyala_applications').select('id, first_name, last_name, email, status, created_at').order('created_at', { ascending: false }).limit(5),
+    supabase.from('form_submissions').select('id, full_name, status, created_at, initiatives(name)').order('created_at', { ascending: false }).limit(5),
+    supabase.from('emergency_requests').select('id, caller_name, urgency, created_at').in('status', ['new', 'acknowledged']).order('created_at', { ascending: false }).limit(5),
   ])
-
-  return {
-    newSubmissions: submissions.count ?? 0,
-    activeEmergencies: emergencies.count ?? 0,
-    pendingApplications: vacancies.count ?? 0,
-    vidyalaPending: vidyalaPending.count ?? 0,
-    recentVidyala: recentVidyala.data ?? [],
-    recentSubmissions: recentSubmissions.data ?? [],
-    criticalEmergencies: criticalEmergencies.data ?? [],
-  }
+  return { submissions, emergencies, vacancies, recent, urgent }
 }
+
+const dateLabel = (date: string) => new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Europe/London' })
 
 export default async function DashboardOverview() {
   const stats = await getStats()
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of all Devanhaar operations</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Link href="/dashboard/submissions">
-          <Card className="transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">New Submissions</CardTitle>
-              <Inbox className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.newSubmissions}</div>
-              <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/emergency">
-          <Card className="transition-shadow hover:shadow-md border-destructive/20">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Active Emergencies</CardTitle>
-              <Phone className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.activeEmergencies}</div>
-              <p className="text-xs text-muted-foreground mt-1">Require attention</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/vacancies">
-          <Card className="transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Applications</CardTitle>
-              <BriefcaseBusiness className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.pendingApplications}</div>
-              <p className="text-xs text-muted-foreground mt-1">To be reviewed</p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/dashboard/vidyala">
-          <Card className="transition-shadow hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Vidyala Applications</CardTitle>
-              <BookOpen className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stats.vidyalaPending}</div>
-              <p className="text-xs text-muted-foreground mt-1">Pending review</p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      {/* Vidyala Recent Applications */}
-      {stats.recentVidyala.length > 0 && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-amber-500" />
-              <CardTitle className="text-foreground">Recent Vidyala Applications</CardTitle>
-            </div>
-            <CardDescription>Latest Sikhi Vidyala 2026 applicants</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-3">
-              {stats.recentVidyala.map((v: Record<string, string>) => (
-                <div key={v.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{v.first_name} {v.last_name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{v.email}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge variant={v.status === 'pending' ? 'secondary' : v.status === 'approved' ? 'default' : 'destructive'} className="text-xs">
-                      {v.status}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(v.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <Link href="/dashboard/vidyala" className="mt-4 block text-xs text-center text-muted-foreground hover:text-foreground transition-colors">
-              View all applications →
-            </Link>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Critical Emergencies + Recent Submissions */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Emergency Alert Panel */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <CardTitle className="text-foreground">Active Emergency Requests</CardTitle>
-            </div>
-            <CardDescription>Requests needing immediate attention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {stats.criticalEmergencies.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">No active emergency requests</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {stats.criticalEmergencies.map((e: Record<string, string>) => (
-                  <div key={e.id} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{e.caller_name}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{e.description}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <Badge variant={e.urgency === 'critical' ? 'destructive' : 'secondary'} className="text-xs">
-                        {e.urgency}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(e.created_at).toLocaleDateString('en-GB')}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Submissions */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <CardTitle className="text-foreground">Recent Submissions</CardTitle>
-            </div>
-            <CardDescription>Latest form submissions across all projects</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {stats.recentSubmissions.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">No submissions yet</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {stats.recentSubmissions.map((s: Record<string, unknown>) => (
-                  <div key={s.id as string} className="flex items-start justify-between gap-3 rounded-lg border border-border p-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{s.full_name as string}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {(s.initiatives as Record<string, string>)?.name || 'General'}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <Badge variant={s.status === 'new' ? 'default' : 'secondary'} className="text-xs">
-                        {s.status as string}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(s.created_at as string).toLocaleDateString('en-GB')}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+  const metrics = [
+    { title: 'New enquiries', value: stats.submissions.error ? '—' : stats.submissions.count ?? 0, description: 'Awaiting your review', href: '/dashboard/submissions', icon: Inbox },
+    { title: 'Active emergencies', value: stats.emergencies.error ? '—' : stats.emergencies.count ?? 0, description: 'Open requests for support', href: '/dashboard/emergency', icon: Phone },
+    { title: 'Vacancy applications', value: stats.vacancies.error ? '—' : stats.vacancies.count ?? 0, description: 'Pending a decision', href: '/dashboard/vacancies', icon: BriefcaseBusiness },
+  ]
+  const shortcuts = [
+    { label: 'Website & content', description: 'Pages, articles and site images', href: '/dashboard/website', icon: BookOpen },
+    { label: 'SPA Operations', description: 'Players, tournaments and rankings', href: '/dashboard/padel', icon: Trophy },
+    { label: 'Site images', description: 'Manage your website imagery', href: '/dashboard/images', icon: ImageIcon },
+    { label: 'Registration windows', description: 'Manage programme availability', href: '/dashboard/registration-windows', icon: CalendarDays },
+  ]
+  return <div className="crm-page space-y-8">
+    <div className="flex flex-wrap items-end justify-between gap-5">
+      <div><p className="crm-eyebrow mb-3">Devanhaar · Operations</p><h1 className="crm-page-title">A little clarity for your day.</h1><p className="crm-subtitle mt-2">Your enquiries, programmes and community work, together.</p></div>
+      <Link prefetch={false} href="/dashboard/submissions" className="crm-action crm-action-primary"><Inbox />Review enquiries<ArrowRight /></Link>
     </div>
-  )
+    <section aria-label="Operations summary" className="crm-panel grid md:grid-cols-3 overflow-hidden">
+      {metrics.map(metric => <Link prefetch={false} href={metric.href} key={metric.title} className="crm-metric hover:bg-muted/40"><div className="flex items-center justify-between gap-3 text-sm text-muted-foreground"><span>{metric.title}</span><metric.icon className="h-4 w-4" /></div><p className="crm-metric-value">{metric.value}</p><div className="flex items-center justify-between text-xs text-muted-foreground"><span>{metric.description}</span><ArrowUpRight className="h-3.5 w-3.5" /></div></Link>)}
+    </section>
+    <div className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
+      <section className="crm-panel min-w-0 overflow-hidden" aria-labelledby="recent-heading">
+        <div className="flex items-center justify-between gap-3 p-6"><div><h2 id="recent-heading" className="text-base font-medium">Recent enquiries</h2><p className="crm-subtitle mt-1">The latest messages from your community.</p></div><Link prefetch={false} href="/dashboard/submissions" className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap">View all →</Link></div>
+        {stats.recent.error ? <p role="alert" className="crm-empty">Enquiries are unavailable. Please refresh to try again.</p> : stats.recent.data?.length ? <div className="crm-table-wrap"><table className="crm-table"><thead><tr><th scope="col">Name</th><th scope="col">Status</th><th scope="col">Received</th><th scope="col"><span className="sr-only">Open enquiry</span></th></tr></thead><tbody>{stats.recent.data.map(row => <tr key={row.id}><td><div className="font-medium">{row.full_name || 'Unknown'}</div></td><td><RecordStatus status={row.status || ''} /></td><td className="whitespace-nowrap text-muted-foreground">{dateLabel(row.created_at)}</td><td><Link prefetch={false} className="crm-open" href={'/dashboard/submissions/form_submissions/' + encodeURIComponent(row.id)}><span className="sr-only">Open enquiry from {row.full_name}</span><ArrowUpRight className="h-4 w-4" /></Link></td></tr>)}</tbody></table></div> : <div className="crm-empty"><Inbox className="mx-auto mb-3 h-6 w-6 opacity-50" /><p>No enquiries yet.</p><p className="mt-1 text-xs">New messages will appear here.</p></div>}
+      </section>
+      <section className="crm-panel overflow-hidden" aria-labelledby="attention-heading"><div className="p-6"><div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-400" /><h2 id="attention-heading" className="text-base font-medium">Support requests</h2></div><p className="crm-subtitle mt-1">Emergency Line requests awaiting attention.</p></div>
+        {stats.urgent.error ? <p role="alert" className="crm-empty">Support requests are unavailable. Please refresh to try again.</p> : stats.urgent.data?.length ? <div>{stats.urgent.data.map(row => <Link prefetch={false} href="/dashboard/emergency" key={row.id} className="crm-summary-row"><div className="min-w-0"><p className="truncate text-sm font-medium">{row.caller_name || 'Support request'}</p><p className="mt-1 text-xs text-muted-foreground">{dateLabel(row.created_at)}</p></div><span className="crm-status" data-tone={row.urgency === 'critical' ? 'negative' : 'pending'}>{row.urgency || 'Open'}</span></Link>)}</div> : <div className="crm-empty"><Phone className="mx-auto mb-3 h-6 w-6 opacity-50" /><p>No requests awaiting attention.</p></div>}
+        <div className="border-t p-4 text-center"><Link prefetch={false} href="/dashboard/emergency" className="text-xs text-muted-foreground hover:text-foreground">Open Emergency Line →</Link></div>
+      </section>
+    </div>
+    <section aria-labelledby="workspace-heading"><div className="mb-4 flex items-center justify-between"><h2 id="workspace-heading" className="text-base font-medium">Your workspace</h2><span className="text-xs text-muted-foreground">A place for every part of your work</span></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{shortcuts.map(item => <Link prefetch={false} href={item.href} key={item.href} className="crm-panel flex items-start gap-3 p-5 hover:bg-muted/40"><item.icon className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" /><div><h3 className="text-sm font-medium">{item.label}</h3><p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{item.description}</p></div></Link>)}</div></section>
+  </div>
 }

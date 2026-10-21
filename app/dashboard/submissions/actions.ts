@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { requireSubmissionAccess } from '@/lib/crm/submission-access'
 import Stripe from 'stripe'
 import { revalidatePath } from 'next/cache'
 import { buildResumeUrl } from '@/lib/camp-resume-token'
@@ -99,9 +99,7 @@ export async function updateSubmissionStatus(id: string, status: string, sourceT
     if (status === 'archived') return archiveSubmission(id, sourceTable)
     throw new Error('Use application decisions; payment status requires verified evidence')
   }
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
 
   const { error } = await supabase
     .from(sourceTable)
@@ -123,9 +121,7 @@ export async function updateSubmissionStatus(id: string, status: string, sourceT
 
 export async function updateSubmissionNotes(id: string, notes: string, sourceTable: SourceTable = 'form_submissions') {
   if (sourceTable === 'padel_registrations' && !await checkPadelStaffAccess()) throw new Error('Unauthorised')
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
 
   const { error } = await supabase
     .from(sourceTable)
@@ -137,9 +133,7 @@ export async function updateSubmissionNotes(id: string, notes: string, sourceTab
 }
 
 export async function assignSubmission(id: string, adminId: string | null, sourceTable: SourceTable = 'form_submissions') {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
 
   const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
   if (sourceTable === 'form_submissions') {
@@ -167,9 +161,7 @@ export async function assignSubmission(id: string, adminId: string | null, sourc
 
 
 export async function captureApplicationPayment(applicationId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
   const { data: app } = await supabase.from('camp_applications').select('*').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -245,9 +237,7 @@ export async function captureApplicationPayment(applicationId: string) {
 }
 
 export async function cancelApplicationPayment(applicationId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
   const { data: app } = await supabase.from('camp_applications').select('id, stripe_payment_intent_id, stripe_checkout_session_id, status, first_name, last_name, email').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   if (app.status === 'declined') throw new Error('Already declined')
@@ -338,9 +328,7 @@ export async function cancelPadelPayment(registrationId: string) {
 
 export async function archiveSubmission(id: string, sourceTable: SourceTable = 'form_submissions') {
   if (sourceTable === 'padel_registrations' && !await checkPadelStaffAccess()) throw new Error('Unauthorized')
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
 
   const { error } = await supabase
     .from(sourceTable)
@@ -370,9 +358,7 @@ export async function archiveSubmission(id: string, sourceTable: SourceTable = '
 }
 
 export async function resendPaymentLink(applicationId: string, opts?: { force?: boolean }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
   const { data: app } = await supabase.from('camp_applications').select('id, email, first_name, last_name, initiative_id, stripe_checkout_amount_pence, monthly_donation_opted, monthly_donation_amount, gift_aid, status, stripe_payment_intent_id').eq('id', applicationId).single()
   if (!app) throw new Error('Application not found')
   const isBrokenApproval = app.status === 'approved' && !app.stripe_payment_intent_id
@@ -427,9 +413,7 @@ export async function resendPaymentLink(applicationId: string, opts?: { force?: 
 }
 
 export async function reconcileApplicationWithStripe(applicationId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const { data: app } = await supabase.from('camp_applications')
     .select('id, email, first_name, last_name, status, stripe_payment_intent_id, stripe_checkout_session_id')
@@ -485,9 +469,7 @@ export async function sendAllPaymentLinks(
   allowedIds?: number[],
   opts?: { force?: boolean }
 ): Promise<{ sent: number; failed: number; errors: string[]; sent_to: string[]; skipped_already_contacted: string[] }> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
@@ -679,9 +661,7 @@ async function fetchStripeManualContactMap(stripe: Stripe): Promise<Map<string, 
 }
 
 export async function getSendableApplicants(): Promise<SendableApplicant[]> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const { data, error } = await supabase
     .from('camp_applications')
@@ -720,24 +700,20 @@ export type ActivityLogEntry = {
 }
 
 export async function getRecentCampActivity(limit = 60): Promise<ActivityLogEntry[]> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const { data } = await supabase
     .from('activity_log')
     .select('*')
     .or("entity_type.eq.camp_application,action.ilike.%camp%,action.ilike.%payment%,action.ilike.%bulk%")
     .order('created_at', { ascending: false })
-    .limit(limit)
+    .limit(Math.min(100, Math.max(1, Number.isSafeInteger(limit) ? limit : 60)))
 
   return (data ?? []) as ActivityLogEntry[]
 }
 
 export async function captureAllPayments(): Promise<{ captured: number; failed: number; errors: string[]; debug?: string }> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (!stripeKey) throw new Error('Missing STRIPE_SECRET_KEY')
@@ -840,9 +816,7 @@ export async function captureAllPayments(): Promise<{ captured: number; failed: 
 }
 
 export async function approveVidyalaApplication(applicationId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess('vidyala_applications', applicationId)
 
   const { data: app } = await supabase
     .from('vidyala_applications')
@@ -874,9 +848,7 @@ export async function approveVidyalaApplication(applicationId: string) {
 }
 
 export async function declineVidyalaApplication(applicationId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess('vidyala_applications', applicationId)
 
   const { data: app } = await supabase
     .from('vidyala_applications')
@@ -912,9 +884,7 @@ export async function declineVidyalaApplication(applicationId: string) {
 // Status -> 'approved' / 'declined' + a Resend email to the applicant.
 // ---------------------------------------------------------------------------
 export async function approveSpnSubmission(submissionId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const { data: sub } = await supabase
     .from('spn_submissions')
@@ -946,9 +916,7 @@ export async function approveSpnSubmission(submissionId: string) {
 }
 
 export async function declineSpnSubmission(submissionId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess()
 
   const { data: sub } = await supabase
     .from('spn_submissions')
@@ -986,9 +954,7 @@ export async function declineSpnSubmission(submissionId: string) {
 // still names who/what was deleted after the row is gone.
 // ---------------------------------------------------------------------------
 export async function deleteSubmission(id: string, sourceTable: SourceTable = 'form_submissions') {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
 
   const identifierColumns = sourceTable === 'register_interest'
     ? 'name, email'
@@ -997,8 +963,9 @@ export async function deleteSubmission(id: string, sourceTable: SourceTable = 'f
       : 'email'
   const { data: existing } = await supabase
     .from(sourceTable)
-    .select(identifierColumns)
+    .select(String(identifierColumns))
     .eq('id', id)
+    .returns<Array<{ first_name?: string; last_name?: string; name?: string; email?: string }>>()
     .maybeSingle()
 
   const label = existing
@@ -1044,9 +1011,7 @@ export async function sendVidyalaMessage(params: {
   message: string
 }) {
   const { id, sourceTable, subject, message } = params
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
   if (!message.trim()) throw new Error('Message body is required')
 
   const selectColumns = sourceTable === 'vidyala_applications'
@@ -1054,8 +1019,9 @@ export async function sendVidyalaMessage(params: {
     : 'id, name, email'
   const { data: recipient, error: fetchError } = await supabase
     .from(sourceTable)
-    .select(selectColumns)
+    .select(String(selectColumns))
     .eq('id', id)
+    .returns<Array<{ id: string; first_name?: string; name?: string; email: string }>>()
     .single()
   if (fetchError || !recipient) throw new Error('Recipient not found')
   if (!recipient.email) throw new Error('Recipient has no email on file')

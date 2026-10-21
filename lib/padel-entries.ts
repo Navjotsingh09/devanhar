@@ -2,8 +2,9 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PadelEntry } from '@/components/padel/padel-entries-dashboard'
 import { getPadelPaymentStatus } from '@/lib/padel-payment'
 
-export async function getPadelEntries(supabase: SupabaseClient): Promise<PadelEntry[]> {
-  const { data, error } = await supabase.from('padel_registrations').select('*').order('created_at', { ascending: false })
+export async function getPadelEntries(supabase: SupabaseClient, id?: string): Promise<PadelEntry[]> {
+  const query = supabase.from('padel_registrations').select('*')
+  const { data, error } = await (id ? query.eq('id', id).limit(1) : query).order('created_at', { ascending: false })
   if (error) throw new Error('Unable to load tournament registrations: ' + error.message)
   return (data || []).map(row => ({
     id: row.id, name: `${row.captain_first_name} ${row.captain_last_name}`,
