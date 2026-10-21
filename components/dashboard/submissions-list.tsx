@@ -23,7 +23,7 @@ export function SubmissionsList({ params, rows, count, error, fixedSource, baseP
       <input type="hidden" name="source" value={params.source} />
       <label htmlFor="crm-record-search" className="sm:min-w-[230px]"><span>Search name or email</span><span className="relative"><Search aria-hidden="true" className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" /><input id="crm-record-search" type="search" name="q" defaultValue={params.q} placeholder="Find a record…" maxLength={100} className="w-full !pl-9" /></span></label>
       <label htmlFor="crm-record-status"><span>Status (exact value)</span><input id="crm-record-status" name="status" defaultValue={params.status} placeholder="All statuses" maxLength={50} /></label>
-      <label htmlFor="crm-record-order"><span>Order</span><select id="crm-record-order" name="order" defaultValue={params.direction}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label>
+      <div className="crm-order-field"><label htmlFor="crm-record-order">Order</label><select id="crm-record-order" name="order" defaultValue={params.direction}><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div>
       <button className="crm-action crm-action-primary"><SlidersHorizontal />Apply filters</button>
       <Link prefetch={false} href={listHref(params, { page: 1, q: '', status: '', direction: 'newest' }, pathname)} className="px-2 py-3 text-xs text-muted-foreground underline underline-offset-4">Clear filters</Link>
     </form>

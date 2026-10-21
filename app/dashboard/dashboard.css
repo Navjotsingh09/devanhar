@@ -65,7 +65,7 @@
 .crm-datasets a[aria-current="page"] { border-color: #dda408; color: #272c38; font-weight: 600; }
 .crm-datasets span[aria-disabled="true"] { color: #7b8089; font-size: .75rem; }
 .crm-filter { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; }
-.crm-filter label { display: flex; flex-direction: column; gap: .45rem; font-size: .75rem; font-weight: 500; color: #565d6b; }
+.crm-filter label, .crm-filter .crm-order-field { display: flex; flex-direction: column; gap: .45rem; font-size: .75rem; font-weight: 500; color: #565d6b; }
 .crm-filter input, .crm-filter select { height: 2.6rem; border: 1px solid hsl(var(--input)); border-radius: .65rem; background: white; color: #252b37; padding: .5rem .75rem; font-size: .8125rem; font-weight: 400; max-width: 100%; }
 .crm-table-wrap { overflow-x: auto; }
 .crm-table { width: 100%; border-collapse: collapse; text-align: left; font-size: .8125rem; }
@@ -96,7 +96,7 @@
 @media (max-width: 767px) {
   .crm-header { padding: .75rem 1rem; min-height: 3.75rem; }
   .crm-main { padding: 1.5rem 1rem 2rem; }
-  .crm-filter label { flex: 1 1 130px; }
+  .crm-filter label, .crm-filter .crm-order-field { flex: 1 1 130px; }
   .crm-filter input, .crm-filter select { width: 100%; min-width: 0; }
   .crm-metric { padding: 1.25rem; border-right: 0; border-bottom: 1px solid hsl(var(--border)); }
   .crm-metric:last-child { border-bottom: 0; }
