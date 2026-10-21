@@ -1,10 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { Plus, Trash2, FileText, ArrowRight } from 'lucide-react'
 import { visible, validateAnswers, type FormDefinition, type FormField } from '@/lib/roots-forms/schema'
 
-export function FormRenderer({definition,slug,preview=false,testPayments=false}:{definition:FormDefinition;slug?:string;preview?:boolean;testPayments?:boolean}){
+export function FormRenderer({definition,slug,preview=false,testPayments=false,sectionHeadings}:{definition:FormDefinition;slug?:string;preview?:boolean;testPayments?:boolean;sectionHeadings?:Record<string,string>}){
  const [answers,setAnswers]=useState<Record<string,unknown>>({}),[error,setError]=useState(''),[pending,setPending]=useState(false),[previewDone,setPreviewDone]=useState(false)
  const requestKey=useRef(''),honeypot=useRef<HTMLInputElement>(null)
  const put=(id:string,value:unknown)=>setAnswers(current=>({...current,[id]:value}))
@@ -24,10 +24,11 @@ export function FormRenderer({definition,slug,preview=false,testPayments=false}:
   <div className="md:col-span-2"><h2 className="text-2xl font-medium tracking-tight">{definition.title}</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-500">{definition.description}</p></div>
   {preview&&<p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 md:col-span-2">Interactive preview. Responses and payments are not submitted.</p>}
   {testPayments&&definition.payment.enabled&&<p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 md:col-span-2">Test checkout only. No real payment will be collected.</p>}
-  {definition.fields.filter(f=>visible(f,answers,definition.fields)).map(f=><fieldset key={f.id} className={'min-w-0 space-y-3 '+(['textarea','repeat','checkbox'].includes(f.type)?'md:col-span-2':'')}><legend id={'label-'+f.id} className={f.type==='checkbox'?'sr-only':'mb-2 text-sm font-medium'}>{f.label}{f.required&&' *'}</legend>{f.help&&<p id={'help-'+f.id} className="text-xs leading-relaxed text-slate-500">{f.help}</p>}{f.documentUrl&&<a href={f.documentUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-800 underline underline-offset-4"><FileText className="h-4 w-4" />Read attached PDF<span className="sr-only"> for {f.label} (opens in a new tab)</span></a>}{f.needsDocument&&!f.documentUrl&&preview&&<p className="text-xs text-amber-800">Attach a PDF in the editor before publishing.</p>}{control(f)}</fieldset>)}
+  {definition.fields.filter(f=>visible(f,answers,definition.fields)).map(f=><Fragment key={f.id}>{sectionHeadings?.[f.id]&&<h3 className="rf-section-heading"><span aria-hidden="true">{String(Object.keys(sectionHeadings).indexOf(f.id)+1).padStart(2,'0')}</span>{sectionHeadings[f.id]}</h3>}<fieldset className={'min-w-0 space-y-3 '+(['textarea','repeat','checkbox'].includes(f.type)?'md:col-span-2':'')}><legend id={'label-'+f.id} className={f.type==='checkbox'?'sr-only':'mb-2 text-sm font-medium'}>{f.label}{f.required&&' *'}</legend>{f.help&&<p id={'help-'+f.id} className="text-xs leading-relaxed text-slate-500">{f.help}</p>}{f.documentUrl&&<a href={f.documentUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-800 underline underline-offset-4"><FileText className="h-4 w-4" />Read attached PDF<span className="sr-only"> for {f.label} (opens in a new tab)</span></a>}{f.needsDocument&&!f.documentUrl&&preview&&<p className="text-xs text-amber-800">Attach a PDF in the editor before publishing.</p>}{control(f)}</fieldset></Fragment>)}
   <div className="absolute -left-[10000px]" aria-hidden="true"><label>Website<input name="website" ref={honeypot} tabIndex={-1} autoComplete="off" /></label></div>
   {error&&<div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 md:col-span-2">{error}</div>}
   {previewDone&&<p role="status" className="rounded-xl bg-green-50 p-4 text-sm text-green-900 md:col-span-2">The preview passes validation. No submission was saved.</p>}
   <div className="border-t pt-5 md:col-span-2"><p className="mb-4 text-xs leading-relaxed text-slate-500">Your responses will be shared with the Roots team to manage this form. {definition.payment.enabled?'Payment is processed securely by Stripe. Card details are not stored in this form.':''}</p><button disabled={pending} className="rf-primary" type="submit">{pending?'Please wait…':preview?'Test this preview':definition.payment.enabled?`Continue to payment · £${(definition.payment.amountPence/100).toFixed(2)}`:'Send submission'}<ArrowRight className="h-4 w-4" /></button></div>
  </form>
 }
+

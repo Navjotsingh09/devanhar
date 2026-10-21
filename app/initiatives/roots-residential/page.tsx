@@ -1,4 +1,5 @@
 import Link from "next/link"
+import "./roots-page.css"
 import { Bus, ExternalLink, Instagram, Shield } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -39,22 +40,15 @@ export default function RootsResidentialPage() {
     <>
       <Navbar />
       <ScrollAnimations />
-      <main className="min-h-screen">
+      <main className="roots-page min-h-screen">
         <RootsHero />
 
-  <section id="booking-form" className="scroll-mt-28 border-t border-border bg-secondary/20 py-10 md:py-14">
-   <div className="mx-auto max-w-5xl px-5 lg:px-8">
-    <div className="mb-8 grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
-     <div><p className="mb-2 text-xs font-semibold uppercase tracking-[.18em] text-[hsl(43,100%,29%)]">Camp registration</p><h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Register your child</h1><p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">One form per child, completed by a parent or guardian. The Roots team will confirm availability and arrange payment after reviewing your application.</p></div>
-     <div className="rounded-xl border border-border bg-background px-5 py-4 text-sm"><p className="font-semibold">Hilston Park, Wales</p><p className="mt-1 text-muted-foreground">£75 per participant · Payment arranged by Roots</p></div>
-    </div>
-    <div className="rounded-2xl border border-border bg-background p-5 md:p-8"><PublicCampForm /></div>
-   </div>
-  </section>
-
+        <nav className="roots-jumpnav" aria-label="Explore Roots">
+          <div><a href="#about-roots">Discover Roots</a><a href="#residentials">Residentials</a><a href="#roots-experience">The experience</a><a href="#roots-venue">Venue &amp; cost</a><a href="#booking-form" className="roots-jump-cta">Register your child <span aria-hidden="true">↗</span></a></div>
+        </nav>
 
         {/* Bookings intro card */}
-        <section className="border-t border-border">
+        <section className="roots-booking-intro border-t border-border">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl py-10 md:py-14">
             <div className="rounded-2xl border border-border bg-secondary/30 p-8 md:p-10">
               <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
@@ -110,8 +104,10 @@ export default function RootsResidentialPage() {
         </section>
 
         {/* About Roots I — A Residential Adventure Experience */}
-        <section className="border-t border-border py-10 md:py-14">
+        <section id="about-roots" className="roots-story border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
+            <figure className="roots-story-photo"><img src="/initiatives/roots-gallery-07.jpg" alt="Young people taking part in an outdoor Roots adventure" loading="lazy" /><figcaption>Adventure. Friendship. Identity.</figcaption></figure>
+            <div className="roots-story-copy">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               About Roots
             </p>
@@ -122,12 +118,12 @@ export default function RootsResidentialPage() {
               {rootsAboutLong.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
-            </div>
+            </div></div>
           </div>
         </section>
 
         {/* Safe space — separate residentials */}
-        <section className="border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section id="residentials" className="roots-residentials border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               A safe space for everyone
@@ -168,7 +164,7 @@ export default function RootsResidentialPage() {
         </section>
 
         {/* About Roots II */}
-        <section className="border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section id="roots-identity" className="roots-identity border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               About Roots
@@ -181,33 +177,26 @@ export default function RootsResidentialPage() {
                 <p key={i}>{p}</p>
               ))}
             </div>
+            <img className="roots-identity-photo" src="/initiatives/roots-gallery-12.jpg" alt="Shared outdoor experiences at Roots" loading="lazy" />
           </div>
         </section>
 
         {/* The Experience — 6 cards */}
-        <CorePillarsGrid
+        <div id="roots-experience" className="roots-experience scroll-mt-28"><CorePillarsGrid
           pillars={rootsExperienceCards}
           heading="Four Days Full of Adventure"
           subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires and team competitions, no two days are the same, and every day leaves a lasting impression."
         />
 
+        </div>
         {/* Photo gallery — portrait cards to avoid cropping tall photos */}
-        <section className="py-20 md:py-28 border-t border-border overflow-hidden">
+        <section className="roots-gallery py-20 md:py-28 border-t border-border overflow-hidden">
           <div className="container mx-auto px-6 lg:px-12 max-w-6xl mb-10 md:mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Moments from Roots</h2>
           </div>
           <div className="relative w-full">
-            <div className="flex gap-5 animate-[roots-scroll-x_260s_linear_infinite] w-max">
+            <div className="roots-gallery-track" tabIndex={0} role="region" aria-label="Roots photo gallery — scroll to explore">
               {[
-                "/initiatives/roots-gallery-07.jpg",
-                "/initiatives/roots-gallery-08.jpg",
-                "/initiatives/roots-gallery-09.jpg",
-                "/initiatives/roots-gallery-10.jpg",
-                "/initiatives/roots-gallery-11.jpg",
-                "/initiatives/roots-gallery-12.jpg",
-                "/initiatives/roots-gallery-13.jpg",
-                "/initiatives/roots-gallery-14.jpg",
-                "/initiatives/roots-gallery-15.jpg",
                 "/initiatives/roots-gallery-07.jpg",
                 "/initiatives/roots-gallery-08.jpg",
                 "/initiatives/roots-gallery-09.jpg",
@@ -223,7 +212,7 @@ export default function RootsResidentialPage() {
                   className="relative h-[26rem] md:h-[32rem] w-[20rem] md:w-[24rem] flex-shrink-0 rounded-2xl overflow-hidden bg-muted"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  <img src={src} alt={`Roots residential activity — photo ${i+1}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 </div>
               ))}
             </div>
@@ -236,6 +225,7 @@ export default function RootsResidentialPage() {
           `}</style>
         </section>
 
+        <div className="roots-audience">
         {/* Who Roots Is For */}
         <section className="border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
@@ -270,8 +260,9 @@ export default function RootsResidentialPage() {
           </div>
         </section>
 
+        </div>
         {/* Hilston Park */}
-        <section className="border-t border-border py-10 md:py-14">
+        <section id="roots-venue" className="roots-venue border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               The Venue
@@ -304,7 +295,7 @@ export default function RootsResidentialPage() {
         </section>
 
         {/* Pricing */}
-        <section className="border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section className="roots-pricing border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Pricing
@@ -374,11 +365,26 @@ export default function RootsResidentialPage() {
         </section>
 
         {/* Booking Process */}
-        <ApplicationProcessTimeline
+        <div className="roots-process"><ApplicationProcessTimeline
           steps={rootsBookingSteps}
           heading="How booking works"
           subheading="From completing the form to confirming your place, here is what to expect."
         />
+
+        </div>
+        <section id="booking-form" className="roots-registration scroll-mt-28">
+          <div className="roots-registration-layout">
+            <aside className="roots-registration-intro">
+              <p className="roots-eyebrow">Your next adventure starts here</p>
+              <h2>Make room for<br /><span>something memorable.</span></h2>
+              <p>One form per child, completed by a parent or guardian. The Roots team will confirm availability and arrange payment after reviewing your application.</p>
+              <div className="roots-registration-facts"><p><strong>13–16</strong> years old</p><p><strong>4 days</strong> of discovery</p><p><strong>£75</strong> per participant, subject to confirmation</p></div>
+              <img src="/initiatives/roots-gallery-10.jpg" alt="Outdoor adventure at Roots Residential" loading="lazy" />
+              <p className="roots-registration-note">Need a hand with your application?<br /><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a></p>
+            </aside>
+            <div className="roots-registration-card"><PublicCampForm /></div>
+          </div>
+        </section>
 
         {/* FAQ */}
         <FAQSection
@@ -431,7 +437,7 @@ export default function RootsResidentialPage() {
         </section>
 
         {/* Final CTA */}
-        <section className="border-t border-border bg-[hsl(43,100%,29%)] py-20 md:py-28">
+        <section className="roots-final-cta border-t border-border bg-[hsl(43,100%,29%)] py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
               Join us for Roots Residential
@@ -449,3 +455,4 @@ export default function RootsResidentialPage() {
     </>
   )
 }
+
