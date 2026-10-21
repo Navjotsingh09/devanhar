@@ -278,3 +278,19 @@ test('programme CSV forces live table or scoped evidence and rejects invalid pro
   assert.equal((await route.GET(new Request('https://test.invalid/api/crm/submissions/export?programme=__proto__'))).status,400)
   assert.equal(observed,null)
 })
+
+test('selected-record Back link restores validated list state and ignores arbitrary return destinations', async () => {
+  const page = load('app/dashboard/submissions/[source]/[id]/page.tsx', {
+    'next/link': { __esModule: true, default: 'a' },
+    'next/navigation': { notFound() { throw new Error('not found') } },
+    '@/lib/staff-programme-server': { requireGeneralStaff: async () => ({ fixture: true }) },
+    '@/lib/crm/submissions': model,
+    '@/lib/crm/submission-detail': { validRecordId: detail.validRecordId, loadSubmissionDetail: async () => ({ submission: null, row: { id: '123' } }) },
+    '@/components/dashboard/submissions-table': { SubmissionsTable: () => null },
+    '@/components/dashboard/record-status': { RecordStatus: () => null },
+  })
+  const rendered = await page.default({ params: Promise.resolve({ source: 'form_submissions', id: '123' }), searchParams: Promise.resolve({ page: '2', q: 'fixture', status: 'archived', order: 'oldest', source: 'auth.users', returnTo: 'https://example.org' }) })
+  const children = rendered.props.children.flat(Infinity).filter(Boolean)
+  const back = children.find(child => child.props?.href)
+  assert.equal(back.props.href, '/dashboard/submissions?source=form_submissions&page=2&q=fixture&status=archived&order=oldest')
+})

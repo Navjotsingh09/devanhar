@@ -27,8 +27,9 @@ claimed complete. There are no schema/role/payment/action endpoint changes.
 
 ## Validation
 
-158 existing regression checks pass, including bounded loaders, API guards and
-SFI/blog/access behaviour. The changed TSX files and their import graph pass a
+159 regression checks pass, including bounded loaders, API guards and
+SFI/blog/access behaviour and an actual selected-record page fixture that restores
+validated list state while ignoring arbitrary return destinations. The changed TSX files and their import graph pass a
 strict targeted TypeScript check. Whole-repository TypeScript checking is blocked
 by existing JSX syntax in lib/events-data.ts; no whole-repository clean claim.
 Live acceptance is read-only: no payments, emails, donor exports or record writes.
