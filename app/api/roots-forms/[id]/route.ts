@@ -10,7 +10,7 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
  let patch:Record<string,unknown>={revision:current.revision+1,updated_at:new Date().toISOString()}
  if(body.action==='publish'){const schema=checkedDefinition(current.draft_schema,true);patch={...patch,published_schema:schema,published_version:current.published_version+1,accepting:true}}
  else if(body.action==='close')patch.accepting=false
- else if(body.action==='save'){const schema=checkedDefinition(body.schema),slug=current.published_version?current.slug:checkSlug(body.slug);patch={...patch,title:schema.title,draft_schema:schema,slug}}
+ else if(body.action==='save'){const schema=checkedDefinition(body.schema),slug=current.published_version?current.slug:checkSlug(body.slug,schema.title);patch={...patch,title:schema.title,draft_schema:schema,slug}}
  else throw new Error('Unknown form action.')
  const {data,error}=await client.from('roots_forms').update(patch).eq('id',id).eq('revision',body.revision).select('id,slug,title,draft_schema,published_version,revision,accepting').maybeSingle()
  if(error||!data)return NextResponse.json({error:error?.code==='23505'?'That link name is already used.':'The form changed or could not be saved. Reload and try again.'},{status:409})

@@ -43,6 +43,10 @@ export function validateAnswers(schema:FormDefinition,input:unknown){
   return answers
 }
 export function publishable(schema:FormDefinition){if(schema.fields.some(f=>f.needsDocument&&!f.documentUrl))throw new Error('Attach the required PDF documents before publishing.')}
+export function makeFormSlug(value:string){
+ const slug=value.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/['’]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80).replace(/-+$/g,'')
+ return slug.length>=3?slug:slug?slug+'-form':'roots-form'
+}
 export function validSlug(value:string){return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value)&&value.length>=3&&value.length<=80}
 export function formSummary(schema:FormDefinition,answers:Record<string,unknown>){
   const email=schema.fields.find(f=>f.type==='email'&&typeof answers[f.id]==='string')
