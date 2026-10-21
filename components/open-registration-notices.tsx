@@ -10,6 +10,7 @@ const SLIDE_DURATION = 5000
 
 function announcementImage(item: OpenOpportunity): string {
   if (item.id === 'sikh-tactical-airsoft-2026') return 'https://images.fillout.com/orgid-845831/flowpublicid-ta3ecvykrc/widgetid-default/3RFhX74FsCcGe6D6PZT5jN/485cf137-9b87-4668-9866-7ad4f87b2f57.JPG'
+  if (item.id === 'roots-camp-registration') return '/initiatives/roots-top.jpg'
   if (item.id.startsWith('spa-') || item.href === '/spa') return '/initiatives/sikh-padel-association-top.jpg'
   if (item.href.includes('sikhi-vidyala')) return '/vidyala-classroom.png'
   if (item.href === '/sce' || item.href.includes('singhs-camp')) return '/initiatives/singhs-camp-top.jpg'

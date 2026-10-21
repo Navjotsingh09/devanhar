@@ -7,7 +7,7 @@ import { FAQSection } from "@/components/faq-section"
 import { CorePillarsGrid } from "@/components/camps/core-pillars-grid"
 import { ApplicationProcessTimeline } from "@/components/camps/application-process-timeline"
 import { RootsHero } from "@/components/roots/roots-hero"
-import { RootsBookingForm } from "@/components/roots/roots-booking-form"
+import { PublicCampForm } from "@/components/roots/public-camp-form"
 import {
   rootsAboutLong,
   rootsAboutShort,
@@ -31,6 +31,8 @@ export const metadata = {
   },
   alternates: { canonical: "https://devanhaar.com/initiatives/roots-residential" },
 }
+
+export const dynamic = 'force-dynamic'
 
 export default function RootsResidentialPage() {
   return (
@@ -376,7 +378,7 @@ export default function RootsResidentialPage() {
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10">
               Please complete one application per participant. After submitting, we'll be in touch to discuss availability, costs and how to make payment.
             </p>
-            <RootsBookingForm />
+            <PublicCampForm />
           </div>
         </section>
 

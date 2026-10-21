@@ -13,7 +13,7 @@ export async function getOpenRegistrationOpportunities(): Promise<OpenOpportunit
       .eq('is_public', true).gte('event_date', today).order('event_date'),
   ])
   if (windows.error || tournaments.error) throw new Error('Registration availability is temporarily unavailable')
-  const opportunities: OpenOpportunity[] = []
+  const opportunities: OpenOpportunity[] = [{ id: 'roots-camp-registration', title: 'Roots Residential · Camp registration', kind: 'application', href: '/rr#booking-form' }]
   // The public SPA page currently accepts registrations for its earliest public event.
   const tournament = tournaments.data?.[0]
   if (tournament?.registration_open === true && tournament.event_time?.trim() && tournament.venue?.trim() && tournament.address?.trim()) {
