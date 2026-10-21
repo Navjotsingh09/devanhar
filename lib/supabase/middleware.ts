@@ -62,8 +62,11 @@ export async function updateSession(request: NextRequest) {
   const user = session?.user ?? null
 
   const pathname = request.nextUrl.pathname
+  const isSpaAuth = ['/spa-admin/login', '/spa-admin/forgot-password', '/spa-admin/update-password'].includes(pathname)
+  const isSpaPortal = pathname.startsWith('/spa-admin') && !isSpaAuth
+  const isReadNavigation = request.method === 'GET' || request.method === 'HEAD'
 
-  if (user && (pathname.startsWith('/dashboard') || pathname.startsWith('/spa-admin') || pathname.startsWith('/api/'))) {
+  if (user && (pathname.startsWith('/dashboard') || isSpaPortal || pathname.startsWith('/api/'))) {
     // Fresh database assignments apply to existing sessions; never trust editable metadata.
     const { data: grants, error } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
     if (error) {
@@ -75,6 +78,10 @@ export async function updateSession(request: NextRequest) {
         url.searchParams.set('next', pathname + request.nextUrl.search)
         return finish(NextResponse.redirect(url))
       }
+      if (isSpaPortal && isReadNavigation) {
+        const url = request.nextUrl.clone(); url.pathname = '/auth/spa-access'; url.search = ''
+        return finish(NextResponse.redirect(url))
+      }
       return finish(NextResponse.json({ error: 'Unable to verify account access' }, { status: 503 }))
     }
     const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
@@ -83,8 +90,12 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone(); url.pathname = programmeHome(programmes); url.search = ''
       return finish(NextResponse.redirect(url))
     }
-    if (programmes.length && (pathname.startsWith('/spa-admin') || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
-      return NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 })
+    if (programmes.length && isSpaPortal && isReadNavigation) {
+      const url = request.nextUrl.clone(); url.pathname = '/auth/spa-access'; url.search = ''
+      return finish(NextResponse.redirect(url))
+    }
+    if (programmes.length && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
+      return finish(NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 }))
     }
   }
 

@@ -70,3 +70,32 @@ test('programme accounts cannot enter the global CMS or mutate its API', async (
   assert.equal(new URL((await setup('/dashboard/website', { programmes: ['family'] })).headers.get('location')).pathname, '/dashboard/family-initiative')
   assert.equal((await setup('/api/cms/sfi', { method: 'POST', programmes: ['family'] })).status, 403)
 })
+
+for (const programme of ['family','kaurs','vidyala','newsletter']) test(`${programme} account gets a proper SPA access page instead of raw JSON`,async()=>{
+  const response=await setup('/spa-admin?next=https://example.org',{programmes:[programme]})
+  const target=new URL(response.headers.get('location'))
+  assert.equal(target.pathname,'/auth/spa-access');assert.equal(target.search,'')
+  assert.equal(response.headers.get('cache-control'),'private, no-store')
+})
+test('SPA subpages and HEAD requests get the same safe access redirect',async()=>{
+  for(const method of ['GET','HEAD']) assert.equal(new URL((await setup('/spa-admin/players',{programmes:['family'],method})).headers.get('location')).pathname,'/auth/spa-access')
+})
+test('programme account SPA mutation and API requests stay forbidden',async()=>{
+  for(const path of ['/spa-admin/registrations','/api/spa/example']) {
+    const response=await setup(path,{programmes:['family'],method:'POST'})
+    assert.equal(response.status,403);assert.equal(response.headers.get('location'),null)
+  }
+})
+test('SPA login and recovery pages/actions remain reachable for restricted sessions',async()=>{
+  for(const path of ['/spa-admin/login','/spa-admin/forgot-password','/spa-admin/update-password']) for(const method of ['GET','POST']) {
+    const response=await setup(path,{programmes:['family'],grantError:true,method})
+    assert.equal(response.headers.get('location'),null);assert.equal(response.headers.get('x-middleware-next'),'1')
+  }
+})
+test('general staff still reach the SPA portal',async()=>{
+  const response=await setup('/spa-admin');assert.equal(response.headers.get('x-middleware-next'),'1')
+})
+test('SPA permission lookup failure is recoverable for navigation and closed for mutations',async()=>{
+  assert.equal(new URL((await setup('/spa-admin',{grantError:true})).headers.get('location')).pathname,'/auth/spa-access')
+  assert.equal((await setup('/spa-admin/players',{grantError:true,method:'POST'})).status,503)
+})

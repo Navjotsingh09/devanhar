@@ -42,3 +42,8 @@ test('actions outside RSC render read fresh access on each invocation',async()=>
  const gate=load('lib/staff-programme-server.ts',{'server-only':{},'@/lib/supabase/server':{},'@/lib/crm/request-staff':request,'next/navigation':{redirect}}).requireGeneralStaff
  await gate();role='content_manager';await assert.rejects(gate());assert.equal(reads,4)
 })
+
+for(const [name,grants] of Object.entries({scoped:{data:[{programme:'family'}],error:null},failure:{data:[],error:{}},missing:{data:null,error:null}})) test(`SPA sign-in check refuses ${name} grants without a membership bypass`,async()=>{
+ const gate=load('lib/padel-admin.ts',{'@/lib/crm/request-staff':{getRequestStaff:async()=>context({grants})},'next/navigation':{redirect}}).checkPadelStaffAccess
+ assert.equal(await gate(),null)
+})

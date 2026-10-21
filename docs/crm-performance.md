@@ -19,7 +19,8 @@
 
 ## Verification and limits
 
-178 automated checks pass: the existing 159 plus 19 access/concurrency checks.
+190 automated checks pass: 159 original regressions, 19 performance/access
+checks and 12 additional SPA navigation/sign-in permission checks.
 The modified component graph passes strict targeted TypeScript checking.
 Access tests cover missing/failed authentication, missing/failed profiles/grants,
 CMS-only and vacancies-only roles, programme accounts, approved general Staff
@@ -34,3 +35,17 @@ Before/after browser acceptance must verify filtered URLs/counts, page navigatio
 optimised logo loading, empty/high-page recovery and absence of rendering errors.
 Report timings only as observed samples with automation/network overhead; no
 universal percentage or latency target is inferred from mocked tests.
+
+## SPA access-page correction
+
+A programme-scoped session opening /spa-admin previously received a raw JSON
+403. GET/HEAD requests now redirect to /auth/spa-access, with clear workspace
+and organiser-sign-in links. The login and password-recovery routes remain
+reachable for restricted sessions; mutation/API requests remain forbidden.
+The SPA sign-in check now refuses programme grants before membership fallback,
+matching the existing portal gate and avoiding a misleading successful login.
+No account grants are altered.
+
+The performance build was verified Ready on Vercel. The browser verification
+session expired during cold navigation, so no signed-in before/after timing
+improvement is claimed. Independent live retiming remains necessary.
