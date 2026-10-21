@@ -27,5 +27,5 @@ export default function RootsResidentialPage() {
    <details className="group rounded-xl border border-border"><summary className="cursor-pointer px-5 py-4 font-medium">About Roots & frequently asked questions</summary><div className="space-y-6 border-t border-border p-5 text-sm leading-relaxed"><p>Adventure, friendship and Sikh identity for young people aged 13–16. Roots brings together outdoor activities, personal development and Sikh values, with separate residentials for girls and boys.</p><div className="grid gap-6 md:grid-cols-2">{rootsFAQs.map(item=><div key={item.question}><h2 className="font-semibold">{item.question}</h2><p className="mt-2 text-muted-foreground">{item.answer}</p></div>)}</div><p>Submitting a registration does not automatically confirm a place. The Roots team will contact you about availability, camp arrangements and payment.</p><Link href="https://www.instagram.com/rootsprojectuk/" target="_blank" rel="noopener noreferrer" className="inline-block underline underline-offset-4">See Roots on Instagram ↗</Link></div></details>
    <p className="mt-6 text-sm text-muted-foreground">Questions? <a href="mailto:Roots@Devanhaar.com" className="font-medium text-foreground underline underline-offset-4">Roots@Devanhaar.com</a></p>
   </section>
- </main><FooterSection /></>
+ </main><FooterSection hideContact /></>
 }
