@@ -1,7 +1,24 @@
-import Link from 'next/link'
+'use client'
+
+import { useEffect } from 'react'
 import { ArrowRight, MapPin } from 'lucide-react'
 
 export function RootsHero() {
+  useEffect(() => {
+    const scrollToSection = () => {
+      const id = window.location.hash.slice(1)
+      if (!['booking-form', 'about-roots', 'residentials', 'roots-experience', 'roots-venue'].includes(id)) return
+      document.getElementById(id)?.scrollIntoView({ block: 'start' })
+    }
+    // The public route can stream a loading shell before its anchor exists.
+    // Resolve deep links again after hydration, when the complete page is present.
+    const frame = requestAnimationFrame(scrollToSection)
+    window.addEventListener('hashchange', scrollToSection)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('hashchange', scrollToSection)
+    }
+  }, [])
   return (
     <section className="roots-hero">
       <img src="/initiatives/roots-gallery-11.jpg" alt="Outdoor adventure in the woodland at Roots Residential" className="roots-hero-background" fetchPriority="high" />
@@ -11,7 +28,7 @@ export function RootsHero() {
         <img src="/initiatives/roots-logo.jpg" alt="Roots — Adventure, Friendship, Identity" className="roots-hero-logo" />
         <h1>A little adventure.<br />A stronger sense<br />of <span>belonging.</span></h1>
         <p className="roots-hero-description">Adventure, friendship and Sikh identity for young people aged 13–16. Four days to explore, connect and grow.</p>
-        <div className="roots-hero-actions"><Link href="#booking-form" className="roots-gold-button">Register your child <ArrowRight aria-hidden="true" size={18} /></Link><Link href="#about-roots" className="roots-hero-discover">Discover Roots <span aria-hidden="true">↓</span></Link></div>
+        <div className="roots-hero-actions"><a href="#booking-form" className="roots-gold-button">Register your child <ArrowRight aria-hidden="true" size={18} /></a><a href="#about-roots" className="roots-hero-discover">Discover Roots <span aria-hidden="true">↓</span></a></div>
         <p className="roots-hero-location"><MapPin size={15} aria-hidden="true" /> Hilston Park, Wales</p>
       </div>
       <div className="roots-hero-caption"><span>Step outside the everyday.</span><span>Come back with more.</span></div>
