@@ -45,7 +45,7 @@ export function DashboardHeader({ programmes = [], fullName = '' }: { programmes
 
   return (
     <div>
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+    <header className="crm-header flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="mr-1 h-5" />
       <Breadcrumb>

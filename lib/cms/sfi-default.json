@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "seo": {
+    "title": "Sikh Family Initiative | Devanhaar",
+    "description": "Growing together in Sikhi through welcoming family retreats, shared experiences and year-round sangat.",
+    "noIndex": false
+  },
+  "hero": {
+    "eyebrow": "Sikh Family Initiative",
+    "title": "Growing together in Sikhi",
+    "subtitle": "Meaningful time with your family. A deeper connection with your sangat.",
+    "paragraphs": [
+      "The Sikh Family Initiative brings families together through welcoming retreats and shared experiences, with Sikhi at the heart of everything we do.",
+      "From young children to grandparents, we create opportunities to step away from everyday routines and enjoy being part of a wider Sikh family."
+    ],
+    "image": "/initiatives/sikh-family-retreat-top.png",
+    "imageAlt": "Sikh families spending time together"
+  },
+  "eventsIntro": {
+    "eyebrow": "Our upcoming events · 2026–2027",
+    "title": "Something to look forward to, together",
+    "description": "Whether you are joining us for a day or spending a few days away in sangat, we would love to welcome you. Explore what is coming up and find the experience that is right for your family."
+  },
+  "events": [
+    {
+      "eyebrow": "Sikh Family Retreat",
+      "title": "New Year Reset",
+      "date": "31 December 2026 – 3 January 2027",
+      "href": "/sfr/register?event=new-year-reset",
+      "icon": "HeartHandshake",
+      "intro": "Begin the year with intention, in saadh sangat. Step away from the usual rush and make space for reflection with your family.",
+      "body": [
+        "Our New Year Reset Family Retreat is an opportunity to reconnect with Guru Sahib and consider how we can bring more Sikhi into our everyday lives. It is a chance to pause together and think about the habits we would like to nurture within ourselves and our families.",
+        "Rather than a conventional New Year celebration, the focus is on meaningful time in sangat and beginning the year with Guru Sahib’s blessings. Workshops led by experienced speakers and specialists will explore how to deepen our connection with Gurbani and develop greater focus during simran and meditation.",
+        "There will also be practical guidance on healthy diets and lifestyles, helping us care for our physical wellbeing alongside our spiritual growth.",
+        "Whether you are beginning to explore Sikhi or looking to strengthen an existing connection, the aim is to leave with renewed motivation and simple, achievable ideas you can carry into family life long after the retreat ends."
+      ],
+      "cta": "Register your interest"
+    },
+    {
+      "eyebrow": "Sikh Wedding Fair",
+      "title": "Planning a wedding, with Sikhi at its heart",
+      "date": "13 February 2027",
+      "href": "/wf",
+      "icon": "UsersRound",
+      "intro": "A welcoming event for couples and their families to explore ideas for a Sikh wedding and connect with relevant Sikh wedding businesses.",
+      "body": [
+        "Discover inspiration for your celebrations while keeping the meaning of Anand Karaj at the heart of your preparations.",
+        "Learn about the meaning of Anand Karaj and why this ceremony is more than a wedding ceremony — it marks the beginning of a shared spiritual journey with Guru Sahib’s guidance at the centre of married life."
+      ],
+      "cta": "Explore the wedding fair"
+    },
+    {
+      "eyebrow": "Sikh Family Retreat",
+      "title": "Spring Retreat",
+      "date": "1–4 April 2027",
+      "href": "/initiatives/sikh-family-retreat",
+      "icon": "Leaf",
+      "intro": "Make room for family time this spring.",
+      "body": [
+        "Take a break from everyday demands and spend a few days together in sangat. Our spring retreat offers an opportunity to explore Sikhi as a family, with time to get to know other families along the way.",
+        "This retreat will include more outdoor skill building with nature and wildlife, alongside a deeper focus on Gurbani relating to nature and wildlife.",
+        "It is a welcoming experience whether you are returning to SFI or joining us for the first time."
+      ],
+      "cta": "Explore the spring retreat"
+    },
+    {
+      "eyebrow": "SFI Family Extravaganza",
+      "title": "The spirit of SFI, in one family day out",
+      "date": "May 2027",
+      "href": "/initiatives/sikh-family-extravaganza",
+      "icon": "Sparkles",
+      "intro": "Join us for a lively day of shared family activities and time together in sangat, with no overnight stay needed.",
+      "body": [
+        "An opportunity for different generations to enjoy the day together, connect with the community and experience the world-famous Sikhi Escape Room as a family or group.",
+        "New to SFI? This is a lovely way to meet the community and experience what we are about before joining a residential retreat."
+      ],
+      "cta": "Explore the extravaganza"
+    },
+    {
+      "eyebrow": "Sikh Family Retreat",
+      "title": "Summer Retreat",
+      "date": "22–25 July 2027",
+      "href": "/initiatives/sikh-family-retreat",
+      "icon": "HeartHandshake",
+      "intro": "A summer experience that brings your family closer.",
+      "body": [
+        "Spend a few days away with Sikhi at the centre of your family time. Our summer retreat brings families together for shared experiences and the chance to build friendships within the sangat.",
+        "The Summer Retreat is wet, wild and immersive, with outdoor adventures including soft-shoot activities and camping skills.",
+        "Come as a family and feel part of something bigger."
+      ],
+      "cta": "Explore the summer retreat"
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Joining us for the first time?",
+      "answer": "You do not need to know anyone before you come. Coming to a new event can feel like a big step, especially when you are bringing the family. SFI welcomes newcomers, including families who have never attended a Sikh retreat before."
+    },
+    {
+      "question": "Do we need to know a lot about Sikhi?",
+      "answer": "No. Families come with different experiences and levels of understanding. SFI is a place to explore Sikhi together, without feeling that you need to know everything before you arrive."
+    },
+    {
+      "question": "Are the events only for families with young children?",
+      "answer": "No. SFI is about the whole family, including older children and grandparents. Each event page explains who the programme is designed for, so you can decide whether it suits your family."
+    },
+    {
+      "question": "Can we attend a day event before trying a retreat?",
+      "answer": "Yes. Our Family Extravaganza offers a way to experience SFI without committing to an overnight stay."
+    },
+    {
+      "question": "Where can we find prices and booking information?",
+      "answer": "Each event has its own page with confirmed arrangements and booking information. Register your interest in the event you are considering to receive updates."
+    },
+    {
+      "question": "Can we discuss accessibility or additional needs?",
+      "answer": "Yes. Please contact us before booking so we can discuss your family’s needs and the arrangements at your chosen event."
+    }
+  ],
+  "sectionOrder": [
+    "events",
+    "why",
+    "faq",
+    "community"
+  ],
+  "hiddenSections": []
+}

@@ -9,7 +9,7 @@ export function canOpenDashboardSection(path: string, account: NavigationAccount
   if (!(path === '/dashboard' || path.startsWith('/dashboard/'))) return false
   if (!canVisitDashboard(path, account.programmes || [], account.role)) return false
   if (account.role === 'vacancies_only') return path === '/dashboard/vacancies' || path.startsWith('/dashboard/vacancies/')
-  if (['/dashboard/users', '/dashboard/settings'].some(base => path === base || path.startsWith(base + '/'))) {
+  if (['/dashboard/users', '/dashboard/settings', '/dashboard/website/assignments'].some(base => path === base || path.startsWith(base + '/'))) {
     return account.role === 'admin' || account.role === 'super_admin'
   }
   if (path === '/dashboard/website/sfi' || path.startsWith('/dashboard/website/sfi/')) return account.canEditSfi === true

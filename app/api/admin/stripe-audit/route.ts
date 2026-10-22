@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient as createServerClient } from "@/lib/supabase/server"
+import { getRequestStaff } from "@/lib/crm/request-staff"
 import { createClient as createServiceClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
 
@@ -29,15 +29,11 @@ export type AuditReport = {
 }
 
 export async function GET(_request: NextRequest) {
-  const supabase = await createServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-  const appRole = (user.app_metadata as { role?: string })?.role
-  if (appRole === "vacancies_only")
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  const { client: supabase, user, authError, profile, grants } = await getRequestStaff()
+  if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (profile.error || !profile.data || !["admin","super_admin"].includes(profile.data.role) || grants.error || !Array.isArray(grants.data)) {
+    return NextResponse.json({ error: "Administrator access required" }, { status: 403 })
+  }
 
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (!stripeKey)
@@ -83,7 +79,7 @@ export async function GET(_request: NextRequest) {
   const allPIs: Stripe.PaymentIntent[] = []
   let startingAfter: string | undefined = undefined
   while (true) {
-    const page = await stripe.paymentIntents.list({
+    const page: Stripe.ApiList<Stripe.PaymentIntent> = await stripe.paymentIntents.list({
       limit: 100,
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     })
