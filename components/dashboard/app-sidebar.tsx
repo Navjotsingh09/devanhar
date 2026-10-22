@@ -184,16 +184,18 @@ export function AppSidebar({ user, websiteEnabled = false }: AppSidebarProps & {
   const search = query.trim().toLowerCase()
   const visibleProjects = projectSpaces.filter(space => [space.title, ...(space.children || []).map(child => child.title), ...(space.tools || []).map(tool => tool.title)].some(title => title.toLowerCase().includes(search)))
   const programmes = user.programmes || []
-  const home = user.role === 'vacancies_only' ? '/dashboard/vacancies' : programmeHome(programmes)
+  const home = user.role === 'content_manager' ? '/dashboard/website' : user.role === 'vacancies_only' ? '/dashboard/vacancies' : programmeHome(programmes)
   const managementItems = managementNav
   const websiteItems: NavItem[] = [
     ...(websiteEnabled ? [{ title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
     { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
-    { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }] : []),
+    { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper },
+    { title: 'Content assignments', url: '/dashboard/website/assignments', icon: Users }] : []),
     { title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper },
     { title: 'Site images', url: '/dashboard/images', icon: ImageIcon },
     { title: 'Products', url: '/dashboard/products', icon: Package },
     { title: 'Orders', url: '/dashboard/orders', icon: ClipboardList },
+    { title: 'Activity log', url: '/dashboard/activity', icon: ClipboardList },
   ]
   const isWebsite = websiteItems.some(item => pathname === item.url || pathname.startsWith(item.url + '/'))
 

@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   // Protect admin-only routes
   const headerList = await headers()
   const pathname = headerList.get('x-pathname') || ''
-  if (!canVisitDashboard(pathname, programmes, role)) redirect(programmeHome(programmes))
+  if (!canVisitDashboard(pathname, programmes, role)) redirect(role === 'content_manager' ? '/dashboard/website' : programmeHome(programmes))
   if (!isAdmin && adminOnlyRoutes.some((r) => pathname.startsWith(r))) {
     redirect('/dashboard')
   }
@@ -44,16 +44,22 @@ export default async function DashboardLayout({
   if (isVacanciesOnly && pathname && !pathname.startsWith('/dashboard/vacancies')) {
     redirect('/dashboard/vacancies')
   }
+  let canEditSfi = isAdmin
+  if (role === 'content_manager') {
+    const result = await supabase.from('cms_pages').select('id').eq('slug','sfi').maybeSingle()
+    canEditSfi = !result.error && !!result.data
+  }
   const userData = {
     email: user.email || '',
     fullName: profile?.full_name || user.email || 'Staff',
     role: programmes.length ? 'programme_manager' : role,
     programmes,
+    canEditSfi,
   }
 
   return (
     <SidebarProvider style={{ '--sidebar-width': '280px' } as React.CSSProperties}>
-      <AppSidebar user={userData} />
+      <AppSidebar user={userData} websiteEnabled />
       <SidebarInset>
         <DashboardHeader programmes={programmes} fullName={userData.fullName} />
         <main className="flex-1 overflow-auto p-4 md:p-6">

@@ -69,6 +69,11 @@ export async function updateSession(request: NextRequest) {
     if (error || profileResult.error || !Array.isArray(grants)) return NextResponse.json({ error: 'Unable to verify account access' }, { status: 503 })
     const role = profileResult.data?.role
     const programmes = ['admin','super_admin'].includes(role || '') ? [] : grants.map(row => row.programme) as StaffProgramme[]
+    if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/')) return NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 })
+    if (role === 'content_manager' && pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, [], role)) {
+      if (!['GET','HEAD'].includes(request.method)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      const url = request.nextUrl.clone(); url.pathname = '/dashboard/website'; url.search = ''; return NextResponse.redirect(url)
+    }
     if (role === 'vacancies_only' && pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/vacancies')) {
       if (!['GET','HEAD'].includes(request.method)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       const url = request.nextUrl.clone(); url.pathname = '/dashboard/vacancies'; url.search = ''; return NextResponse.redirect(url)
