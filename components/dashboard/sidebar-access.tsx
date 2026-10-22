@@ -28,10 +28,10 @@ export function useSidebarAccess() {
 }
 export function AccessNavigationItem({ title, url, icon: Icon, active }: { title: string; url: string; icon: ComponentType<{ className?: string }>; active: boolean }) {
   const { canOpen, explain } = useSidebarAccess()
-  if (!canOpen(url)) return <SidebarMenuButton type="button" data-locked="true" className="text-muted-foreground" aria-label={`${title} (restricted)`} onClick={() => explain(title)}>
-    <Icon className="h-4 w-4" /><span>{title}</span><Lock aria-hidden="true" className="ml-auto h-3.5 w-3.5 shrink-0" />
+  if (!canOpen(url)) return <SidebarMenuButton type="button" data-locked="true" className="!h-auto min-h-9 py-2 text-muted-foreground" aria-label={`${title} (restricted)`} onClick={() => explain(title)}>
+    <Icon className="h-4 w-4" /><span className="!whitespace-normal !overflow-visible !text-clip leading-snug">{title}</span><Lock aria-hidden="true" className="ml-auto h-3.5 w-3.5 shrink-0" />
   </SidebarMenuButton>
-  return <SidebarMenuButton asChild isActive={active}><Link href={url} prefetch={false} aria-current={active ? 'page' : undefined}><Icon className="h-4 w-4" /><span>{title}</span><NavigationPending /></Link></SidebarMenuButton>
+  return <SidebarMenuButton className="!h-auto min-h-9 py-2" asChild isActive={active}><Link href={url} prefetch={false} aria-current={active ? 'page' : undefined}><Icon className="h-4 w-4" /><span className="!whitespace-normal !overflow-visible !text-clip leading-snug">{title}</span><NavigationPending /></Link></SidebarMenuButton>
 }
 export function AccessWorkspaceLink({ title, url, icon: Icon, active }: { title: string; url: string; icon: ComponentType<{ className?: string }>; active: boolean }) {
   const { canOpen, explain } = useSidebarAccess()
