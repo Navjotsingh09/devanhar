@@ -8,18 +8,19 @@ import { PlatformSection } from '@/components/platform-section'
 import { ProjectsSection } from '@/components/projects-section'
 import { MediaSection } from '@/components/media-section'
 import { FAQSection } from '@/components/faq-section'
+import type { BlogPost } from '@/lib/blog'
 import type { PageContent, PageSection } from '@/lib/cms/page-content'
 import type { OpenOpportunity } from '@/lib/registration-window-status'
 
 function Buttons({ items }: { items: { label: string; href: string }[] }) {
   return <div className="mt-6 flex flex-wrap gap-3">{items.map((item, i) => <Link key={i} href={item.href} className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">{item.label}</Link>)}</div>
 }
-function Section({ section, opportunities }: { section: PageSection; opportunities: OpenOpportunity[] }) {
+function Section({ section, opportunities, posts }: { section: PageSection; opportunities: OpenOpportunity[]; posts: BlogPost[] }) {
   switch (section.type) {
     case 'homeHero': return <HeroOptionA content={section.data} opportunities={opportunities} />
     case 'pillars': return <PillarsSection content={section.data} />
     case 'platform': return <PlatformSection content={section.data} />
-    case 'impact': return <ProjectsSection content={section.data} />
+    case 'impact': return <ProjectsSection content={section.data} posts={posts.map(({slug,pillar,description,readTime})=>({slug,pillar,description,readTime}))} />
     case 'social': return <MediaSection content={section.data} />
     case 'faq': return <FAQSection {...section.data} />
     case 'hero': return <section className="relative flex min-h-[65svh] items-end bg-slate-950 px-6 pb-16 pt-36 text-white"><img src={section.data.image} alt={section.data.imageAlt} className="absolute inset-0 h-full w-full object-cover opacity-40" /><div className="container relative mx-auto"><p className="text-sm uppercase tracking-widest">{section.data.eyebrow}</p><h1 className="mt-4 max-w-4xl text-4xl font-bold md:text-6xl">{section.data.heading}</h1><p className="mt-5 max-w-2xl whitespace-pre-line text-lg">{section.data.description}</p><Buttons items={section.data.buttons} /></div></section>
@@ -32,8 +33,8 @@ function Section({ section, opportunities }: { section: PageSection; opportuniti
     case 'buttons': return <section className="container mx-auto px-6 py-16"><h2 className="text-3xl font-bold">{section.data.heading}</h2><Buttons items={section.data.buttons} /></section>
   }
 }
-export function CmsPageRenderer({ content, opportunities = [] }: { content: PageContent; opportunities?: OpenOpportunity[] }) {
+export function CmsPageRenderer({ content, opportunities = [], posts = [] }: { content: PageContent; opportunities?: OpenOpportunity[]; posts?: BlogPost[] }) {
   const visible = content.sections.filter(s => !s.hidden)
   const startsWithHero = ['hero', 'homeHero'].includes(visible[0]?.type)
-  return <main className={`min-h-screen bg-background text-foreground ${startsWithHero ? '' : 'pt-28'}`}><ScrollAnimations /><Navbar />{visible.map(section => <Section key={section.id} section={section} opportunities={opportunities} />)}<FooterSection /></main>
+  return <main className={`min-h-screen bg-background text-foreground ${startsWithHero ? '' : 'pt-28'}`}><ScrollAnimations /><Navbar />{visible.map(section => <Section key={section.id} section={section} opportunities={opportunities} posts={posts} />)}<FooterSection /></main>
 }

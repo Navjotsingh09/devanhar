@@ -1,3 +1,4 @@
+import { getPublishedBlogPosts } from '@/lib/blog-db'
 import { cache } from 'react'
 import { getOpenRegistrationOpportunities } from '@/lib/open-registration-opportunities'
 import { CmsPageRenderer } from '@/components/cms/page-renderer'
@@ -10,6 +11,6 @@ export async function generateMetadata() {
   return { title: content.seo.title, description: content.seo.description, robots: { index: !content.seo.noIndex, follow: !content.seo.noIndex } }
 }
 export default async function Page() {
-  const [content, opportunities] = await Promise.all([publishedHome(), getOpenRegistrationOpportunities().catch(() => [])])
-  return <CmsPageRenderer content={content} opportunities={opportunities} />
+  const [content, opportunities, posts] = await Promise.all([publishedHome(), getOpenRegistrationOpportunities().catch(() => []), getPublishedBlogPosts()])
+  return <CmsPageRenderer content={content} opportunities={opportunities} posts={posts} />
 }

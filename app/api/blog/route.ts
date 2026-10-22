@@ -1,106 +1,25 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getBlogStaff } from "@/lib/blog-staff-server"
-import { createClient as createAdminClient } from "@supabase/supabase-js"
-
-const allowedPillars = new Set(["Develop", "Elevate", "Empower", "Connect"])
-const allowedStatuses = new Set(["draft", "published"])
-
-function getAdminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error("Missing Supabase service role credentials")
-  return createAdminClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
-}
-
+import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
+import { getBlogStaff } from '@/lib/blog-staff-server'
+import { blogInputSchema, blogRevisionBody } from '@/lib/blog-draft-content'
 export async function POST(request: NextRequest) {
   try {
-    const { user, allowed } = await getBlogStaff()
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-
-    const body = await request.json()
-    const {
-      originalSlug,
-      slug,
-      title,
-      description,
-      content,
-      pillar,
-      status,
-      author,
-      coverImage,
-      coverAlt,
-      tags,
-      readTime,
-      source,
-      date,
-    } = body
-
-    if (!slug || !title || !allowedPillars.has(pillar) || !allowedStatuses.has(status)) {
-      return NextResponse.json({ error: "Invalid blog post data" }, { status: 400 })
-    }
-
-    const admin = getAdminClient()
-
-    const payload = {
-      slug,
-      title,
-      excerpt: description || "",
-      content: content || "",
-      pillar,
-      status,
-      author_name: author || "Devanhaar",
-      author_id: user.id,
-      cover_image_url: coverImage || null,
-      cover_image_alt: coverAlt || null,
-      tags: Array.isArray(tags) ? tags : [],
-      read_time: readTime || "3 min",
-      source: source || null,
-      published_at: status === "published" && date
-        ? new Date(date + "T12:00:00Z").toISOString()
-        : null,
-    }
-
-    let existing = null
-    if (originalSlug) {
-      const { data } = await admin
-        .from("blog_posts")
-        .select("id")
-        .eq("slug", originalSlug)
-        .maybeSingle()
-      existing = data
-    }
-
-    let result
-    if (existing?.id) {
-      result = await admin
-        .from("blog_posts")
-        .update(payload)
-        .eq("id", existing.id)
-        .select()
-        .single()
-    } else {
-      result = await admin
-        .from("blog_posts")
-        .insert(payload)
-        .select()
-        .single()
-    }
-
-    if (result.error) {
-      console.error("[blog] save error:", result.error)
-      const statusCode = result.error.code === "23505" ? 409 : 500
-      return NextResponse.json({ error: result.error.message }, { status: statusCode })
-    }
-
-    return NextResponse.json({ post: result.data })
-  } catch (error) {
-    console.error("[blog] publish error:", error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Could not save post" },
-      { status: 500 }
-    )
-  }
+    const { user, allowed, client } = await getBlogStaff()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (request.headers.get('origin') !== new URL(request.url).origin) return NextResponse.json({ error: 'Use the blog editor to save this article.' }, { status: 403 })
+    if (Number(request.headers.get('content-length')) > 500000) return NextResponse.json({ error: 'Article is too large.' }, { status: 413 })
+    const raw = await request.text()
+    if (raw.length > 500000) return NextResponse.json({ error: 'Article is too large.' }, { status: 413 })
+    const parsed = blogInputSchema.safeParse(JSON.parse(raw))
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ') }, { status: 400 })
+    const body = parsed.data
+    if (body.originalSlug && body.originalSlug !== body.slug) return NextResponse.json({ error: 'An existing article keeps its URL. Create a new article for a different address.' }, { status: 400 })
+    if (body.status === 'published' && !body.content.trim()) return NextResponse.json({ error: 'Article content is required.' }, { status: 400 })
+    const { data, error } = await client.rpc('blog_write_revision', { p_slug: body.slug, p_body: blogRevisionBody(body), p_expected_draft: body.expectedDraft, p_expected_updated: body.expectedUpdated, p_publish: body.status === 'published' })
+    if (error) return NextResponse.json({ error: error.code === '40001' ? error.message : error.code === '42501' ? 'Blog access is no longer available.' : 'The article could not be saved. Reload and retry.' }, { status: error.code === '40001' || error.code === '23505' ? 409 : error.code === '42501' ? 403 : 503 })
+    revalidatePath('/dashboard/blog')
+    if (body.status === 'published') { revalidatePath('/'); revalidatePath('/insights'); revalidatePath(`/insights/${body.slug}`) }
+    return NextResponse.json({ post: { id: data, slug: body.slug } }, { headers: { 'Cache-Control': 'private, no-store' } })
+  } catch (error) { return NextResponse.json({ error: error instanceof SyntaxError ? 'Invalid request.' : 'The article could not be saved.' }, { status: error instanceof SyntaxError ? 400 : 503 }) }
 }

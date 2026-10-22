@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function getBlogStaff() {
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return { user: null, allowed: false }
+  if (authError || !user) return { user: null, allowed: false, client: supabase }
 
   const [profile, grants] = await Promise.all([
     supabase.from('admin_profiles').select('role').eq('id', user.id).maybeSingle(),
@@ -21,5 +21,5 @@ export async function getBlogStaff() {
     && Array.isArray(grants.data)
     && (grants.data.length === 0 || ['admin','super_admin'].includes(profile.data.role))
 
-  return { user, allowed }
+  return { user, allowed, client: supabase }
 }

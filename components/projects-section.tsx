@@ -5,7 +5,7 @@ import { ArrowRight, ExternalLink } from "lucide-react"
 import NumberFlow from "@number-flow/react"
 import Link from "next/link"
 import Image from "next/image"
-import { blogPosts, type Pillar } from "@/lib/blog"
+import { type BlogPost, type Pillar } from "@/lib/blog"
 
 const partners = [
   {
@@ -87,7 +87,7 @@ function RollingNumber({ value, suffix = "+" }: { value: number; suffix?: string
 }
 
 import type { PageSection } from '@/lib/cms/page-content'
-export function ProjectsSection({ content }: { content?: Extract<PageSection, { type: 'impact' }>['data'] } = {}) {
+export function ProjectsSection({ content, posts = [] }: { content?: Extract<PageSection, { type: 'impact' }>['data']; posts?: Pick<BlogPost, "slug" | "pillar" | "description" | "readTime">[] } = {}) {
   const [activeTab, setActiveTab] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -219,8 +219,8 @@ export function ProjectsSection({ content }: { content?: Extract<PageSection, { 
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
               {(activeTab === 0
-                ? blogPosts
-                : blogPosts.filter((p) => p.pillar === tabs[activeTab])
+                ? posts
+                : posts.filter((p) => p.pillar === tabs[activeTab])
               ).map((post) => (
                 <Link
                   key={post.slug}
@@ -249,6 +249,7 @@ export function ProjectsSection({ content }: { content?: Extract<PageSection, { 
             </div>
           </div>
 
+          {!posts.length && <p className="mt-4 text-center text-sm text-muted-foreground">New insights will appear here when published.</p>}
           {/* View all link */}
           <div className="mt-8 text-center">
             <Link

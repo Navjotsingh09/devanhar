@@ -1,3 +1,4 @@
+import { getPublishedBlogPosts } from '@/lib/blog-db'
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { CmsPageRenderer } from '@/components/cms/page-renderer'
@@ -12,5 +13,5 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const content = await published((await params).slug)
   if (!content) notFound()
-  return <CmsPageRenderer content={content} />
+  return <CmsPageRenderer content={content} posts={await getPublishedBlogPosts()} />
 }

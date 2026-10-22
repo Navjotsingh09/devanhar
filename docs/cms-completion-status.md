@@ -48,8 +48,19 @@ as a test. Logged-in browser acceptance testing still requires a staff session.
 
 Migrating the remaining existing page layouts, project content CMS, reusable events
 manager, scheduled announcements/notifications, full media library, reusable FAQs,
-global branding/SEO/navigation/settings, general create permissions, version restoration across other content types, article draft/live separation and the full acceptance matrix
+global branding/SEO/navigation/settings, general create permissions, version restoration across other content types, the full acceptance matrix
 remain separate implementation work. The primary Submissions screen now loads only one 25-row dataset and does not
 call Stripe. Existing bulk camp/payment workflows remain available explicitly
 under Advanced operations; that legacy console still performs heavier work.
 Do not represent the sidebar, project spaces or page inventory as those editors.
+
+## Publishing repair — follow-up
+
+- Blog draft snapshots now live in a private immutable revision table. Saving a draft does not change a live article or its cover.
+- Authenticated transactional publishing validates the current draft pointer and update timestamp, saves the prior live snapshot, promotes only the saved body and records the actor.
+- Article preview uses the public article renderer at desktop/tablet/mobile widths.
+- Archive/restore replaces permanent deletion. Shared images remain intact.
+- The homepage Insights carousel now uses published database content rather than deleted sample articles; it receives only the card fields.
+- Page draft filters, search, editor names/timestamps, recoverable draft discard, custom-page unpublish and recent-page dashboard summaries are present.
+- The sidebar includes a working Page drafts destination.
+- A rolled-back database transaction verified draft creation, initial publish, editing a live post without public changes and refusal of stale publishing. No test articles were retained.
