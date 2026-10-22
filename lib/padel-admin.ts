@@ -9,7 +9,7 @@ import { redirect } from "next/navigation"
 export async function requirePadelStaff() {
   const { client: supabase, user, authError: userError, profile: profileResult, grants } = await getRequestStaff()
   if (userError || !user) redirect("/spa-admin/login")
-  if (grants.error || !Array.isArray(grants.data) || grants.data.length) redirect('/dashboard/kaurs')
+  if (grants.error || !Array.isArray(grants.data) || (grants.data.length && !['admin','super_admin'].includes(profileResult.data?.role || ''))) redirect('/dashboard/kaurs')
   const { data: profile, error: profileError } = profileResult
 
   if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
@@ -23,7 +23,7 @@ export async function requirePadelStaff() {
 
 export async function checkPadelStaffAccess() {
   const { client: supabase, user, authError: userError, profile: profileResult, grants } = await getRequestStaff()
-  if (userError || !user || grants.error || !Array.isArray(grants.data) || grants.data.length) return null
+  if (userError || !user || grants.error || !Array.isArray(grants.data) || (grants.data.length && !['admin','super_admin'].includes(profileResult.data?.role || ''))) return null
   const { data: profile, error: profileError } = profileResult
 
   if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
