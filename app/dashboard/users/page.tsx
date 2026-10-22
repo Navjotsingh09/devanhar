@@ -32,7 +32,7 @@ export default async function UsersPage() {
         <p className="text-muted-foreground">Manage staff access levels and permissions</p>
       </div>
 
-      <UsersClient profiles={profiles ?? []} currentUserId={user.id} />
+      <UsersClient profiles={profiles ?? []} currentUserId={user.id} currentRole={currentProfile.role} />
     </div>
   )
 }

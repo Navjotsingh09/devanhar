@@ -22,7 +22,7 @@ export default async function DashboardLayout({
   const role = profile?.role || 'staff'
   const { data: grants, error: grantError } = grantResult
   if (grantError || !Array.isArray(grants)) redirect('/auth/login?error=access_check_failed')
-  const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
+  const programmes = ['admin', 'super_admin'].includes(role) ? [] : (grants || []).map(row => row.programme) as StaffProgramme[]
   if (!profile) {
     const { data: member } = await supabase.from('spa_members').select('user_id')
       .eq('user_id', user.id).eq('is_active', true).maybeSingle()
@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   // Protect admin-only routes
   const headerList = await headers()
   const pathname = headerList.get('x-pathname') || ''
-  if (!canVisitDashboard(pathname, programmes)) redirect(programmeHome(programmes))
+  if (!canVisitDashboard(pathname, programmes, role)) redirect(programmeHome(programmes))
   if (!isAdmin && adminOnlyRoutes.some((r) => pathname.startsWith(r))) {
     redirect('/dashboard')
   }

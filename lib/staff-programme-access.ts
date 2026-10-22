@@ -8,10 +8,11 @@ export function programmeForPath(path: string): StaffProgramme | null {
   if (path === '/dashboard/newsletter' || path.startsWith('/dashboard/newsletter/')) return 'newsletter'
   return null
 }
-export function canVisitDashboard(path: string, programmes: StaffProgramme[]) {
+export function canVisitDashboard(path: string, programmes: StaffProgramme[], role?: string) {
+  if (role === 'super_admin' || role === 'admin') return true
   const programme = programmeForPath(path)
   return programmes.length ? programme !== null && programmes.includes(programme) : programme === null
 }
-export function programmeHome(programmes: StaffProgramme[]) {
+export function programmeHome(programmes: StaffProgramme[], role?: string) {
   return programmes.includes('family') ? '/dashboard/family-initiative' : programmes.includes('kaurs') ? '/dashboard/kaurs' : programmes.includes('vidyala') ? '/dashboard/vidyala' : programmes.includes('newsletter') ? '/dashboard/newsletter' : '/dashboard'
 }
