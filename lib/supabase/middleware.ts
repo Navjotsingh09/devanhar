@@ -86,7 +86,7 @@ export async function updateSession(request: NextRequest) {
       return finish(NextResponse.json({ error: 'Unable to verify account access' }, { status: 503 }))
     }
     const role = profileResult.data?.role
-    const programmes = ['admin','super_admin'].includes(role || '') ? [] : grants.map(row => row.programme) as StaffProgramme[]
+    const programmes = ['admin','super_admin','content_manager'].includes(role || '') ? [] : grants.map(row => row.programme) as StaffProgramme[]
     if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/')) return finish(NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 }))
     if (role === 'content_manager' && pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, [], role)) {
       if (!['GET','HEAD'].includes(request.method)) return finish(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
