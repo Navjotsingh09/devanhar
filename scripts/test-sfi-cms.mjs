@@ -201,3 +201,5 @@ test('API blocks cross-origin requests and invalid content without writes', asyn
 })
 
 for(const role of ['admin','super_admin'])test(`${role} may edit SFI with legacy programme assignments`,async()=>{setup({role,grants:[{programme:'family'}]});assert.equal((await server.sfiContext('publish')).permissions.publish,true)})
+
+test('SFI aliases use the same public page and published metadata reader',()=>{for(const path of ['app/sfi/page.tsx','app/sikh-family-initiative/page.tsx']){const source=fs.readFileSync(path,'utf8');assert.match(source,/default, generateMetadata/);assert.match(source,/force-dynamic/);assert.doesNotMatch(source,/default, metadata/);assert.match(source,/initiatives\/sikh-family-initiative\/page/)}})
