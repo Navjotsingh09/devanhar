@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { getRequestStaff } from "@/lib/crm/request-staff"
 import { redirect } from "next/navigation"
 
 /**
@@ -7,19 +7,10 @@ import { redirect } from "next/navigation"
  * from user-controlled metadata.
  */
 export async function requirePadelStaff() {
-  const supabase = await createClient()
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-
+  const { client: supabase, user, authError: userError, profile: profileResult, grants } = await getRequestStaff()
   if (userError || !user) redirect("/spa-admin/login")
-
-  const { data: programmeGrants, error: grantError } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
-  if (grantError || programmeGrants?.length) redirect('/dashboard/kaurs')
-
-  const { data: profile, error: profileError } = await supabase
-    .from("admin_profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single()
+  if (grants.error || !Array.isArray(grants.data) || grants.data.length) redirect('/dashboard/kaurs')
+  const { data: profile, error: profileError } = profileResult
 
   if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
     const { data: membership } = await supabase.from('spa_members')
@@ -31,15 +22,9 @@ export async function requirePadelStaff() {
 }
 
 export async function checkPadelStaffAccess() {
-  const supabase = await createClient()
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  if (userError || !user) return null
-
-  const { data: profile, error: profileError } = await supabase
-    .from("admin_profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single()
+  const { client: supabase, user, authError: userError, profile: profileResult, grants } = await getRequestStaff()
+  if (userError || !user || grants.error || !Array.isArray(grants.data) || grants.data.length) return null
+  const { data: profile, error: profileError } = profileResult
 
   if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
     const { data: membership } = await supabase.from('spa_members')
