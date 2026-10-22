@@ -22,7 +22,7 @@ export default async function DashboardLayout({
   const role = profile?.role || 'staff'
   const { data: grants, error: grantError } = grantResult
   if (grantError) redirect('/auth/login?error=access_check_failed')
-  const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
+  const programmes = ['admin','super_admin'].includes(role) ? [] : (grants || []).map(row => row.programme) as StaffProgramme[]
   if (!profile) {
     const { data: member } = await supabase.from('spa_members').select('user_id')
       .eq('user_id', user.id).eq('is_active', true).maybeSingle()
@@ -35,7 +35,7 @@ export default async function DashboardLayout({
   // Protect admin-only routes
   const headerList = await headers()
   const pathname = headerList.get('x-pathname') || ''
-  if (!canVisitDashboard(pathname, programmes)) redirect(programmeHome(programmes))
+  if (!canVisitDashboard(pathname, programmes, role)) redirect(role === 'content_manager' ? '/dashboard/website' : programmeHome(programmes))
   if (!isAdmin && adminOnlyRoutes.some((r) => pathname.startsWith(r))) {
     redirect('/dashboard')
   }
@@ -44,11 +44,10 @@ export default async function DashboardLayout({
   if (isVacanciesOnly && pathname && !pathname.startsWith('/dashboard/vacancies')) {
     redirect('/dashboard/vacancies')
   }
-  let canEditSfi = isAdmin && programmes.length === 0
-  if (role === 'content_manager' && programmes.length === 0) {
-    const { data: assignedSfi, error: cmsAccessError } = await supabase
-      .from('cms_pages').select('id').eq('slug', 'sfi').maybeSingle()
-    canEditSfi = !cmsAccessError && !!assignedSfi
+  let canEditSfi = isAdmin
+  if (role === 'content_manager') {
+    const result = await supabase.from('cms_pages').select('id').eq('slug','sfi').maybeSingle()
+    canEditSfi = !result.error && !!result.data
   }
   const userData = {
     email: user.email || '',
@@ -60,7 +59,7 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider className="crm-shell" style={{ '--sidebar-width': '280px' } as React.CSSProperties}>
-      <AppSidebar user={userData} websiteEnabled />
+      <AppSidebar user={userData} websiteEnabled formBuilderEnabled />
       <SidebarInset className="min-w-0">
         <DashboardHeader programmes={programmes} fullName={userData.fullName} />
         <div id="crm-content" tabIndex={-1} className="crm-main flex-1 min-w-0">

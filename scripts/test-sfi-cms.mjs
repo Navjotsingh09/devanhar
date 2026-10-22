@@ -141,7 +141,7 @@ for (const [name, options, status] of [
   ['signed out', { signedOut: true }, 401], ['auth failure', { authError: true }, 401],
   ['missing profile', { missingProfile: true }, 403], ['profile failure', { profileError: true }, 403],
   ['assignment lookup failure', { grantsError: true }, 403], ['general staff', { role: 'staff' }, 403],
-  ['scoped admin', { grants: [{ programme: 'family' }] }, 403],
+  ['scoped staff', { role: 'staff', grants: [{ programme: 'family' }] }, 403],
   ['unassigned content manager', { role: 'content_manager' }, 403],
 ]) test(`blocks ${name} before privileged access`, async () => {
   const state = setup(options)
@@ -199,3 +199,5 @@ test('API blocks cross-origin requests and invalid content without writes', asyn
   assert.equal(response.status, 400)
   assert.equal(fixture.writes.length, 0)
 })
+
+for(const role of ['admin','super_admin'])test(`${role} may edit SFI with legacy programme assignments`,async()=>{setup({role,grants:[{programme:'family'}]});assert.equal((await server.sfiContext('publish')).permissions.publish,true)})

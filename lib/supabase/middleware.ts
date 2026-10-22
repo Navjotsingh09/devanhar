@@ -55,44 +55,54 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  // Use getSession (no network call) — getUser() causes MIDDLEWARE_INVOCATION_TIMEOUT on Vercel Edge
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  const user = session?.user ?? null
-
   const pathname = request.nextUrl.pathname
-  const isSpaAuth = ['/spa-admin/login', '/spa-admin/forgot-password', '/spa-admin/update-password'].includes(pathname)
+  const isSpaAuth = ['/spa-admin/login','/spa-admin/forgot-password','/spa-admin/update-password'].includes(pathname)
   const isSpaPortal = pathname.startsWith('/spa-admin') && !isSpaAuth
-  const isReadNavigation = request.method === 'GET' || request.method === 'HEAD'
+  const isReadNavigation = ['GET','HEAD'].includes(request.method)
+  // Public pages do not need session refresh or account queries. Private routes
+  // authenticate the token before using its user ID for any authorization read.
+  const privateRequest = pathname.startsWith('/dashboard') || isSpaPortal || pathname.startsWith('/api/') || pathname.startsWith('/auth')
+  if (!privateRequest) return supabaseResponse
+  const { data: { user: verifiedUser }, error: authError } = await supabase.auth.getUser()
+  const user = authError ? null : verifiedUser
+  if (authError && pathname.startsWith('/dashboard')) {
+    const url = request.nextUrl.clone(); url.pathname = '/auth/login'; url.search = '?error=session_expired'
+    return finish(NextResponse.redirect(url))
+  }
 
   if (user && (pathname.startsWith('/dashboard') || isSpaPortal || pathname.startsWith('/api/'))) {
     // Fresh database assignments apply to existing sessions; never trust editable metadata.
-    const { data: grants, error } = await supabase.from('staff_programme_access').select('programme').eq('user_id',user.id)
-    if (error) {
-      if (pathname.startsWith('/dashboard') && ['GET', 'HEAD'].includes(request.method)) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/auth/login'
-        url.search = ''
-        url.searchParams.set('error', 'access_check_failed')
-        url.searchParams.set('next', pathname + request.nextUrl.search)
-        return finish(NextResponse.redirect(url))
-      }
-      if (isSpaPortal && isReadNavigation) {
-        const url = request.nextUrl.clone(); url.pathname = '/auth/spa-access'; url.search = ''
+    const [grantResult, profileResult] = await Promise.all([
+      supabase.from('staff_programme_access').select('programme').eq('user_id', user.id),
+      supabase.from('admin_profiles').select('role').eq('id', user.id).maybeSingle(),
+    ])
+    const { data: grants, error } = grantResult
+    if (error || profileResult.error || !Array.isArray(grants)) {
+      if ((pathname.startsWith('/dashboard') || isSpaPortal) && isReadNavigation) {
+        const url=request.nextUrl.clone();url.pathname=isSpaPortal?'/auth/spa-access':'/auth/login';url.search=''
+        if(!isSpaPortal){url.searchParams.set('error','access_check_failed');url.searchParams.set('next',pathname+request.nextUrl.search)}
         return finish(NextResponse.redirect(url))
       }
       return finish(NextResponse.json({ error: 'Unable to verify account access' }, { status: 503 }))
     }
-    const programmes = (grants || []).map(row => row.programme) as StaffProgramme[]
-    if (pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, programmes)) {
-      if (request.method !== 'GET' && request.method !== 'HEAD') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const role = profileResult.data?.role
+    const programmes = ['admin','super_admin'].includes(role || '') ? [] : grants.map(row => row.programme) as StaffProgramme[]
+    if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/')) return finish(NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 }))
+    if (role === 'content_manager' && pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, [], role)) {
+      if (!['GET','HEAD'].includes(request.method)) return finish(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
+      const url = request.nextUrl.clone(); url.pathname = '/dashboard/website'; url.search = ''; return finish(NextResponse.redirect(url))
+    }
+    if (role === 'vacancies_only' && pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/vacancies')) {
+      if (!['GET','HEAD'].includes(request.method)) return finish(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
+      const url = request.nextUrl.clone(); url.pathname = '/dashboard/vacancies'; url.search = ''; return finish(NextResponse.redirect(url))
+    }
+    if (pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, programmes, role)) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') return finish(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
       const url = request.nextUrl.clone(); url.pathname = programmeHome(programmes); url.search = ''
       return finish(NextResponse.redirect(url))
     }
     if (programmes.length && isSpaPortal && isReadNavigation) {
-      const url = request.nextUrl.clone(); url.pathname = '/auth/spa-access'; url.search = ''
-      return finish(NextResponse.redirect(url))
+      const url=request.nextUrl.clone();url.pathname='/auth/spa-access';url.search='';return finish(NextResponse.redirect(url))
     }
     if (programmes.length && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
       return finish(NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 }))
@@ -114,18 +124,6 @@ export async function updateSession(request: NextRequest) {
     return finish(NextResponse.redirect(url))
   }
 
-  // Login and password recovery must remain reachable even with a rejected session.
-
-  // Vacancies-only role: can only access /dashboard/vacancies
-  if (user && pathname.startsWith("/dashboard")) {
-    const appRole = (user.app_metadata as Record<string, string>)?.role
-    if (appRole === "vacancies_only" && !pathname.startsWith("/dashboard/vacancies")) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/dashboard/vacancies"
-      return finish(NextResponse.redirect(url))
-    }
-  }
-
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/auth')) supabaseResponse.headers.set('Cache-Control', 'private, no-store')
+  supabaseResponse.headers.set('Cache-Control','private, no-store')
   return supabaseResponse
 }

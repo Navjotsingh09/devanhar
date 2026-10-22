@@ -17,11 +17,11 @@ let fixture
 const { updateSession } = load('lib/supabase/middleware.ts', {
   '@/lib/staff-programme-access': access,
   '@supabase/ssr': { createServerClient: (_url, _key, config) => ({
-    auth: { getSession: async () => {
+    auth: { getUser: async () => {
       if (fixture.refresh) config.cookies.setAll([{ name: 'session', value: 'fresh', options: { httpOnly: true, path: '/', sameSite: 'lax' } }])
-      return { data: { session: fixture.user ? { user: fixture.user } : null } }
+      return { data: { user: fixture.user }, error: null }
     } },
-    from: () => ({ select: () => ({ eq: async () => ({ data: fixture.programmes.map(programme => ({ programme })), error: fixture.grantError ? {} : null }) }) }),
+    from: table => ({ select: () => ({ eq: () => table === 'admin_profiles' ? {maybeSingle:async()=>({data:{role:fixture.role||'staff'},error:null})} : Promise.resolve({ data: fixture.programmes.map(programme => ({ programme })), error: fixture.grantError ? {} : null }) }) }),
   }) },
 })
 function setup(path, options = {}) {

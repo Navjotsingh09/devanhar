@@ -97,7 +97,7 @@ function auth(options = {}) {
   } }
   return fixture
 }
-for (const options of [{ signedOut: true }, { authError: true }, { noProfile: true }, { role: 'content_manager' }, { role: 'vacancies_only' }, { role: 'unrecognised' }, { profileError: true }, { grantError: true }, { nullGrants: true }, { programmes: ['family'] }, { role: 'super_admin', programmes: ['family'] }]) test(`CRM actions deny before data/side effects: ${JSON.stringify(options)}`, async () => {
+for (const options of [{ signedOut: true }, { authError: true }, { noProfile: true }, { role: 'content_manager' }, { role: 'vacancies_only' }, { role: 'unrecognised' }, { profileError: true }, { grantError: true }, { nullGrants: true }, { programmes: ['family'] }]) test(`CRM actions deny before data/side effects: ${JSON.stringify(options)}`, async () => {
   auth(options); await assert.rejects(() => access.requireSubmissionAccess('form_submissions', '1'))
   assert.ok(fixture.calls.every(table => ['admin_profiles', 'staff_programme_access'].includes(table)))
 })
@@ -294,3 +294,5 @@ test('selected-record Back link restores validated list state and ignores arbitr
   const back = children.find(child => child.props?.href)
   assert.equal(back.props.href, '/dashboard/submissions?source=form_submissions&page=2&q=fixture&status=archived&order=oldest')
 })
+
+for(const role of ['admin','super_admin'])test(`${role} retains full CRM access with a legacy programme assignment`,async()=>{auth({role,programmes:['family']});assert.equal((await access.requireSubmissionAccess('form_submissions','1')).user.id,'actor')})

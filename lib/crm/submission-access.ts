@@ -13,7 +13,7 @@ export async function requireSubmissionAccess(source?: string, id?: string) {
   ])
   if (profile.error || grants.error || !profile.data || !Array.isArray(grants.data)) throw new Error('Unable to verify account access')
   const programmes = grants.data.map((row: { programme: string }) => row.programme)
-  if (!programmes.length && ['staff', 'admin', 'super_admin'].includes(profile.data.role)) return { supabase, user }
+  if (['admin','super_admin'].includes(profile.data.role) || (!programmes.length && profile.data.role === 'staff')) return { supabase, user }
   // Preserve the existing Vidyala-only row actions without opening the global CRM.
   if (programmes.includes('vidyala') && id && source === 'vidyala_applications') return { supabase, user }
   if (programmes.includes('vidyala') && id && source === 'register_interest') {

@@ -2,7 +2,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 
 /** Keep blog mutation access aligned with the general staff dashboard.
- * Programme assignments restrict an account even when its profile says admin.
+ * Global administrators can manage all content; programme staff remain scoped.
  * Database/authentication failures must never grant service-role access.
  */
 export async function getBlogStaff() {
@@ -19,7 +19,7 @@ export async function getBlogStaff() {
     && !!profile.data
     && ['staff', 'admin', 'super_admin'].includes(profile.data.role)
     && Array.isArray(grants.data)
-    && grants.data.length === 0
+    && (grants.data.length === 0 || ['admin','super_admin'].includes(profile.data.role))
 
   return { user, allowed }
 }

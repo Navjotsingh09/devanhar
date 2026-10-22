@@ -25,23 +25,25 @@ interface Profile {
 interface UsersClientProps {
   profiles: Profile[]
   currentUserId: string
+  currentRole: string
 }
 
 const roleConfig: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; variant: 'default' | 'secondary' | 'outline' }> = {
   super_admin: { label: 'Super Admin', icon: ShieldCheck, variant: 'default' },
   admin: { label: 'Admin', icon: Shield, variant: 'default' },
+  content_manager: { label: 'Content Manager', icon: User, variant: 'secondary' },
   staff: { label: 'Staff', icon: User, variant: 'secondary' },
   vacancies_only: { label: 'Vacancies Only', icon: User, variant: 'outline' },
   volunteer: { label: 'Staff', icon: User, variant: 'secondary' },
 }
 
-export function UsersClient({ profiles, currentUserId }: UsersClientProps) {
+export function UsersClient({ profiles, currentUserId, currentRole }: UsersClientProps) {
   const [isPending, startTransition] = useTransition()
 
   const handleRoleChange = (userId: string, newRole: string) => {
     startTransition(async () => {
       try {
-        await updateUserRole(userId, newRole as 'admin' | 'staff' | 'vacancies_only')
+        await updateUserRole(userId, newRole as 'super_admin' | 'admin' | 'staff' | 'vacancies_only' | 'content_manager')
         toast.success('User role updated successfully')
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to update role')
@@ -143,7 +145,7 @@ export function UsersClient({ profiles, currentUserId }: UsersClientProps) {
                       {new Date(profile.created_at).toLocaleDateString('en-GB')}
                     </TableCell>
                     <TableCell className="text-right">
-                      {isCurrentUser || isSuperAdmin ? (
+                      {isCurrentUser || currentRole !== 'super_admin' ? (
                         <span className="text-xs text-muted-foreground">
                           {isCurrentUser ? 'Cannot edit own role' : 'Protected'}
                         </span>
@@ -157,7 +159,9 @@ export function UsersClient({ profiles, currentUserId }: UsersClientProps) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
+                            <SelectItem value="super_admin">Super Admin</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="content_manager">Content Manager</SelectItem>
                             <SelectItem value="staff">Staff</SelectItem>
                             <SelectItem value="vacancies_only">Vacancies Only</SelectItem>
                           </SelectContent>

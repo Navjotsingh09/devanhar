@@ -97,8 +97,6 @@ const denied = [
   ['vacancies-only account', { role: 'vacancies_only' }, 403],
   ['unknown role', { role: 'content_manager' }, 403],
   ['programme staff', { grants: [{ programme: 'kaurs' }] }, 403],
-  ['programme admin', { role: 'admin', grants: [{ programme: 'family' }] }, 403],
-  ['programme super admin', { role: 'super_admin', grants: [{ programme: 'newsletter' }] }, 403],
 ]
 
 try {
@@ -115,9 +113,9 @@ try {
         }
       })
     }
-    for (const role of ['staff', 'admin', 'super_admin']) {
-      test(`${route.name}: retains access for general ${role}`, async () => {
-        const state = fixture({ role })
+    for (const [role, grants] of [['staff',[]],['admin',[]],['super_admin',[]],['admin',[{programme:'family'}]],['super_admin',[{programme:'newsletter'}]]]) {
+      test(`${route.name}: retains access for general ${role}/${grants.length}`, async () => {
+        const state = fixture({ role, grants })
         const response = await invoke(route)
         assert.equal(response.status, 200)
         assert.equal(state.privilegedClients, 1)

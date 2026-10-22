@@ -26,7 +26,7 @@ export async function sfiContext(action: 'view' | 'edit' | 'publish' = 'view') {
   }
   // Preserve the existing programme boundary. Do not silently turn programme
   // operators into website editors, even when the underlying role says admin.
-  if (grants.data.length || !['admin', 'super_admin', 'content_manager'].includes(profile.data.role)) {
+  if ((grants.data.length && !['admin','super_admin'].includes(profile.data.role)) || !['admin', 'super_admin', 'content_manager'].includes(profile.data.role)) {
     throw new CmsError('This account is not assigned to edit this website page.', 403)
   }
   const pageResult = await session.from('cms_pages').select('id, draft_revision_id, published_revision_id, updated_at').eq('slug', 'sfi').maybeSingle()
