@@ -26,7 +26,7 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Test staff access and CMS publishing
-        run: node --test scripts/test-blog-access.mjs scripts/test-sfi-cms.mjs scripts/test-sidebar-access.mjs scripts/test-middleware-access.mjs scripts/test-dashboard-access.mjs scripts/test-content-assignment-access.mjs scripts/test-crm-performance-access.mjs scripts/test-response-actions.mjs scripts/test-roots-validation.mjs
+        run: node --test scripts/test-blog-access.mjs scripts/test-sfi-cms.mjs scripts/test-sidebar-access.mjs scripts/test-middleware-access.mjs scripts/test-dashboard-access.mjs scripts/test-content-assignment-access.mjs scripts/test-submissions-pagination.mjs scripts/test-crm-performance-access.mjs scripts/test-response-actions.mjs scripts/test-roots-validation.mjs
 
       - name: Build application
         run: npm run build

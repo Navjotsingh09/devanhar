@@ -179,7 +179,7 @@ function getPaymentHealth(sub: Submission): PaymentHealth {
     if (['declined', 'archived', 'cancelled', 'rejected'].includes(sub.status)) return 'declined'
     return 'awaiting_payment'
   }
-  if (sub.source_table !== 'camp_applications' && sub.source_table !== 'padel_registrations') return 'na'
+  if (sub.source_table !== 'camp_applications') return 'na'
   const review = sub.stripe_review_state
   const pi = sub.stripe_pi_status
   // Highest priority: disputes / chargebacks / Radar reviews
@@ -503,7 +503,7 @@ function StatusPill({ status }: { status: string }) {
   )
 }
 
-export function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
+export function SubmissionsTable({ submissions, recordOnly = false }: { submissions: Submission[]; recordOnly?: boolean }) {
   const router = useRouter()
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
   const [notesDialog, setNotesDialog] = useState<Submission | null>(null)
@@ -514,7 +514,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [paymentFilter, setPaymentFilter] = useState<PaymentHealth | 'all'>('all')
   const [expandedPanel, setExpandedPanel] = useState<PaymentHealth | null>(null)
   // Unpaid padel registrations are noise until they're actually confirmed -- hidden by default.
-  const [showUnpaidPadel, setShowUnpaidPadel] = useState(false)
+  const [showUnpaidPadel, setShowUnpaidPadel] = useState(recordOnly)
 
   // Distinct statuses present in this list (so the dropdown only shows relevant options)
   const availableStatuses = Array.from(new Set(submissions.map((s) => s.status))).sort()
@@ -710,6 +710,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
   const [isCaptureAll, setIsCaptureAll] = useState(false)
 
   const handleCaptureAll = () => {
+    if (recordOnly) return
     const authCount = submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'authorized').length
     if (!window.confirm(`Capture payments for all ${authCount} applicant${authCount !== 1 ? 's' : ''} on hold? This will charge their cards and send them approval emails.`)) return
     setIsCaptureAll(true)
@@ -737,6 +738,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   const openSendAllPreview = async () => {
     try {
+      if (recordOnly) return
       const applicants = await getSendableApplicants()
       setSendableApplicants(applicants)
       // Pre-select only applicants NOT already invoiced manually via Stripe
@@ -847,8 +849,8 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
 
   return (
     <>
-      <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} />
-      {expandedPanel === 'awaiting_payment' && (
+      {!recordOnly && <PaymentHealthCards submissions={submissions} selected={paymentFilter} onSelect={setPaymentFilter} expandedPanel={expandedPanel} onTogglePanel={setExpandedPanel} />}
+      {!recordOnly && expandedPanel === 'awaiting_payment' && (
         <AwaitingPaymentBreakdown
           submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'awaiting_payment')}
           onSendLink={handleSendRepaymentLink}
@@ -857,7 +859,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           isPending={isPending}
         />
       )}
-      {expandedPanel === 'authorized' && (
+      {!recordOnly && expandedPanel === 'authorized' && (
         <AuthorisedBreakdown
           submissions={submissions.filter(s => s.source_table === 'camp_applications' && getPaymentHealth(s) === 'authorized')}
           onCapture={handleApprove}
@@ -867,7 +869,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
           isPending={isPending}
         />
       )}
-      <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
+      {!recordOnly && <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between mb-3">
         <div className="flex flex-1 gap-2 items-center">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -926,7 +928,7 @@ export function SubmissionsTable({ submissions }: { submissions: Submission[] })
             Export CSV
           </Button>
         </div>
-      </div>
+      </div>}
 
       {showUnpaidPadel && unpaidPadelCount > 0 && (
         <div className="mb-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-xs text-orange-800 dark:border-orange-900 dark:bg-orange-950 dark:text-orange-300">

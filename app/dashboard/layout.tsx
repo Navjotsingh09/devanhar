@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { canVisitDashboard, programmeHome, type StaffProgramme } from '@/lib/staff-programme-access'
 import { headers } from 'next/headers'
 import { Toaster } from '@/components/ui/sonner'
+import './dashboard.css'
 
 
 // Routes that require admin role
@@ -58,11 +59,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <SidebarProvider style={{ '--sidebar-width': '280px' } as React.CSSProperties}>
+    <SidebarProvider className="crm-shell" style={{ '--sidebar-width': '280px' } as React.CSSProperties}>
       <AppSidebar user={userData} websiteEnabled />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <DashboardHeader programmes={programmes} fullName={userData.fullName} />
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        <main className="crm-main min-w-0 flex-1">
           {children}
         </main>
         <footer className="border-t border-border px-4 md:px-6 py-3 text-center">
