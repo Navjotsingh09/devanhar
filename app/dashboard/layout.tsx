@@ -52,7 +52,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ '--sidebar-width': '280px' } as React.CSSProperties}>
       <AppSidebar user={userData} />
       <SidebarInset>
         <DashboardHeader programmes={programmes} fullName={userData.fullName} />
