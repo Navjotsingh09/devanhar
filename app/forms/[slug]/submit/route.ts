@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { formSchema, formSummary, validSlug, validateAnswers } from '@/lib/roots-forms/schema'
+import { campDefinition, formSchema, formSummary, validSlug, validateAnswers } from '@/lib/roots-forms/schema'
 import { formsAdmin, paymentReady, readJson, sameOrigin } from '@/lib/roots-forms/server'
 export const dynamic='force-dynamic'
 export async function POST(request:Request,{params}:{params:Promise<{slug:string}>}){
@@ -12,7 +12,7 @@ export async function POST(request:Request,{params}:{params:Promise<{slug:string
   const client=formsAdmin(),{data:form,error}=await client.from('roots_forms').select('id,published_schema,published_version,accepting').eq('slug',slug).maybeSingle()
   if(error)return NextResponse.json({error:'This form is not ready to accept submissions. Please contact the Roots team.'},{status:503})
   if(!form?.published_schema||!form.accepting)return NextResponse.json({error:'This form is not accepting submissions.'},{status:409})
-  const schema=formSchema.parse(form.published_schema);let answers:Record<string,unknown>;try{answers=validateAnswers(schema,body.answers)}catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Check your answers.'},{status:400})}const summary=formSummary(schema,answers)
+  const schema=campDefinition(formSchema.parse(form.published_schema),slug);let answers:Record<string,unknown>;try{answers=validateAnswers(schema,body.answers)}catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Check your answers.'},{status:400})}const summary=formSummary(schema,answers)
   if(schema.payment.enabled&&!paymentReady())return NextResponse.json({error:'Payments are unavailable. Please contact the Roots team.'},{status:503})
   const ip=(request.headers.get('x-forwarded-for')||'unknown').split(',')[0].trim()
   const ipHash=createHmac('sha256',process.env.SUPABASE_SERVICE_ROLE_KEY!).update(ip).digest('hex')

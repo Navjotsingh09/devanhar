@@ -5,3 +5,5 @@
 .rf-secondary { background:#f0f1f4; color:#343b49; }.rf-secondary:hover{background:#e6e8ed}
 .rf-primary:disabled,.rf-secondary:disabled { opacity:.5; cursor:not-allowed; }
 .rf-label { display:block; font-size:12px; font-weight:500; color:#555e6e; }.rf-label .rf-input { margin-top:7px; }
+
+.rf-form :is(input, textarea, select, [role="alert"]) { scroll-margin-top: 160px; scroll-margin-bottom: 80px; }

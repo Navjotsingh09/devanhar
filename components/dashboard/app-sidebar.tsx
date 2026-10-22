@@ -5,7 +5,6 @@ import {
   Inbox,
   Phone,
   BriefcaseBusiness,
-  CircleDot,
   Users,
   Settings,
   LogOut,
@@ -64,7 +63,6 @@ type NavItem = {
 
 const managementNav: NavItem[] = [
   { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'SPA Operations', url: '/dashboard/padel', icon: Trophy },
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
@@ -81,15 +79,6 @@ const vidyalaNav: NavItem[] = [
   { title: 'Applications', url: '/dashboard/vidyala', icon: BookOpen },
   { title: 'Webinar Signups', url: '/dashboard/vidyala/webinar', icon: Video },
   { title: 'Interest Registrations', url: '/dashboard/vidyala/interest', icon: Users },
-]
-
-const padelNav: NavItem[] = [
-  { title: 'Entries', url: '/dashboard/padel', icon: CircleDot },
-  { title: 'Players', url: '/dashboard/padel/players', icon: Users },
-  { title: 'Tournaments', url: '/dashboard/padel/tournaments', icon: Trophy },
-  { title: 'Results', url: '/dashboard/padel/results', icon: ClipboardList },
-  { title: 'Rankings V2', url: '/dashboard/padel/rankings', icon: Trophy },
-  { title: 'Player identities', url: '/dashboard/padel/identities', icon: Shield },
 ]
 
 const rootsNav: NavItem[] = [
@@ -261,7 +250,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
           {!isVacanciesOnly && <SidebarGroup>
             <SidebarGroupLabel>Programmes</SidebarGroupLabel>
             <div className="space-y-1">
-              <ProgrammeGroup label="Sikh Padel Association" icon={CircleDot} items={padelNav} pathname={pathname} groupName="padel" />
               <ProgrammeGroup label="Roots Residential" icon={TreePine} items={rootsNav} pathname={pathname} groupName="roots" />
               <ProgrammeGroup label="Events" icon={CalendarDays} items={eventsNav} pathname={pathname} groupName="events" />
             </div>
