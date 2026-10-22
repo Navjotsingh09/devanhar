@@ -66,7 +66,10 @@ const initiatives = [
   },
 ]
 
-export function PlatformSection() {
+import type { PageSection } from '@/lib/cms/page-content'
+const icons = { Users, Heart, Globe, BookOpen, GraduationCap, School, Shield, House }
+export function PlatformSection({ content }: { content?: Extract<PageSection, { type: 'platform' }>['data'] } = {}) {
+  const items = content?.items.map(item => { const Icon = icons[item.icon as keyof typeof icons] || Users; return { ...item, icon: <Icon className="w-5 h-5" /> } }) ?? initiatives
   return (
     <section id="initiatives" className="pt-0 pb-16 md:pt-0 md:pb-32 bg-background">
       <div className="container mx-auto px-6 lg:px-12">
@@ -87,22 +90,18 @@ export function PlatformSection() {
               <div className="relative z-10 p-8 md:p-10 flex flex-col h-full justify-between">
                 <div>
                   <span className="inline-block text-[11px] font-bold tracking-[0.15em] text-primary/80 uppercase mb-4 border border-primary/30 rounded-full px-3 py-1">
-                    OUR APPROACH TO GROWTH
+                    {content?.eyebrow ?? "OUR APPROACH TO GROWTH"}
                   </span>
                   <h3 className="text-3xl md:text-4xl font-bold leading-[1.15] mb-4">
-                    Devanhaar Projects
+                    {content?.heading ?? "Devanhaar Projects"}
                   </h3>
                   <p className="text-white/60 text-[15px] leading-relaxed max-w-md">
-                    Devanhaar is dedicated to inspiring individuals on their
-                    spiritual journey. We take a holistic approach to engage
-                    members at every stage of life, offering guidance, learning
-                    opportunities, and community support to nurture personal
-                    growth, development, and connection to Sikh values.
+                    {content?.description ?? "Devanhaar is dedicated to inspiring individuals on their spiritual journey. We take a holistic approach to engage members at every stage of life, offering guidance, learning opportunities, and community support to nurture personal growth, development, and connection to Sikh values."}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-8">
-                  {["Camps", "Education", "Leadership", "Community", "Youth", "Parchaar"].map(
+                  {(content?.tags ?? ["Camps", "Education", "Leadership", "Community", "Youth", "Parchaar"]).map(
                     (tag) => (
                       <span
                         key={tag}
@@ -120,7 +119,7 @@ export function PlatformSection() {
           {/* Right: Scrolling initiative list */}
           <div className="lg:col-span-7">
             <div className="divide-y divide-border/60">
-              {initiatives.map((item) => (
+              {items.map((item) => (
                 <Link
                   key={item.title}
                   href={item.href}

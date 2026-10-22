@@ -25,18 +25,30 @@ and verified work; it is not an acceptance sign-off.
 
 ## Verification
 
-365 production checks and 439 staging checks pass. A separate parity check compared the
+401 production checks pass after the homepage/page builder increment. The preceding staging checkpoint had 442 passing checks. A separate parity check compared the
 current production SFI page with the new default renderer. Database transactions
 verified real role boundaries and the assignment hierarchy, then rolled back all
 temporary fixtures and role changes. No public page content was saved/published
 as a test. Logged-in browser acceptance testing still requires a staff session.
 
+## Homepage and new pages
+
+- Homepage default content preserves its existing text, images, links, FAQs and native layouts.
+- Hero, pillars, project list, impact/insights headings, Instagram copy and FAQs are editable.
+- Existing registration notices still use registration windows, including the Roots link.
+- Admins create new pages under /pages/<slug> without replacing existing routes.
+- Nine reusable section types: hero, text, image/text, cards, CTA, FAQ, gallery, testimonials and buttons.
+- Add/remove/reorder/hide sections; immutable saved drafts, same-renderer responsive preview and explicit publish.
+- Earlier revisions can be restored into a new draft, subject to the same assignment and concurrency checks.
+- Content Managers see only assigned saved CMS pages. New page creation remains Admin/Super Admin only.
+- Navigation/footer, live Instagram source and article data remain in their existing shared systems.
+- No production content was changed. A real database draft-creation transaction passed and rolled back with zero persisted test pages.
+
 ## Remaining brief scope
 
-General page/section editor, homepage builder, project content CMS, reusable events
+Migrating the remaining existing page layouts, project content CMS, reusable events
 manager, scheduled announcements/notifications, full media library, reusable FAQs,
-global branding/SEO/navigation/settings, general create permissions, broad content
-version restoration, article draft/live separation and the full acceptance matrix
+global branding/SEO/navigation/settings, general create permissions, version restoration across other content types, article draft/live separation and the full acceptance matrix
 remain separate implementation work. The primary Submissions screen now loads only one 25-row dataset and does not
 call Stripe. Existing bulk camp/payment workflows remain available explicitly
 under Advanced operations; that legacy console still performs heavier work.

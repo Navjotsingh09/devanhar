@@ -86,7 +86,8 @@ function RollingNumber({ value, suffix = "+" }: { value: number; suffix?: string
   )
 }
 
-export function ProjectsSection() {
+import type { PageSection } from '@/lib/cms/page-content'
+export function ProjectsSection({ content }: { content?: Extract<PageSection, { type: 'impact' }>['data'] } = {}) {
   const [activeTab, setActiveTab] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -105,11 +106,11 @@ export function ProjectsSection() {
       <section id="projects" className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-6 lg:px-12">
           <h2 data-animate className="text-3xl md:text-5xl font-bold text-foreground mb-16">
-            Our Key Initiatives
+            {content?.heading ?? "Our Key Initiatives"}
           </h2>
 
           <div data-animate-stagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {partners.map((p, i) => (
+            {(content?.items ?? partners).map((p, i) => (
               <div
                 key={i}
                 className="rounded-2xl border border-border bg-card overflow-hidden"
@@ -166,9 +167,9 @@ export function ProjectsSection() {
           <div className="flex items-start justify-between mb-10">
             <div>
               <h2 className="text-3xl md:text-5xl font-bold text-foreground">
-                Insights
+                {content?.insightsHeading ?? "Insights"}
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">Charity Number: 1203393</p>
+              <p className="text-sm text-muted-foreground mt-1">{content?.insightsSubtitle ?? "Charity Number: 1203393"}</p>
             </div>
             <div className="hidden md:flex items-center gap-2">
               <button

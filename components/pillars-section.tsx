@@ -27,21 +27,24 @@ const pillars = [
   },
 ]
 
-export function PillarsSection() {
+import type { PageSection } from '@/lib/cms/page-content'
+const icons = { Lightbulb, Flame, TrendingUp, Handshake }
+export function PillarsSection({ content }: { content?: Extract<PageSection, { type: 'pillars' }>['data'] } = {}) {
+  const items = content?.items.map(item => { const Icon = icons[item.icon as keyof typeof icons] || Lightbulb; return { ...item, icon: <Icon className="w-6 h-6" /> } }) ?? pillars
   return (
     <section className="pt-16 pb-8 md:pt-32 md:pb-16 bg-background border-t border-border/50">
       <div className="container mx-auto px-6 lg:px-12">
         <div data-animate className="text-center mb-10 md:mb-16">
           <span className="inline-block text-[11px] font-bold tracking-[0.15em] text-primary/80 uppercase mb-4 border border-primary/30 rounded-full px-3 py-1">
-            Our Pillars
+            {content?.eyebrow ?? "Our Pillars"}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground">
-            Develop. Elevate. Empower. Connect.
+            {content?.heading ?? "Develop. Elevate. Empower. Connect."}
           </h2>
         </div>
 
         <div data-animate-stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          {pillars.map((pillar) => (
+          {items.map((pillar) => (
             <div
               key={pillar.title}
               className="group relative rounded-2xl border border-border bg-card p-5 md:p-8 hover:border-primary/30 transition-all duration-300"

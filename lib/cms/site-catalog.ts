@@ -1,6 +1,6 @@
 /** Canonical public content pages; aliases and transactional screens are excluded. */
 export const sitePages = [
-  { title: 'Home', path: '/', area: 'Organisation' },
+  { title: 'Home', path: '/', area: 'Organisation', editor: '/dashboard/website/pages/home' },
   { title: 'About Devanhaar', path: '/about', area: 'Organisation' },
   { title: 'Team', path: '/team', area: 'Organisation' },
   { title: 'Contact', path: '/contact', area: 'Organisation' },
