@@ -1,5 +1,7 @@
 'use client'
 
+import { NavigationPending } from './navigation-pending'
+
 import {
   LayoutDashboard,
   Inbox,
@@ -142,9 +144,10 @@ function SimpleNav({
               (item.url !== '/dashboard' && pathname.startsWith(item.url + '/'))
             }
           >
-            <Link href={item.url}>
+            <Link href={item.url} prefetch={false}>
               <item.icon className="h4 w4" />
               <span>{item.title}</span>
+              <NavigationPending />
               {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
             </Link>
           </SidebarMenuButton>
