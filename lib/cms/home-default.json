@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "title": "Home",
+  "seo": {
+    "title": "Devanhaar | Create, Develop, Empower",
+    "description": "A Sikh-led charity creating educational and community spaces for learning, growth, and service across the UK, Europe, and beyond.",
+    "noIndex": false
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "type": "homeHero",
+      "hidden": false,
+      "data": {
+        "before": "Develop. Elevate.",
+        "highlight": "Empower.",
+        "after": "Connect.",
+        "description": "A UK-based charity empowering generations through Sikh values, knowledge, and spiritual growth.",
+        "primary": {
+          "label": "Learn More",
+          "href": "/about"
+        },
+        "secondary": {
+          "label": "Get Involved",
+          "href": "/#contact"
+        },
+        "slides": [
+          {
+            "subtitle": "Empowering Communities",
+            "image": "/hero-slide-1.jpg"
+          },
+          {
+            "subtitle": "Building Together",
+            "image": "/hero-slide-2.jpg"
+          },
+          {
+            "subtitle": "Creating Change",
+            "image": "/hero-slide-3.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pillars",
+      "type": "pillars",
+      "hidden": false,
+      "data": {
+        "eyebrow": "Our Pillars",
+        "heading": "Develop. Elevate. Empower. Connect.",
+        "items": [
+          {
+            "title": "Develop",
+            "description": "Develop skills, character, and foundations for generational success.",
+            "icon": "Lightbulb"
+          },
+          {
+            "title": "Elevate",
+            "description": "Raise ambition, standards, and impact in every area of life.",
+            "icon": "TrendingUp"
+          },
+          {
+            "title": "Empower",
+            "description": "Provide confidence rooted in identity, values, and self-belief.",
+            "icon": "Flame"
+          },
+          {
+            "title": "Connect",
+            "description": "Create lifelong relationships centred in community, mentorship, and shared growth.",
+            "icon": "Handshake"
+          }
+        ]
+      }
+    },
+    {
+      "id": "platform",
+      "type": "platform",
+      "hidden": false,
+      "data": {
+        "eyebrow": "OUR APPROACH TO GROWTH",
+        "heading": "Devanhaar Projects",
+        "description": "Devanhaar is dedicated to inspiring individuals on their spiritual journey. We take a holistic approach to engage members at every stage of life, offering guidance, learning opportunities, and community support to nurture personal growth, development, and connection to Sikh values.",
+        "tags": [
+          "Camps",
+          "Education",
+          "Leadership",
+          "Community",
+          "Youth",
+          "Parchaar"
+        ],
+        "items": [
+          {
+            "title": "Singhs Camps",
+            "description": "The first UK & Europe retreats exclusively for Male Adult Sikhs at any stage of their spiritual journey.",
+            "icon": "Users",
+            "href": "/initiatives/singhs-camp"
+          },
+          {
+            "title": "Kaurs Camps",
+            "description": "An everlasting sisterhood, grounded in a yearly retreat, with the aim of connecting sangat to spiritual growth, shared learning, and a supportive community.",
+            "icon": "Heart",
+            "href": "/initiatives/kaurs-camp"
+          },
+          {
+            "title": "Kids Camps",
+            "description": "Bespoke camps around the UK that are tailored to engage with youth in an interactive, fun and memorable way.",
+            "icon": "Globe",
+            "href": "/initiatives/kids-camps"
+          },
+          {
+            "title": "Sikh Family Initiative",
+            "description": "Bringing families together through retreats, shared experiences and community events, with Sikhi at the heart of everything we do.",
+            "icon": "House",
+            "href": "/sfi"
+          },
+          {
+            "title": "Sikhi Vidyala",
+            "description": "An educational institution providing knowledge on Sikh history, philosophy and teachings. Originally started by Bhai Jagraj Singh.",
+            "icon": "BookOpen",
+            "href": "/initiatives/sikhi-vidyala"
+          },
+          {
+            "title": "University Projects",
+            "description": "Uni Talk Series crisscrossing the UK, delving into 'The Essence of Sikhi' and supporting Sikh students at a defining time.",
+            "icon": "GraduationCap",
+            "href": "/initiatives/university-projects"
+          },
+          {
+            "title": "Gurmat Academy",
+            "description": "A space for young students to develop their Sikhi through Gurbani Santhiya, Ithihaas, philosophy and Seva.",
+            "icon": "School",
+            "href": "/initiatives/gurmat-academy"
+          },
+          {
+            "title": "Self Defence Academy",
+            "description": "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
+            "icon": "Shield",
+            "href": "/initiatives/self-defence-academy"
+          },
+          {
+            "title": "Sikh Professional Network",
+            "description": "A platform connecting Sikh professionals across industries for mentorship, career development, and collaborative growth.",
+            "icon": "Users",
+            "href": "/initiatives/sikh-professional-network"
+          }
+        ]
+      }
+    },
+    {
+      "id": "projects",
+      "type": "impact",
+      "hidden": false,
+      "data": {
+        "heading": "Our Key Initiatives",
+        "insightsHeading": "Insights",
+        "insightsSubtitle": "Charity Number: 1203393",
+        "items": [
+          {
+            "badge": "Develop",
+            "name": "Develop",
+            "location": "UK Wide",
+            "metricLabel": "Hours of workshops delivered",
+            "numericValue": 1000,
+            "image": "/images/pillars/develop.jpg"
+          },
+          {
+            "badge": "Elevate",
+            "name": "Elevate",
+            "location": "UK Wide",
+            "metricLabel": "Futures Supported",
+            "numericValue": 20000,
+            "image": "/images/pillars/elevate.jpg"
+          },
+          {
+            "badge": "Empower",
+            "name": "Empower",
+            "location": "UK Wide",
+            "metricLabel": "Youth Empowered",
+            "numericValue": 400,
+            "image": "/images/pillars/empower.jpg"
+          },
+          {
+            "badge": "Connect",
+            "name": "Connect",
+            "location": "UK Wide",
+            "metricLabel": "Events Annually",
+            "numericValue": 50,
+            "image": "/images/pillars/connect.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "social",
+      "type": "social",
+      "hidden": false,
+      "data": {
+        "eyebrow": "Follow Us",
+        "heading": "Latest from Instagram",
+        "description": "Stay up to date with our latest events, camps, and community moments.",
+        "buttonLabel": "Follow @devanhaar"
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "hidden": false,
+      "data": {
+        "heading": "Frequently Asked Questions",
+        "subheading": "Find answers to common questions below",
+        "items": [
+          {
+            "question": "What is Devanhaar?",
+            "answer": "Devanhaar is a UK-based Sikh charity that empowers young Sikhs through educational camps, university talks, Gurmat academies, and community-building projects. Our mission is to develop, empower, elevate and connect."
+          },
+          {
+            "question": "How can I get involved with Devanhaar?",
+            "answer": "There are many ways to contribute — you can volunteer as a sevadaar at our camps, attend our university talks, enrol in Sikhi Vidyala, donate to support our projects, or simply spread the word to your Sangat."
+          },
+          {
+            "question": "Are Devanhaar events open to everyone?",
+            "answer": "Yes, our events and projects are open to all Sikhs regardless of background, experience, or level of practice. We create inclusive, welcoming spaces for everyone on their journey."
+          },
+          {
+            "question": "How are donations used?",
+            "answer": "Every donation directly supports our projects — from Singhs Camps and university programmes to Sikhi Vidyala and community outreach. We are transparent about how funds are allocated across our projects."
+          },
+          {
+            "question": "Where is Devanhaar based?",
+            "answer": "Devanhaar is a registered UK-based charity. We run projects across the UK, with camps, talks and programmes held at various locations nationwide."
+          }
+        ]
+      }
+    }
+  ]
+}
