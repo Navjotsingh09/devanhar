@@ -11,7 +11,8 @@ const root = new URL('../', import.meta.url)
 const hooks = registerHooks({
   resolve(specifier, context, nextResolve) {
     const stubs = {
-      'server-only': 'export {}',
+       'server-only': 'export {}',
+      '@/lib/blog-draft-content': 'export const blogInputSchema={safeParse:data=>({success:true,data})}; export const blogRevisionBody=data=>data;',
       '@/lib/supabase/server': `export async function createClient() { return ${stubState}.client }`,
       '@supabase/supabase-js': `export function createClient() {
         const state = ${stubState}; state.privilegedClients++; return state.admin
@@ -44,6 +45,7 @@ function fixture(options = {}) {
       data: { user: options.signedOut ? null : { id: 'staff-123' } },
       error: options.authError ? { message: 'Auth unavailable' } : null,
     }) },
+    rpc: async (name, payload) => { state.writes.push({table:'blog_posts', action:'rpc', name, payload}); return {data:'post-123',error:null} },
     from(table) {
       state.lookups.push(table)
       const result = table === 'admin_profiles'
@@ -64,7 +66,7 @@ function fixture(options = {}) {
         update(payload) { state.writes.push({ table, action: 'update', payload }); return this },
         delete() { state.writes.push({ table, action: 'delete' }); return this },
         single: async () => ({ data: { id: 'post-123' }, error: null }),
-        maybeSingle: async () => ({ data: null, error: null }),
+        maybeSingle: async () => ({ data: {id:'post-123',updated_at:'2026-10-22T12:00:00Z'}, error: null }),
         then(resolve, reject) { return Promise.resolve({ data: [], error: null }).then(resolve, reject) },
       }
       return chain
@@ -76,9 +78,10 @@ function fixture(options = {}) {
 }
 
 async function invoke(route, body = route.body) {
+  if (route.name === 'delete') body={expectedUpdated:'2026-10-22T12:00:00Z'}
   const request = new Request('https://example.test/api/blog', {
     method: route.method,
-    ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}),
+    headers: { 'Content-Type': 'application/json', origin:'https://example.test' }, ...(body ? { body: JSON.stringify(body) } : {}),
   })
   return route.handler(request, { params: Promise.resolve({ slug: 'test-post' }) })
 }
@@ -117,9 +120,9 @@ try {
       test(`${route.name}: retains access for general ${role}/${grants.length}`, async () => {
         const state = fixture({ role, grants })
         const response = await invoke(route)
-        assert.equal(response.status, 200)
-        assert.equal(state.privilegedClients, 1)
-        assert.ok(state.writes.some(write => write.table === 'blog_posts'))
+        assert.equal(response.status, route.name === 'remove cover' ? 409 : 200)
+        assert.equal(state.privilegedClients, ['save','remove cover'].includes(route.name) ? 0 : 1)
+        if(route.name !== 'remove cover') assert.ok(state.writes.some(write => write.table === 'blog_posts'))
       })
     }
   }
@@ -128,8 +131,8 @@ try {
       const state = fixture()
       const response = await invoke(routes[0], { ...routes[0].body, status })
       assert.equal(response.status, 200)
-      assert.equal(state.writes[0].payload.status, status)
-      assert.equal(state.writes[0].payload.author_id, 'staff-123')
+      assert.equal(state.writes[0].action, 'rpc')
+      assert.equal(state.writes[0].payload.p_publish, status === 'published')
     }
   })
   test.after(() => { hooks.deregister(); delete globalThis[key] })

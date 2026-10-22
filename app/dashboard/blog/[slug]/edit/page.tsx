@@ -5,6 +5,6 @@ import { getDashboardBlogPostBySlug } from "@/lib/blog-db"
 export default async function EditBlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = await getDashboardBlogPostBySlug(slug)
-  if (!post) notFound()
-  return <BlogEditor initialPost={post} />
+  if (!post || post.archived) notFound()
+  return <BlogEditor key={post.updatedAt} initialPost={post} />
 }

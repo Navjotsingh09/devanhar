@@ -149,3 +149,19 @@ export async function restorePageRevision(slug: string, revisionId: string, expe
   if (error || !content) throw new CmsError('This revision cannot be restored.', 404)
   await changePageContent(slug, 'save', content, expected)
 }
+
+export async function changePageVisibility(slug: string, action: 'discard' | 'unpublish', expected: SfiHead) {
+  const { page, db, user } = await pageContext(slug, action === 'unpublish' ? 'publish' : 'edit')
+  if (!page || !sameHead(page, expected)) throw new CmsError('Someone changed this page. Reload before continuing.', 409)
+  if (action === 'unpublish' && !slug.startsWith('page-')) throw new CmsError('The homepage cannot be unpublished here.', 400)
+  if (action === 'discard' && !page.draft_revision_id) throw new CmsError('There is no draft to discard.', 409)
+  if (action === 'unpublish' && !page.published_revision_id) throw new CmsError('This page is not published.', 409)
+  const changes = action === 'discard' ? { draft_revision_id: null } : { published_revision_id: null, draft_revision_id: page.draft_revision_id || page.published_revision_id }
+  let query = db.from('cms_pages').update({ ...changes, updated_by: user.id, updated_at: new Date().toISOString() }).eq('id', page.id)
+  query = expected.draftId ? query.eq('draft_revision_id', expected.draftId) : query.is('draft_revision_id', null)
+  query = expected.publishedId ? query.eq('published_revision_id', expected.publishedId) : query.is('published_revision_id', null)
+  const { data, error } = await query.select('id').maybeSingle()
+  if (error) throw new CmsError('The page could not be updated.', 503)
+  if (!data) throw new CmsError('Someone changed this page. Reload before continuing.', 409)
+  await db.from('activity_log').insert({ admin_id: user.id, action: action === 'discard' ? 'Discarded page draft' : 'Unpublished page', entity_type: 'cms_page', entity_id: page.id, metadata: { previous_draft: page.draft_revision_id, previous_published: page.published_revision_id } })
+}
