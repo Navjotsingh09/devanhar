@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 import { findProjectSpace } from '@/lib/project-spaces'
 
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -50,7 +52,7 @@ export function DashboardHeader({ programmes = [], fullName = '' }: { programmes
         <BreadcrumbList>
           <BreadcrumbItem>
             {isSubRoute ? (
-              <BreadcrumbLink href={programmeHome(programmes)}>Dashboard</BreadcrumbLink>
+              <BreadcrumbLink asChild><Link href={programmeHome(programmes)} prefetch={false}>Dashboard</Link></BreadcrumbLink>
             ) : (
               <BreadcrumbPage>Overview</BreadcrumbPage>
             )}
