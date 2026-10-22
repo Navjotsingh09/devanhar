@@ -172,7 +172,7 @@ function ProgrammeGroup({
   )
 }
 
-export function AppSidebar({ user, websiteEnabled = false }: AppSidebarProps & { websiteEnabled?: boolean }) {
+export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = false }: AppSidebarProps & { websiteEnabled?: boolean; formBuilderEnabled?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const [query, setQuery] = useState('')
@@ -244,7 +244,7 @@ export function AppSidebar({ user, websiteEnabled = false }: AppSidebarProps & {
                 { title: 'Overview', url: projectSpacePath(space), icon: LayoutDashboard },
                 ...(space.children || []).map(child => ({ title: child.title, url: projectSpacePath(child), icon: BookOpen })),
                 ...(space.tools || []).map(tool => ({ ...tool, icon: ClipboardList })),
-                ...(websiteEnabled && space.id === 'roots-residential' ? [{ title: 'Form builder', url: '/dashboard/roots/forms', icon: ClipboardList }] : []),
+                ...(formBuilderEnabled && space.id === 'roots-residential' ? [{ title: 'Form builder', url: '/dashboard/roots/forms', icon: ClipboardList }] : []),
               ]} pathname={pathname} groupName={space.id} open={!!search || openGroup === space.id} onOpenChange={open => setGroup(space.id, open)} />)}
             </div>
           </SidebarGroup>
