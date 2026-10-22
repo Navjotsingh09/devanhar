@@ -37,7 +37,8 @@ const routeLabels: Record<string, string> = {
 
 export function DashboardHeader({ programmes = [], fullName = '' }: { programmes?: StaffProgramme[]; fullName?: string }) {
   const pathname = usePathname()
-  const currentLabel = routeLabels[pathname] || (pathname.startsWith('/dashboard/projects/') ? findProjectSpace(pathname.split('/')[3])?.space.title : undefined) || 'Dashboard'
+  const responseLabel = /\/roots\/forms\/[^/]+\/responses\/[^/]+$/.test(pathname) ? 'Response details' : /\/roots\/forms\/[^/]+\/responses$/.test(pathname) ? 'Form responses' : undefined
+  const currentLabel = responseLabel || routeLabels[pathname] || (pathname.startsWith('/dashboard/projects/') ? findProjectSpace(pathname.split('/')[3])?.space.title : undefined) || 'Dashboard'
   const isSubRoute = pathname !== '/dashboard'
 
   return (

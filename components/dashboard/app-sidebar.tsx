@@ -1,10 +1,16 @@
 'use client'
 
+import { activeNavigationPath } from '@/lib/dashboard-navigation-access'
 import { projectSpaces, projectSpacePath } from '@/lib/project-spaces'
 
 import { AccessNavigationItem, SidebarAccessProvider, useSidebarAccess } from './sidebar-access'
 
 import {
+  Tent,
+  GraduationCap,
+  MessagesSquare,
+  Network,
+  Baby,
   LayoutDashboard,
   Inbox,
   Phone,
@@ -65,6 +71,16 @@ type NavItem = {
   adminOnly?: boolean
 }
 
+const projectIcons: Record<string, NavItem['icon']> = {
+  'singhs-camp': Tent, 'kaurs-camp': Tent, 'kids-camps': Baby,
+  'roots-residential': TreePine, 'sikh-family-initiative': Users,
+  'sikhi-vidyala': BookOpen, 'sikh-professional-network': BriefcaseBusiness,
+  'university-projects': GraduationCap, 'khalsa-catalyst': Shield,
+  'gurmat-academy': BookOpen, 'punjab-education-support': GraduationCap,
+  'self-defence-academy': Shield, forums: MessagesSquare, sweb3: Network,
+  newsletter: Newspaper, wolfrun: Trophy,
+}
+
 const managementNav: NavItem[] = [
   { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
@@ -106,7 +122,7 @@ function SimpleNav({
     <SidebarMenu>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <AccessNavigationItem title={item.title} url={item.url} icon={item.icon} active={pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(item.url + '/'))} />
+          <AccessNavigationItem title={item.title} url={item.url} icon={item.icon} active={activeNavigationPath(pathname,items.map(item=>item.url))===item.url} />
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
@@ -135,10 +151,10 @@ function ProgrammeGroup({
   return (
     <Collapsible defaultOpen={isCurrent} className={`group/${groupName}`}>
       <CollapsibleTrigger asChild>
-        <SidebarGroupLabel className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2 hover:bg-sidebar-accent/60">
+        <SidebarGroupLabel className="!h-auto !min-h-9 !text-xs flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2 hover:bg-sidebar-accent/60">
           <span className="flex min-w-0 items-center gap-2">
             <Icon className="h3.5 w3.5 shrink-0" />
-            <span className="truncate">{label}</span>
+            <span className="min-w-0 whitespace-normal leading-snug">{label}</span>
             {locked && <><Lock aria-hidden="true" className="h-3 w-3 shrink-0 text-muted-foreground" /><span className="sr-only">Restricted</span></>}
           </span>
           <ChevronDown className={`h3.5 w3.5 shrink-0 transition-transform ${isCurrent ? '' : ''} group-data-[state=open]/${groupName}:rotate-180`} />
@@ -214,7 +230,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               Projects & programmes
             </SidebarGroupLabel>
             <div className="space-y-1">
-              {projectSpaces.map(space => <ProgrammeGroup key={space.id} label={space.title} icon={space.id === 'roots-residential' ? TreePine : space.id === 'wolfrun' ? Trophy : BookOpen} items={[
+              {projectSpaces.map(space => <ProgrammeGroup key={space.id} label={space.title} icon={projectIcons[space.id] || BookOpen} items={[
                 { title: 'Overview', url: projectSpacePath(space), icon: LayoutDashboard },
                 ...(space.children || []).map(child => ({ title: child.title, url: projectSpacePath(child), icon: BookOpen })),
                 ...(space.tools || []).map(tool => ({ ...tool, icon: ClipboardList })),

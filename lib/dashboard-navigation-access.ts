@@ -15,3 +15,8 @@ export function canOpenDashboardSection(path: string, account: NavigationAccount
   if (path === '/dashboard/website/sfi' || path.startsWith('/dashboard/website/sfi/')) return account.canEditSfi === true
   return true
 }
+
+/** Select just the deepest matching destination in a group. */
+export function activeNavigationPath(pathname: string, destinations: string[]) {
+  return destinations.filter(path => pathname === path || (path !== '/dashboard' && pathname.startsWith(path + '/'))).sort((a,b)=>b.length-a.length)[0]
+}
