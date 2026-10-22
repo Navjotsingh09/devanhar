@@ -1,5 +1,7 @@
 'use client'
 
+import { findProjectSpace } from '@/lib/project-spaces'
+
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -50,7 +52,7 @@ const routeLabels: Record<string, string> = {
 export function DashboardHeader({ programmes = [], fullName = '' }: { programmes?: StaffProgramme[]; fullName?: string }) {
   const pathname = usePathname()
   const parentPath = Object.keys(routeLabels).filter(path => path !== '/dashboard' && pathname.startsWith(path + '/')).sort((a, b) => b.length - a.length)[0]
-  const currentLabel = routeLabels[pathname] || (parentPath ? routeLabels[parentPath] + ' · Details' : 'Workspace')
+  const currentLabel = routeLabels[pathname] || (pathname.startsWith('/dashboard/projects/') ? findProjectSpace(pathname.split('/')[3])?.space.title : undefined) || (parentPath ? routeLabels[parentPath] + ' · Details' : 'Workspace')
   const isSubRoute = pathname !== '/dashboard'
 
   return (

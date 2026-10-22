@@ -1,5 +1,7 @@
 'use client'
 
+import { projectSpaces, projectSpacePath } from '@/lib/project-spaces'
+
 import {
   LayoutDashboard,
   Inbox,
@@ -66,28 +68,6 @@ const managementNav: NavItem[] = [
   { title: 'Submissions', url: '/dashboard/submissions', icon: Inbox },
   { title: 'Emergency Line', url: '/dashboard/emergency', icon: Phone },
   { title: 'Vacancies', url: '/dashboard/vacancies', icon: BriefcaseBusiness },
-]
-
-const familyInitiativeNav: NavItem[] = [
-  { title: 'Family overview', url: '/dashboard/family-initiative', icon: LayoutDashboard },
-  { title: 'Sikh Family Retreat', url: '/dashboard/family-initiative/retreat', icon: Users },
-  { title: 'Sikh Family Extravaganza', url: '/dashboard/family-initiative/extravaganza', icon: CalendarDays },
-  { title: 'Wedding Fair', url: '/dashboard/family-initiative/wedding-fair', icon: Users },
-]
-
-const vidyalaNav: NavItem[] = [
-  { title: 'Applications', url: '/dashboard/vidyala', icon: BookOpen },
-  { title: 'Webinar Signups', url: '/dashboard/vidyala/webinar', icon: Video },
-  { title: 'Interest Registrations', url: '/dashboard/vidyala/interest', icon: Users },
-]
-
-const rootsNav: NavItem[] = [
-  { title: 'Roots Bookings', url: '/dashboard/roots', icon: TreePine },
-]
-
-const eventsNav: NavItem[] = [
-  { title: 'Wolf Run Fundraisers', url: '/dashboard/wolfrun', icon: Trophy },
-  { title: 'Wolf Run Runners', url: '/dashboard/wolfrun-runners', icon: Users },
 ]
 
 const operationsNav: NavItem[] = [
@@ -222,14 +202,14 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarGroupContent><SimpleNav items={managementItems} pathname={pathname} /></SidebarGroupContent>
           </SidebarGroup>
           <SidebarGroup>
-            <SidebarGroupLabel>Programmes</SidebarGroupLabel>
+            <SidebarGroupLabel>Projects & programmes</SidebarGroupLabel>
             <div className="space-y-1">
-              <ProgrammeGroup label="Sikh Family Initiative" icon={Users} items={familyInitiativeNav} pathname={pathname} groupName="family" />
-              <ProgrammeGroup label="Sikhi Vidyala" icon={BookOpen} items={vidyalaNav} pathname={pathname} groupName="vidyala" />
-              <ProgrammeGroup label="Kaurs" icon={Users} items={[{ title: 'Kaurs', url: '/dashboard/kaurs', icon: Users }]} pathname={pathname} groupName="kaurs" />
-              <ProgrammeGroup label="Monthly Newsletter" icon={Newspaper} items={[{ title: 'Newsletter', url: '/dashboard/newsletter', icon: Newspaper }]} pathname={pathname} groupName="newsletter" />
-              <ProgrammeGroup label="Roots Residential" icon={TreePine} items={rootsNav} pathname={pathname} groupName="roots" />
-              <ProgrammeGroup label="Events" icon={CalendarDays} items={eventsNav} pathname={pathname} groupName="events" />
+              {projectSpaces.map(space => <ProgrammeGroup key={space.id} label={space.title} icon={space.id === 'roots-residential' ? TreePine : space.id === 'wolfrun' ? Trophy : BookOpen} items={[
+                { title: 'Overview', url: projectSpacePath(space), icon: LayoutDashboard },
+                ...(space.children || []).map(child => ({ title: child.title, url: projectSpacePath(child), icon: BookOpen })),
+                ...(space.tools || []).map(tool => ({ ...tool, icon: ClipboardList })),
+                ...(space.id === 'roots-residential' ? [{ title: 'Form builder', url: '/dashboard/roots/forms', icon: ClipboardList }] : []),
+              ]} pathname={pathname} groupName={space.id} />)}
             </div>
           </SidebarGroup>
           <SidebarGroup>
