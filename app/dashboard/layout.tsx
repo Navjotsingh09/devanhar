@@ -22,7 +22,7 @@ export default async function DashboardLayout({
   const role = profile?.role || 'staff'
   const { data: grants, error: grantError } = grantResult
   if (grantError) redirect('/auth/login?error=access_check_failed')
-  const programmes = ['admin','super_admin'].includes(role) ? [] : (grants || []).map(row => row.programme) as StaffProgramme[]
+  const programmes = ['admin','super_admin','content_manager'].includes(role) ? [] : (grants || []).map(row => row.programme) as StaffProgramme[]
   if (!profile) {
     const { data: member } = await supabase.from('spa_members').select('user_id')
       .eq('user_id', user.id).eq('is_active', true).maybeSingle()
