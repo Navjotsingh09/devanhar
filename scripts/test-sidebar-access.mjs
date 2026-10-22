@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import fs from 'node:fs'
+import vm from 'node:vm'
+import ts from 'typescript'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { createRequire } from 'node:module'
+const require=createRequire(import.meta.url)
+function load(path,modules={}){const module={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path,'utf8'),{fileName:path,compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,{module,exports:module.exports,require:n=>n in modules?modules[n]:require(n)});return module.exports}
+const programme=load('lib/staff-programme-access.ts')
+const access=load('lib/dashboard-navigation-access.ts',{'./staff-programme-access':programme})
+const paths=['/dashboard','/dashboard/submissions','/dashboard/emergency','/dashboard/vacancies','/dashboard/roots','/dashboard/wolfrun','/dashboard/recovery-payments','/dashboard/website','/dashboard/blog','/dashboard/products','/dashboard/orders','/dashboard/family-initiative','/dashboard/vidyala','/dashboard/kaurs','/dashboard/newsletter','/dashboard/users','/dashboard/settings','/dashboard/website/sfi']
+for(const grants of [[],['family'],['vidyala'],['kaurs'],['newsletter'],['family','vidyala']])for(const role of ['staff','admin','super_admin','vacancies_only','content_manager'])test(`navigation never opens routes beyond server programme and role boundary: ${role}/${grants.join(',')}`,()=>{for(const path of paths){const allowed=access.canOpenDashboardSection(path,{role,programmes:grants});if(allowed){assert.equal(programme.canVisitDashboard(path,grants),true);if(role==='vacancies_only')assert.equal(path,'/dashboard/vacancies');if(['/dashboard/users','/dashboard/settings'].includes(path))assert.ok(['admin','super_admin'].includes(role))}}})
+test('multiple programme assignments preserve each assigned section',()=>{const user={role:'programme_manager',programmes:['family','vidyala']};for(const p of ['/dashboard/family-initiative/retreat','/dashboard/vidyala/webinar'])assert.equal(access.canOpenDashboardSection(p,user),true);for(const p of ['/dashboard/roots','/dashboard/kaurs','/dashboard/users'])assert.equal(access.canOpenDashboardSection(p,user),false)})
+test('admin-only sections remain locked for ordinary staff',()=>{for(const p of ['/dashboard/users','/dashboard/users/record','/dashboard/settings']){assert.equal(access.canOpenDashboardSection(p,{role:'staff'}),false);assert.equal(access.canOpenDashboardSection(p,{role:'admin'}),true)}})
+test('SFI editor needs verified assignment and never bypasses programme scope',()=>{assert.equal(access.canOpenDashboardSection('/dashboard/website/sfi',{role:'content_manager'}),false);assert.equal(access.canOpenDashboardSection('/dashboard/website/sfi',{role:'content_manager',canEditSfi:true}),true);assert.equal(access.canOpenDashboardSection('/dashboard/website/sfi',{role:'admin',canEditSfi:true,programmes:['family']}),false)})
+test('unknown roles and external destinations remain locked',()=>{assert.equal(access.canOpenDashboardSection('/dashboard',{role:'unknown'}),false);assert.equal(access.canOpenDashboardSection('https://example.org',{role:'admin'}),false)})
+function menuButton({asChild,isActive,children,...props}){return asChild?React.cloneElement(children,props):React.createElement('button',props,children)}
+const Link=({prefetch,children,...props})=>React.createElement('a',props,children)
+const dummy=({children})=>React.createElement('div',null,children)
+const Dialog=({open,children})=>open?React.createElement('div',null,children):null
+const ui=load('components/dashboard/sidebar-access.tsx',{'next/link':{default:Link},'@/components/ui/dialog':{Dialog,DialogContent:dummy,DialogDescription:dummy,DialogHeader:dummy,DialogTitle:dummy},'@/components/ui/sidebar':{SidebarMenuButton:menuButton},'@/lib/dashboard-navigation-access':access,'./navigation-pending':{NavigationPending:()=>null}})
+const Icon=()=>React.createElement('span',null)
+const render=(account,url)=>renderToStaticMarkup(React.createElement(ui.SidebarAccessProvider,{account},React.createElement(ui.AccessNavigationItem,{title:'Section',url,icon:Icon,active:false})))
+test('restricted navigation is a labelled button with no href',()=>{const html=render({role:'staff',programmes:['family']},'/dashboard/roots');assert.match(html,/data-locked="true"/);assert.match(html,/aria-label="Section \(restricted\)"/);assert.match(html,/<button/);assert.doesNotMatch(html,/href=/)})
+test('allowed navigation remains a real link',()=>{const html=render({role:'staff',programmes:['family']},'/dashboard/family-initiative');assert.match(html,/href="\/dashboard\/family-initiative"/);assert.doesNotMatch(html,/data-locked/)})
+// Render the actual sidebar with plain UI primitives so role-based hiding is caught.
+const sidebarPrimitives=Object.fromEntries(['Sidebar','SidebarContent','SidebarFooter','SidebarGroup','SidebarGroupContent','SidebarGroupLabel','SidebarHeader','SidebarMenu','SidebarMenuItem'].map(n=>[n,dummy]));sidebarPrimitives.SidebarMenuButton=menuButton
+const full=load('components/dashboard/app-sidebar.tsx',{'next/link':{default:Link},'next/image':{default:()=>null},'next/navigation':{usePathname:()=>'/dashboard/vacancies',useRouter:()=>({push(){}})},'@/lib/supabase/client':{},'@/lib/staff-programme-access':programme,'./sidebar-access':ui,'@/components/ui/sidebar':sidebarPrimitives,'@/components/ui/collapsible':{Collapsible:dummy,CollapsibleTrigger:dummy,CollapsibleContent:dummy},'@/components/ui/dropdown-menu':{DropdownMenu:dummy,DropdownMenuContent:dummy,DropdownMenuItem:dummy,DropdownMenuTrigger:dummy},'@/components/ui/avatar':{Avatar:dummy,AvatarFallback:dummy}})
+for(const role of ['vacancies_only','staff','admin'])test(`full programme inventory is visible for ${role}`,()=>{const html=renderToStaticMarkup(React.createElement(full.AppSidebar,{user:{role,email:'fixture@example.org',fullName:'Fixture'}}));for(const label of ['Sikh Family Initiative','Sikhi Vidyala','Kaurs','Monthly Newsletter','Roots Residential','Events','User Management','Settings'])assert.ok(html.includes(label),label);assert.ok(!html.includes('SPA Operations'));assert.ok(!html.includes('Sikh Padel Association'))})
