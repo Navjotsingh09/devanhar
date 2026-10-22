@@ -25,7 +25,7 @@ and verified work; it is not an acceptance sign-off.
 
 ## Verification
 
-249 focused unit/regression checks pass. A separate parity check compared the
+318 focused unit/regression checks pass. A separate parity check compared the
 current production SFI page with the new default renderer. Database transactions
 verified real role boundaries and the assignment hierarchy, then rolled back all
 temporary fixtures and role changes. No public page content was saved/published
@@ -37,6 +37,7 @@ General page/section editor, homepage builder, project content CMS, reusable eve
 manager, scheduled announcements/notifications, full media library, reusable FAQs,
 global branding/SEO/navigation/settings, general create permissions, broad content
 version restoration, article draft/live separation and the full acceptance matrix
-remain separate implementation work. Production's legacy aggregate Submissions
-page still needs bounded server pagination and removal of blocking reconciliation.
+remain separate implementation work. The primary Submissions screen now loads only one 25-row dataset and does not
+call Stripe. Existing bulk camp/payment workflows remain available explicitly
+under Advanced operations; that legacy console still performs heavier work.
 Do not represent the sidebar, project spaces or page inventory as those editors.
