@@ -66,7 +66,7 @@ export function DashboardHeader({ programmes = [], fullName = '' }: { programmes
         <BreadcrumbList>
           <BreadcrumbItem>
             {isSubRoute ? (
-              <BreadcrumbLink href={programmeHome(programmes)}>Dashboard</BreadcrumbLink>
+              <BreadcrumbLink asChild><Link href={programmeHome(programmes)} prefetch={false}>Dashboard</Link></BreadcrumbLink>
             ) : (
               <BreadcrumbPage>Overview</BreadcrumbPage>
             )}

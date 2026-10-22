@@ -59,8 +59,8 @@ export default async function DashboardLayout({
   }
 
   return (
-    <SidebarProvider className="crm-shell">
-      <AppSidebar user={userData} />
+    <SidebarProvider className="crm-shell" style={{ '--sidebar-width': '280px' } as React.CSSProperties}>
+      <AppSidebar user={userData} websiteEnabled />
       <SidebarInset className="min-w-0">
         <DashboardHeader programmes={programmes} fullName={userData.fullName} />
         <div id="crm-content" tabIndex={-1} className="crm-main flex-1 min-w-0">

@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+import './workspace-navigation.css'
 import { activeNavigationPath } from '@/lib/dashboard-navigation-access'
 import { projectSpaces, projectSpacePath } from '@/lib/project-spaces'
 
@@ -17,6 +19,8 @@ import {
   Settings,
   LogOut,
   ChevronDown,
+  Search,
+  X,
   Shield,
   Lock,
   Package,
@@ -128,12 +132,16 @@ function ProgrammeGroup({
   items,
   pathname,
   groupName,
+  open,
+  onOpenChange,
 }: {
   label: string
   icon: React.ComponentType<{ className?: string }>
   items: NavItem[]
   pathname: string
   groupName: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
   const { canOpen } = useSidebarAccess()
   const locked = items.every(item => !canOpen(item.url))
@@ -142,16 +150,16 @@ function ProgrammeGroup({
   )
 
   return (
-    <Collapsible defaultOpen={isCurrent} className={`group/${groupName}`}>
+    <Collapsible open={open} onOpenChange={onOpenChange} className="workspace-project" data-current={isCurrent || undefined}>
       <CollapsibleTrigger asChild>
-        <SidebarGroupLabel className="!h-auto !min-h-9 !text-xs flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2 hover:bg-sidebar-accent/60">
+        <button type="button" className="workspace-project-trigger !h-auto !min-h-10 !text-[13px] flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2">
           <span className="flex min-w-0 items-center gap-2">
             <Icon className="h-3.5 w-3.5 shrink-0" />
             <span className="min-w-0 whitespace-normal leading-snug">{label}</span>
             {locked && <><Lock aria-hidden="true" className="h-3 w-3 shrink-0 text-muted-foreground" /><span className="sr-only">Restricted</span></>}
           </span>
-          <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform ${isCurrent ? '' : ''} group-data-[state=open]/${groupName}:rotate-180`} />
-        </SidebarGroupLabel>
+          <ChevronDown aria-hidden="true" className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="ml-2 border-l border-sidebar-border pl-2">
@@ -164,16 +172,24 @@ function ProgrammeGroup({
   )
 }
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, websiteEnabled = false }: AppSidebarProps & { websiteEnabled?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [query, setQuery] = useState('')
+  const currentProject = projectSpaces.find(space => [projectSpacePath(space), ...(space.children || []).map(projectSpacePath), ...(space.tools || []).map(tool => tool.url)].some(url => pathname === url || pathname.startsWith(url + '/')))?.id
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [changedOnPath, setChangedOnPath] = useState('')
+  const openGroup = changedOnPath === pathname ? expanded : currentProject || (pathname.startsWith('/dashboard/users') || pathname.startsWith('/dashboard/settings') ? 'administration' : pathname.startsWith('/dashboard/recovery-payments') || pathname.startsWith('/dashboard/registration-windows') ? 'operations' : ['/dashboard/website', '/dashboard/blog', '/dashboard/images', '/dashboard/products', '/dashboard/orders'].some(path => pathname.startsWith(path)) ? 'website' : null)
+  const setGroup = (id: string, open: boolean) => { setChangedOnPath(pathname); setExpanded(open ? id : null) }
+  const search = query.trim().toLowerCase()
+  const visibleProjects = projectSpaces.filter(space => [space.title, ...(space.children || []).map(child => child.title), ...(space.tools || []).map(tool => tool.title)].some(title => title.toLowerCase().includes(search)))
   const programmes = user.programmes || []
   const home = user.role === 'vacancies_only' ? '/dashboard/vacancies' : programmeHome(programmes)
   const managementItems = managementNav
   const websiteItems: NavItem[] = [
-    { title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
+    ...(websiteEnabled ? [{ title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
     { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
-    { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper },
+    { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper }] : []),
     { title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper },
     { title: 'Site images', url: '/dashboard/images', icon: ImageIcon },
     { title: 'Products', url: '/dashboard/products', icon: Package },
@@ -201,42 +217,40 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
   return (
     <SidebarAccessProvider account={user}><Sidebar collapsible="offcanvas">
-      <div className="crm-navigation">
-      <SidebarHeader className="px-5 py-6">
+      <div className="workspace-navigation">
+      <SidebarHeader className="px-5 pb-4 pt-6">
         <Link prefetch={false} href={home} className="flex items-center gap-3" aria-label="Devanhaar dashboard home">
           <Image src="/logos/main-black-transparent.png" alt="Devanhaar" width={140} height={36} className="h-8 w-auto" sizes="100px" />
-          <span className="ml-auto rounded-md border border-black/10 px-1.5 py-1 text-[9px] font-medium tracking-wider">WORKSPACE</span>
+          <span className="ml-auto rounded-md border border-black/10 px-1.5 py-1 text-[9px] font-medium tracking-wider">STAFF</span>
         </Link>
       </SidebarHeader>
-      <nav aria-label="Workspace" className="crm-workspaces">
-        <AccessWorkspaceLink title="Operations" url={home} icon={LayoutDashboard} active={!isWebsite} />
-        <AccessWorkspaceLink title="Website" url="/dashboard/website" icon={BookOpen} active={isWebsite} />
-      </nav>
-      <SidebarContent className="gap-2">
+      <SidebarContent className="gap-3 px-3 pb-4">
           <SidebarGroup>
-            <SidebarGroupLabel>Your workspace</SidebarGroupLabel>
+            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
             <SidebarGroupContent><SimpleNav items={managementItems} pathname={pathname} /></SidebarGroupContent>
           </SidebarGroup>
           <SidebarGroup>
             <SidebarGroupLabel>Projects & programmes</SidebarGroupLabel>
-            <div className="space-y-1">
-              {projectSpaces.map(space => <ProgrammeGroup key={space.id} label={space.title} icon={projectIcons[space.id] || BookOpen} items={[
+            <div className="workspace-search">
+              <Search aria-hidden="true" className="h-4 w-4 shrink-0" />
+              <input aria-label="Find a project or subproject" placeholder="Find a project…" value={query} onChange={event => setQuery(event.target.value)} />
+              {query && <button type="button" aria-label="Clear project search" onClick={() => setQuery('')}><X className="h-3.5 w-3.5" /></button>}
+            </div>
+            <div className="space-y-0.5">
+              {!visibleProjects.length && <p role="status" className="px-2 py-4 text-xs text-muted-foreground">No projects found.</p>}
+              {visibleProjects.map(space => <ProgrammeGroup key={space.id} label={space.title} icon={projectIcons[space.id] || BookOpen} items={[
                 { title: 'Overview', url: projectSpacePath(space), icon: LayoutDashboard },
                 ...(space.children || []).map(child => ({ title: child.title, url: projectSpacePath(child), icon: BookOpen })),
                 ...(space.tools || []).map(tool => ({ ...tool, icon: ClipboardList })),
-                ...(space.id === 'roots-residential' ? [{ title: 'Form builder', url: '/dashboard/roots/forms', icon: ClipboardList }] : []),
-              ]} pathname={pathname} groupName={space.id} />)}
+                ...(websiteEnabled && space.id === 'roots-residential' ? [{ title: 'Form builder', url: '/dashboard/roots/forms', icon: ClipboardList }] : []),
+              ]} pathname={pathname} groupName={space.id} open={!!search || openGroup === space.id} onOpenChange={open => setGroup(space.id, open)} />)}
             </div>
           </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>Operations</SidebarGroupLabel>
-            <SidebarGroupContent><SimpleNav items={operationItems.filter(item => !['/dashboard/images', '/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} /></SidebarGroupContent>
+          <SidebarGroup className="workspace-tools">
+            <ProgrammeGroup label="Operations" icon={ReceiptText} items={operationItems.filter(item => !['/dashboard/images', '/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} groupName="operations" open={openGroup === 'operations'} onOpenChange={open => setGroup('operations', open)} />
+            <ProgrammeGroup label="Website & content" icon={BookOpen} items={websiteItems} pathname={pathname} groupName="website" open={openGroup === 'website'} onOpenChange={open => setGroup('website', open)} />
+            <ProgrammeGroup label="Administration" icon={Settings} items={operationItems.filter(item => ['/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} groupName="administration" open={openGroup === 'administration'} onOpenChange={open => setGroup('administration', open)} />
           </SidebarGroup>
-        <SidebarGroup><ProgrammeGroup label="Website & content" icon={BookOpen} items={websiteItems} pathname={pathname} groupName="website" /></SidebarGroup>
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupLabel>Administration</SidebarGroupLabel>
-          <SidebarGroupContent><SimpleNav items={operationItems.filter(item => ['/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} /></SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-3">
@@ -252,7 +266,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   </Avatar>
                   <div className="flex min-w-0 flex-col gap-0.5 text-left leading-none">
                     <span className="max-w-[130px] truncate text-sm font-medium">{user.fullName}</span>
-                    <span className="text-xs capitalize opacity-70">{user.role?.replace('_', ' ')}</span>
+                    <span className="text-xs capitalize opacity-70">{user.role?.replaceAll('_', ' ')}</span>
                   </div>
                   <ChevronDown className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>

@@ -28,7 +28,7 @@ export default async function DashboardOverview() {
   ]
   const shortcuts = [
     { label: 'Website & content', description: 'Pages, articles and site images', href: '/dashboard/website', icon: BookOpen },
-    { label: 'SPA Operations', description: 'Players, tournaments and rankings', href: '/dashboard/padel', icon: Trophy },
+    { label: 'Roots Residential', description: 'Camp registrations and responses', href: '/dashboard/roots', icon: Inbox },
     { label: 'Site images', description: 'Manage your website imagery', href: '/dashboard/images', icon: ImageIcon },
     { label: 'Registration windows', description: 'Manage programme availability', href: '/dashboard/registration-windows', icon: CalendarDays },
   ]
