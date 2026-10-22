@@ -4,7 +4,7 @@ export const fieldTypes = ['text','textarea','email','tel','date','number','sele
 const id = z.string().regex(/^[a-z][a-z0-9_]{1,48}$/).refine(v => !['constructor','prototype','__proto__'].includes(v))
 const child = z.object({ id, label:z.string().trim().min(1).max(160), type:z.enum(['text','email','tel']), required:z.boolean().default(false) })
 const safeUrl = z.string().max(1500).refine(v => !v || (() => { try { const u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password } catch{return false} })(), 'Use a public HTTPS document link')
-export const fieldSchema = z.object({ id, label:z.string().trim().min(1).max(200), type:z.enum(fieldTypes), required:z.boolean().default(false), help:z.string().max(700).default(''), options:z.array(z.string().trim().min(1).max(100)).max(40).default([]), documentUrl:safeUrl.default(''), needsDocument:z.boolean().default(false), pastOnly:z.boolean().default(false), condition:z.object({ field:id, equals:z.string().max(100) }).optional(), children:z.array(child).max(8).default([]) })
+export const fieldSchema = z.object({ id, label:z.string().trim().min(1).max(200), type:z.enum(fieldTypes), required:z.boolean().default(false), help:z.string().max(700).default(''), options:z.array(z.string().trim().min(1).max(100)).max(40).default([]), documentUrl:safeUrl.default(''), needsDocument:z.boolean().default(false), pastOnly:z.boolean().default(false), minAge:z.number().int().min(0).max(120).optional(), maxAge:z.number().int().min(0).max(120).optional(), condition:z.object({ field:id, equals:z.string().max(100) }).optional(), children:z.array(child).max(8).default([]) })
 export const formSchema = z.object({ title:z.string().trim().min(1).max(160), description:z.string().max(2000).default(''), fields:z.array(fieldSchema).min(1).max(60), payment:z.object({ enabled:z.boolean(), amountPence:z.number().int().min(0).max(1000000), currency:z.literal('gbp') }), confirmation:z.string().max(1000).default('Thank you. Your submission has been received.') }).superRefine((s,c)=>{
   const seen=new Set<string>()
   s.fields.forEach((f,i)=>{
@@ -20,15 +20,33 @@ export const formSchema = z.object({ title:z.string().trim().min(1).max(160), de
 export type FormDefinition=z.infer<typeof formSchema>
 export type FormField=FormDefinition['fields'][number]
 export function visible(field:FormField,answers:Record<string,unknown>,fields:FormField[]=[]):boolean {if(!field.condition)return true;const parent=fields.find(f=>f.id===field.condition!.field);if(parent&&!visible(parent,answers,fields))return false;return String(answers[field.condition.field]??(parent?.type==='checkbox'?false:''))===field.condition.equals}
-export function validateAnswers(schema:FormDefinition,input:unknown){
+// Match native form validation and the submit endpoint, including saved CMS forms.
+export const ukPhonePattern = String.raw`(?:0|\+44|0044)(?:\s|\(|\)|-)*[1-9](?:(?:\s|\(|\)|-)*[0-9]){9}(?:\s|\(|\)|-)*`
+export const emailPattern = String.raw`[^\s@]+@[^\s@]+\.[^\s@]+`
+export function campDefinition(definition:FormDefinition,slug?:string):FormDefinition {
+  if(slug!=='roots-residential-camp-registration')return definition
+  return {...definition,fields:definition.fields.map(f=>f.id==='child_dob'&&f.type==='date'?{...f,minAge:13,maxAge:16,help:'Your child must be aged 13–16 on the date you register.'}:f)}
+}
+export function dateBounds(field:Pick<FormField,'minAge'|'maxAge'|'pastOnly'>,now=new Date()) {
+  const today=now.toISOString().slice(0,10)
+  const anniversary=(years:number)=>{
+    const year=Number(today.slice(0,4))-years,month=Number(today.slice(5,7)),day=Math.min(Number(today.slice(8,10)),new Date(Date.UTC(year,month,0)).getUTCDate())
+    return new Date(Date.UTC(year,month-1,day))
+  }
+  const min=field.maxAge===undefined?undefined:(()=>{const d=anniversary(field.maxAge+1);d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10)})()
+  const max=field.minAge===undefined?(field.pastOnly?today:undefined):anniversary(field.minAge).toISOString().slice(0,10)
+  return {min,max}
+}
+export function validateAnswers(schema:FormDefinition,input:unknown,now=new Date()){
   if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('Please complete the form.')
   const raw=input as Record<string,unknown>, answers:Record<string,unknown>={}
   const text=(v:unknown,label:string,required:boolean,type:string,pastOnly=false)=>{
     if(typeof v!=='string'&&typeof v!=='number'&&v!=null)throw new Error(`Check ${label}.`)
     const s=String(v??'').trim();if(required&&!s)throw new Error(`Complete ${label}.`);if(s.length>4000)throw new Error(`${label} is too long.`)
     if(s&&type==='email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))throw new Error(`Enter a valid email for ${label}.`)
+    if(s&&type==='tel'&&!new RegExp('^(?:'+ukPhonePattern+')$').test(s))throw new Error(`Enter a valid UK phone number for ${label}, for example 07700 900123 or +44 7700 900123.`)
     if(s&&type==='number'&&(!Number.isFinite(Number(s))||Math.abs(Number(s))>1000000))throw new Error(`Enter a valid number for ${label}.`)
-    if(s&&type==='date'){const date=new Date(s+'T00:00:00Z');if(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==s||(pastOnly&&s>new Date().toISOString().slice(0,10)))throw new Error(`Enter a valid date for ${label}.`)}
+    if(s&&type==='date'){const date=new Date(s+'T00:00:00Z');if(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==s||(pastOnly&&s>now.toISOString().slice(0,10)))throw new Error(`Enter a valid date for ${label}.`)}
     return s
   }
   for(const f of schema.fields){if(!visible(f,answers,schema.fields))continue
@@ -38,7 +56,7 @@ export function validateAnswers(schema:FormDefinition,input:unknown){
       if(v!=null&&!Array.isArray(v))throw new Error(`Check ${f.label}.`)
       const rows=(v||[]) as unknown[];if(rows.length>10||(f.required&&!rows.length))throw new Error(`Check ${f.label} (up to 10 rows).`)
       answers[f.id]=rows.map((r,i)=>{if(!r||typeof r!=='object'||Array.isArray(r))throw new Error(`Check ${f.label}.`);return Object.fromEntries(f.children.map(ch=>[ch.id,text((r as Record<string,unknown>)[ch.id],`${f.label}, row ${i+1}: ${ch.label}`,ch.required,ch.type)]))})
-    }else{const value=text(v,f.label,f.required,f.type,f.pastOnly);if(value&&['radio','select'].includes(f.type)&&!f.options.includes(value))throw new Error(`Choose an option for ${f.label}.`);answers[f.id]=value}
+    }else{const value=text(v,f.label,f.required,f.type,f.pastOnly);if(value&&f.type==='date'){const {min,max}=dateBounds(f,now);if((min&&value<min)||(max&&value>max))throw new Error(f.minAge!==undefined&&f.maxAge!==undefined?`Your child must be aged ${f.minAge}–${f.maxAge} on the date you register.`:`Enter a date within the allowed range for ${f.label}.`)}if(value&&['radio','select'].includes(f.type)&&!f.options.includes(value))throw new Error(`Choose an option for ${f.label}.`);answers[f.id]=value}
   }
   return answers
 }
