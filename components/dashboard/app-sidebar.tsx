@@ -1,6 +1,6 @@
 'use client'
 
-import { NavigationPending } from './navigation-pending'
+import { AccessNavigationItem, SidebarAccessProvider, useSidebarAccess } from './sidebar-access'
 
 import {
   LayoutDashboard,
@@ -126,20 +126,7 @@ function SimpleNav({
     <SidebarMenu>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton
-            asChild
-            isActive={
-              pathname === item.url ||
-              (item.url !== '/dashboard' && pathname.startsWith(item.url + '/'))
-            }
-          >
-            <Link href={item.url} prefetch={false}>
-              <item.icon className="h4 w4" />
-              <span>{item.title}</span>
-              <NavigationPending />
-              {item.adminOnly && <Lock className="ml-auto h3 w3 opacity-40" />}
-            </Link>
-          </SidebarMenuButton>
+          <AccessNavigationItem title={item.title} url={item.url} icon={item.icon} active={pathname === item.url || (item.url !== '/dashboard' && pathname.startsWith(item.url + '/'))} />
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
@@ -159,6 +146,8 @@ function ProgrammeGroup({
   pathname: string
   groupName: string
 }) {
+  const { canOpen } = useSidebarAccess()
+  const locked = items.every(item => !canOpen(item.url))
   const isCurrent = items.some(
     (item) => pathname === item.url || pathname.startsWith(item.url + '/')
   )
@@ -170,6 +159,7 @@ function ProgrammeGroup({
           <span className="flex min-w-0 items-center gap-2">
             <Icon className="h3.5 w3.5 shrink-0" />
             <span className="truncate">{label}</span>
+            {locked && <><Lock aria-hidden="true" className="h-3 w-3 shrink-0 text-muted-foreground" /><span className="sr-only">Restricted</span></>}
           </span>
           <ChevronDown className={`h3.5 w3.5 shrink-0 transition-transform ${isCurrent ? '' : ''} group-data-[state=open]/${groupName}:rotate-180`} />
         </SidebarGroupLabel>
@@ -188,21 +178,10 @@ function ProgrammeGroup({
 export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const isAdmin = user.role === 'admin' || user.role === 'super_admin'
   const programmes = user.programmes || []
-  const isScoped = programmes.length > 0
-  const isVacanciesOnly = user.role === 'vacancies_only' || isScoped
-
-  const managementItems: NavItem[] = isScoped ? [
-    ...(programmes.includes('family') ? familyInitiativeNav : []),
-    ...(programmes.includes('kaurs') ? [{ title: 'Kaurs', url: '/dashboard/kaurs', icon: Users }] : []),
-    ...(programmes.includes('vidyala') ? [{ title: 'Sikhi Vidyala', url: '/dashboard/vidyala', icon: BookOpen }] : []),
-    ...(programmes.includes('newsletter') ? [{ title: 'Devanhaar Monthly Newsletter', url: '/dashboard/newsletter', icon: Newspaper }] : []),
-  ] : isVacanciesOnly
-    ? managementNav.filter((item) => item.url === '/dashboard/vacancies')
-    : managementNav
-
-  const operationItems = operationsNav.filter((item) => !item.adminOnly || isAdmin)
+  const home = user.role === 'vacancies_only' ? '/dashboard/vacancies' : programmeHome(programmes)
+  const managementItems = managementNav
+  const operationItems = operationsNav
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -221,12 +200,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
     'U'
 
   return (
-    <Sidebar collapsible="icon">
+    <SidebarAccessProvider account={user}><Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href={programmeHome(programmes)}>
+              <Link href={home} prefetch={false}>
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Shield className="h-4 w-4" />
                 </div>
@@ -250,12 +229,15 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {!isVacanciesOnly && (
           <SidebarGroup className="border-t border-sidebar-border pt-2">
             <SidebarGroupLabel className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em]">
               Programmes
             </SidebarGroupLabel>
             <div className="space-y-1">
+              <ProgrammeGroup label="Sikh Family Initiative" icon={Users} items={familyInitiativeNav} pathname={pathname} groupName="family" />
+              <ProgrammeGroup label="Sikhi Vidyala" icon={BookOpen} items={vidyalaNav} pathname={pathname} groupName="vidyala" />
+              <ProgrammeGroup label="Kaurs" icon={Users} items={[{ title: 'Kaurs', url: '/dashboard/kaurs', icon: Users }]} pathname={pathname} groupName="kaurs" />
+              <ProgrammeGroup label="Monthly Newsletter" icon={Newspaper} items={[{ title: 'Newsletter', url: '/dashboard/newsletter', icon: Newspaper }]} pathname={pathname} groupName="newsletter" />
               <ProgrammeGroup
                 label="Roots Residential"
                 icon={TreePine}
@@ -272,9 +254,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               />
             </div>
           </SidebarGroup>
-        )}
 
-        {!isVacanciesOnly && (
           <SidebarGroup className="border-t border-sidebar-border pt-2">
             <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.16em]">
               Content & Commerce
@@ -283,9 +263,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               <SimpleNav items={contentCommerceNav} pathname={pathname} />
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
 
-        {!isVacanciesOnly && operationItems.length > 0 && (
           <SidebarGroup className="border-t border-sidebar-border pt-2">
             <SidebarGroupLabel className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em]">
               <Boxes className="h-3 w-3" />
@@ -295,7 +273,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
               <SimpleNav items={operationItems} pathname={pathname} />
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
@@ -326,7 +303,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-    </Sidebar>
+    </Sidebar></SidebarAccessProvider>
   )
 }
 
