@@ -25,7 +25,7 @@ and verified work; it is not an acceptance sign-off.
 
 ## Verification
 
-318 focused unit/regression checks pass. A separate parity check compared the
+365 production checks and 439 staging checks pass. A separate parity check compared the
 current production SFI page with the new default renderer. Database transactions
 verified real role boundaries and the assignment hierarchy, then rolled back all
 temporary fixtures and role changes. No public page content was saved/published

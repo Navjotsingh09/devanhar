@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient as createServerClient } from "@/lib/supabase/server"
+import { getRequestStaff } from "@/lib/crm/request-staff"
 import { createClient as createServiceClient } from "@supabase/supabase-js"
 import Stripe from "stripe"
 
@@ -14,13 +14,11 @@ type RowResult = { id: string; email: string | null; action: string; pi?: string
 type Result = { total: number; scanned: number; linked: number; updated: number; skipped: number; notFound: number; errors: Array<{ id: string; email: string | null; error: string }>; rows: RowResult[] }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-  // Role check: vacancies_only users can't run this
-  const appRole = (user.app_metadata as { role?: string })?.role
-  if (appRole === "vacancies_only") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  const { client: supabase, user, authError, profile, grants } = await getRequestStaff()
+  if (authError || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (profile.error || !profile.data || !["admin","super_admin"].includes(profile.data.role) || grants.error || !Array.isArray(grants.data)) {
+    return NextResponse.json({ error: "Administrator access required" }, { status: 403 })
+  }
 
   const stripeKey = process.env.STRIPE_SECRET_KEY
   if (!stripeKey) return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 })
