@@ -1,5 +1,7 @@
 'use client'
 
+import { findProjectSpace } from '@/lib/project-spaces'
+
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -35,7 +37,7 @@ const routeLabels: Record<string, string> = {
 
 export function DashboardHeader({ programmes = [], fullName = '' }: { programmes?: StaffProgramme[]; fullName?: string }) {
   const pathname = usePathname()
-  const currentLabel = routeLabels[pathname] || 'Dashboard'
+  const currentLabel = routeLabels[pathname] || (pathname.startsWith('/dashboard/projects/') ? findProjectSpace(pathname.split('/')[3])?.space.title : undefined) || 'Dashboard'
   const isSubRoute = pathname !== '/dashboard'
 
   return (
