@@ -15,6 +15,11 @@ export interface BlogPost {
   status?: "draft" | "published"
   coverImage?: string
   coverAlt?: string
+  draftId?: string | null
+  updatedAt?: string
+  hasDraft?: boolean
+  isLive?: boolean
+  archived?: boolean
   persisted?: boolean
 }
 

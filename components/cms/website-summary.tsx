@@ -1,0 +1,12 @@
+import Link from 'next/link'
+import { getRequestStaff } from '@/lib/crm/request-staff'
+export async function WebsiteSummary() {
+  const { client, profile } = await getRequestStaff()
+  const [drafts, live, recent] = await Promise.all([
+    client.from('cms_pages').select('id', { count: 'exact', head: true }).not('draft_revision_id','is',null),
+    client.from('cms_pages').select('id', { count: 'exact', head: true }).not('published_revision_id','is',null),
+    client.from('cms_pages').select('slug,updated_at,draft_revision_id,published_revision_id').order('updated_at',{ascending:false}).limit(6),
+  ])
+  if (drafts.error || live.error || recent.error) return <p role="alert" className="rounded-xl border p-4 text-sm">The content summary could not be loaded. Open Website pages to retry.</p>
+  return <section className="space-y-5" aria-label="Your CMS content summary"><div className="grid gap-4 sm:grid-cols-2"><Link href="/dashboard/website/pages?status=draft" className="rounded-xl border bg-card p-5"><p className="text-sm text-muted-foreground">Page drafts</p><p className="mt-2 text-3xl font-semibold">{drafts.count ?? 0}</p><p className="mt-2 text-xs text-muted-foreground">Continue editing →</p></Link><Link href="/dashboard/website/pages?status=published" className="rounded-xl border bg-card p-5"><p className="text-sm text-muted-foreground">CMS-published pages</p><p className="mt-2 text-3xl font-semibold">{live.count ?? 0}</p><p className="mt-2 text-xs text-muted-foreground">Existing pages without CMS revisions retain their original website content.</p></Link></div><div className="rounded-xl border bg-card p-5"><h2 className="font-semibold">Recently edited pages</h2>{recent.data?.length ? <ul className="mt-4 divide-y">{recent.data.map(page => <li key={page.slug} className="flex flex-wrap items-center justify-between gap-3 py-3"><Link href={page.slug === 'sfi' ? '/dashboard/website/sfi' : `/dashboard/website/pages/${page.slug}`} className="text-sm font-medium underline">{page.slug === 'home' ? 'Homepage' : page.slug.replace(/^page-/,'').replace(/-/g,' ')}</Link><span className="text-xs text-muted-foreground">{page.draft_revision_id ? 'Draft changes' : 'Published'} · {new Date(page.updated_at).toLocaleString('en-GB',{timeZone:'Europe/London'})}</span></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No CMS drafts have been saved {profile.data?.role === 'content_manager' ? 'for your assigned pages' : 'yet'}.</p>}</div></section>
+}

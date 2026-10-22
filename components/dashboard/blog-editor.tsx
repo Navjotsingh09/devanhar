@@ -31,6 +31,9 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const router = useRouter()
   const contentRef = useRef<HTMLTextAreaElement>(null)
   const [preview, setPreview] = useState(false)
+  const [reviewed, setReviewed] = useState(false)
+  const [viewport, setViewport] = useState("100%")
+  const [dirty, setDirty] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -57,7 +60,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   const currentCover = form.coverImage || (initialPost ? getBlogCoverImage(initialPost.slug) : "")
 
   const set = (key: keyof ManagedPost, value: any) => {
-    setSaved(false)
+    setSaved(false); setDirty(true); setReviewed(false)
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -102,26 +105,8 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
   }
 
   const removeCover = async () => {
-    if (!effectiveSlug) return
-
-    setRemovingCover(true)
-    try {
-      const res = await fetch("/api/blog/cover", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: effectiveSlug }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Could not remove image")
-
-      setForm((prev) => ({ ...prev, coverImage: "", coverAlt: "" }))
-      toast.success("Cover image removed")
-      router.refresh()
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not remove image")
-    } finally {
-      setRemovingCover(false)
-    }
+    set("coverImage", ""); set("coverAlt", "")
+    toast.info("Image removed from this draft. Save and publish to update the live article.")
   }
 
   const uploadCover = async (file: File) => {
@@ -142,7 +127,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
     try {
       const fd = new FormData()
       fd.append("file", file)
-      fd.append("section", "blog")
+      fd.append("section", "blog-drafts")
       fd.append("category", effectiveSlug)
       fd.append("label", `${form.title || "Blog post"} cover`)
       fd.append("alt_text", form.coverAlt || form.title || "Blog cover image")
@@ -168,6 +153,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
       return
     }
 
+    if (status === 'published' && !window.confirm('Publish this saved article draft? It will replace the live version.')) return
     setSaving(true)
     try {
       const next: ManagedPost = { ...form, slug: finalSlug, status, tags: form.tags ?? [] }
@@ -177,6 +163,8 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
         body: JSON.stringify({
           ...next,
           originalSlug: initialPost?.slug,
+          expectedDraft: initialPost?.draftId ?? null,
+          expectedUpdated: initialPost?.updatedAt ?? null,
         }),
       })
       const data = await res.json()
@@ -185,7 +173,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
       setForm({ ...next, persisted: true })
       setSaved(true)
       toast.success(status === "published" ? "Post published" : "Draft saved")
-      router.push("/dashboard/blog")
+      router.push(status === "published" ? "/dashboard/blog" : `/dashboard/blog/${finalSlug}/edit`)
       router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not save post")
@@ -205,32 +193,21 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
           <p className="mt-1 text-muted-foreground">Write, preview and prepare content for Devanhaar Insights.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => setPreview((v) => !v)}>
+          <Button variant="outline" disabled={dirty || !initialPost?.hasDraft || saving || uploading} onClick={() => { setPreview((v) => !v); setReviewed(false) }}>
             <Eye className="mr-2 h-4 w-4" />{preview ? "Back to editor" : "Preview"}
           </Button>
           <Button variant="outline" onClick={() => void persist("draft")} disabled={saving || uploading}>{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save draft</Button>
-          <Button className="bg-amber-500 text-black hover:bg-amber-400" onClick={() => void persist("published")} disabled={saving || uploading || !form.title.trim() || !form.content.trim()}>
+          <Button className="bg-amber-500 text-black hover:bg-amber-400" onClick={() => void persist("published")} disabled={saving || uploading || dirty || !reviewed || !initialPost?.hasDraft || !form.title.trim() || !form.content.trim()}>
             <Send className="mr-2 h-4 w-4" />Publish
           </Button>
         </div>
       </div>
 
-      {saved && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Saved to Supabase successfully.</div>}
+      {saved && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Draft saved. The live article has not changed.</div>}
 
+      <p className="text-sm text-muted-foreground">{initialPost?.isLive ? 'A published version is live. Saving a draft keeps it unchanged.' : 'This article is not published.'} Save, then preview your draft to enable publishing.</p>
       {preview ? (
-        <Card>
-          <CardContent className="mx-auto max-w-4xl p-6 md:p-10">
-            <div className="mb-5 flex flex-wrap items-center gap-2"><Badge>{form.pillar}</Badge><span className="text-sm text-muted-foreground">{form.author || "Devanhaar"} · {form.date} · {form.readTime}</span></div>
-            <h1 className="text-3xl font-bold leading-tight md:text-5xl">{form.title || "Untitled post"}</h1>
-            <p className="mt-5 border-l-4 border-amber-400 pl-4 text-lg leading-relaxed text-muted-foreground">{form.description || "Add an excerpt to introduce the article."}</p>
-            {currentCover && (
-              <div className="mt-8 overflow-hidden rounded-2xl border bg-muted">
-                <img src={currentCover} alt={form.coverAlt || form.title || "Blog cover"} className="aspect-[16/9] w-full object-cover" />
-              </div>
-            )}
-            <div className="mt-10"><BlogContent content={form.content || "Start writing your article to preview it here."} /></div>
-          </CardContent>
-        </Card>
+        <section className="overflow-hidden rounded-xl border bg-muted/30"><div className="flex flex-wrap gap-2 border-b bg-card p-4">{[['Desktop','100%'],['Tablet','768px'],['Mobile','390px']].map(([label,width]) => <Button key={label} size="sm" variant={viewport === width ? 'default' : 'outline'} onClick={() => setViewport(width)}>{label}</Button>)}</div><div className="overflow-auto p-3"><iframe title="Saved article preview" src={`/cms-preview/insights/${initialPost?.slug}`} onLoad={() => setReviewed(true)} className="mx-auto h-[75vh] border bg-white" style={{width:viewport,maxWidth:'none'}} /></div></section>
       ) : (
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
           <Card>
@@ -348,7 +325,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
             <Card>
               <CardHeader><CardTitle>Discovery</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                <label className="block"><span className="mb-2 block text-sm font-medium">Slug</span><div className="flex gap-2"><input value={form.slug} onChange={(e)=>set("slug",slugify(e.target.value))} className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-sm" /><Button type="button" size="icon" variant="outline" onClick={()=>set("slug",slugify(form.title))} title="Regenerate slug"><RotateCcw className="h-4 w-4" /></Button></div></label>
+                <label className="block"><span className="mb-2 block text-sm font-medium">Slug</span><div className="flex gap-2"><input readOnly={!!initialPost} value={form.slug} onChange={(e)=>set("slug",slugify(e.target.value))} className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-sm" /><Button type="button" size="icon" variant="outline" disabled={!!initialPost} onClick={()=>set("slug",slugify(form.title))} title="Regenerate slug"><RotateCcw className="h-4 w-4" /></Button></div></label>
                 <label className="block"><span className="mb-2 block text-sm font-medium">Tags</span><input value={tagsText} onChange={(e)=>set("tags",e.target.value.split(",").map(t=>t.trim()).filter(Boolean))} placeholder="community, education, youth" className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm" /></label>
               </CardContent>
             </Card>

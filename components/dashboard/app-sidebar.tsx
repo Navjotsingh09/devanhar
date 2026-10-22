@@ -189,6 +189,7 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
   const websiteItems: NavItem[] = [
     ...(websiteEnabled ? [{ title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
     { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
+    { title: 'Page drafts', url: '/dashboard/website/drafts', icon: Newspaper },
     { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper },
     { title: 'Content assignments', url: '/dashboard/website/assignments', icon: Users }] : []),
     { title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper },
