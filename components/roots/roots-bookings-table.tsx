@@ -430,6 +430,7 @@ export function RootsBookingsTable({ bookings, recordOnly = false }: { bookings:
                           {isArchived
                             ? <ArchiveRestore className="h-3 w-3" />
                             : <Archive className="h-3 w-3" />}
+                          <span>{isArchived ? "Restore" : "Archive"}</span>
                         </Button>
                         <Button
                           size="sm"
@@ -439,7 +440,7 @@ export function RootsBookingsTable({ bookings, recordOnly = false }: { bookings:
                           disabled={isLoading}
                           title="Delete permanently"
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-3 w-3" /><span>Delete</span>
                         </Button>
                       </div>
                     </td>
