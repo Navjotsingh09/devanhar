@@ -28,6 +28,8 @@
 .wrestling-page .wrestling-hero-photo { object-fit: cover; object-position: center 40%; z-index: -3; }
 .wrestling-page .wrestling-hero-shade { position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, rgba(10,16,20,.94), rgba(10,16,20,.72) 48%, rgba(10,16,20,.2) 100%), linear-gradient(0deg, rgba(10,16,20,.55), transparent 60%); }
 .wrestling-page .wrestling-hero-content { padding-bottom: 76px; }
+.wrestling-page .wrestling-logo { width: 100px; height: auto; margin-bottom: 24px; border-radius: 8px; }
+.wrestling-page .wrestling-brand-banner { width: 100%; height: auto; margin-top: 28px; border-radius: 4px 36px 4px 4px; }
 .wrestling-page .wrestling-hero .wrestling-eyebrow { color: #ffcf52; margin-bottom: 30px; }
 .wrestling-page .wrestling-hero h1 { font-size: clamp(42px, 5.3vw, 76px); font-weight: 600; line-height: 1.02; letter-spacing: -.055em; max-width: 760px; }
 .wrestling-page .wrestling-hero h1 span { color: #ffbf20; }
@@ -59,11 +61,23 @@
 .wrestling-page .wrestling-heritage { background: var(--wrestling-ink); color: white; }
 .wrestling-page .wrestling-heritage .wrestling-eyebrow { color: #ffcf52; }
 .wrestling-page .wrestling-heritage .wrestling-section-heading > p:last-child { color: #d5d7de; }
-.wrestling-page .wrestling-heritage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
-.wrestling-page .wrestling-heritage-grid article { border-top: 1px solid #ffffff35; padding-top: 28px; }
-.wrestling-page .wrestling-heritage-grid article > p:last-child { color: #d5d7de; }
+.wrestling-page .wrestling-heritage-layout { display: grid; grid-template-columns: 1.2fr .8fr; align-items: start; gap: 48px; }
+.wrestling-page .wrestling-heritage-copy { color: #d5d7de; }
+.wrestling-page .wrestling-heritage-copy p + p { margin-top: 20px; }
+.wrestling-page .wrestling-heritage-copy .wrestling-heritage-closing { color: #ffcf52; font-size: 22px; font-weight: 500; }
+.wrestling-page .wrestling-heritage-art { width: 100%; height: auto; border-radius: 36px 4px 4px 4px; }
 .wrestling-page .wrestling-classes { background: var(--wrestling-paper); }
-.wrestling-page .wrestling-class-layout { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 64px; }
+.wrestling-page .wrestling-class-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 64px; }
+.wrestling-page .wrestling-class-details { margin-top: 28px; }
+.wrestling-page .wrestling-class-details > div + div { margin-top: 20px; }
+.wrestling-page .wrestling-class-details dt { margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.wrestling-page .wrestling-class-details dd { font-size: 15px; line-height: 1.8; color: var(--wrestling-muted); }
+.wrestling-page .wrestling-class-sidebar { min-width: 0; display: grid; gap: 24px; }
+.wrestling-page .wrestling-membership dl > div + div { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e7e5df; }
+.wrestling-page .wrestling-membership dt { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.wrestling-page .wrestling-membership dd { font-size: 22px; font-weight: 500; }
+.wrestling-page .wrestling-membership dd span { display: block; font-size: 14px; color: var(--wrestling-muted); margin-top: 4px; }
+.wrestling-page .wrestling-class-poster { width: 100%; max-width: 360px; height: auto; justify-self: center; border-radius: 12px; }
 .wrestling-page .wrestling-class-layout > div > p:not(.wrestling-eyebrow) { color: var(--wrestling-muted); }
 .wrestling-page .wrestling-class-layout .wrestling-button { margin-top: 28px; }
 .wrestling-page .wrestling-details-card { padding: 36px; border: 1px solid #e8e5dc; border-radius: 16px; background: white; }
@@ -74,6 +88,7 @@
 .wrestling-page .wrestling-media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .wrestling-page .wrestling-media-image { position: relative; aspect-ratio: 4 / 3; }
 .wrestling-page .wrestling-media-image img, .wrestling-page .wrestling-media-grid video { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; }
+.wrestling-page .wrestling-media-image img { object-fit: contain; background: var(--wrestling-paper); }
 .wrestling-page figcaption { margin-top: 12px; font-size: 13px; color: var(--wrestling-muted); }
 .wrestling-page .wrestling-media-empty { border: 1px solid #e8e5dc; border-radius: 4px 50px 4px 4px; background: var(--wrestling-paper); padding: 48px; color: var(--wrestling-muted); }
 .wrestling-page .wrestling-media-empty p + p { margin-top: 20px; font-size: clamp(24px, 3vw, 36px); font-weight: 600; letter-spacing: -.035em; color: var(--wrestling-ink); }
@@ -98,7 +113,7 @@
   .wrestling-page .wrestling-hero-facts { grid-template-columns: 1fr 1fr; gap: 24px 16px; }
   .wrestling-page .wrestling-hero-facts > div { padding-inline: 0; border: 0; }
   .wrestling-page .wrestling-hero-facts dt { font-size: 18px; }
-  .wrestling-page .wrestling-story, .wrestling-page .wrestling-heritage-grid, .wrestling-page .wrestling-class-layout, .wrestling-page .wrestling-media-grid { grid-template-columns: 1fr; gap: 32px; }
+  .wrestling-page .wrestling-story, .wrestling-page .wrestling-heritage-layout, .wrestling-page .wrestling-class-layout, .wrestling-page .wrestling-media-grid { grid-template-columns: 1fr; gap: 32px; }
   .wrestling-page .wrestling-story-copy { padding-top: 0; }
   .wrestling-page .wrestling-details-card, .wrestling-page .wrestling-media-empty { padding: 28px; }
 }
