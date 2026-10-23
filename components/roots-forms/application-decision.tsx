@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import type { RootsDecision } from '@/lib/roots-forms/decision-email'
 
-export function ApplicationDecision({formId, responseId, revision, status, emailState}: {
-  formId: string; responseId: string; revision: number; status: string; emailState: string
+export function ApplicationDecision({formId, responseId, revision, status, emailState, paid = false}: {
+  formId: string; responseId: string; revision: number; status: string; emailState: string; paid?: boolean
 }) {
   const router = useRouter()
   const [pending, setPending] = useState(false)
@@ -27,12 +27,13 @@ export function ApplicationDecision({formId, responseId, revision, status, email
   }
   return <section className="space-y-3 rounded-2xl border bg-card p-5">
     <h2 className="font-semibold">Application decision</h2>
-    <p className="text-sm">Decision: {status} · Email: {emailState.replaceAll('_', ' ')}</p>
+    <p className="text-sm">Decision: {status === 'pending' ? 'New · Awaiting review' : status} · Email: {emailState.replaceAll('_', ' ')}</p>
     <p className="text-sm text-muted-foreground">Acceptance emails include the £50 NowDonate payment link unless payment is already recorded. Decline emails do not request payment.</p>
     <div className="flex gap-3">
       <Button disabled={pending || (status === 'accepted' && emailState === 'sent')} onClick={() => void decide('accepted')}>{status === 'accepted' ? 'Retry acceptance email' : 'Accept & email'}</Button>
-      <Button variant="outline" disabled={pending || (status === 'declined' && emailState === 'sent')} onClick={() => void decide('declined')}>{status === 'declined' ? 'Retry decline email' : 'Decline & email'}</Button>
+      <Button variant="outline" disabled={pending || paid || (status === 'declined' && emailState === 'sent')} onClick={() => void decide('declined')}>{status === 'declined' ? 'Retry decline email' : 'Decline & email'}</Button>
     </div>
+    {paid && <p className="text-sm text-muted-foreground">Paid applications cannot be declined here. Contact an administrator to review any cancellation or refund.</p>}
     {message && <p role={failed ? 'alert' : 'status'} className={failed ? 'text-sm text-red-700' : 'text-sm text-green-700'}>{message}</p>}
   </section>
 }

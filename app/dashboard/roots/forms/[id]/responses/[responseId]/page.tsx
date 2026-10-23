@@ -6,21 +6,27 @@ import { notFound } from 'next/navigation'
 import { requireRootsStaff } from '@/lib/staff-programme-server'
 import { formSchema } from '@/lib/roots-forms/schema'
 import { ApplicationDecision } from '@/components/roots-forms/application-decision'
+import { ApplicationPayment, type PaymentVerification } from '@/components/roots-forms/application-payment'
+import { applicationAge, applicationPaymentLabel } from '@/lib/roots-forms/application-tracker'
 export const dynamic='force-dynamic'
 export default async function ResponseDetail({params}:{params:Promise<{id:string;responseId:string}>}){
  const client=await requireRootsStaff(),{id,responseId}=await params;if(![id,responseId].every(v=>/^[a-f0-9-]{36}$/i.test(v)))notFound()
  const {data:row,error}=await client.from('roots_form_submissions').select('id,form_id,schema_snapshot,answers,schema_version,payment_state,payment_environment,amount_pence,created_at,record_state,respondent_name,respondent_email').eq('id',responseId).eq('form_id',id).maybeSingle();if(error)return <p role="alert">This response could not be loaded.</p>;if(!row)notFound();const parsed=formSchema.safeParse(row.schema_snapshot);if(!parsed.success)return <p role="alert">The saved form definition needs administrator review.</p>
  const {data: form, error: formError} = await client.from('roots_forms').select('slug').eq('id',id).maybeSingle()
- const paymentLabel = (state: string) => responsePaymentLabel(state, form?.slug === 'roots-residential-camp-registration')
- const decision = form?.slug === 'roots-residential-camp-registration' && row.record_state === 'active'
+ const roots = form?.slug === 'roots-residential-camp-registration'
+ const decision = roots
    ? await client.from('roots_form_submissions').select('decision_status,decision_revision,decision_email_state').eq('form_id',id).eq('id',responseId).maybeSingle()
    : null
+ const verification = roots ? await client.from('roots_application_payments').select('provider_reference,amount_pence,paid_on,verified_at,verified_by').eq('submission_id',responseId).maybeSingle<PaymentVerification>() : null
+ const paymentLabel = (state: string) => roots && decision?.data ? applicationPaymentLabel(state, decision.data.decision_status) : responsePaymentLabel(state, roots)
+ const londonDate = (date: Date) => new Intl.DateTimeFormat('en-CA', {timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit'}).format(date)
  return <div className="mx-auto max-w-4xl space-y-6">
    <Link href={`/dashboard/roots/forms/${id}/responses`} className="inline-flex items-center gap-2 text-sm text-muted-foreground"><ArrowLeft className="h-4 w-4" />Responses</Link>
    <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Roots · Response details</p><h1 className="mt-3 text-3xl font-semibold tracking-tight">{row.respondent_name}</h1><p className="mt-2 text-sm text-muted-foreground">{row.respondent_email} · {parsed.data.title}</p></div><div className="flex items-center gap-3"><span className="rounded-full border px-3 py-1 text-xs capitalize">{row.record_state}</span><ResponseActions formId={id} responseId={responseId} name={row.respondent_name} state={row.record_state as ResponseState} /></div></div>
-   <p className="text-sm text-muted-foreground">Version {row.schema_version} · {new Date(row.created_at).toLocaleString('en-GB')} · {paymentLabel(row.payment_state)}{row.payment_environment==='test'?' · TEST PAYMENT':''}{row.amount_pence?` · £${(row.amount_pence/100).toFixed(2)}`:''}</p>
+   <p className="text-sm text-muted-foreground">Version {row.schema_version} · {new Date(row.created_at).toLocaleString('en-GB', {timeZone: 'Europe/London'})} · {applicationAge(row.created_at)} · {paymentLabel(row.payment_state)}{row.payment_environment==='test'?' · TEST PAYMENT':''}{row.amount_pence?` · £${(row.amount_pence/100).toFixed(2)}`:''}</p>
    {(formError || decision?.error) && <p role="alert">Application decisions could not be loaded. Check the Roots application-decisions database setup. Saved answers are shown below.</p>}
-   {decision?.data && <ApplicationDecision formId={id} responseId={responseId} revision={decision.data.decision_revision} status={decision.data.decision_status} emailState={decision.data.decision_email_state} />}
+   {decision?.data && row.record_state === 'active' && <ApplicationDecision formId={id} responseId={responseId} revision={decision.data.decision_revision} status={decision.data.decision_status} emailState={decision.data.decision_email_state} paid={row.payment_state === 'paid'} />}
+   {roots && <ApplicationPayment formId={id} responseId={responseId} accepted={decision?.data?.decision_status === 'accepted'} paid={row.payment_state === 'paid'} active={row.record_state === 'active'} verification={verification?.data ?? null} setupReady={!verification?.error} earliestDate={londonDate(new Date(row.created_at))} latestDate={londonDate(new Date())} />}
    <dl className="divide-y overflow-hidden rounded-2xl border bg-card">{parsed.data.fields.filter(f=>Object.hasOwn(row.answers,f.id)).map(f=><div key={f.id} className="p-5"><dt className="text-sm font-medium">{f.label}</dt><dd className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{f.type==='repeat'?<ul className="space-y-3">{(row.answers[f.id] as Record<string,string>[]).map((r,i)=><li key={i}>{f.children.map(ch=>`${ch.label}: ${r[ch.id]||'—'}`).join(' · ')}</li>)}</ul>:typeof row.answers[f.id]==='boolean'?(row.answers[f.id]?'Yes':'No'):String(row.answers[f.id]||'—')}</dd>{f.documentUrl&&<a className="mt-2 block text-xs underline" href={f.documentUrl} target="_blank" rel="noopener noreferrer">Document attached to this version</a>}</div>)}</dl>
  </div>
 }
