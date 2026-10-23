@@ -1,4 +1,5 @@
 import 'server-only'
+import {unstable_cache} from 'next/cache'
 import {createClient as serviceClient} from '@supabase/supabase-js'
 import {getRequestStaff} from '@/lib/crm/request-staff'
 import {entryTemplate,parseEntry,kindSchema,entrySlugSchema,isEntryVisible,type EntryContent,type EntryKind} from './content'
@@ -32,11 +33,12 @@ export type EntryState=Awaited<ReturnType<typeof getEntryState>>
 export async function listEntries(kind:EntryKind){const{client,isAdmin}=await entrySession();const{data,error}=await client.from('cms_entries').select('id,slug,project_id,draft_revision_id,published_revision_id,archived,updated_at').eq('kind',kind).order('updated_at',{ascending:false}).limit(200);if(error)throw new EntryError('Content could not be loaded.',503);const ids=(data??[]).flatMap(e=>[e.draft_revision_id||e.published_revision_id].filter(Boolean));const revisions=ids.length?await client.from('cms_entry_revisions').select('id,entry_id,title:body->>title').in('id',ids):{data:[],error:null};if(revisions.error)throw new EntryError('Content titles could not be loaded.',503);return{isAdmin,entries:(data??[]).map(e=>({...e,title:revisions.data?.find(r=>r.entry_id===e.id)?.title||e.slug.replace(/-/g,' ')}))}}
 export async function writeEntry(kind:EntryKind,slug:string,input:{action:string;content?:EntryContent;projectId:string|null;expectedDraft:string|null;expectedPublished:string|null;revisionId?:string}){const{client}=await entrySession();const{data,error}=await client.rpc('cms_write_entry',{p_kind:kind,p_slug:slug,p_body:input.content??{},p_project:input.projectId,p_expected_draft:input.expectedDraft,p_expected_published:input.expectedPublished,p_action:input.action,p_restore:input.revisionId??null});if(error)throw new EntryError(error.code==='42501'?'You do not have permission for this action.':error.code==='40001'?'Someone changed this content. Reload before continuing.':error.code==='22023'?error.message:'Content could not be saved.',error.code==='42501'?403:error.code==='40001'||error.code==='23505'?409:error.code==='22023'?400:503);return data}
 export type PublishedEntry={id:string;slug:string;projectId:string|null;revisionId:string;content:EntryContent}
-export async function getPublishedEntries(kind:EntryKind,path?:string,includeScheduled=false):Promise<PublishedEntry[]|null>{try{
+const readPublishedEntries=unstable_cache(async(kind:EntryKind):Promise<PublishedEntry[]>=>{
  const db=service();const{data:entries,error}=await db.from('cms_entries').select('id,slug,published_project_id,published_revision_id').eq('kind',kind).eq('archived',false).not('published_revision_id','is',null).order('slug').limit(200)
- if(error)return null;if(!entries?.length)return[]
+ if(error)throw new Error("Published content lookup failed");if(!entries?.length)return[]
  const[revisions,projects]=await Promise.all([db.from('cms_entry_revisions').select('id,entry_id,body').in('id',entries.map(e=>e.published_revision_id)),entries.some(e=>e.published_project_id)?db.from('cms_entries').select('id').eq('kind','project').eq('archived',false).not('published_revision_id','is',null):Promise.resolve({data:[],error:null})])
- if(revisions.error||projects.error)return null
- const result:PublishedEntry[]=[];for(const entry of entries){if(entry.published_project_id&&!projects.data?.some(p=>p.id===entry.published_project_id))continue;const revision=revisions.data?.find(r=>r.id===entry.published_revision_id&&r.entry_id===entry.id),content=revision&&parseEntry(kind,revision.body);if(content&&(includeScheduled||isEntryVisible(content,path)))result.push({id:entry.id,slug:entry.slug,projectId:entry.published_project_id,revisionId:entry.published_revision_id,content})}
+ if(revisions.error||projects.error)throw new Error("Published revisions could not be read")
+ const result:PublishedEntry[]=[];for(const entry of entries){if(entry.published_project_id&&!projects.data?.some(p=>p.id===entry.published_project_id))continue;const revision=revisions.data?.find(r=>r.id===entry.published_revision_id&&r.entry_id===entry.id),content=revision&&parseEntry(kind,revision.body);if(content)result.push({id:entry.id,slug:entry.slug,projectId:entry.published_project_id,revisionId:entry.published_revision_id,content})}
  return result.sort((a,b)=>('priority'in a.content?a.content.priority:100)-('priority'in b.content?b.content.priority:100))
-}catch{return null}}
+},['cms-published-entries-v1'],{revalidate:60,tags:['cms-entries']})
+export async function getPublishedEntries(kind:EntryKind,path?:string,includeScheduled=false):Promise<PublishedEntry[]|null>{try{const entries=await readPublishedEntries(kind);return includeScheduled?entries:entries.filter(e=>isEntryVisible(e.content,path))}catch{return null}}

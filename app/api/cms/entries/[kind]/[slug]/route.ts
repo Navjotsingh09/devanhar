@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server'
-import {revalidatePath} from 'next/cache'
+import {revalidatePath,revalidateTag} from 'next/cache'
 import {z} from 'zod'
 import {kindSchema,entrySlugSchema,entrySchemas} from '@/lib/cms/entries/content'
 import {EntryError,writeEntry,getEntryState} from '@/lib/cms/entries/server'
@@ -15,7 +15,7 @@ export async function POST(request:Request,{params}:{params:Promise<{kind:string
  if(input.action==='save'||input.action==='publish'){const result=entrySchemas[kind.data].safeParse(input.content);if(!result.success)return NextResponse.json({error:result.error.issues.map(i=>`${i.path.join('.')}: ${i.message}`).join('; ')},{status:400});content=result.data}
  if(input.action==='restore'&&!input.revisionId)return NextResponse.json({error:'Choose a revision.'},{status:400})
  await writeEntry(kind.data,slug,{...input,content})
- if(['publish','unpublish','archive'].includes(input.action)){revalidatePath('/');revalidatePath('/projects');revalidatePath('/events');revalidatePath(`/projects/${slug}`);revalidatePath(`/events/${slug}`)}
+ if(['publish','unpublish','archive'].includes(input.action)){revalidateTag('cms-entries',{expire:0});revalidatePath('/','layout');revalidatePath('/projects');revalidatePath('/events');revalidatePath(`/projects/${slug}`);revalidatePath(`/events/${slug}`)}
  revalidatePath('/dashboard/website')
  return NextResponse.json(await getEntryState(kind.data,slug),{headers:{'Cache-Control':'private, no-store'}})
 }catch(error){const status=error instanceof EntryError?error.status:error instanceof SyntaxError?400:503;return NextResponse.json({error:error instanceof EntryError?error.message:status===400?'Invalid request.':'Content management is temporarily unavailable.'},{status})}}

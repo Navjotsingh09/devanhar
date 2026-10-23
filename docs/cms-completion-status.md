@@ -64,3 +64,14 @@ Do not represent the sidebar, project spaces or page inventory as those editors.
 - Page draft filters, search, editor names/timestamps, recoverable draft discard, custom-page unpublish and recent-page dashboard summaries are present.
 - The sidebar includes a working Page drafts destination.
 - A rolled-back database transaction verified draft creation, initial publish, editing a live post without public changes and refusal of stale publishing. No test articles were retained.
+
+## Structured content modules — 23 October 2026
+
+- Project, event, announcement, notification and reusable FAQ records have immutable revisions, separate live/draft pointers, scheduled visibility and recoverable archive/restore.
+- Database rules enforce fresh roles and exact/inherited project assignments, including separate View/Edit/Create/Publish flags. Project changes in a draft do not change the published relationship.
+- Existing project/event catalogue data is imported unchanged. Existing programme pages and payment/registration flows remain available; managed project profiles are separate from the remaining campaign-page migrations.
+- Announcements and notifications render on configured pages, with dates and dismissal controls. Project-related messages are restricted to that project's public locations.
+- Reusable FAQs feed existing FAQ sections. Project/event profiles and their SEO use the same renderer as saved previews.
+- Public record reads are cached separately from all staff authorization checks; publication invalidates them immediately.
+- A real rolled-back transaction verified delegated creation/publishing, denied cross-project writes, denied permission changes, stale-save refusal, draft/live isolation and recoverable archives. No test records or role changes remain.
+- Build-time Sentry source-map and release uploads are disabled; existing runtime SDK configuration remains in place.
