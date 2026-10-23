@@ -1,3 +1,4 @@
+import {requireRootsStaff} from '@/lib/staff-programme-server'
 import Link from "next/link"
 import { createClient } from "@supabase/supabase-js"
 import { RootsBookingsTable } from "@/components/roots/roots-bookings-table"
@@ -5,6 +6,7 @@ import { RecoveredPaymentSection, type RecoveredPaymentRecord } from "@/componen
 export const dynamic = "force-dynamic"
 export const metadata = { title: "Roots Bookings | Dashboard" }
 async function getData() {
+  await requireRootsStaff()
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || "", process.env.SUPABASE_SERVICE_ROLE_KEY || "")
   const [bookingsResult, recoveredResult] = await Promise.all([supabase.from("roots_bookings").select("*").order("created_at", { ascending: false }), supabase.from("recovery_payment_ledger").select("id, source, occurred_at, amount, currency, payment_status, customer_name, customer_email, customer_phone, payment_reference").ilike("description", "%Roots Residential%").order("occurred_at", { ascending: false })])
   if (bookingsResult.error) console.error("[dashboard/roots] fetch error:", bookingsResult.error)

@@ -23,3 +23,10 @@ test('vacancies role comes from database instead of token metadata',async()=>{co
 test('Content Manager cannot load operational data or call operational APIs',async()=>{const s=setup({role:'content_manager'});assert.equal((await s.run('/dashboard/submissions')).body,'https://site.invalid/dashboard/website');assert.equal((await s.run('/api/wolfrun/admin','POST')).status,403);assert.equal((await s.run('/api/cms/sfi','POST')).status,200)})
 
 test('legacy operational grants do not block explicitly assigned Content Manager APIs or enable CRM access',async()=>{const s=setup({role:'content_manager',programmes:['family']});assert.equal((await s.run('/api/cms/sfi','POST')).status,200);assert.equal((await s.run('/dashboard/website/sfi')).status,200);assert.equal((await s.run('/api/admin/reconcile-stripe','POST')).status,403);assert.equal((await s.run('/dashboard/submissions')).body,'https://site.invalid/dashboard/website')})
+
+test('Roots scope opens only Roots pages, Roots APIs and its scoped CSV export',async()=>{
+ const s=setup({programmes:['roots']})
+ for(const path of ['/dashboard/roots','/dashboard/roots/forms/sample/responses','/api/roots-forms/form/responses/entry','/api/crm/submissions/export?programme=roots'])assert.equal((await s.run(path)).status,200,path)
+ for(const path of ['/api/cms/sfi','/api/admin/stripe-audit','/api/roots-forms-other','/api/crm/submissions/export?programme=padel','/api/crm/submissions/export'])assert.equal((await s.run(path,'POST')).status,403,path)
+ assert.equal((await s.run('/dashboard/users')).body,'https://site.invalid/dashboard/roots')
+})

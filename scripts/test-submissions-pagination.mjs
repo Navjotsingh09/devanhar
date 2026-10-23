@@ -231,7 +231,7 @@ test('friendly statuses preserve raw filter values; Clear filters resets order t
 test('programme CSV forces live table or scoped evidence and rejects invalid programme without data calls', async () => {
   let observed
   const route=load('app/api/crm/submissions/export/route.ts',{
-    '@/lib/staff-programme-server':{requireGeneralStaff:async()=>({})},
+    '@/lib/staff-programme-server':{requireGeneralStaff:async()=>({}),requireRootsStaff:async()=>({})},
     '@/lib/crm/programme-records':programmes,
     '@/lib/crm/submissions':{...model,loadSubmissionList:async(_c,params,scope)=>{observed={params,scope};return {rows:[],count:0}}},
   })
