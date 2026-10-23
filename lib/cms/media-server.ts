@@ -2,7 +2,7 @@ import 'server-only'
 import {createClient,type SupabaseClient} from '@supabase/supabase-js'
 import {getBlogStaff} from '@/lib/blog-staff-server'
 import {entrySession,EntryError} from './entries/server'
-export async function mediaContext(){let context;try{context=await entrySession()}catch(error){const staff=await getBlogStaff();if(!staff.allowed)throw error;context={client:staff.client,user:staff.user,isAdmin:false}};const url=process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)throw new EntryError('Media storage is unavailable.',503);return{...context,db:createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}})}}
+export async function mediaContext(){let context;try{context=await entrySession()}catch(error){if(!(error instanceof EntryError)||error.status!==403)throw error;const staff=await getBlogStaff();if(!staff.allowed)throw error;context={client:staff.client,user:staff.user,isAdmin:false}};const url=process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.SUPABASE_URL,key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!url||!key)throw new EntryError('Media storage is unavailable.',503);return{...context,db:createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}})}}
 export async function mediaReferences(db:SupabaseClient,url:string){
  const[pages,entries,blogs]=await Promise.all([db.from('cms_pages').select('slug,draft_revision_id,published_revision_id'),db.from('cms_entries').select('slug,kind,draft_revision_id,published_revision_id').eq('archived',false),db.from('blog_posts').select('slug,cover_image_url,content,draft_revision_id')])
  if(pages.error||entries.error||blogs.error)throw new EntryError('Usage could not be checked. Please retry.',503)

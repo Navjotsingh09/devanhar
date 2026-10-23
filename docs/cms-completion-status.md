@@ -110,3 +110,72 @@ Media library, navigation/branding, 39 layout-preserving content editors and sub
 - Additive media/subscriber columns were applied and verified; existing records were retained.
 - 510 executable regression checks pass, including 58 new CMS/workflow checks. The optional SPA workbook import suite requires its original workbook, which is unavailable in this workspace; it was not represented as passing.
 - Focused TypeScript passes. Final production build and deployed browser checks are in progress. The staff browser session is expired; authenticated acceptance is NOT verified.
+
+## Integration checkpoint — staging completion branch, 23 October 2026
+
+This is an implementation checkpoint, **not a full-brief completion or production
+acceptance sign-off**. Earlier verification statements above describe their
+original increments; they are not evidence of this branch's live database state.
+
+- A fresh, shallow main checkout replaces use of the damaged local Git pack.
+  The existing `feat/cms-completion` increment is integrated with the latest
+  Wrestling content and uniform gallery cropping.
+- Homepage, SFI, custom pages and migrated page editors now share optional
+  social-title, social-description and sharing-image fields. Their public
+  metadata uses the saved published revision for both Open Graph and Twitter.
+  Old saved bodies remain valid. A permission-filtered SEO overview links to
+  each available page's editor.
+- Newsletter signup records the actual consent timestamp and wording, plus an
+  optional supplied name. The staff list/export exposes source and consent
+  evidence, with status/source/consent filters. Missing legacy consent remains
+  unknown: creation time is not presented as evidence of consent.
+- Subscriber APIs distinguish authentication, authorization, validation,
+  database and stale-write failures. Staff cannot restore withdrawn consent.
+  A successfully saved withdrawal is not reported as failed merely because its
+  separate activity-log insert failed.
+- The media authorization fallback is limited to an explicit CMS-role denial;
+  unexpected failures and expired sessions are not retried as another role.
+- Fresh validation: 543 executable tests pass with Node 24. The unavailable
+  original SPA import workbook suite is excluded explicitly. The changed
+  schema/metadata modules passed a focused TypeScript check before the
+  subscriber extension. Repository-wide TypeScript is blocked by pre-existing
+  JSX syntax in `lib/events-data.ts`; this is not represented as passing.
+- Local production build was denied by sandbox policy when Next.js inferred
+  the home directory as its workspace root. No permission workaround was used.
+  A hosted preview build is still required.
+
+### Database rollout and isolation
+
+No database migration, content publication, account cleanup or environment
+change was performed for this integration.
+
+For a **new isolated staging database**, install the existing CMS foundations
+first, then `docs/cms-completion-schema.sql`, then
+`supabase/migrations/20261023163000_newsletter_consent_evidence.sql`.
+If the base completion migration already succeeded, do not rerun it; review and
+apply only the follow-up migration. That migration changes column definitions
+and adds nullable evidence fields; it does not backfill, erase or invent
+historical signup/consent data. It does not correct any historical timestamps
+that an earlier deployment may have generated.
+
+Vercel inspection found the production branch is `main`, while
+`devanhaar.vercel.app` is assigned to `cms/safe-foundation-2026-10-20`. The three
+Supabase variable definitions target production, preview and development,
+without a branch-specific override in the inspected configuration. **Treat
+preview and production as sharing the database until isolation is established.**
+Do not test save/publish, subscriber changes or uploads there as if it were
+an isolated database.
+
+### Still outstanding
+
+- Verify and configure database/storage isolation and the intended staging
+  domain mapping before any write-based acceptance tests.
+- Complete delegated article editing with matching server/RPC/RLS checks,
+  remaining article fields and project/Insights relationships.
+- Complete typography/button/theme controls, integration settings and the
+  consolidated cross-content draft/dashboard requirements.
+- Validate media replacement/reference behaviour beyond the current
+  upload/reuse/archive workflow.
+- Perform logged-in role, preview/publish, notification, payment and upload
+  acceptance tests. Do not infer their success from source-level tests.
+- The external Dev Drive copy remains blocked by sandbox access.

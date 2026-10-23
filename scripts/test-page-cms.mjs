@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
 import ts from 'typescript'
+import { loadTypeScript } from './helpers/load-typescript.mjs'
 import { createHash } from 'node:crypto'
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -17,11 +18,11 @@ function loadSource(source, modules) {
   vm.runInNewContext(js, { module, exports: module.exports, URL, Date, console, process: { env: { NEXT_PUBLIC_SUPABASE_URL: 'https://example.test', SUPABASE_SERVICE_ROLE_KEY: 'fake' } }, require: name => name in modules ? modules[name] : require(name) })
   return module.exports
 }
-const sfi = load('lib/cms/sfi-content.ts', { './sfi-default.json': JSON.parse(fs.readFileSync('lib/cms/sfi-default.json', 'utf8')) })
+const sfi = loadTypeScript('lib/cms/sfi-content.ts')
 const settings=load('lib/cms/site-settings.ts',{'./site-settings-default.json':JSON.parse(fs.readFileSync('lib/cms/site-settings-default.json','utf8')),'./sfi-content':sfi})
 const copySchema=load('lib/cms/copy-schema.ts',{'./site-settings':settings,'./sfi-content':sfi})
 const migrated=JSON.parse(fs.readFileSync('lib/cms/migrated-pages.json','utf8'))
-const model = load('lib/cms/page-content.ts', { './home-default.json': JSON.parse(fs.readFileSync('lib/cms/home-default.json', 'utf8')), './sfi-content': sfi,'./site-settings':settings,'./copy-schema':copySchema,'./migrated-pages.json':migrated })
+const model = load('lib/cms/page-content.ts', { './home-default.json': JSON.parse(fs.readFileSync('lib/cms/home-default.json', 'utf8')), './sfi-content': sfi,'./site-settings':settings,'./copy-schema':copySchema,'./migrated-pages.json':migrated,'./seo':loadTypeScript('lib/cms/seo.ts') })
 const migration=load('lib/cms/migrated-content.ts',{'./migrated-pages.json':migrated,'./page-content':model})
 const sample = () => JSON.parse(JSON.stringify(model.defaultHomeContent))
 const uuid = suffix => `00000000-0000-4000-8000-${String(suffix).padStart(12, '0')}`

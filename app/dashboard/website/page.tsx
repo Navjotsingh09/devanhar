@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { sitePages } from '@/lib/cms/site-catalog'
 
 const tools = [
+  {title:'SEO & social sharing',description:'Edit page search metadata, indexing and social sharing images through saved drafts.',href:'/dashboard/website/seo'},
   {title:'Navigation & branding',description:'Preview and publish the shared menu, logos, accent colour, contact details and footer links.',href:'/dashboard/website/pages/site-settings'},
   {title:'Media library',description:'Upload, search, describe and reuse images, videos and PDF documents.',href:'/dashboard/website/media'},
   {title:'Subscribers',description:'Search, export and manage newsletter consent.',href:'/dashboard/newsletter'},

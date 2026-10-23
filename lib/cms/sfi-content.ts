@@ -1,22 +1,15 @@
 import { z } from 'zod'
 import defaults from './sfi-default.json'
+import { isSafeContentLink, isSafeAssetLink } from './content-links'
+import { pageSeoSchema } from './seo'
+export { isSafeContentLink, isSafeAssetLink } from './content-links'
 
 const text = z.string().trim().min(1, 'This field is required').max(10000)
-export function isSafeContentLink(value: string) {
-  if (/[\\\u0000-\u0020\u007f]/.test(value)) return false
-  if (value.startsWith('/') && !value.startsWith('//')) return true
-  if (/^#[a-zA-Z0-9_-]+$/.test(value)) return true
-  try {
-    const url = new URL(value)
-    return url.protocol === 'https:' && !url.username && !url.password
-  } catch { return false }
-}
-export function isSafeAssetLink(value:string){return isSafeContentLink(value)&&(value.startsWith('/')||/^https:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/site-images\//.test(value))}
 const link = z.string().max(2000).refine(isSafeContentLink, 'Use a website path or an HTTPS link')
 const section = z.enum(['events', 'why', 'faq', 'community'])
 export const sfiSchema = z.object({
   schemaVersion: z.literal(1),
-  seo: z.object({ title: text.max(160), description: text.max(320), noIndex: z.boolean() }).strict(),
+  seo: pageSeoSchema,
   hero: z.object({
     eyebrow: text.max(160), title: text.max(240), subtitle: text.max(500),
     paragraphs: z.tuple([text, text]),

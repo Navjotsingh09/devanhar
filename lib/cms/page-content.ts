@@ -4,6 +4,7 @@ import {pageCopySchema} from './copy-schema'
 import homeDefaults from './home-default.json'
 import {siteSettingsSchema,assetSchema} from './site-settings'
 import { isSafeContentLink } from './sfi-content'
+import { pageSeoSchema } from './seo'
 const text = z.string().trim().min(1, 'This field is required').max(10000)
 const short = text.max(240)
 const link = z.string().max(2000).refine(isSafeContentLink, 'Use a website path or an HTTPS link')
@@ -37,7 +38,7 @@ export const sectionSchema = z.discriminatedUnion('type', [
 ])
 export const pageContentSchema = z.object({
   schemaVersion: z.literal(1), title: short,
-  seo: z.object({ title: text.max(160), description: text.max(320), noIndex: z.boolean() }).strict(),
+  seo: pageSeoSchema,
   sections: z.array(sectionSchema).min(1).max(40).refine(sections => new Set(sections.map(s => s.id)).size === sections.length, 'Section IDs must be unique').refine(sections => sections.some(s => !s.hidden), 'Keep at least one section visible'),
 }).strict()
 export type PageContent = z.infer<typeof pageContentSchema>
