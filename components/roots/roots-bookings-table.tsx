@@ -121,7 +121,7 @@ function detailValue(v: unknown): string {
 
 export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
   const [confirming, setConfirming] = useState<string | null>(null)
-  const [amount, setAmount] = useState("")
+  const [amount, setAmount] = useState("50")
   const [loading, setLoading] = useState<string | null>(null)
   const [messages, setMessages] = useState<Record<string, { type: "success" | "error"; text: string }>>({})
   const [showArchived, setShowArchived] = useState(false)
@@ -153,9 +153,9 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
       }
       setMsg(b.id, "success", `Confirmed. Payment email sent to ${b.parent_email}.`)
       setConfirming(null)
-      setAmount("")
-    } catch {
-      setMsg(b.id, "error", "Something went wrong. Please try again.")
+      setAmount("50")
+    } catch (error) {
+      setMsg(b.id, "error", error instanceof Error ? error.message : "Something went wrong. Please try again.")
     }
     setLoading(null)
   }
@@ -164,13 +164,17 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
     if (!confirm(`Decline booking for ${b.camper_first_name} ${b.camper_last_name}?`)) return
     setLoading(b.id)
     try {
-      await declineRootsBooking(b.id)
+      const result = await declineRootsBooking(b.id)
+      if (!result.ok) {
+        setMsg(b.id, "error", result.error)
+        return
+      }
       setMsg(b.id, "success", "Declined. Email sent to parent.")
     } catch (error) {
       const message = error instanceof Error ? error.message : "Something went wrong. Please try again."
       setMsg(b.id, "error", message)
     }
-    setLoading(null)
+    finally { setLoading(null) }
   }
 
   async function handleSync(b: Booking) {
@@ -336,19 +340,19 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 flex-wrap">
-                        {isPending && (
+                        {(isPending || isConfirmedUnpaid) && (
                           <Button
                             size="sm"
                             variant="outline"
                             className="text-green-700 border-green-300 hover:bg-green-50 text-xs"
-                            onClick={() => { setConfirming(b.id); setAmount("") }}
+                            onClick={() => { setConfirming(b.id); setAmount("50") }}
                             disabled={isLoading}
                           >
                             <CheckCircle className="h-3 w-3 mr-1" />
-                            Confirm
+                            {isPending ? "Confirm" : "Retry acceptance email"}
                           </Button>
                         )}
-                        {isPending && (
+                        {(isPending || b.status === "declined") && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -357,7 +361,7 @@ export function RootsBookingsTable({ bookings }: { bookings: Booking[] }) {
                             disabled={isLoading}
                           >
                             <XCircle className="h-3 w-3 mr-1" />
-                            Decline
+                            {isPending ? "Decline" : "Retry decline email"}
                           </Button>
                         )}
                         {isConfirmedUnpaid && (

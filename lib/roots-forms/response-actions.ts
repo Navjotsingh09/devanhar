@@ -8,7 +8,8 @@ export function responseTransition(action: unknown, current: unknown): ResponseS
   if (action === 'restore' && current !== 'active') return 'active'
   throw new Error('This action is not available for the current response state.')
 }
-export function paymentLabel(state: string) {
+export function paymentLabel(state: string, rootsApplication = false) {
+  if (rootsApplication && state === 'not_required') return '£50 payable after acceptance'
   const labels: Record<string,string> = {not_required:'No payment required',awaiting_payment:'Awaiting payment',paid:'Paid',failed:'Payment failed',expired:'Checkout expired',cancelled:'Cancelled'}
   return labels[state] || state.replaceAll('_',' ')
 }
