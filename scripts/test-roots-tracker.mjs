@@ -211,3 +211,39 @@ test('legacy paid state is not misrepresented as staff-verified evidence', () =>
   assert.match(text, /No staff-verification record is available/)
   assert.doesNotMatch(text, /Paid · Staff verified/)
 })
+function decisionPanel(props = {}, changing = false) {
+  const jsx = (type, props) => ({type: typeof type === 'string' ? type : 'component', props})
+  let call = 0
+  const component = load('components/roots-forms/application-decision.tsx', {
+    'react/jsx-runtime': {jsx, jsxs: jsx, Fragment: 'fragment'},
+    react: {useState: initial => [call++ === 3 ? changing : initial, () => {}]},
+    'next/navigation': {useRouter: () => ({refresh() {}})},
+    '@/components/ui/button': {Button() {}},
+  }).ApplicationDecision
+  return component({formId, responseId, revision: 1, status: 'pending', emailState: 'not_sent', ...props})
+}
+const buttonText = tree => nodes(tree, 'component').map(button => JSON.stringify(button.props.children))
+test('new applications show both Accept and Decline', () => {
+  const labels = buttonText(decisionPanel()).join()
+  assert.match(labels, /Accept & email/); assert.match(labels, /Decline & email/)
+})
+for (const status of ['accepted', 'declined']) test(`emailed ${status} decision is shown as final without decision buttons`, () => {
+  const tree = decisionPanel({status, emailState: 'sent'})
+  assert.equal(buttonText(tree).length, 0)
+  assert.match(JSON.stringify(tree), /decision is final/)
+  assert.match(JSON.stringify(tree), /Made a mistake\? Change decision/)
+})
+test('change decision needs an extra step and only offers the opposite outcome', () => {
+  const labels = buttonText(decisionPanel({status: 'accepted', emailState: 'sent'}, true)).join()
+  assert.match(labels, /Change to declined & email/); assert.match(labels, /Cancel/)
+  assert.doesNotMatch(labels, /Accept & email|Retry/)
+})
+test('paid applications cannot change decision', () => {
+  const tree = decisionPanel({status: 'accepted', emailState: 'sent', paid: true}, true)
+  assert.equal(buttonText(tree).length, 0)
+  assert.doesNotMatch(JSON.stringify(tree), /Change decision/)
+})
+test('failed email only offers retrying the same decision', () => {
+  const labels = buttonText(decisionPanel({status: 'accepted', emailState: 'failed'})).join()
+  assert.match(labels, /Retry acceptance email/); assert.doesNotMatch(labels, /Decline/)
+})
