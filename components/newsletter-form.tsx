@@ -73,7 +73,7 @@ export function NewsletterForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/30 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="min-w-0 flex-1 px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-white placeholder:text-white/30 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
             <Button
               type="submit"
