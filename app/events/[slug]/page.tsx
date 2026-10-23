@@ -1,3 +1,5 @@
+import { getPublishedEntries } from "@/lib/cms/entries/server"
+import { EntryDetail } from "@/components/cms/entry-detail"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Navbar } from "@/components/navbar"
@@ -35,13 +37,19 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
+  const entry=(await getPublishedEntries("event"))?.find(e=>e.slug===slug)
+  if(entry&&entry.content.kind==="event")return {title:entry.content.seo.title||`${entry.content.title} | Events | Devanhaar`,description:entry.content.seo.description||entry.content.description,robots:{index:!entry.content.seo.noIndex}}
   if (!isEventSlug(slug)) return { title: "Event Not Found | Devanhaar" }
   return { title: `${events[slug].title} | Events | Devanhaar` }
 }
 
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  if (!isEventSlug(slug)) notFound()
+  const published=await getPublishedEntries("event")
+  const entry=published?.find(e=>e.slug===slug)
+  if(entry)return <EntryDetail content={entry.content} slug={slug}/>
+  if(published!==null || !isEventSlug(slug))notFound()
+  if(!isEventSlug(slug))notFound()
 
   const event = events[slug]
 

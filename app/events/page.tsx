@@ -1,3 +1,4 @@
+import { getPublishedEntries } from "@/lib/cms/entries/server"
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -63,7 +64,10 @@ export const metadata: Metadata = {
     "Explore Devanhaar events including Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks with tailored registration forms.",
 }
 
-export default function EventsPage() {
+export const dynamic = "force-dynamic"
+export default async function EventsPage() {
+  const published=await getPublishedEntries("event")
+  const records=published?.flatMap(entry=>entry.content.kind==="event"?[{slug:entry.slug,image:entry.content.image,title:entry.content.title,badge:entry.content.category,dateLabel:entry.content.dateLabel,shortDescription:entry.content.description,priceLabel:entry.content.priceLabel,comingSoon:entry.content.comingSoon&&entry.content.status!=="registration_open",closed:["completed","cancelled","sold_out"].includes(entry.content.status)}]:[])
   return (
     <div>
       <Navbar />
@@ -113,7 +117,7 @@ export default function EventsPage() {
               Events now follow a project-style flow with dedicated detail pages and tailored forms.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              {eventsConfig.map((event) => (
+              {(records ?? eventsConfig).map((event) => (
                 <article
                   key={event.title}
                     className={`group rounded-2xl border border-border bg-card overflow-hidden transition-colors ${event.comingSoon ? "opacity-90" : "hover:border-primary/30"}`}
@@ -143,6 +147,7 @@ export default function EventsPage() {
                     {event.shortDescription}
                   </p>
                   {event.priceLabel && <p className="mt-4 text-xs font-semibold text-foreground">{event.priceLabel}</p>}
+                  <Link href={`/events/info/${event.slug}`} className="mt-4 inline-block text-sm font-medium underline">View event details →</Link>
                   {event.comingSoon || event.closed ? (
                     <Button
                       disabled

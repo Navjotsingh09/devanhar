@@ -200,6 +200,7 @@ test('every reusable section template is valid', () => {
   for (const [type, data] of Object.entries(model.blockTemplates)) assert.equal(model.sectionSchema.safeParse({ id: type, type, hidden: false, data }).success, true, type)
 })
 const nativeModules = {
+  './content-sections':{ManagedProjects:()=>null,ManagedEvents:()=>null},
   'next/link': { __esModule: true, default: ({children, ...props}) => React.createElement('a', props, children) },
   'next/image': { __esModule: true, default: ({src, alt}) => React.createElement('img', {src, alt}) },
   '@/components/ui/button': { Button: ({children}) => React.createElement('span', null, children) },

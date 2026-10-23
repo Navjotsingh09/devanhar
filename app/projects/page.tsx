@@ -1,3 +1,5 @@
+import defaults from "@/lib/cms/entries/catalog-defaults.json"
+import { getPublishedEntries } from "@/lib/cms/entries/server"
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -55,13 +57,16 @@ const projectsFAQs = [
   },
 ]
 
-export default function ProjectsPage() {
+export const dynamic = "force-dynamic"
+export default async function ProjectsPage() {
+  const entries=await getPublishedEntries("project")
+  const records=entries?.flatMap(entry=>entry.content.kind==="project"?[{slug:entry.slug,title:entry.content.title,description:entry.content.description,image:entry.content.image,href:entry.content.websitePath||`/projects/${entry.slug}`,tag:entry.content.category,icon:defaults.projects.find(p=>p.slug===entry.slug)?.icon||"Users",comingSoon:entry.content.comingSoon}]:[])
   return (
     <div>
       <Navbar />
       <ScrollAnimations />
       <main>
-        <ProjectsPageContent />
+        <ProjectsPageContent records={records} />
         <FAQSection
           heading="Projects FAQ"
           subheading="Common questions about our camps, programmes, and how to get involved."
