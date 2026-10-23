@@ -37,7 +37,7 @@ export async function POST(request: Request, {params}: {params: Promise<{id: str
   if (row.decision_email_state === 'pending' && row.decision_status !== body.decision) return NextResponse.json({error: 'A notification is pending. Retry that decision before changing it.'}, {status: 409})
   const {data: saved, error: saveError} = await client.from('roots_form_submissions')
     .update({decision_status: body.decision, decision_revision: revision, decision_at: new Date().toISOString(), decision_by: user.id, decision_email_state: 'pending', decision_email_id: null, decision_email_sent_at: null})
-    .eq('form_id', id).eq('id', responseId).eq('record_state', 'active').eq('decision_revision', row.decision_revision).eq('decision_status', row.decision_status).eq('decision_email_state', row.decision_email_state).select('id').maybeSingle()
+    .eq('form_id', id).eq('id', responseId).eq('record_state', 'active').eq('payment_state', row.payment_state).eq('decision_revision', row.decision_revision).eq('decision_status', row.decision_status).eq('decision_email_state', row.decision_email_state).select('id').maybeSingle()
   if (saveError) return NextResponse.json({error: 'The decision could not be saved. No email was sent.'}, {status: 503})
   if (!saved) return NextResponse.json({error: 'This application changed. Reload before trying again.'}, {status: 409})
   let emailId: string
