@@ -51,11 +51,11 @@ const initiatives = [
     href: "/initiatives/gurmat-academy",
   },
   {
-    title: "Self Defence Academy",
+    title: "Wrestling Academy",
     description:
-      "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
+      "A community-led freestyle wrestling academy reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.",
     icon: <Shield className="w-5 h-5" />,
-    href: "/initiatives/self-defence-academy",
+    href: "/wrestling",
   },
   {
     title: "Sikh Professional Network",
@@ -69,7 +69,11 @@ const initiatives = [
 import type { PageSection } from '@/lib/cms/page-content'
 const icons = { Users, Heart, Globe, BookOpen, GraduationCap, School, Shield, House }
 export function PlatformSection({ content }: { content?: Extract<PageSection, { type: 'platform' }>['data'] } = {}) {
-  const items = content?.items.map(item => { const Icon = icons[item.icon as keyof typeof icons] || Users; return { ...item, icon: <Icon className="w-5 h-5" /> } }) ?? initiatives
+  const items = content?.items.map(original => {
+    const item = original.href === '/initiatives/self-defence-academy' || original.href === '/self-defence-academy' || original.href === '/sda'
+      ? { ...original, title: 'Wrestling Academy', description: "A community-led freestyle wrestling academy reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.", href: '/wrestling' }
+      : original
+    const Icon = icons[item.icon as keyof typeof icons] || Users; return { ...item, icon: <Icon className="w-5 h-5" /> } }) ?? initiatives
   return (
     <section id="initiatives" className="pt-0 pb-16 md:pt-0 md:pb-32 bg-background">
       <div className="container mx-auto px-6 lg:px-12">

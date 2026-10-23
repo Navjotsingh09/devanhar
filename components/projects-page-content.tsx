@@ -86,13 +86,13 @@ const projects: Project[] = [
     comingSoon: true,
   },
   {
-    title: "Self Defence Academy",
-    description: "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
+    title: "Wrestling Academy",
+    description: "A community-led freestyle wrestling academy reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.",
     image: "/initiatives/self-defence-top.png",
-    href: "/initiatives/self-defence-academy",
-    tag: "Martial Arts",
+    href: "/wrestling",
+    tag: "Wrestling",
     icon: Shield,
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     title: "Sikh Professional Network",

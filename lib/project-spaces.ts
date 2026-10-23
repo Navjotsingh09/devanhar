@@ -33,7 +33,7 @@ export const projectSpaces: ProjectSpace[] = [
   {id:'khalsa-catalyst',title:'Khalsa Catalyst',publicPath:'/initiatives/khalsa-catalyst'},
   {id:'gurmat-academy',title:'Gurmat Academy',publicPath:'/initiatives/gurmat-academy'},
   {id:'punjab-education-support',title:'Punjab Education Support',publicPath:'/initiatives/punjab-education-support'},
-  {id:'self-defence-academy',title:'Self Defence Academy',publicPath:'/initiatives/self-defence-academy'},
+  {id:'self-defence-academy',title:'Wrestling Academy',publicPath:'/wrestling'},
   {id:'forums',title:'Forums',publicPath:'/initiatives/forums'},
   {id:'sweb3',title:'SWeb3',publicPath:'/initiatives/sweb3'},
   {id:'newsletter',title:'Monthly Newsletter',dashboardPath:'/dashboard/newsletter'},
