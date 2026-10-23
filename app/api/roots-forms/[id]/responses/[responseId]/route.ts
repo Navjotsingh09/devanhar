@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { requireGeneralStaff } from '@/lib/staff-programme-server'
+import { requireRootsStaff } from '@/lib/staff-programme-server'
 import { readJson, sameOrigin } from '@/lib/roots-forms/server'
 import { responseTransition } from '@/lib/roots-forms/response-actions'
 export async function PATCH(request: Request, {params}: {params: Promise<{id:string;responseId:string}>}) {
   if (!sameOrigin(request)) return NextResponse.json({error:'Please use the response page.'},{status:403})
   let client
-  try { client=await requireGeneralStaff() } catch { return NextResponse.json({error:'You do not have permission to manage responses.'},{status:403}) }
+  try { client=await requireRootsStaff() } catch { return NextResponse.json({error:'You do not have permission to manage responses.'},{status:403}) }
   const {id,responseId}=await params
   if (![id,responseId].every(v=>/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(v))) return NextResponse.json({error:'Response not found.'},{status:404})
   let body, state

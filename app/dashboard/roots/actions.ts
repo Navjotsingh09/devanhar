@@ -1,14 +1,14 @@
 "use server"
 
 import { createClient } from "@supabase/supabase-js"
-import { requireGeneralStaff } from '@/lib/staff-programme-server'
+import { requireRootsStaff } from '@/lib/staff-programme-server'
 import { revalidatePath } from "next/cache"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 
 async function getSupabase() {
-  await requireGeneralStaff()
+  await requireRootsStaff()
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 

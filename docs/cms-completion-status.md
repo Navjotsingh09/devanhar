@@ -86,3 +86,10 @@ Do not represent the sidebar, project spaces or page inventory as those editors.
 - Public notices use cached published data without reading request headers in the root layout. Public programme pages keep static/ISR rendering; the staff layout explicitly remains dynamic.
 - Private previews keep their draft FAQ answers instead of receiving global published overrides. Notice timers stay inactive on private screens and when there are no messages.
 - The production build confirms public routes are prerendered with one-minute revalidation, while staff routes remain request-rendered.
+
+## Roots account scope — 23 October 2026
+
+- Roots is a separate programme scope. Scoped staff can open Roots bookings/forms/responses and the Roots-only CSV, while other project spaces remain visible and locked.
+- Fresh guards protect Roots service-role operations; scoped API exceptions cover only Roots form routes and the explicitly scoped CSV export.
+- Database policies allow Roots records and Roots recovery evidence while denying general CRM and other programme access. General staff and administrators retain their existing access.
+- Sukhdeep's explicitly requested Super Admin profile was repaired. His email remains unconfirmed; authentication verification is still required.
