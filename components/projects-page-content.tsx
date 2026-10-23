@@ -6,14 +6,15 @@ import Link from "next/link"
 import { ArrowRight, Users, Heart, Sparkles, BookOpen, GraduationCap, School, Shield, Trophy, Home, TreePine } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface Project {
+export interface Project {
+  slug?: string
   title: string
   description: string
   image: string
   gradient?: string
   href: string
   tag: string
-  icon: React.ElementType
+  icon: React.ElementType | string
   comingSoon?: boolean
 }
 
@@ -127,7 +128,7 @@ const stats = [
   { value: "3000+", label: "People Impacted Annually" },
 ]
 
-export function ProjectsPageContent() {
+export function ProjectsPageContent({ records }: { records?: Project[] } = {}) {
   const { images: projectImages } = useSiteImages("projects")
   const cmsImageMap = Object.fromEntries(projectImages.filter(img => img.category).map(img => [img.category!, img.url]))
   const getProjectImage = (slug: string, fallback: string) => cmsImageMap[slug] || fallback
@@ -193,14 +194,14 @@ export function ProjectsPageContent() {
       {/* All Initiatives */}
       <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => {
-            const Icon = project.icon
+          {(records ?? projects).map((project) => {
+            const Icon = typeof project.icon === "string" ? ({Users,Heart,Sparkles,BookOpen,GraduationCap,School,Shield,Trophy,Home,TreePine}[project.icon as "Users"] || Users) : project.icon
             return (
-              <Link key={project.title} href={project.href} className="group block">
+              <div key={project.title}><Link href={project.href} className="group block">
                 <div className={["relative aspect-[4/3] overflow-hidden rounded-sm", project.gradient || "bg-muted"].join(" ")}>
                   {!project.gradient && (
                     <Image
-                      src={getProjectImage(project.href.split("/").pop()!, project.image)}
+                      src={records ? project.image : getProjectImage(project.href.split("/").pop()!, project.image)}
                       alt={project.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -234,7 +235,7 @@ export function ProjectsPageContent() {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </Link>{project.slug && <Link href={`/projects/${project.slug}`} className="mt-3 inline-block text-sm font-medium underline">Project details →</Link>}</div>
             )
           })}
         </div>
