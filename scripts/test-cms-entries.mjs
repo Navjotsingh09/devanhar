@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import fs from 'node:fs'
+import vm from 'node:vm'
+import {createRequire} from 'node:module'
+import ts from 'typescript'
+const require=createRequire(import.meta.url)
+function load(path,modules={}){const js=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,module={exports:{}};vm.runInNewContext(js,{module,exports:module.exports,Date,URL,Intl,console,process:{env:{}},require:name=>name in modules?modules[name]:require(name)});return module.exports}
+const sfi=load('lib/cms/sfi-content.ts',{'./sfi-default.json':JSON.parse(fs.readFileSync('lib/cms/sfi-default.json','utf8'))})
+const model=load('lib/cms/entries/content.ts',{'../sfi-content':sfi}),dates=load('lib/cms/datetime.ts')
+const defaults=JSON.parse(fs.readFileSync('lib/cms/entries/catalog-defaults.json','utf8'))
+for(const kind of ['project','event','announcement','notification','faq'])test(`${kind} default is valid`,()=>assert.ok(model.parseEntry(kind,model.entryTemplate(kind))))
+test('imported catalogue retains all twelve project records and four event records',()=>{assert.equal(defaults.projects.length,12);assert.equal(defaults.events.length,4);for(const entry of [...defaults.projects,...defaults.events])assert.ok(model.parseEntry(entry.body.kind,entry.body),entry.slug)})
+test('blank titles, unsafe links, blank cover images and invalid statuses are refused',()=>{for(const change of [c=>c.title='  ',c=>c.websitePath='javascript:alert(1)',c=>c.image='',c=>c.image='//evil.test/image']){const c=model.entryTemplate('project');change(c);assert.equal(model.parseEntry('project',c),null)}const event=model.entryTemplate('event');event.status='invalid';assert.equal(model.parseEntry('event',event),null)})
+test('events cannot end before starting or unpublish before publishing',()=>{const event=model.entryTemplate('event');event.startAt='2027-04-01T10:00:00Z';event.endAt='2027-03-01T10:00:00Z';assert.equal(model.parseEntry('event',event),null);event.endAt='';event.publishAt=event.startAt;event.unpublishAt='2027-03-01T10:00:00Z';assert.equal(model.parseEntry('event',event),null)})
+test('scheduled events appear at start and disappear at end without affecting drafts',()=>{const e=model.entryTemplate('event');e.publishAt='2027-04-01T10:00:00Z';e.unpublishAt='2027-04-02T10:00:00Z';assert.equal(model.isEntryVisible(e,undefined,Date.parse('2027-04-01T09:59:00Z')),false);assert.equal(model.isEntryVisible(e,undefined,Date.parse(e.publishAt)),true);assert.equal(model.isEntryVisible(e,undefined,Date.parse(e.unpublishAt)),false)})
+test('inactive and untargeted messages stay hidden',()=>{const a=model.entryTemplate('announcement');assert.equal(model.isEntryVisible(a,'/'),false);a.active=true;a.pages=['/projects'];assert.equal(model.isEntryVisible(a,'/'),false);assert.equal(model.isEntryVisible(a,'/projects'),true)})
+test('UK scheduling handles winter, summer and the missing spring hour',()=>{assert.equal(dates.fromLondonDateTime('2027-01-10T09:00'),'2027-01-10T09:00:00.000Z');assert.equal(dates.fromLondonDateTime('2027-07-10T09:00'),'2027-07-10T08:00:00.000Z');assert.equal(dates.londonDateTime('2027-07-10T08:00:00Z'),'2027-07-10T09:00');assert.equal(dates.fromLondonDateTime('2027-03-28T01:30'),'')})
+let context
+const server=load('lib/cms/entries/server.ts',{'server-only':{},'./content':model,'@/lib/crm/request-staff':{getRequestStaff:async()=>context},'@supabase/supabase-js':{createClient:()=>{throw new Error('Privileged clients must not be created during authorization')}}})
+for(const [name,options,status]of[['signed out',{user:null},401],['auth error',{authError:{}},401],['missing profile',{profile:{data:null,error:null}},403],['profile lookup error',{profile:{data:{role:'super_admin'},error:{}}},403],['programme lookup error',{grants:{data:[],error:{}}},403],['operational staff',{profile:{data:{role:'staff'},error:null}},403]])test(`blocks ${name} before privileged queries`,async()=>{context={user:{id:'id'},authError:null,profile:{data:{role:'super_admin'},error:null},grants:{data:[],error:null},...options};await assert.rejects(server.entrySession(),e=>e.status===status)})
+for(const role of ['admin','super_admin','content_manager'])test(`accepts the explicit ${role} CMS role`,async()=>{context={user:{id:'id'},authError:null,profile:{data:{role},error:null},grants:{data:[],error:null}};assert.equal((await server.entrySession()).isAdmin,role!=='content_manager')})
