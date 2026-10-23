@@ -15,6 +15,7 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      { source: "/projects/self-defence-academy", destination: "/wrestling", permanent: true },
       { source: "/spa/admin", destination: "/spa-admin", permanent: false },
       { source: "/spa/admin/:path*", destination: "/spa-admin/:path*", permanent: false },
       { source: "/initiatives/gurmat-academy", destination: "/ga", permanent: true },

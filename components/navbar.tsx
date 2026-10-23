@@ -18,7 +18,7 @@ const MEGA_MENU_PROJECTS = [
   {
     title: "Wrestling Academy",
     description: "Freestyle wrestling, Sikh and Punjabi heritage, and connection within the sangat.",
-    image: "/images/wrestling-mat.svg",
+    image: "/initiatives/self-defence-top.png",
     href: "/wrestling",
     tag: "Sports",
   },
@@ -89,7 +89,6 @@ const MEGA_MENU_PROJECTS = [
 
 const MEGA_MENU_COMING_SOON = [
   { title: "University Projects", href: "/initiatives/university-projects" },
-  { title: "Self Defence Academy", href: "/initiatives/self-defence-academy" },
   { title: "Sikh Professional Network", href: "/initiatives/sikh-professional-network" },
 ]
 

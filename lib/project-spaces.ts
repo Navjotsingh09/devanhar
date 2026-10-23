@@ -7,7 +7,6 @@ export type ProjectSpace = {
   tools?: { title: string; url: string }[]
 }
 export const projectSpaces: ProjectSpace[] = [
-  {id:'wrestling-academy',title:'Wrestling Academy',publicPath:'/wrestling'},
   { id:'singhs-camp',title:'Singhs Camp',publicPath:'/initiatives/singhs-camp',children:[
     {id:'singhs-camp-uk',title:'Singhs Camp UK',publicPath:'/initiatives/singhs-camp/uk'},
     {id:'singhs-camp-eu',title:'Singhs Camp EU',publicPath:'/initiatives/singhs-camp/eu'},
@@ -34,7 +33,7 @@ export const projectSpaces: ProjectSpace[] = [
   {id:'khalsa-catalyst',title:'Khalsa Catalyst',publicPath:'/initiatives/khalsa-catalyst'},
   {id:'gurmat-academy',title:'Gurmat Academy',publicPath:'/initiatives/gurmat-academy'},
   {id:'punjab-education-support',title:'Punjab Education Support',publicPath:'/initiatives/punjab-education-support'},
-  {id:'self-defence-academy',title:'Self Defence Academy',publicPath:'/initiatives/self-defence-academy'},
+  {id:'self-defence-academy',title:'Wrestling Academy',publicPath:'/wrestling'},
   {id:'forums',title:'Forums',publicPath:'/initiatives/forums'},
   {id:'sweb3',title:'SWeb3',publicPath:'/initiatives/sweb3'},
   {id:'newsletter',title:'Monthly Newsletter',dashboardPath:'/dashboard/newsletter'},

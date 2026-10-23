@@ -1,67 +1,55 @@
-import Link from 'next/link'
-import {ArrowDown, ArrowUpRight, MoveUpRight} from 'lucide-react'
-import {Navbar} from '@/components/navbar'
-import {FooterSection} from '@/components/footer-section'
-import {wrestlingContent as content} from '@/lib/wrestling-content'
-import styles from './wrestling.module.css'
+import Link from "next/link"
+import { InitiativePageLayout } from "@/components/initiative-page-layout"
+import { wrestlingContent } from "@/lib/wrestling-content"
 
-export function WrestlingPage(){
- return <div className={styles.page}>
-  <a href="#wrestling-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-white focus:p-4">Skip to Wrestling Academy</a>
-  <Navbar/>
-  <main id="wrestling-main">
-   <section className={styles.hero} aria-labelledby="wrestling-title">
-    <div className={styles.heroInner}>
-     <div className={styles.heroCopy}>
-      <p className={styles.eyebrow}><span/> Devanhaar · Wrestling Academy</p>
-      <h1 id="wrestling-title">Strength<br/>in our <em>roots.</em></h1>
-      <p className={styles.heroIntro}>{content.introduction}</p>
-      <div className={styles.actions}>
-       <a href="#classes" className={styles.primary}>Explore the academy <ArrowDown size={17} aria-hidden="true"/></a>
-       <a href="#heritage" className={styles.textLink}>Our heritage <MoveUpRight size={17} aria-hidden="true"/></a>
-      </div>
-     </div>
-     <div className={styles.matPanel}>
-      <div className={styles.matLabel}><span>Rooted in tradition</span><span>Driven by discipline</span></div>
-      <div className={styles.matArtwork} aria-hidden="true"><div className={styles.outerCircle}><div className={styles.innerCircle}><span>DEVANHAAR</span><strong>WRESTLING<br/>ACADEMY</strong><i>Freestyle · Community · Heritage</i></div></div></div>
-      <p className={styles.matFoot}>One mat.<br/><strong>A shared sense of belonging.</strong></p>
-     </div>
-    </div>
-    <div className={styles.heroBottom}><span>Freestyle wrestling</span><span>Sikh & Punjabi heritage</span><span>Community-led</span></div>
-   </section>
-
-   <nav className={styles.sectionNav} aria-label="Explore the Wrestling Academy"><div>
-    <a href="#academy"><span>01</span> The academy</a><a href="#heritage"><span>02</span> Our heritage</a><a href="#classes"><span>03</span> Classes</a><a href="#in-action"><span>04</span> In action</a>
-   </div></nav>
-
-   <section id="academy" className={`${styles.section} ${styles.about}`} aria-labelledby="academy-heading">
-    <div><p className={styles.kicker}>01 / The initiative</p><h2 id="academy-heading">More than a sport.<br/><em>A connection.</em></h2></div>
-    <div className={styles.aboutCopy}><p>{content.overview}</p><p>Part of the wider Devanhaar organisation, the academy carries forward our commitment to Sikhi, education, sport and community development.</p>
-     <div className={styles.values}>{[['Develop','Skill & discipline'],['Strengthen','Body & mind'],['Connect','With the sangat']].map(([title,description])=><div key={title}><h3>{title}</h3><p>{description}</p></div>)}</div>
-    </div>
-   </section>
-
-   <section id="heritage" className={styles.heritage} aria-labelledby="heritage-heading"><div className={styles.section}>
-    <div className={styles.heritageHeading}><div><p className={styles.kicker}>02 / Our heritage</p><h2 id="heritage-heading">A tradition of strength.<br/><em>A purpose beyond it.</em></h2></div><p>Wrestling has deep roots in Sikh history. Physical strength, discipline and resilience have long been valued alongside spiritual development.</p></div>
-    <div className={styles.heritageCards}>{content.heritage.map((item,index)=><article key={item.name}><span className={styles.cardNumber}>0{index+1}</span><p className={styles.heritageName}>{item.name}</p><h3>{item.title}</h3><p>{item.body}</p></article>)}</div>
-    <p className={styles.heritageClosing}>Honouring that heritage means carrying it forward — through practice, character and community.</p>
-   </div></section>
-
-   <section id="classes" className={`${styles.section} ${styles.classes}`} aria-labelledby="classes-heading">
-    <div><p className={styles.kicker}>03 / Classes & timetable</p><h2 id="classes-heading">Find your place<br/><em>on the mat.</em></h2><p className={styles.sectionIntro}>Freestyle wrestling in an environment built around learning, challenge and shared progress.</p></div>
-    <div className={styles.classCard}><div className={styles.classCardHeader}><span>Devanhaar Wrestling Academy</span><span className={styles.smallPill}>Freestyle</span></div>
-     {content.sessions.length?<div className={styles.tableWrap}><table><caption className="sr-only">Wrestling class timetable</caption><thead><tr><th scope="col">Day & time</th><th scope="col">Group</th><th scope="col">Venue</th></tr></thead><tbody>{content.sessions.map(session=><tr key={`${session.day}-${session.time}-${session.group}`}><td><strong>{session.day}</strong><br/>{session.time}</td><td>{session.group}</td><td>{session.venue}</td></tr>)}</tbody></table></div>:<div className={styles.classDetails}><h3>Class information</h3><p>For current class times, the training venue, age groups and joining information, please get in touch with the Devanhaar team.</p><Link href="/contact" className={styles.darkButton}>Ask about classes <ArrowUpRight size={18} aria-hidden="true"/></Link></div>}
-     <div className={styles.classCardFoot}>Train with purpose. Grow together.</div>
-    </div>
-   </section>
-
-   <section id="in-action" className={styles.mediaSection} aria-labelledby="action-heading"><div className={styles.section}>
-    <div className={styles.mediaHeading}><div><p className={styles.kicker}>04 / The academy in action</p><h2 id="action-heading">The effort.<br/><em>The shared progress.</em></h2></div><p>A glimpse of training, technique and the community behind the academy.</p></div>
-    {content.media.length?<div className={styles.mediaGrid}>{content.media.map(item=><figure key={item.src}>{item.type==='video'?<video controls preload="none" aria-label={item.alt}><source src={item.src}/><a href={item.src}>Watch {item.caption}</a></video>:<img src={item.src} alt={item.alt} loading="lazy"/>}<figcaption>{item.caption}</figcaption></figure>)}</div>:<div className={styles.mediaAwaiting}><span className={styles.outlineWord} aria-hidden="true">ON THE MAT.</span><div><span className={styles.mediaDot}/><p>Academy photos & videos</p><span>Gallery to follow</span></div></div>}
-   </div></section>
-
-   <section className={styles.join} aria-labelledby="join-heading"><div><p className={styles.kicker}>Part of something stronger</p><h2 id="join-heading">Heritage in our hearts.<br/>Purpose in our training.</h2><Link href="/contact" className={styles.primary}>Get in touch <ArrowUpRight size={18} aria-hidden="true"/></Link></div></section>
-  </main>
-  <FooterSection/>
- </div>
+export function WrestlingPage() {
+  return (
+    <InitiativePageLayout
+      title="Devanhaar Wrestling Academy"
+      tagline="Freestyle wrestling rooted in our heritage. Strength, discipline and connection within the sangat."
+      heroImage="/initiatives/self-defence-top.png"
+      ctaText="Enquire About Classes"
+      ctaHref="/contact"
+      description={[
+        wrestlingContent.introduction,
+        wrestlingContent.overview,
+        "The academy forms part of the wider Devanhaar organisation, which runs programmes focused on Sikhi, education, sport and community development.",
+      ]}
+      additionalSections={
+        <>
+          <section className="py-16 bg-[#f8f8f8]" aria-labelledby="wrestling-heritage">
+            <div className="container mx-auto px-6 lg:px-12">
+              <h2 id="wrestling-heritage" className="text-3xl md:text-4xl font-bold text-foreground mb-6">Our Heritage</h2>
+              <p className="max-w-3xl text-base md:text-lg text-muted-foreground leading-relaxed mb-10">Wrestling has deep roots in Sikh history. Physical strength, discipline and resilience have long been valued alongside spiritual development.</p>
+              <div className="grid md:grid-cols-2 gap-6">
+                {wrestlingContent.heritage.map(item => (
+                  <article key={item.name} className="bg-background rounded-xl p-6 border border-border/50">
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{item.name}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{item.body}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+          <section id="classes" className="py-16 lg:py-24 scroll-mt-28" aria-labelledby="wrestling-classes">
+            <div className="container mx-auto px-6 lg:px-12">
+              <div className="max-w-3xl">
+                <h2 id="wrestling-classes" className="text-3xl md:text-4xl font-bold text-foreground mb-6">Class Information &amp; Timetable</h2>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-6">Our aim is to create an accessible, supportive and challenging environment to develop wrestling ability, physical wellbeing and mental resilience.</p>
+                {wrestlingContent.sessions.length > 0 ? (
+                  <div className="overflow-x-auto"><table className="w-full text-left text-sm"><caption className="sr-only">Wrestling class timetable</caption><thead><tr>{['Day','Time','Venue','Group'].map(label => <th key={label} scope="col" className="border-b p-3 font-semibold">{label}</th>)}</tr></thead><tbody>{wrestlingContent.sessions.map(session => <tr key={`${session.day}-${session.time}-${session.group}`}><td className="border-b p-3">{session.day}</td><td className="border-b p-3">{session.time}</td><td className="border-b p-3">{session.venue}</td><td className="border-b p-3">{session.group}</td></tr>)}</tbody></table></div>
+                ) : <p className="text-muted-foreground leading-relaxed">Class times and venue details will be shared here once confirmed. <Link href="/contact" className="font-medium text-primary underline underline-offset-4">Contact the team about classes.</Link></p>}
+              </div>
+            </div>
+          </section>
+          <section className="py-16 bg-[#f8f8f8]" aria-labelledby="wrestling-media">
+            <div className="container mx-auto px-6 lg:px-12">
+              <h2 id="wrestling-media" className="text-3xl md:text-4xl font-bold text-foreground mb-6">Our Wrestlers in Action</h2>
+              {wrestlingContent.media.length > 0 ? <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">{wrestlingContent.media.map(item => <figure key={item.src}>{item.type === 'video' ? <video src={item.src} aria-label={item.alt} controls preload="metadata" className="w-full aspect-[4/3] rounded-xl object-cover"/> : <img src={item.src} alt={item.alt} loading="lazy" className="w-full aspect-[4/3] rounded-xl object-cover"/>}<figcaption className="mt-3 text-sm text-muted-foreground">{item.caption}</figcaption></figure>)}</div> : <p className="max-w-3xl text-muted-foreground leading-relaxed">Photos and videos from the academy will be added here soon.</p>}
+            </div>
+          </section>
+        </>
+      }
+    />
+  )
 }

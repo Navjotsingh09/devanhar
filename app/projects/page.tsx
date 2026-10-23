@@ -33,7 +33,7 @@ const projectsFAQs = [
   {
     question: "How many projects does Devanhaar run?",
     answer:
-      "Devanhaar currently runs nine live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikh Family Retreat, Sikhi Vidyala, University Projects, Gurmat Academy, Self Defence Academy, and Sikh Professional Network. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
+      "Devanhaar currently runs nine live projects: Singhs Camp UK, Kaurs Camp UK, Kids Camps, Sikh Family Retreat, Sikhi Vidyala, University Projects, Gurmat Academy, Wrestling Academy, and Sikh Professional Network. Each serves a unique purpose within our mission to develop, empower, elevate, and connect.",
   },
   {
     question: "Who can attend Devanhaar camps?",
@@ -60,7 +60,7 @@ const projectsFAQs = [
 export const dynamic = "force-dynamic"
 export default async function ProjectsPage() {
   const entries=await getPublishedEntries("project")
-  const records=entries?.flatMap(entry=>entry.content.kind==="project"?[{slug:entry.slug,title:entry.content.title,description:entry.content.description,image:entry.content.image,href:entry.content.websitePath||`/projects/${entry.slug}`,tag:entry.content.category,icon:defaults.projects.find(p=>p.slug===entry.slug)?.icon||"Users",comingSoon:entry.content.comingSoon}]:[])
+  const records=entries?.flatMap(entry=>entry.content.kind==="project"?[{slug:entry.slug,title:entry.slug==="self-defence-academy"?"Wrestling Academy":entry.content.title,description:entry.slug==="self-defence-academy"?"A community-led freestyle wrestling academy reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.":entry.content.description,image:entry.content.image,href:entry.slug==="self-defence-academy"?"/wrestling":entry.content.websitePath||`/projects/${entry.slug}`,tag:entry.slug==="self-defence-academy"?"Wrestling":entry.content.category,icon:defaults.projects.find(p=>p.slug===entry.slug)?.icon||"Users",comingSoon:entry.slug==="self-defence-academy"?false:entry.content.comingSoon}]:[])
   return (
     <div>
       <Navbar />

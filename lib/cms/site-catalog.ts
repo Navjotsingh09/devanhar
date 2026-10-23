@@ -28,7 +28,6 @@ export const sitePages = [
   { title: 'Khalsa Catalyst', path: '/initiatives/khalsa-catalyst', area: 'Programmes' },
   { title: 'Gurmat Academy', path: '/initiatives/gurmat-academy', area: 'Programmes' },
   { title: 'Punjab Education Support', path: '/initiatives/punjab-education-support', area: 'Programmes' },
-  { title: 'Self Defence Academy', path: '/initiatives/self-defence-academy', area: 'Programmes' },
   { title: 'Forums', path: '/initiatives/forums', area: 'Programmes' },
   { title: 'SWeb3', path: '/initiatives/sweb3', area: 'Programmes' },
   { title: 'Wolf Run', path: '/events/wolfrun', area: 'Events' },

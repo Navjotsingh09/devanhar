@@ -252,7 +252,7 @@
       "slug": "self-defence-academy",
       "body": {
         "kind": "project",
-        "title": "Self Defence Academy",
+        "title": "Wrestling Academy",
         "seo": {
           "title": "",
           "description": "",
@@ -261,20 +261,20 @@
           "socialImage": "",
           "noIndex": false
         },
-        "description": "An academy dedicated to nurturing strength, skill and confidence whilst being rooted in Sikh values of honour, integrity and discipline.",
-        "category": "Martial Arts",
+        "description": "A community-led freestyle wrestling academy reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.",
+        "category": "Wrestling",
         "lead": "",
         "audience": "",
         "location": "",
         "logo": "",
         "image": "/initiatives/self-defence-top.png",
-        "imageAlt": "Self Defence Academy",
-        "websitePath": "/initiatives/self-defence-academy",
+        "imageAlt": "Wrestling Academy",
+        "websitePath": "/wrestling",
         "colour": "#b8860b",
         "socialLinks": [],
         "gallery": [],
         "faqs": [],
-        "comingSoon": true,
+        "comingSoon": false,
         "priority": 8
       },
       "icon": "Shield"

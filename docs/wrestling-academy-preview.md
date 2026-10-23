@@ -1,9 +1,9 @@
-# Wrestling Academy draft preview
+# Wrestling Academy replacement
 
-Routes: /wrestling and /initiatives/wrestling-academy. Responsive review: /design-review/wrestling.
+Wrestling replaces Self Defence Academy using the existing, unchanged InitiativePageLayout component: Devanhaar fonts, colours, split hero, rounded image, buttons, section spacing, cards, bottom CTA, navigation and footer. The existing Self Defence hero image remains pending the academy's own supplied media. The separate custom Wrestling stylesheet and mat illustration have been removed.
 
-The four requested sections are present: introduction, Sikh/Punjabi wrestling heritage, classes/timetable, and academy media. Source copy comes from the project overview supplied on 23 October 2026. No class days, times, venue, fees, eligibility, coaches, results or academy photographs were invented. The contact route uses the existing Devanhaar contact page. The project lead's personal phone number is not public.
+Routes: /wrestling, /initiatives/wrestling-academy, /sda and both legacy Self Defence page routes render the same replacement. /projects/self-defence-academy redirects to /wrestling. Responsive review: /design-review/wrestling.
 
-`lib/wrestling-content.ts` holds the supplied copy and typed session/media arrays. Those arrays are empty until the actual timetable and attachments arrive. The current hero uses an original CSS mat illustration, not a claimed training photograph. The empty media treatment is for draft review and should be replaced with the academy's supplied media before publishing.
+Navigation, homepage project cards, Projects listing, CMS defaults, page inventory and staff space title are updated. The original self-defence-academy CMS/access identity is retained so existing grants and saved revisions are not broken. Public rendering replaces the old title even when an older CMS homepage or project record is published.
 
-The draft is linked from the Projects mega-menu, CMS page inventory and project spaces. This feature branch is a review preview; the production site and published CMS catalogue are unchanged. Once the missing material arrives, finish the gallery and timetable, add its published CMS project catalogue entry, and verify the links on production.
+Supplied copy is used for introduction and heritage. Timetable and media remain empty until actual details/photos are supplied. No times, venue, fees, eligibility, coaches or results were invented. The personal contact number is not public.
