@@ -8,6 +8,7 @@ import { Check, Loader2 } from "lucide-react"
 export function NewsletterForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
+  const [name,setName]=useState('')
   const [email, setEmail] = useState("")
 
   async function handleSubscribe(e: React.FormEvent) {
@@ -17,12 +18,13 @@ export function NewsletterForm() {
     setErrorMsg("")
 
     try {
-      const response=await fetch('/api/newsletter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.trim(),consent:true,website:''})})
+      const response=await fetch('/api/newsletter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.trim(),name:name.trim(),consent:true,website:''})})
       const result=await response.json()
       if(!response.ok)throw new Error(result.error||'Subscription could not be saved.')
 
       setStatus("success")
       setEmail("")
+      setName("")
       setTimeout(() => setStatus("idle"), 5000)
     } catch (err) {
       console.error("Newsletter subscription error:", err)
@@ -45,7 +47,7 @@ export function NewsletterForm() {
           <p className="text-sm text-green-300">Subscribed! Thank you.</p>
         </div>
       ) : (
-        <form onSubmit={handleSubscribe}>
+        <form onSubmit={handleSubscribe}><input type="text" aria-label="Newsletter name (optional)" autoComplete="name" placeholder="Your name (optional)" maxLength={200} value={name} onChange={e=>setName(e.target.value)} className="mb-2 w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-base text-white placeholder:text-white/30 md:text-sm"/>
           <div className="flex gap-2">
             <input
               type="email"

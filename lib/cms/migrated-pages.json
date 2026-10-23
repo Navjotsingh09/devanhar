@@ -42,16 +42,28 @@
         "value": "Strength in our roots. Freestyle wrestling, Sikh heritage and community."
       },
       {
-        "key": "69b22ae2a4d67e30",
-        "source": "/initiatives/self-defence-top.png",
+        "key": "f510af45ff596016",
+        "source": "/wrestling/team-01.webp",
         "kind": "asset",
-        "value": "/initiatives/self-defence-top.png"
+        "value": "/wrestling/team-01.webp"
       },
       {
         "key": "8c87cd84ce5f78ff",
         "source": "Devanhaar presents",
         "kind": "text",
         "value": "Devanhaar presents"
+      },
+      {
+        "key": "6bd4698be4bc5dcf",
+        "source": "/wrestling/logo.webp",
+        "kind": "asset",
+        "value": "/wrestling/logo.webp"
+      },
+      {
+        "key": "11748cc316a8ccc3",
+        "source": "Devanhaar Wrestling",
+        "kind": "text",
+        "value": "Devanhaar Wrestling"
       },
       {
         "key": "d3e6be41b528daea",
@@ -70,12 +82,6 @@
         "source": "Academy.",
         "kind": "text",
         "value": "Academy."
-      },
-      {
-        "key": "3c58c11a9b203c25",
-        "source": "Freestyle wrestling rooted in our heritage. Strength, discipline and connection within the sangat.",
-        "kind": "text",
-        "value": "Freestyle wrestling rooted in our heritage. Strength, discipline and connection within the sangat."
       },
       {
         "key": "4eb950636535d637",
@@ -102,52 +108,52 @@
         "value": "Discover the academy"
       },
       {
-        "key": "fd36e0db56417ea9",
-        "source": "Freestyle wrestling",
+        "key": "e4d9f41883e8b731",
+        "source": "Monday &amp; Wednesday",
         "kind": "text",
-        "value": "Freestyle wrestling"
+        "value": "Monday &amp; Wednesday"
       },
       {
-        "key": "086005cf70d15f5f",
-        "source": "Our discipline",
+        "key": "16658e164c043d48",
+        "source": "Weekly classes",
         "kind": "text",
-        "value": "Our discipline"
+        "value": "Weekly classes"
       },
       {
-        "key": "76e198814c61417a",
-        "source": "Sikh &amp; Punjabi",
+        "key": "94dab1dd000832b3",
+        "source": "7:00pm – 8:30pm",
         "kind": "text",
-        "value": "Sikh &amp; Punjabi"
+        "value": "7:00pm – 8:30pm"
       },
       {
-        "key": "01aff4a44fc5ed5d",
-        "source": "Our heritage",
+        "key": "6e85d2147ba8255c",
+        "source": "Both evenings",
         "kind": "text",
-        "value": "Our heritage"
+        "value": "Both evenings"
       },
       {
-        "key": "d5b74fa4afc82b3f",
-        "source": "Wellbeing",
+        "key": "950025b021cb53ee",
+        "source": "Primarily 15+",
         "kind": "text",
-        "value": "Wellbeing"
+        "value": "Primarily 15+"
       },
       {
-        "key": "195f22e22235eebf",
-        "source": "Physical &amp; mental resilience",
+        "key": "711c49a6136cbfe9",
+        "source": "Beginners &amp; experienced wrestlers",
         "kind": "text",
-        "value": "Physical &amp; mental resilience"
+        "value": "Beginners &amp; experienced wrestlers"
       },
       {
-        "key": "9b6a102cb6a326a7",
-        "source": "Sangat",
+        "key": "cf14381990766203",
+        "source": "West Bromwich",
         "kind": "text",
-        "value": "Sangat"
+        "value": "West Bromwich"
       },
       {
-        "key": "c0076c08f3b1d766",
-        "source": "Connection &amp; community",
+        "key": "7f25944441232c52",
+        "source": "Edward Street Gurdwara · B70 8NN",
         "kind": "text",
-        "value": "Connection &amp; community"
+        "value": "Edward Street Gurdwara · B70 8NN"
       },
       {
         "key": "e5e037465da11bda",
@@ -166,6 +172,12 @@
         "source": "#wrestling-heritage",
         "kind": "link",
         "value": "#wrestling-heritage"
+      },
+      {
+        "key": "01aff4a44fc5ed5d",
+        "source": "Our heritage",
+        "kind": "text",
+        "value": "Our heritage"
       },
       {
         "key": "819c78f9d813f729",
@@ -198,28 +210,22 @@
         "value": "Enquire about classes"
       },
       {
-        "key": "6f340dd625f62cf1",
-        "source": "About the academy",
+        "key": "d4b1ea5708dd5329",
+        "source": "Overview",
         "kind": "text",
-        "value": "About the academy"
+        "value": "Overview"
       },
       {
-        "key": "097939c504ce6ddb",
-        "source": "Strength in",
-        "kind": "text",
-        "value": "Strength in"
+        "key": "7db9f4b28c2e2269",
+        "source": "/wrestling/banner.webp",
+        "kind": "asset",
+        "value": "/wrestling/banner.webp"
       },
       {
-        "key": "39722a9b28a43921",
-        "source": "our roots.",
+        "key": "19a4776c12ed79fc",
+        "source": "Devanhaar Wrestling Academy lion emblem in navy and gold",
         "kind": "text",
-        "value": "our roots."
-      },
-      {
-        "key": "ea8d4c7ebe808a71",
-        "source": "The academy forms part of the wider Devanhaar organisation, which runs programmes focused on Sikhi, education, sport and community development.",
-        "kind": "text",
-        "value": "The academy forms part of the wider Devanhaar organisation, which runs programmes focused on Sikhi, education, sport and community development."
+        "value": "Devanhaar Wrestling Academy lion emblem in navy and gold"
       },
       {
         "key": "6001c47417ff9488",
@@ -240,10 +246,16 @@
         "value": "A foundation for the future."
       },
       {
-        "key": "59d3a67fa1546dcd",
-        "source": "Wrestling has deep roots in Sikh history. Physical strength, discipline and resilience have long been valued alongside spiritual development.",
+        "key": "af019edbcfe4d2d6",
+        "source": "/wrestling/heritage.webp",
+        "kind": "asset",
+        "value": "/wrestling/heritage.webp"
+      },
+      {
+        "key": "ad6b3fd330f90256",
+        "source": "Supplied artwork illustrating the Sikh wrestling tradition",
         "kind": "text",
-        "value": "Wrestling has deep roots in Sikh history. Physical strength, discipline and resilience have long been valued alongside spiritual development."
+        "value": "Supplied artwork illustrating the Sikh wrestling tradition"
       },
       {
         "key": "6142551237662979",
@@ -268,6 +280,30 @@
         "source": "Our aim is to create an accessible, supportive and challenging environment to develop wrestling ability, physical wellbeing and mental resilience.",
         "kind": "text",
         "value": "Our aim is to create an accessible, supportive and challenging environment to develop wrestling ability, physical wellbeing and mental resilience."
+      },
+      {
+        "key": "15b61974b2707a7b",
+        "source": "Location",
+        "kind": "text",
+        "value": "Location"
+      },
+      {
+        "key": "1cba3cc4efb2f1ad",
+        "source": "Age range",
+        "kind": "text",
+        "value": "Age range"
+      },
+      {
+        "key": "8eab0f09df013b1b",
+        "source": "Experience",
+        "kind": "text",
+        "value": "Experience"
+      },
+      {
+        "key": "3090fd37d1a6bfaf",
+        "source": "What to bring",
+        "kind": "text",
+        "value": "What to bring"
       },
       {
         "key": "c697d2981bf41656",
@@ -304,6 +340,36 @@
         "source": "Contact the team about classes",
         "kind": "text",
         "value": "Contact the team about classes"
+      },
+      {
+        "key": "9feceb9333b5ff62",
+        "source": "Membership",
+        "kind": "text",
+        "value": "Membership"
+      },
+      {
+        "key": "3432356173f68e98",
+        "source": "Monthly or per session",
+        "kind": "text",
+        "value": "Monthly or per session"
+      },
+      {
+        "key": "7175517a370b5cd2",
+        "source": "or",
+        "kind": "text",
+        "value": "or"
+      },
+      {
+        "key": "26e6f20718274945",
+        "source": "/wrestling/class-poster.webp",
+        "kind": "asset",
+        "value": "/wrestling/class-poster.webp"
+      },
+      {
+        "key": "3d1ad4efaad869f2",
+        "source": "Devanhaar Wrestling class poster: ages 15+, Monday and Wednesday, 19:00–20:30, Edward Street Gurdwara, B70 8NN",
+        "kind": "text",
+        "value": "Devanhaar Wrestling class poster: ages 15+, Monday and Wednesday, 19:00–20:30, Edward Street Gurdwara, B70 8NN"
       },
       {
         "key": "0157291b6f4ff6ae",
@@ -354,40 +420,304 @@
         "value": "Wrestling Academy."
       },
       {
-        "key": "08ab1fbd20a0b8c6",
-        "source": "A community-led freestyle wrestling initiative reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.",
+        "key": "28edb4d04448a490",
+        "source": "Strong body. Strong Mind. Strong Sangat.",
         "kind": "text",
-        "value": "A community-led freestyle wrestling initiative reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community."
+        "value": "Strong body. Strong Mind. Strong Sangat."
       },
       {
-        "key": "1a1b98d633d0f764",
-        "source": "We bring physical training and community together. The academy aims to provide an accessible, supportive and challenging environment where individuals can develop their wrestling abilities, strengthen their physical and mental wellbeing, and build lasting connections within the sangat.",
+        "key": "229d39e777429401",
+        "source": "Devanhaar Wrestling Academy is a community-led initiative dedicated to promoting freestyle wrestling while reconnecting the next generation with the rich wrestling heritage of the Sikh and Punjabi community.",
         "kind": "text",
-        "value": "We bring physical training and community together. The academy aims to provide an accessible, supportive and challenging environment where individuals can develop their wrestling abilities, strengthen their physical and mental wellbeing, and build lasting connections within the sangat."
+        "value": "Devanhaar Wrestling Academy is a community-led initiative dedicated to promoting freestyle wrestling while reconnecting the next generation with the rich wrestling heritage of the Sikh and Punjabi community."
       },
       {
-        "key": "c11c80d938750c88",
-        "source": "The akhara tradition",
+        "key": "86684d3c0e951c3c",
+        "source": "Wrestling has deep roots in Sikh history. From Guru Angad Dev Ji's promotion of physical training and wrestling akharas to Guru Hargobind Sahib Ji's emphasis on the Sant-Sipahi (Saint-Soldier) ideal, physical strength, discipline and resilience have long been valued alongside spiritual development.",
         "kind": "text",
-        "value": "The akhara tradition"
+        "value": "Wrestling has deep roots in Sikh history. From Guru Angad Dev Ji's promotion of physical training and wrestling akharas to Guru Hargobind Sahib Ji's emphasis on the Sant-Sipahi (Saint-Soldier) ideal, physical strength, discipline and resilience have long been valued alongside spiritual development."
       },
       {
-        "key": "cee7a986752b75b7",
-        "source": "Guru Angad Dev Ji promoted physical training and wrestling akharas, recognising the place of strength, discipline and wellbeing in community life.",
+        "key": "d589bd8e63f9cc65",
+        "source": "The academy aims to carry this tradition forward by providing an accessible, supportive and challenging environment where individuals can develop their wrestling abilities, improve their physical and mental wellbeing, and build lasting connections within the sangat.",
         "kind": "text",
-        "value": "Guru Angad Dev Ji promoted physical training and wrestling akharas, recognising the place of strength, discipline and wellbeing in community life."
+        "value": "The academy aims to carry this tradition forward by providing an accessible, supportive and challenging environment where individuals can develop their wrestling abilities, improve their physical and mental wellbeing, and build lasting connections within the sangat."
       },
       {
-        "key": "10d2754219b85fe6",
-        "source": "The Sant-Sipahi ideal",
+        "key": "c6d95e0b3d5e3576",
+        "source": "The initiative forms part of the wider Devanhaar organisation.",
         "kind": "text",
-        "value": "The Sant-Sipahi ideal"
+        "value": "The initiative forms part of the wider Devanhaar organisation."
       },
       {
-        "key": "0eef99ada0feb20e",
-        "source": "Guru Hargobind Sahib Ji emphasised the Sant-Sipahi — Saint-Soldier — ideal, bringing physical strength, courage and resilience alongside spiritual development.",
+        "key": "d2fef2652535f0a1",
+        "source": "The human body is a precious gift, and maintaining its health and strength allows us to better fulfil our responsibilities, serve others and progress on our spiritual journey.",
         "kind": "text",
-        "value": "Guru Hargobind Sahib Ji emphasised the Sant-Sipahi — Saint-Soldier — ideal, bringing physical strength, courage and resilience alongside spiritual development."
+        "value": "The human body is a precious gift, and maintaining its health and strength allows us to better fulfil our responsibilities, serve others and progress on our spiritual journey."
+      },
+      {
+        "key": "432635bb03ce80c7",
+        "source": "Physical strength is not an end in itself, but a means to a greater purpose. A healthy, disciplined body can become an instrument for seva, simran, and living a life guided by Gurmat.",
+        "kind": "text",
+        "value": "Physical strength is not an end in itself, but a means to a greater purpose. A healthy, disciplined body can become an instrument for seva, simran, and living a life guided by Gurmat."
+      },
+      {
+        "key": "e364fa321f4091df",
+        "source": "This understanding is reflected in the legacy of Sri Guru Angad Dev Ji, who encouraged physical exercise and established wrestling akharas, recognising the importance of developing both physical and mental strength.",
+        "kind": "text",
+        "value": "This understanding is reflected in the legacy of Sri Guru Angad Dev Ji, who encouraged physical exercise and established wrestling akharas, recognising the importance of developing both physical and mental strength."
+      },
+      {
+        "key": "0e189b86226059f9",
+        "source": "This tradition continued through Sri Guru Hargobind Sahib Ji, whose Miri-Piri principle embodied the balance between spiritual and worldly responsibilities.",
+        "kind": "text",
+        "value": "This tradition continued through Sri Guru Hargobind Sahib Ji, whose Miri-Piri principle embodied the balance between spiritual and worldly responsibilities."
+      },
+      {
+        "key": "58ab616f9859e1d3",
+        "source": "At Devanhaar Wrestling Academy, we aim to carry forward these principles. Through wrestling, we encourage individuals to develop strength, discipline, humility, and resilience - not simply to become better athletes, but to become better equipped to serve their families, their sangat, and the wider community.",
+        "kind": "text",
+        "value": "At Devanhaar Wrestling Academy, we aim to carry forward these principles. Through wrestling, we encourage individuals to develop strength, discipline, humility, and resilience - not simply to become better athletes, but to become better equipped to serve their families, their sangat, and the wider community."
+      },
+      {
+        "key": "18def8051ea52754",
+        "source": "A strong body in service of a higher purpose.",
+        "kind": "text",
+        "value": "A strong body in service of a higher purpose."
+      },
+      {
+        "key": "e50bbfc8ba4ea76f",
+        "source": "Edward Street Gurdwara - Old Darbar Hall, B70 8NN",
+        "kind": "text",
+        "value": "Edward Street Gurdwara - Old Darbar Hall, B70 8NN"
+      },
+      {
+        "key": "a9ff88e476e895b4",
+        "source": "Classes are primarily aimed at ages 15+. Younger wrestlers with sufficient experience may also attend where training alongside the older group is appropriate for their development.",
+        "kind": "text",
+        "value": "Classes are primarily aimed at ages 15+. Younger wrestlers with sufficient experience may also attend where training alongside the older group is appropriate for their development."
+      },
+      {
+        "key": "1d55889547e16250",
+        "source": "Beginners and experienced wrestlers are welcome.",
+        "kind": "text",
+        "value": "Beginners and experienced wrestlers are welcome."
+      },
+      {
+        "key": "d259c30e177888f3",
+        "source": "Comfortable training clothes, a spare T-shirt, towel, water bottle and a positive attitude.",
+        "kind": "text",
+        "value": "Comfortable training clothes, a spare T-shirt, towel, water bottle and a positive attitude."
+      },
+      {
+        "key": "4993b7e08cc9f9e8",
+        "source": "Adults (16+)",
+        "kind": "text",
+        "value": "Adults (16+)"
+      },
+      {
+        "key": "b5d96b4b659787a0",
+        "source": "£30 per month",
+        "kind": "text",
+        "value": "£30 per month"
+      },
+      {
+        "key": "efff8f3a177b3c20",
+        "source": "£5 per session",
+        "kind": "text",
+        "value": "£5 per session"
+      },
+      {
+        "key": "4a186a96c5992752",
+        "source": "Under 16s",
+        "kind": "text",
+        "value": "Under 16s"
+      },
+      {
+        "key": "a6aef002516f8cb9",
+        "source": "£20 per month",
+        "kind": "text",
+        "value": "£20 per month"
+      },
+      {
+        "key": "17703881ac58bd44",
+        "source": "£3 per session",
+        "kind": "text",
+        "value": "£3 per session"
+      },
+      {
+        "key": "c1465815202fc993",
+        "source": "Primarily ages 15+",
+        "kind": "text",
+        "value": "Primarily ages 15+"
+      },
+      {
+        "key": "078c502d921b41e5",
+        "source": "Devanhaar Wrestling Academy group on the training mats",
+        "kind": "text",
+        "value": "Devanhaar Wrestling Academy group on the training mats"
+      },
+      {
+        "key": "a89aaa8c0668d799",
+        "source": "Our academy sangat.",
+        "kind": "text",
+        "value": "Our academy sangat."
+      },
+      {
+        "key": "a2c664e14bc98dd7",
+        "source": "/wrestling/team-02.webp",
+        "kind": "asset",
+        "value": "/wrestling/team-02.webp"
+      },
+      {
+        "key": "dfb12a2ee96860d9",
+        "source": "Academy wrestlers posing together after training",
+        "kind": "text",
+        "value": "Academy wrestlers posing together after training"
+      },
+      {
+        "key": "ffd68103ac0aa4d8",
+        "source": "Building connections through wrestling.",
+        "kind": "text",
+        "value": "Building connections through wrestling."
+      },
+      {
+        "key": "db2d14ded95cd5b8",
+        "source": "/wrestling/training-01.webp",
+        "kind": "asset",
+        "value": "/wrestling/training-01.webp"
+      },
+      {
+        "key": "b875229a1a26ed92",
+        "source": "Wrestlers demonstrating a standing technique to the class",
+        "kind": "text",
+        "value": "Wrestlers demonstrating a standing technique to the class"
+      },
+      {
+        "key": "e65b929df47b6c09",
+        "source": "Learning together on the mat.",
+        "kind": "text",
+        "value": "Learning together on the mat."
+      },
+      {
+        "key": "1ac9164f3944d6f5",
+        "source": "/wrestling/training-02.webp",
+        "kind": "asset",
+        "value": "/wrestling/training-02.webp"
+      },
+      {
+        "key": "3a00b3404a92ac41",
+        "source": "Two wrestlers practising a standing technique as the class watches",
+        "kind": "text",
+        "value": "Two wrestlers practising a standing technique as the class watches"
+      },
+      {
+        "key": "bc0433cf1ed3b7e0",
+        "source": "Developing freestyle wrestling technique.",
+        "kind": "text",
+        "value": "Developing freestyle wrestling technique."
+      },
+      {
+        "key": "1b7f36825c1bd85b",
+        "source": "/wrestling/training-03.webp",
+        "kind": "asset",
+        "value": "/wrestling/training-03.webp"
+      },
+      {
+        "key": "15c3de968840920f",
+        "source": "Wrestlers practising a takedown during an academy session",
+        "kind": "text",
+        "value": "Wrestlers practising a takedown during an academy session"
+      },
+      {
+        "key": "089b1437b5ec1560",
+        "source": "Strength, discipline and resilience.",
+        "kind": "text",
+        "value": "Strength, discipline and resilience."
+      },
+      {
+        "key": "9ad7c9a278597d9e",
+        "source": "/wrestling/training-04.webp",
+        "kind": "asset",
+        "value": "/wrestling/training-04.webp"
+      },
+      {
+        "key": "101c632272dd44d5",
+        "source": "Wrestlers demonstrating groundwork on the academy mats",
+        "kind": "text",
+        "value": "Wrestlers demonstrating groundwork on the academy mats"
+      },
+      {
+        "key": "25b4139877055da6",
+        "source": "Developing control on the mat.",
+        "kind": "text",
+        "value": "Developing control on the mat."
+      },
+      {
+        "key": "f7eb345f63a20ec2",
+        "source": "/wrestling/training-05.webp",
+        "kind": "asset",
+        "value": "/wrestling/training-05.webp"
+      },
+      {
+        "key": "fb438a188b7d2c6b",
+        "source": "Close view of two wrestlers practising a standing hold",
+        "kind": "text",
+        "value": "Close view of two wrestlers practising a standing hold"
+      },
+      {
+        "key": "5b79f347f6c97c68",
+        "source": "Practising technique together.",
+        "kind": "text",
+        "value": "Practising technique together."
+      },
+      {
+        "key": "1f13272cd5319c85",
+        "source": "/wrestling/training-06.webp",
+        "kind": "asset",
+        "value": "/wrestling/training-06.webp"
+      },
+      {
+        "key": "cca10ee967914680",
+        "source": "Two academy wrestlers practising a groundwork hold",
+        "kind": "text",
+        "value": "Two academy wrestlers practising a groundwork hold"
+      },
+      {
+        "key": "01e9f707cf80cfb3",
+        "source": "Learning through practice.",
+        "kind": "text",
+        "value": "Learning through practice."
+      },
+      {
+        "key": "693beec9fa08b785",
+        "source": "/wrestling/class.webp",
+        "kind": "asset",
+        "value": "/wrestling/class.webp"
+      },
+      {
+        "key": "2a7493b53f17751e",
+        "source": "Academy participants gathered around the training mats",
+        "kind": "text",
+        "value": "Academy participants gathered around the training mats"
+      },
+      {
+        "key": "363ec2877d897183",
+        "source": "/wrestling/team-03.webp",
+        "kind": "asset",
+        "value": "/wrestling/team-03.webp"
+      },
+      {
+        "key": "36e804295a7e80e7",
+        "source": "Devanhaar wrestlers gathered for an academy group photograph",
+        "kind": "text",
+        "value": "Devanhaar wrestlers gathered for an academy group photograph"
+      },
+      {
+        "key": "1bdc462ef9e79d77",
+        "source": "Our wrestling community.",
+        "kind": "text",
+        "value": "Our wrestling community."
       }
     ],
     "seo": {

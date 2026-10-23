@@ -16,7 +16,7 @@ const link = z.string().max(2000).refine(isSafeContentLink, 'Use a website path 
 const section = z.enum(['events', 'why', 'faq', 'community'])
 export const sfiSchema = z.object({
   schemaVersion: z.literal(1),
-  seo: z.object({ title: text.max(160), description: text.max(320), noIndex: z.boolean() }).strict(),
+  seo: z.object({ title: text.max(160), description: text.max(320),socialTitle:z.string().max(240).default(''),socialDescription:z.string().max(500).default(''),socialImage:z.string().max(2000).refine(v=>!v||isSafeAssetLink(v)).default(''),noIndex: z.boolean() }).strict(),
   hero: z.object({
     eyebrow: text.max(160), title: text.max(240), subtitle: text.max(500),
     paragraphs: z.tuple([text, text]),

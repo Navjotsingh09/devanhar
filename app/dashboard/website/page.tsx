@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { sitePages } from '@/lib/cms/site-catalog'
 
 const tools = [
+ {title:'Integrations',description:'Super Admin connection status for database, email and payments.',href:'/dashboard/website/integrations'},
   {title:'Navigation & branding',description:'Preview and publish the shared menu, logos, accent colour, contact details and footer links.',href:'/dashboard/website/pages/site-settings'},
   {title:'Media library',description:'Upload, search, describe and reuse images, videos and PDF documents.',href:'/dashboard/website/media'},
   {title:'Subscribers',description:'Search, export and manage newsletter consent.',href:'/dashboard/newsletter'},

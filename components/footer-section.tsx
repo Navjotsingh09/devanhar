@@ -70,6 +70,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
             <div>
               <Image
                 src={settings.brand.lightLogo}
+ unoptimized={settings.brand.lightLogo.startsWith("/media/file/")}
                 alt="Devanhaar"
                 width={160}
                 height={40}

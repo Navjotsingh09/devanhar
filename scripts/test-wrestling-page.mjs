@@ -42,14 +42,37 @@ function render(content = wrestlingContent) {
 test("preserves academy copy, heritage, navigation and existing footer", () => {
   const html = render()
   assert.equal((html.match(/<h1 /g) || []).length, 1)
-  for (const text of [wrestlingContent.introduction, wrestlingContent.overview, ...wrestlingContent.heritage.map(item => item.body)]) {
-    assert.ok(html.includes(text))
+  for (const text of [wrestlingContent.introduction, wrestlingContent.history, wrestlingContent.overview, wrestlingContent.organisation, ...wrestlingContent.heritage, wrestlingContent.heritageClosing]) {
+    assert.ok(html.includes(renderToStaticMarkup(React.createElement("p", null, text)).slice(3, -4)), text)
   }
   assert.ok(html.includes("Existing contact form"))
   assert.ok(html.includes("Site navigation"))
+  assert.ok(!html.includes("Timetable to be confirmed"))
+  assert.ok(!html.includes("Photos and videos from the academy will be added here soon."))
+  assert.ok(!html.includes("07507342465"))
+})
+
+test("shows confirmed schedule, fees, eligibility, location and kit without old placeholders", () => {
+  const html = render()
+  for (const text of [
+    "Monday", "Wednesday", "7:00pm – 8:30pm", wrestlingContent.location,
+    wrestlingContent.ageRange, wrestlingContent.experience, wrestlingContent.whatToBring,
+    "Adults (16+)", "Under 16s", "£30 per month", "£5 per session", "£20 per month", "£3 per session",
+  ]) {
+    assert.ok(html.includes(renderToStaticMarkup(React.createElement("p", null, text)).slice(3, -4)), text)
+  }
+  assert.equal(wrestlingContent.media.length, 10)
+  assert.ok(!html.includes("/initiatives/self-defence-top.png"))
+  for (const item of wrestlingContent.media) assert.ok(fs.existsSync(`public${item.src}`), item.src)
+  for (const asset of ["logo", "banner", "heritage", "class-poster", "team-01"]) {
+    assert.ok(html.includes(`/wrestling/${asset}.webp`), asset)
+  }
+})
+
+test("retains empty timetable and media states when no details have been supplied", () => {
+  const html = render({ ...wrestlingContent, sessions: [], media: [] })
   assert.ok(html.includes("Timetable to be confirmed"))
   assert.ok(html.includes("Photos and videos from the academy will be added here soon."))
-  assert.ok(!html.includes("07507342465"))
 })
 
 test("section navigation resolves and enquiry links keep the existing contact destination", () => {
@@ -104,4 +127,19 @@ test("all public replacement routes still use the same Wrestling component", () 
   for (const path of ["app/sda/page.tsx", "app/self-defence-academy/page.tsx"]) {
     assert.match(fs.readFileSync(path, "utf8"), /self-defence-academy\/page/)
   }
+})
+
+test("gallery photos fill uniform 4:3 tiles without portrait letterboxing", () => {
+  const root = postcss.parse(fs.readFileSync("components/wrestling/wrestling-page.css", "utf8"))
+  const styles = {}
+  root.walkRules(rule => {
+    if (rule.selectors.includes(".wrestling-page .wrestling-media-image img")) {
+      rule.walkDecls(declaration => { styles[declaration.prop] = declaration.value })
+    }
+    if (rule.selectors.includes(".wrestling-page .wrestling-media-image")) {
+      assert.ok(rule.nodes.some(node => node.prop === "aspect-ratio" && node.value === "4 / 3"))
+    }
+  })
+  assert.equal(styles["object-fit"], "cover")
+  assert.equal(styles["aspect-ratio"], "4 / 3")
 })

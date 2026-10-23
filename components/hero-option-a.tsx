@@ -46,6 +46,7 @@ export function HeroOptionA({ opportunities = [], content }: { opportunities?: O
         <div key={i} className="absolute inset-0 transition-opacity duration-[1500ms]" style={{ opacity: i === cur ? 1 : 0 }}>
           <Image
             src={src}
+ unoptimized={src.startsWith("/media/file/")}
             alt={currentSlides[i]?.subtitle || ""}
             fill
             sizes="100vw"

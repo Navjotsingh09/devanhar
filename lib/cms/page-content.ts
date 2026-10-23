@@ -36,8 +36,8 @@ export const sectionSchema = z.discriminatedUnion('type', [
   block('buttons', z.object({ heading: short, buttons: z.array(button).min(1).max(8) }).strict()),
 ])
 export const pageContentSchema = z.object({
-  schemaVersion: z.literal(1), title: short,
-  seo: z.object({ title: text.max(160), description: text.max(320), noIndex: z.boolean() }).strict(),
+  schemaVersion: z.literal(1), title: short,visibility:z.enum(['public','hidden']).default('public'),
+  seo: z.object({ title: text.max(160), description: text.max(320),socialTitle:z.string().max(240).default(''),socialDescription:z.string().max(500).default(''),socialImage:z.union([z.literal(''),assetSchema]).default(''),noIndex: z.boolean() }).strict(),
   sections: z.array(sectionSchema).min(1).max(40).refine(sections => new Set(sections.map(s => s.id)).size === sections.length, 'Section IDs must be unique').refine(sections => sections.some(s => !s.hidden), 'Keep at least one section visible'),
 }).strict()
 export type PageContent = z.infer<typeof pageContentSchema>

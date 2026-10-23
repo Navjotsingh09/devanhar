@@ -51,7 +51,7 @@ export async function pageContext(slug: string, action: 'view' | 'edit' | 'publi
     }
   }
   if (!permissions[action]) throw new CmsError(`You do not have permission to ${action} this page.`, 403)
-  return { user, page, permissions, session, db: serviceClient() }
+  return { user, page, permissions, session, role:profile.data.role, db: serviceClient() }
 }
 
 export async function getPageEditorState(slug: string) {
@@ -70,7 +70,7 @@ export async function getPageEditorState(slug: string) {
     ? await db.from('cms_page_revisions').select('id, revision_number, created_at, created_by').eq('page_id', page.id).order('revision_number', { ascending: false }).limit(20)
     : { data: [], error: null }
   if (historyError) throw new CmsError('Revision history could not be loaded.', 503)
-  return { content, head, permissions, history: history ?? [], updatedAt: page?.updated_at ?? null }
+  return { content, head, permissions, canEditCritical:context.role==='super_admin', history: history ?? [], updatedAt: page?.updated_at ?? null }
 }
 
 export async function getPublishedPageContent(slug: string): Promise<PageContent | null> {
@@ -93,8 +93,16 @@ export function sameHead(page: { id: string; draft_revision_id: string | null; p
 }
 
 export async function changePageContent(slug: string, action: 'save' | 'publish', content: PageContent, expected: SfiHead) {
-  const { page, db, user, session } = await pageContext(slug, action === 'save' ? 'edit' : 'publish')
+  const { page, db, user, session,role } = await pageContext(slug, action === 'save' ? 'edit' : 'publish')
+  if(['home','site-settings'].includes(slug)&&content.visibility!=='public')throw new CmsError('Keep the homepage and shared website settings visible.',400)
   if(!validMigratedContent(slug,content))throw new CmsError('This page uses its existing layout. Edit the supplied content fields without changing their source identifiers.',400)
+  if(slug==='site-settings'&&role!=='super_admin'){
+    const section=content.sections[0];if(section.type!=='siteSettings')throw new CmsError('Use the navigation and branding editor.',400)
+    const previousId=action==='publish'?page?.published_revision_id:page?.draft_revision_id||page?.published_revision_id
+    let previous=defaultSettingsPage.sections[0].data
+    if(previousId){const{data,error}=await db.from('cms_page_revisions').select('body').eq('page_id',page!.id).eq('id',previousId).single();const parsed=data&&parsePageBody(data.body),saved=parsed?.sections.find(s=>s.type==='siteSettings');if(error||saved?.type!=='siteSettings')throw new CmsError('Shared settings could not be verified.',503);previous=saved.data}
+    if(JSON.stringify(section.data.brand)!==JSON.stringify(previous.brand)||JSON.stringify(section.data.defaultSeo)!==JSON.stringify(previous.defaultSeo))throw new CmsError('Only a Super Admin can change or publish branding, organisation details and default SEO. Administrators can manage navigation and footer links.',403)
+  }
   if(slug==='site-settings'&&(content.sections.length!==1||content.sections[0].type!=='siteSettings'||content.sections[0].hidden))throw new CmsError('Keep the shared navigation and branding settings visible.',400)
   if(slug!=='site-settings'&&content.sections.some(s=>s.type==='siteSettings'))throw new CmsError('Use the shared navigation and branding editor for these settings.',400)
   if (!sameHead(page, expected)) throw new CmsError('Someone changed this page. Reload before saving or publishing.', 409)

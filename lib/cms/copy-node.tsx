@@ -17,6 +17,7 @@ export function applyPageCopy<T>(node:T,copy:PageCopy):T {
    // Data props stay original until their owning component renders. This avoids
    // applying the same replacement twice across nested components.
    if(typeof value.type==='string'||value.type===Link||value.type===Image)for(const key of ['href','src','alt','title','aria-label','placeholder'])if(typeof value.props[key]==='string')props[key]=transform(value.props[key])
+   if(value.type===Image&&String(props.src??value.props.src).startsWith('/media/file/'))props.unoptimized=true
    if((typeof value.type==='function'||typeof value.type==='object')&&components.has(value.type as object))props.cmsCopy=copy
    return React.cloneElement(value,props)
   }

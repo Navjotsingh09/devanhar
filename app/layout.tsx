@@ -1,4 +1,5 @@
 import React from "react"
+import {globalMetadata} from '@/lib/cms/global-seo-server'
 import { PublicContentExtras } from "@/components/cms/public-content-extras"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
@@ -10,11 +11,7 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
-export const metadata: Metadata = {
-  title: "Devanhaar | Create, Develop, Empower",
-  description:
-    "A Sikh-led charity creating educational and community spaces for learning, growth, and service across the UK, Europe, and beyond.",
-}
+export async function generateMetadata(){return globalMetadata()}
 
 export const viewport: Viewport = {
   themeColor: "#1a1d2e",

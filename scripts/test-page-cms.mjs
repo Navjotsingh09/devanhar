@@ -265,3 +265,8 @@ test('homepage cannot be unpublished and view-only users cannot discard drafts',
   await assert.rejects(server.changePageVisibility('home','discard',head()),failStatus(403))
   assert.equal(fixture.writes.length,0)
 })
+
+test('Admin cannot change critical branding while Super Admin can save it',async()=>{
+ setup({noPage:true,role:'admin'});const content=JSON.parse(JSON.stringify(settings.defaultSettingsPage));content.sections[0].data.brand.name='Updated organisation';await assert.rejects(server.changePageContent('site-settings','save',content,head()),/Only a Super Admin/);assert.equal(fixture.writes.length,0)
+ setup({noPage:true,role:'super_admin'});await server.changePageContent('site-settings','save',content,head());assert.equal(fixture.writes[0].action,'create')
+})

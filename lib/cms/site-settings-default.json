@@ -6,7 +6,20 @@
     "accent": "#ffb800",
     "contactEmail": "contact@devanhaar.com",
     "address": "3 Waterside Drive, Langley, United Kingdom",
-    "charityNumber": "1203393"
+    "charityNumber": "1203393",
+    "favicon": "/favicon.ico",
+    "design": {
+      "primary": "#feb601",
+      "secondary": "#f7f6f3",
+      "accent": "#e5a301",
+      "background": "#ffffff",
+      "text": "#22262a",
+      "mutedBackground": "#ebeced",
+      "mutedText": "#6d7078",
+      "font": "System",
+      "buttonStyle": "pill",
+      "borderRadius": 12
+    }
   },
   "navigation": {
     "projects": [
@@ -184,5 +197,12 @@
         "href": "https://www.linkedin.com/company/devanhaar/?originalSubdomain=uk"
       }
     ]
+  },
+  "defaultSeo": {
+    "title": "Devanhaar | Create, Develop, Empower",
+    "description": "A Sikh-led charity creating educational and community spaces for learning, growth, and service across the UK, Europe, and beyond.",
+    "socialTitle": "",
+    "socialDescription": "",
+    "socialImage": ""
   }
 }

@@ -115,3 +115,41 @@ test('contact failures do not claim a submission was stored',async()=>{
  const response=await route.POST(req('https://example.test/api/contact',{name:'Test enquiry',email:'test@example.com',message:'Must not disappear'}));assert.equal(response.status,500);assert.ok((await response.json()).error)
  }finally{for(const[env,val]of [['NEXT_PUBLIC_SUPABASE_URL',old.url],['SUPABASE_SERVICE_ROLE_KEY',old.key]])if(val===undefined)delete process.env[env];else process.env[env]=val}
 })
+
+test('legacy branding revisions receive safe defaults and invalid theme values are refused',()=>{
+ const old=structuredClone(settings.defaultSiteSettings);delete old.brand.design;delete old.brand.favicon;delete old.defaultSeo
+ const parsed=settings.siteSettingsSchema.parse(old);assert.equal(parsed.brand.design.font,'System');assert.equal(parsed.brand.favicon,'/favicon.ico')
+ for(const change of [{primary:'url(evil)'},{borderRadius:200},{font:'Injected'}]){const value=structuredClone(settings.defaultSiteSettings);Object.assign(value.brand.design,change);assert.equal(settings.siteSettingsSchema.safeParse(value).success,false)}
+})
+test('page visibility and social metadata default safely for older saved revisions',()=>{
+ const old=structuredClone(models.defaultHomeContent);delete old.visibility;delete old.seo.socialTitle;delete old.seo.socialDescription;delete old.seo.socialImage
+ const parsed=models.pageContentSchema.parse(old);assert.equal(parsed.visibility,'public');assert.equal(parsed.seo.socialImage,'')
+})
+test('media reusable URLs retain the asset identity across file versions',()=>{
+ const media=load('lib/cms/media.ts'),base={id:'00000000-0000-4000-8000-000000000001',section:'library',storage_path:'library/u/old.jpg',url:'https://example.supabase.co/old.jpg'}
+ assert.ok(media.mediaReuseUrl(base).includes(`/media/file/${base.id}/`));assert.ok(media.mediaReuseUrl({...base,storage_path:'library/u/new.jpg'}).includes(`/media/file/${base.id}/`));assert.equal(media.mediaReuseUrl({...base,section:'hero'}),base.url)
+})
+function subscriberFixture(denied=false){let writes=0,updates;const client={auth:{getUser:async()=>({data:{user:{id:'staff'}},error:null})}};const db={from:()=>({update(value){writes++;updates=value;return{eq(){return this},select(){return this},maybeSingle:async()=>({data:{id:'contact'},error:null})}},insert:async()=>({error:null})})};const route=load('app/api/cms/subscribers/route.ts',{'next/server':{NextResponse},'@/lib/staff-programme-server':{requireProgramme:async()=>{if(denied)throw Error('denied');return client}},'@/lib/cms/service':{cmsService:()=>db}});return{route,count:()=>writes,updates:()=>updates}}
+test('subscriber consent withdrawal uses a guarded server write and removes consent',async()=>{
+ const f=subscriberFixture(),request=req('https://example.test/api/cms/subscribers',{id:'00000000-0000-4000-8000-000000000001',status:'unsubscribed',expectedStatus:'active'}),result=await f.route.PATCH(request);assert.equal(result.status,200);assert.equal(f.count(),1);assert.equal(f.updates().consent,false)
+})
+test('subscriber operators cannot restore consent and denied accounts cannot write',async()=>{
+ const body={id:'00000000-0000-4000-8000-000000000001',status:'active',expectedStatus:'unsubscribed'},allowed=subscriberFixture(),denied=subscriberFixture(true)
+ assert.equal((await allowed.route.PATCH(req('https://example.test/api/cms/subscribers',body))).status,409);assert.equal(allowed.count(),0)
+ assert.equal((await denied.route.PATCH(req('https://example.test/api/cms/subscribers',{...body,status:'unsubscribed'}))).status,403);assert.equal(denied.count(),0)
+})
+test('enquiry edits reject stale saves and invalid assignment input',async()=>{
+ const workflow=load('lib/crm/enquiry-workflow.ts'),id='00000000-0000-4000-8000-000000000001',body={id,status:'in_progress',assignedTo:null,notes:' Work ',expectedUpdated:'2026-10-23T10:00:00Z'}
+ assert.equal(workflow.enquiryWorkflowSchema.parse(body).notes,'Work');assert.equal(workflow.enquiryWorkflowSchema.safeParse({...body,assignedTo:'anything'}).success,false)
+ const route=load('app/dashboard/submissions/workflow-actions.ts',{'next/cache':{revalidatePath:()=>{}},'@/lib/crm/submission-access':{requireSubmissionAccess:async()=>({user:{id},supabase:{from:()=>({update(){return this},eq(){return this},select(){return this},maybeSingle:async()=>({data:null,error:null})})}})}})
+ assert.match((await route.saveEnquiryWorkflow(body)).error,/changed/)
+})
+
+test('media replacement preserves history, rejects stale updates and derives restored URLs from storage',async()=>{
+ const id='00000000-0000-4000-8000-000000000001',user='00000000-0000-4000-8000-000000000002',path=`library/${user}/00000000-0000-4000-8000-000000000003.jpg`,stamp='2026-10-23T10:00:00Z',asset={id,url:'https://example.supabase.co/old.jpg',storage_path:path,section:'library',uploaded_by:user,updated_at:stamp,media_versions:[{url:'https://evil.test/file.jpg',storage_path:path}]};let updated,invalidations=0
+ const db={from:table=>{if(table==='activity_log')return{insert:async()=>({error:null})};let writing=false;return{select(){return this},eq(){return this},update(value){writing=true;updated=value;return this},maybeSingle:async()=>({data:writing?{id}:asset,error:null})}},storage:{from:()=>({list:async()=>({data:[{name:path.split('/').pop(),metadata:{mimetype:'image/jpeg',size:100}}],error:null}),getPublicUrl:p=>({data:{publicUrl:'https://example.supabase.co/storage/'+p}})})}}
+ const route=load('app/api/cms/media/route.ts',{'next/server':{NextResponse},'next/cache':{revalidateTag:()=>invalidations++,unstable_cache:fn=>fn},'@/lib/cms/media-server':{mediaContext:async()=>({db,user:{id:user},isAdmin:true}),mediaReferences:async()=>[]}})
+ assert.equal((await route.POST(req('https://example.test/api/cms/media',{action:'replace',id,path,expectedUpdated:'2026-10-22T10:00:00Z'}))).status,409);assert.equal(updated,undefined)
+ assert.equal((await route.POST(req('https://example.test/api/cms/media',{action:'replace',id,path,expectedUpdated:stamp}))).status,200);assert.equal(updated.media_versions[0].url,asset.url);assert.equal(invalidations,1)
+ assert.equal((await route.POST(req('https://example.test/api/cms/media',{action:'restoreVersion',id,version:0,expectedUpdated:stamp}))).status,200);assert.ok(updated.url.startsWith('https://example.supabase.co/storage/'));assert.ok(!updated.url.includes('evil'))
+})

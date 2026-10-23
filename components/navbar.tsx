@@ -169,6 +169,7 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
               <Image
                 src={logoSrc}
+ unoptimized={logoSrc.startsWith("/media/file/")}
                 alt="Devanhaar"
                 width={140}
                 height={36}
@@ -321,6 +322,7 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
                 >
                   <Image
                     src={featuredProject.image}
+ unoptimized={featuredProject.image.startsWith("/media/file/")}
                     alt={featuredProject.title}
                     fill
                     sizes="320px"
@@ -371,6 +373,7 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
                         <div className="relative h-16 w-20 flex-none overflow-hidden rounded-xl bg-gray-100">
                           <Image
                             src={project.image}
+ unoptimized={project.image.startsWith("/media/file/")}
                             alt={project.title}
                             fill
                             sizes="80px"
