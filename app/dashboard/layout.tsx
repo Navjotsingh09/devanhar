@@ -8,6 +8,9 @@ import { headers } from 'next/headers'
 import { Toaster } from '@/components/ui/sonner'
 import './dashboard.css'
 
+// Staff pages always resolve the current session and permissions per request.
+export const dynamic='force-dynamic'
+
 
 // Routes that require admin role
 const adminOnlyRoutes = ['/dashboard/users', '/dashboard/settings']

@@ -5,7 +5,7 @@ import vm from 'node:vm'
 import {createRequire} from 'node:module'
 import ts from 'typescript'
 const require=createRequire(import.meta.url)
-function load(path,modules={}){const js=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,module={exports:{}};vm.runInNewContext(js,{module,exports:module.exports,Date,URL,Intl,console,process:{env:{}},require:name=>name in modules?modules[name]:require(name)});return module.exports}
+function load(path,modules={}){const js=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,module={exports:{}};vm.runInNewContext(js,{module,exports:module.exports,Date,URL,Intl,console,process:{env:{}},require:name=>name in modules?modules[name]:require(name)});return module.exports}
 const sfi=load('lib/cms/sfi-content.ts',{'./sfi-default.json':JSON.parse(fs.readFileSync('lib/cms/sfi-default.json','utf8'))})
 const model=load('lib/cms/entries/content.ts',{'../sfi-content':sfi}),dates=load('lib/cms/datetime.ts')
 const defaults=JSON.parse(fs.readFileSync('lib/cms/entries/catalog-defaults.json','utf8'))
@@ -28,3 +28,25 @@ const params={params:Promise.resolve({kind:'event',slug:'test-event'})}
 test('draft saves never invalidate published content',async()=>{writes=[];invalidations=[];const response=await api.POST(request('save'),params);assert.equal(response.status,200);assert.equal(writes.length,1);assert.equal(invalidations.some(i=>i[0]==='tag'),false)})
 test('publishing expires public catalogue caches immediately',async()=>{writes=[];invalidations=[];const response=await api.POST(request('publish'),params);assert.equal(response.status,200);assert.ok(invalidations.some(i=>i[0]==='tag'&&i[1]==='cms-entries'&&i[2].expire===0))})
 test('cross-origin and invalid content requests never reach writes',async()=>{writes=[];assert.equal((await api.POST(request('save',model.entryTemplate('event'),'https://evil.test'),params)).status,403);assert.equal((await api.POST(request('save',{kind:'event',title:'invalid'}),params)).status,400);assert.equal(writes.length,0)})
+
+let faqPath='/rr'
+const sharedFaqs=[{kind:'faq',question:'Shared question',answer:'Published answer',visible:true,pages:[]},{kind:'faq',question:'Roots only',answer:'Roots answer',visible:true,pages:['/rr']},{kind:'faq',question:'Hidden',answer:'Hidden answer',visible:false,pages:[]}]
+const faqProvider=load('components/cms/site-content-provider.tsx',{'react':{createContext:()=>({}),useContext:()=>sharedFaqs},'next/navigation':{usePathname:()=>faqPath}})
+test('public FAQ sections merge published records, honour targeting and hide disabled FAQs',()=>{
+ faqPath='/rr';const rows=faqProvider.useSiteFaqs([{question:'Shared question',answer:'Default answer'}])
+ assert.equal(rows.length,2);assert.equal(rows[0].answer,'Published answer');assert.equal(rows[1].question,'Roots only')
+ faqPath='/sfi';assert.equal(faqProvider.useSiteFaqs([]).length,1)
+})
+test('private previews keep their own draft FAQ answers without published overrides',()=>{
+ for(const path of ['/cms-preview/content/faq/sample','/dashboard/website','/auth/login','/spa-admin']){
+  faqPath=path;const rows=faqProvider.useSiteFaqs([{question:'Shared question',answer:'Draft answer'}])
+  assert.equal(rows.length,1);assert.equal(rows[0].answer,'Draft answer')
+ }
+})
+const aliases=load('lib/cms/programme-paths.ts')
+test('project targeting includes canonical and short Roots and SFI routes',()=>{
+ for(const [canonical,short]of [['/initiatives/roots-residential','/rr'],['/initiatives/sikh-family-initiative','/sfi']]){
+  assert.ok(aliases.programmePaths(canonical).includes(short));assert.ok(aliases.programmePaths(short).includes(canonical))
+ }
+ assert.deepEqual([...aliases.programmePaths('/projects/custom')],['/projects/custom'])
+})
