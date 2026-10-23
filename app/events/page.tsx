@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic"
 export default async function EventsPage() {
   const published=await getPublishedEntries("event")
-  const records=published?.flatMap(entry=>entry.content.kind==="event"?[{slug:entry.slug,image:entry.content.image,title:entry.content.title,badge:entry.content.category,dateLabel:entry.content.dateLabel,shortDescription:entry.content.description,priceLabel:entry.content.priceLabel,comingSoon:entry.content.comingSoon,closed:["completed","cancelled","sold_out"].includes(entry.content.status)}]:[])
+  const records=published?.flatMap(entry=>entry.content.kind==="event"?[{slug:entry.slug,image:entry.content.image,title:entry.content.title,badge:entry.content.category,dateLabel:entry.content.dateLabel,shortDescription:entry.content.description,priceLabel:entry.content.priceLabel,comingSoon:entry.content.comingSoon&&entry.content.status!=="registration_open",closed:["completed","cancelled","sold_out"].includes(entry.content.status)}]:[])
   return (
     <div>
       <Navbar />

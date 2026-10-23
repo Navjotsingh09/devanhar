@@ -1,4 +1,4 @@
-# CMS implementation checkpoint — 22 October 2026
+# CMS implementation checkpoint — 23 October 2026
 
 The full development brief is not complete. This checkpoint records implemented
 and verified work; it is not an acceptance sign-off.
@@ -25,7 +25,7 @@ and verified work; it is not an acceptance sign-off.
 
 ## Verification
 
-401 production checks pass after the homepage/page builder increment. The preceding staging checkpoint had 442 passing checks. A separate parity check compared the
+434 production regression checks pass after the structured content increment. A separate parity check compared the
 current production SFI page with the new default renderer. Database transactions
 verified real role boundaries and the assignment hierarchy, then rolled back all
 temporary fixtures and role changes. No public page content was saved/published
@@ -37,7 +37,7 @@ as a test. Logged-in browser acceptance testing still requires a staff session.
 - Hero, pillars, project list, impact/insights headings, Instagram copy and FAQs are editable.
 - Existing registration notices still use registration windows, including the Roots link.
 - Admins create new pages under /pages/<slug> without replacing existing routes.
-- Nine reusable section types: hero, text, image/text, cards, CTA, FAQ, gallery, testimonials and buttons.
+- Thirteen reusable section types: hero, text, image/text, cards, CTA, FAQ, gallery, testimonials, buttons, published projects, published events, published Insights and shared FAQs.
 - Add/remove/reorder/hide sections; immutable saved drafts, same-renderer responsive preview and explicit publish.
 - Earlier revisions can be restored into a new draft, subject to the same assignment and concurrency checks.
 - Content Managers see only assigned saved CMS pages. New page creation remains Admin/Super Admin only.
@@ -46,10 +46,7 @@ as a test. Logged-in browser acceptance testing still requires a staff session.
 
 ## Remaining brief scope
 
-Migrating the remaining existing page layouts, project content CMS, reusable events
-manager, scheduled announcements/notifications, full media library, reusable FAQs,
-global branding/SEO/navigation/settings, general create permissions, version restoration across other content types, the full acceptance matrix
-remain separate implementation work. The primary Submissions screen now loads only one 25-row dataset and does not
+Migrating the remaining existing campaign layouts, the full media library, global branding/SEO/navigation/settings, subscribers, broader form operations, article revision restoration UI, staff account cleanup and the full authenticated acceptance matrix remain implementation work. Project/event/notice/FAQ record editors are implemented below; they do not replace every existing campaign layout. The primary Submissions screen now loads only one 25-row dataset and does not
 call Stripe. Existing bulk camp/payment workflows remain available explicitly
 under Advanced operations; that legacy console still performs heavier work.
 Do not represent the sidebar, project spaces or page inventory as those editors.

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import {ManagedProjects,ManagedEvents} from './content-sections'
 import { Navbar } from '@/components/navbar'
 import { FooterSection } from '@/components/footer-section'
 import { ScrollAnimations } from '@/components/scroll-animations'
@@ -17,6 +18,10 @@ function Buttons({ items }: { items: { label: string; href: string }[] }) {
 }
 function Section({ section, opportunities, posts }: { section: PageSection; opportunities: OpenOpportunity[]; posts: BlogPost[] }) {
   switch (section.type) {
+    case 'projects': return <ManagedProjects {...section.data}/>
+    case 'events': return <ManagedEvents {...section.data}/>
+    case 'sharedFaqs': return <FAQSection heading={section.data.heading} items={[]}/>
+    case 'insights': return <section className="container mx-auto px-6 py-16"><h2 className="mb-8 text-3xl font-bold">{section.data.heading}</h2><div className="grid gap-6 md:grid-cols-3">{posts.slice(0,section.data.limit).map(post=><Link key={post.slug} href={`/insights/${post.slug}`} className="rounded-xl border p-6"><h3 className="text-xl font-semibold">{post.title} →</h3><p className="mt-4 text-sm text-muted-foreground">{post.description}</p></Link>)}</div></section>
     case 'homeHero': return <HeroOptionA content={section.data} opportunities={opportunities} />
     case 'pillars': return <PillarsSection content={section.data} />
     case 'platform': return <PlatformSection content={section.data} />

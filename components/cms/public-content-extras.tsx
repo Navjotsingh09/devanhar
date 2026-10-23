@@ -1,3 +1,4 @@
+import {programmePaths} from '@/lib/cms/programme-paths'
 import {headers} from 'next/headers'
 import {getPublishedEntries,type PublishedEntry} from '@/lib/cms/entries/server'
 import {SiteNotices} from './site-notices'
@@ -12,7 +13,7 @@ export async function PublicContentExtras({children}:{children:React.ReactNode})
   const c=entry.content;if(!entry.projectId||!('pages'in c))return c
   const project=projects?.find(p=>p.id===entry.projectId)
   if(!project)return{...c,pages:['/__unavailable_project__']}
-  const pages=[`/projects/${project.slug}`,...(project.content.kind==='project'&&project.content.websitePath.startsWith('/')?[project.content.websitePath]:[]),...(events??[]).filter(e=>e.projectId===project.id).flatMap(e=>[`/events/${e.slug}`,`/events/info/${e.slug}`])]
+  const pages=[`/projects/${project.slug}`,...(project.content.kind==='project'&&project.content.websitePath.startsWith('/')?programmePaths(project.content.websitePath):[]),...(events??[]).filter(e=>e.projectId===project.id).flatMap(e=>[`/events/${e.slug}`,`/events/info/${e.slug}`])]
   const requested=c.pages.length?pages.filter(path=>c.pages.includes(path)):pages
   return{...c,pages:requested.length?requested:['/__unavailable_project__']}
  }

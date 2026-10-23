@@ -9,7 +9,7 @@ import type { getPageEditorState } from '@/lib/cms/page-server'
 type State = Awaited<ReturnType<typeof getPageEditorState>>
 export type Value = string | number | boolean | { [key: string]: Value } | Value[]
 const labelFor = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).replace('Href', 'Link').replace('Image Alt', 'Image description (alt text)')
-const names: Record<PageSection['type'], string> = { homeHero: 'Homepage hero', pillars: 'Pillars', platform: 'Project list', impact: 'Impact & insights', social: 'Instagram', hero: 'Hero', text: 'Text', imageText: 'Image & text', cards: 'Cards', cta: 'Call to action', faq: 'FAQs', gallery: 'Gallery', testimonials: 'Testimonials', buttons: 'Buttons' }
+const names: Record<PageSection['type'], string> = { projects:'Projects',events:'Events',insights:'Insights',sharedFaqs:'Reusable FAQs',homeHero: 'Homepage hero', pillars: 'Pillars', platform: 'Project list', impact: 'Impact & insights', social: 'Instagram', hero: 'Hero', text: 'Text', imageText: 'Image & text', cards: 'Cards', cta: 'Call to action', faq: 'FAQs', gallery: 'Gallery', testimonials: 'Testimonials', buttons: 'Buttons' }
 export function Fields({ value, onChange, label, template }: { value: Value; onChange: (value: Value) => void; label: string; template?: Value }) {
   if (Array.isArray(value)) {
     const sample = Array.isArray(template) ? template[0] : value[0]

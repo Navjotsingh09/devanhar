@@ -25,6 +25,7 @@ export function FAQSection({
   items,
 }: FAQSectionProps) {
   const visibleItems=useSiteFaqs(items)
+  if (!visibleItems.length) return null
   return (
     <section className="py-24 md:py-32 border-t border-border bg-secondary/30">
       <div className="container mx-auto px-6 lg:px-12">

@@ -11,6 +11,10 @@ const base = { id: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/), hidden: z.boolean(
 const block = <T extends z.ZodTypeAny, K extends string>(type: K, data: T) => z.object({ ...base, type: z.literal(type), data }).strict()
 const icon = z.enum(['Lightbulb','Flame','TrendingUp','Handshake','Users','Heart','Globe','BookOpen','GraduationCap','School','Shield','House'])
 export const sectionSchema = z.discriminatedUnion('type', [
+  block('projects',z.object({heading:short,limit:z.number().int().min(1).max(30)}).strict()),
+  block('events',z.object({heading:short,limit:z.number().int().min(1).max(30),projectSlug:z.string().max(120).regex(/^[a-z0-9-]*$/)}).strict()),
+  block('insights',z.object({heading:short,limit:z.number().int().min(1).max(30)}).strict()),
+  block('sharedFaqs',z.object({heading:short}).strict()),
   block('homeHero', z.object({ before: short, highlight: short, after: short, description: text.max(1000), primary: button, secondary: button, slides: z.array(z.object({ subtitle: short, image }).strict()).min(1).max(6) }).strict()),
   block('pillars', z.object({ eyebrow: short, heading: short, items: z.array(z.object({ title: short, description: text, icon }).strict()).min(1).max(12) }).strict()),
   block('platform', z.object({ eyebrow: short, heading: short, description: text, tags: z.array(short).max(12), items: z.array(z.object({ title: short, description: text, icon, href: link }).strict()).max(30) }).strict()),
@@ -40,6 +44,10 @@ export function parsePageBody(body: string): PageContent | null {
   try { const result = pageContentSchema.safeParse(JSON.parse(body)); return result.success ? result.data : null } catch { return null }
 }
 export const blockTemplates = {
+  projects:{heading:'Our projects',limit:6},
+  events:{heading:'Events',limit:6,projectSlug:''},
+  insights:{heading:'Insights',limit:6},
+  sharedFaqs:{heading:'Frequently Asked Questions'},
   hero: { eyebrow: 'Devanhaar', heading: 'New page', description: 'Add your introduction.', image: '/hero-slide-1.jpg', imageAlt: 'Devanhaar community', buttons: [{ label: 'Get in touch', href: '/contact' }] },
   text: { heading: 'Our story', paragraphs: ['Add your text.'] },
   imageText: { heading: 'Our community', description: 'Add your text.', image: '/hero-slide-1.jpg', imageAlt: 'Devanhaar community', button: { label: 'Find out more', href: '/contact' } },
