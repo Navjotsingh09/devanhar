@@ -127,3 +127,18 @@ test("all public replacement routes still use the same Wrestling component", () 
     assert.match(fs.readFileSync(path, "utf8"), /self-defence-academy\/page/)
   }
 })
+
+test("gallery photos fill uniform 4:3 tiles without portrait letterboxing", () => {
+  const root = postcss.parse(fs.readFileSync("components/wrestling/wrestling-page.css", "utf8"))
+  const styles = {}
+  root.walkRules(rule => {
+    if (rule.selectors.includes(".wrestling-page .wrestling-media-image img")) {
+      rule.walkDecls(declaration => { styles[declaration.prop] = declaration.value })
+    }
+    if (rule.selectors.includes(".wrestling-page .wrestling-media-image")) {
+      assert.ok(rule.nodes.some(node => node.prop === "aspect-ratio" && node.value === "4 / 3"))
+    }
+  })
+  assert.equal(styles["object-fit"], "cover")
+  assert.equal(styles["aspect-ratio"], "4 / 3")
+})

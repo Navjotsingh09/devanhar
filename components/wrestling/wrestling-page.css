@@ -88,7 +88,6 @@
 .wrestling-page .wrestling-media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .wrestling-page .wrestling-media-image { position: relative; aspect-ratio: 4 / 3; }
 .wrestling-page .wrestling-media-image img, .wrestling-page .wrestling-media-grid video { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; }
-.wrestling-page .wrestling-media-image img { object-fit: contain; background: var(--wrestling-paper); }
 .wrestling-page figcaption { margin-top: 12px; font-size: 13px; color: var(--wrestling-muted); }
 .wrestling-page .wrestling-media-empty { border: 1px solid #e8e5dc; border-radius: 4px 50px 4px 4px; background: var(--wrestling-paper); padding: 48px; color: var(--wrestling-muted); }
 .wrestling-page .wrestling-media-empty p + p { margin-top: 20px; font-size: clamp(24px, 3vw, 36px); font-weight: 600; letter-spacing: -.035em; color: var(--wrestling-ink); }

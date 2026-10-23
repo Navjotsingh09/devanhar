@@ -11,3 +11,5 @@ The supplied Overview and Our Heritage copy is preserved in `lib/wrestling-conte
 Enquiry buttons continue to link to `/contact`. The existing footer contact form is preserved unchanged; this is a presentation-only update, not a new registration form or a backend change. Verify desktop/mobile layout, jump links, both empty and populated timetable/media states, and all replacement route aliases before deployment.
 
 Run `node --test scripts/test-wrestling-page.mjs` for the focused rendering, enquiry-link, route-alias and style-isolation regression checks.
+
+Gallery photos fill uniform 4:3 tiles using `object-fit: cover`, including portrait originals. This intentionally crops images to remove letterboxing without modifying the supplied assets.
