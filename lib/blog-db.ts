@@ -104,3 +104,12 @@ export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost
 
   return data && !DELETED_LEGACY_SLUGS.has(slug) ? mapRow(data as BlogRow) : undefined
 }
+
+export async function getDashboardBlogHistory(postId:string) {
+  const supabase=await createClient()
+  const {data,error}=await supabase.from('blog_post_revisions')
+    .select('id,created_at,title:body->>title').eq('post_id',postId)
+    .order('created_at',{ascending:false}).limit(20)
+  if(error)throw new Error('Article history could not be loaded.')
+  return (data??[]).map(revision=>({id:revision.id,title:revision.title||'Untitled revision',createdAt:revision.created_at}))
+}

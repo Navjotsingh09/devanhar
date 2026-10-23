@@ -25,7 +25,7 @@ and verified work; it is not an acceptance sign-off.
 
 ## Verification
 
-434 production regression checks pass after the structured content increment. A separate parity check compared the
+441 production regression checks pass after the structured content increment. A separate parity check compared the
 current production SFI page with the new default renderer. Database transactions
 verified real role boundaries and the assignment hierarchy, then rolled back all
 temporary fixtures and role changes. No public page content was saved/published
@@ -46,7 +46,7 @@ as a test. Logged-in browser acceptance testing still requires a staff session.
 
 ## Remaining brief scope
 
-Migrating the remaining existing campaign layouts, the full media library, global branding/SEO/navigation/settings, subscribers, broader form operations, article revision restoration UI, staff account cleanup and the full authenticated acceptance matrix remain implementation work. Project/event/notice/FAQ record editors are implemented below; they do not replace every existing campaign layout. The primary Submissions screen now loads only one 25-row dataset and does not
+Migrating the remaining existing campaign layouts, the full media library, global branding/SEO/navigation/settings, subscribers, broader form operations, staff account cleanup and the full authenticated acceptance matrix remain implementation work. Project/event/notice/FAQ record editors are implemented below; they do not replace every existing campaign layout. The primary Submissions screen now loads only one 25-row dataset and does not
 call Stripe. Existing bulk camp/payment workflows remain available explicitly
 under Advanced operations; that legacy console still performs heavier work.
 Do not represent the sidebar, project spaces or page inventory as those editors.
@@ -72,3 +72,17 @@ Do not represent the sidebar, project spaces or page inventory as those editors.
 - Public record reads are cached separately from all staff authorization checks; publication invalidates them immediately.
 - A real rolled-back transaction verified delegated creation/publishing, denied cross-project writes, denied permission changes, stale-save refusal, draft/live isolation and recoverable archives. No test records or role changes remain.
 - Build-time Sentry source-map and release uploads are disabled; existing runtime SDK configuration remains in place.
+
+## Article history restoration — 23 October 2026
+
+- Editors can inspect the latest 20 saved article revisions and restore one as a new draft.
+- Unsaved changes block restoration, with an explicit confirmation and a leave-page warning.
+- The database enforces the current draft/timestamp, refuses revisions from other articles, rechecks access and records restoration atomically. Restoring never changes live article columns.
+- Older optional fields and publication dates are normalised to the editor format so restored drafts can be previewed and published.
+- 441 production checks pass; the full build passes. A real authenticated transaction verified restoration, stale/foreign revision refusal, later publishing and anonymous denial, then rolled back every fixture. Logged-in browser acceptance remains unverified.
+
+## Public rendering performance
+
+- Public notices use cached published data without reading request headers in the root layout. Public programme pages keep static/ISR rendering; the staff layout explicitly remains dynamic.
+- Private previews keep their draft FAQ answers instead of receiving global published overrides. Notice timers stay inactive on private screens and when there are no messages.
+- The production build confirms public routes are prerendered with one-minute revalidation, while staff routes remain request-rendered.

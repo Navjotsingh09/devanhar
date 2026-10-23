@@ -1,6 +1,7 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { BlogHistory, type ArticleRevision } from "./blog-history"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Eye, Save, Send, RotateCcw, Upload, ImageIcon, Trash2, Loader2, Bold, Italic, Link2 } from "lucide-react"
@@ -27,7 +28,7 @@ function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
 }
 
-export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
+export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedPost; history?: ArticleRevision[] }) {
   const router = useRouter()
   const contentRef = useRef<HTMLTextAreaElement>(null)
   const [preview, setPreview] = useState(false)
@@ -54,6 +55,13 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
     coverImage: "",
     coverAlt: "",
   })
+
+  useEffect(()=>{
+    if(!dirty)return
+    const warn=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue=''}
+    window.addEventListener('beforeunload',warn)
+    return()=>window.removeEventListener('beforeunload',warn)
+  },[dirty])
 
   const tagsText = useMemo(() => (form.tags ?? []).join(", "), [form.tags])
   const effectiveSlug = form.slug || slugify(form.title)
@@ -203,6 +211,7 @@ export function BlogEditor({ initialPost }: { initialPost?: ManagedPost }) {
         </div>
       </div>
 
+      {initialPost?.updatedAt&&<BlogHistory slug={initialPost.slug} revisions={history} expectedDraft={initialPost.draftId??null} expectedUpdated={initialPost.updatedAt} disabled={dirty||saving||uploading}/>}
       {saved && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Draft saved. The live article has not changed.</div>}
 
       <p className="text-sm text-muted-foreground">{initialPost?.isLive ? 'A published version is live. Saving a draft keeps it unchanged.' : 'This article is not published.'} Save, then preview your draft to enable publishing.</p>
