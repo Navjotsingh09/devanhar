@@ -5,13 +5,13 @@ import vm from 'node:vm'
 import ts from 'typescript'
 import {createRequire} from 'node:module'
 const require = createRequire(import.meta.url)
-function load(path, modules, env = {RESEND_API_KEY:'test-only'}) {
+function load(path, modules, env = {RESEND_API_KEY:'test-only'}, globals = {}) {
   const module = {exports:{}}
   const compiled = ts.transpileModule(fs.readFileSync(path,'utf8'), {
-    compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}, reportDiagnostics:true,
+    compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}, reportDiagnostics:true,
   })
   assert.equal(compiled.diagnostics?.length || 0, 0, path)
-  vm.runInNewContext(compiled.outputText, {module,exports:module.exports,URL,console:{error(){}},process:{env},require:name=>name in modules?modules[name]:require(name)})
+  vm.runInNewContext(compiled.outputText, {module,exports:module.exports,URL,console:{error(){}},process:{env},...globals,require:name=>name in modules?modules[name]:require(name)})
   return module.exports
 }
 function mailer({error=false,throws=false,missingId=false,env}={}) {
@@ -35,18 +35,25 @@ test('acceptance congratulates, states December dates and £50, and uses the exa
   assert.match(message.text,/£50/)
   assert.ok(message.html.includes(`href="${h.rootsCheckout}"`))
   assert.match(message.text,/Application reference: 22222222/)
+  for(const content of [message.text,message.html]){
+    assert.match(content,/Would you like to add a Message\?/)
+    assert.match(content,/Your Message/)
+    assert.match(content,/paste the application reference/)
+    assert.match(content,/match your payment to your application/)
+  }
   assert.equal(options.idempotencyKey,`roots-decision-${applicant.reference}-1-accepted`)
 })
 test('decline apologises and never contains a payment request or checkout',async()=>{
   const h=mailer();await h.sendRootsDecisionEmail({...applicant,decision:'declined'})
   const {message}=h.emails[0]
   assert.match(message.text,/sorry.*unable to offer a place/)
-  assert.doesNotMatch(message.html+message.text,/nowdonate|£50|Pay .*now|To secure/)
+  assert.doesNotMatch(message.html+message.text,/nowdonate|£50|Pay .*now|To secure|Your Message|Application reference/)
 })
 test('paid acceptance congratulates without requesting another payment',async()=>{
   const h=mailer();await h.sendRootsDecisionEmail({...applicant,decision:'accepted',paid:true})
   assert.match(h.emails[0].message.text,/No further payment/)
   assert.doesNotMatch(h.emails[0].message.html,/nowdonate/)
+  assert.doesNotMatch(h.emails[0].message.text,/Your Message|Application reference/)
 })
 test('email HTML escapes applicant-provided content',async()=>{
   const h=mailer();await h.sendRootsDecisionEmail({...applicant,childName:'<img src=x>',parentName:'<script>x</script>',decision:'accepted'})
@@ -183,5 +190,104 @@ test('changed Roots TSX components have no syntax errors',()=>{
   for(const path of ['components/roots-forms/application-decision.tsx','components/roots/roots-bookings-table.tsx','components/roots/roots-booking-form.tsx','app/dashboard/roots/forms/[id]/responses/[responseId]/page.tsx','app/initiatives/roots-residential/page.tsx']){
     const result=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},reportDiagnostics:true})
     assert.equal(result.diagnostics?.length||0,0,path)
+  }
+})
+
+function formHarness({slug='roots-residential-camp-registration',reply,preview=false,validationError}={}) {
+  const slots=[],calls=[],redirects=[]
+  let cursor=0,uuid=0,resetCount=0,focusCount=0
+  const element=(type,props)=>({type,props:props||{}})
+  const hooks={
+    Fragment:'Fragment',
+    useState(initial){const index=cursor++;if(!(index in slots))slots[index]=initial;return [slots[index],value=>{slots[index]=typeof value==='function'?value(slots[index]):value}]},
+    useRef(initial){const index=cursor++;if(!(index in slots))slots[index]={current:initial};return slots[index]},
+    useEffect(){},
+  }
+  const dialogs=Object.fromEntries(['Dialog','DialogClose','DialogContent','DialogDescription','DialogFooter','DialogHeader','DialogTitle'].map(key=>[key,key]))
+  const {FormRenderer}=load('components/roots-forms/form-renderer.tsx',{
+    react:hooks,'react/jsx-runtime':{jsx:element,jsxs:element,Fragment:'Fragment'},
+    'lucide-react':{Plus:'Plus',Trash2:'Trash2',FileText:'FileText',ArrowRight:'ArrowRight'},
+    '@/components/ui/dialog':dialogs,
+    '@/lib/roots-forms/schema':{visible:()=>true,dateBounds:()=>({}),validateAnswers(){if(validationError)throw new Error(validationError)}},
+  },{},{
+    crypto:{randomUUID:()=>`request-${++uuid}`},
+    window:{location:{assign:url=>redirects.push(url)}},
+    fetch:async(url,options)=>{calls.push({url,body:JSON.parse(options.body)});return reply?await reply():{ok:true,json:async()=>({receivedUrl:`/forms/${slug}/received?ref=fixture`})}},
+  })
+  const definition={title:'Test form',description:'',payment:{enabled:false,amountPence:0},fields:[{id:'child_name',label:'Child name',type:'text',required:true,help:'',documentUrl:''}]}
+  function find(node,type) {
+    if(!node||typeof node!=='object')return
+    if(node.type===type)return node
+    for(const child of [node.props?.children].flat(Infinity)){const match=find(child,type);if(match)return match}
+  }
+  function render() {
+    cursor=0
+    const tree=FormRenderer({definition,slug,preview})
+    const form=find(tree,'form')
+    form.props.ref.current={reset(){resetCount++},querySelector(){return {focus(){focusCount++}}}}
+    return {tree,form,dialog:find(tree,'Dialog'),input:find(tree,'input'),content:find(tree,'DialogContent')}
+  }
+  return {render,calls,redirects,get resetCount(){return resetCount},get focusCount(){return focusCount}}
+}
+test('Roots success shows popup only after save, clears answers, and stays on the page',async()=>{
+  const h=formHarness()
+  h.render().input.props.onChange({target:{value:'TEST child'}})
+  await h.render().form.props.onSubmit({preventDefault(){}})
+  const view=h.render()
+  assert.equal(view.dialog.props.open,true);assert.equal(h.redirects.length,0)
+  assert.equal(h.calls[0].body.answers.child_name,'TEST child')
+  assert.equal(view.input.props.value,'');assert.equal(h.resetCount,1)
+  let prevented=false
+  view.content.props.onCloseAutoFocus({preventDefault(){prevented=true}})
+  assert.equal(prevented,true);assert.equal(h.focusCount,1)
+  view.dialog.props.onOpenChange(false)
+  assert.equal(h.render().dialog.props.open,false)
+  h.render().input.props.onChange({target:{value:'Second TEST child'}})
+  await h.render().form.props.onSubmit({preventDefault(){}})
+  assert.equal(h.calls.length,2);assert.notEqual(h.calls[0].body.requestKey,h.calls[1].body.requestKey)
+})
+test('pending submissions and open confirmation cannot submit duplicate requests',async()=>{
+  let resolve
+  const h=formHarness({reply:()=>new Promise(done=>{resolve=done})})
+  const event={preventDefault(){}},first=h.render().form.props.onSubmit(event)
+  assert.equal(h.render().dialog.props.open,false)
+  await h.render().form.props.onSubmit(event)
+  assert.equal(h.calls.length,1)
+  resolve({ok:true,json:async()=>({receivedUrl:'/forms/roots-residential-camp-registration/received?ref=fixture'})})
+  await first
+  await h.render().form.props.onSubmit(event)
+  assert.equal(h.calls.length,1)
+})
+test('failed saves keep answers and retry key, show error, and never open success',async()=>{
+  const h=formHarness({reply:async()=>({ok:false,json:async()=>({error:'Submission could not be saved.'})})})
+  h.render().input.props.onChange({target:{value:'Preserved TEST child'}})
+  await h.render().form.props.onSubmit({preventDefault(){}})
+  const view=h.render()
+  assert.equal(view.dialog.props.open,false);assert.equal(view.input.props.value,'Preserved TEST child')
+  assert.ok(JSON.stringify(view.tree).includes('Submission could not be saved.'));assert.equal(h.resetCount,0)
+  await view.form.props.onSubmit({preventDefault(){}})
+  assert.equal(h.calls[0].body.requestKey,h.calls[1].body.requestKey)
+})
+test('invalid answers and previews never show a saved-success popup or send requests',async()=>{
+  for(const options of [{validationError:'Complete child name.'},{preview:true}]){
+    const h=formHarness(options)
+    await h.render().form.props.onSubmit({preventDefault(){}})
+    assert.equal(h.render().dialog.props.open,false);assert.equal(h.calls.length,0)
+  }
+})
+test('other forms retain receipt redirects and paid forms retain checkout redirects',async()=>{
+  for(const [options,url] of [
+    [{slug:'other-form'},'/forms/other-form/received?ref=fixture'],
+    [{reply:async()=>({ok:true,json:async()=>({checkoutUrl:'https://checkout.stripe.com/c/pay/fixture'})})},'https://checkout.stripe.com/c/pay/fixture'],
+  ]){
+    const h=formHarness(options);await h.render().form.props.onSubmit({preventDefault(){}})
+    assert.equal(h.redirects[0],url);assert.equal(h.render().dialog.props.open,false)
+  }
+})
+test('malformed success and unsafe checkout URLs show errors without success or navigation',async()=>{
+  for(const body of [{},{receivedUrl:'https://example.org/received'},{checkoutUrl:'https://example.org/pay'}]){
+    const h=formHarness({reply:async()=>({ok:true,json:async()=>body})})
+    await h.render().form.props.onSubmit({preventDefault(){}})
+    assert.equal(h.render().dialog.props.open,false);assert.equal(h.redirects.length,0);assert.equal(h.resetCount,0)
   }
 })
