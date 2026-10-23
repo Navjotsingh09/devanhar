@@ -28,8 +28,9 @@ export async function sendRootsDecisionEmail(input: {
   const payment = accepted
     ? input.paid ? 'Your payment is already recorded. No further payment is required.' : `To secure the place, please pay £${rootsFee} using the link below.`
     : ''
+  const paymentInstructions = `On the donation page, select "Yes" under "Would you like to add a Message?" and paste the application reference below into "Your Message" so the Roots team can match your payment to your application.`
   const link = accepted && !input.paid
-    ? `<p><a href="${escapeHtml(paymentUrl)}">Pay £${rootsFee} now</a></p><p>Please use application reference ${escapeHtml(input.reference)} when paying.</p>`
+    ? `<p><a href="${escapeHtml(paymentUrl)}">Pay £${rootsFee} now</a></p><p>${escapeHtml(paymentInstructions)}</p><p>Application reference: <strong>${escapeHtml(input.reference)}</strong></p>`
     : ''
   const signature = 'Roots Residential Team\nDevanhaar\nRoots@Devanhaar.com | +44 7735 048882'
   const resend = new Resend(process.env.RESEND_API_KEY)
@@ -38,7 +39,7 @@ export async function sendRootsDecisionEmail(input: {
     to: input.to,
     subject: accepted ? 'Congratulations - Roots application accepted' : 'Update on your Roots application',
     html: `<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:auto"><h2>${accepted ? 'Congratulations!' : 'Roots application update'}</h2><p>Dear ${escapeHtml(input.parentName)},</p><p>${escapeHtml(message)}</p>${payment ? `<p>${escapeHtml(payment)}</p>` : ''}${link}<p>If you have any questions, please contact <a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a>.</p><p>${escapeHtml(signature).replace(/\n/g, '<br/>')}</p></div>`,
-    text: `Dear ${input.parentName},\n\n${message}\n\n${payment}${accepted && !input.paid ? `\n${paymentUrl}\nApplication reference: ${input.reference}` : ''}\n\n${signature}`,
+    text: `Dear ${input.parentName},\n\n${message}\n\n${payment}${accepted && !input.paid ? `\n${paymentUrl}\n\n${paymentInstructions}\nApplication reference: ${input.reference}` : ''}\n\n${signature}`,
   }, { idempotencyKey: `roots-decision-${input.reference}-${input.revision}-${input.decision}` })
   if (error || !data?.id) throw new Error('The email provider did not accept the notification.')
   return data.id

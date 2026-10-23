@@ -3,9 +3,12 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Plus, Trash2, FileText, ArrowRight } from 'lucide-react'
 import { dateBounds, emailPattern, ukPhonePattern, visible, validateAnswers, type FormDefinition, type FormField } from '@/lib/roots-forms/schema'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 export function FormRenderer({definition,slug,preview=false,testPayments=false,sectionHeadings}:{definition:FormDefinition;slug?:string;preview?:boolean;testPayments?:boolean;sectionHeadings?:Record<string,string>}){
  const [answers,setAnswers]=useState<Record<string,unknown>>({}),[error,setError]=useState(''),[pending,setPending]=useState(false),[previewDone,setPreviewDone]=useState(false)
+ const [confirmationOpen,setConfirmationOpen]=useState(false)
+ const formRef=useRef<HTMLFormElement>(null),submitting=useRef(false)
  const alertRef=useRef<HTMLDivElement>(null)
  useEffect(()=>{if(error){alertRef.current?.focus();alertRef.current?.scrollIntoView({block:'center',behavior:'smooth'})}},[error])
  const autofill=(id:string,type:string)=>({parent_name:'section-parent name',parent_email:'section-parent email',parent_phone:'section-parent tel',child_address:'section-child street-address',emergency_one_name:'section-emergencyone name',emergency_one_phone:'section-emergencyone tel',emergency_two_name:'section-emergencytwo name',emergency_two_phone:'section-emergencytwo tel'} as Record<string,string>)[id] || (type==='email'?'email':type==='tel'?'tel':'off')
@@ -13,9 +16,22 @@ export function FormRenderer({definition,slug,preview=false,testPayments=false,s
  const attributes=(type:string,required:boolean)=>({...(type==='email'?{pattern:emailPattern,title:'Enter an email address with a complete domain, for example name@example.com.'}:type==='tel'?{pattern:ukPhonePattern,title:'Enter a UK phone number, for example 07700 900123 or +44 7700 900123.'}:type==='text'&&required?{pattern:String.raw`.*\S.*`,title:'Please enter an answer, not just spaces.'}:{})})
  const requestKey=useRef(''),honeypot=useRef<HTMLInputElement>(null)
  const put=(id:string,value:unknown)=>setAnswers(current=>({...current,[id]:value}))
- async function submit(event:React.FormEvent){event.preventDefault();setError('');try{validateAnswers(definition,answers)}catch(e){setError(e instanceof Error?e.message:'Please check the form.');return}
+ async function submit(event:React.FormEvent){event.preventDefault();if(submitting.current||confirmationOpen)return;setError('');try{validateAnswers(definition,answers)}catch(e){setError(e instanceof Error?e.message:'Please check the form.');return}
   if(preview){setPreviewDone(true);return}if(!slug)return
-  setPending(true);try{if(!requestKey.current)requestKey.current=crypto.randomUUID();const response=await fetch(`/forms/${slug}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers,requestKey:requestKey.current,website:honeypot.current?.value||''})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Unable to submit.');if(data.checkoutUrl){const url=new URL(data.checkoutUrl);if(url.protocol!=='https:'||url.hostname!=='checkout.stripe.com')throw new Error('Payment link unavailable.');window.location.assign(url.href)}else if(typeof data.receivedUrl==='string'&&data.receivedUrl.startsWith(`/forms/${slug}/received?`))window.location.assign(data.receivedUrl);else throw new Error('Unable to confirm your submission.')}catch(e){setError(e instanceof Error?e.message:'Unable to submit.');setPending(false)}
+  submitting.current=true;setPending(true)
+  try{
+   if(!requestKey.current)requestKey.current=crypto.randomUUID()
+   const response=await fetch(`/forms/${slug}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers,requestKey:requestKey.current,website:honeypot.current?.value||''})})
+   const data=await response.json()
+   if(!response.ok)throw new Error(data.error||'Unable to submit.')
+   if(data.checkoutUrl){const url=new URL(data.checkoutUrl);if(url.protocol!=='https:'||url.hostname!=='checkout.stripe.com')throw new Error('Payment link unavailable.');window.location.assign(url.href)}
+   else if(typeof data.receivedUrl==='string'&&data.receivedUrl.startsWith(`/forms/${slug}/received?`)){
+    if(slug==='roots-residential-camp-registration'){
+     setAnswers({});formRef.current?.reset();requestKey.current='';setConfirmationOpen(true)
+    }else window.location.assign(data.receivedUrl)
+   }else throw new Error('Unable to confirm your submission.')
+  }catch(e){setError(e instanceof Error?e.message:'Unable to submit.')}
+  finally{submitting.current=false;setPending(false)}
  }
  function control(f:FormField){const inputClass='rf-input',value=answers[f.id]
   if(f.type==='checkbox')return <label className="flex items-start gap-3 text-sm leading-relaxed"><input className="mt-1 h-4 w-4 accent-amber-500" type="checkbox" checked={value===true} onChange={e=>put(f.id,e.target.checked)} required={f.required} />{f.label}{f.required&&' *'}</label>
@@ -25,7 +41,7 @@ export function FormRenderer({definition,slug,preview=false,testPayments=false,s
   if(f.type==='repeat'){const rows=(Array.isArray(value)?value:[]) as Record<string,string>[];return <div className="space-y-3">{rows.map((row,index)=><fieldset key={index} className="rounded-xl border bg-slate-50/60 p-4"><legend className="px-1 text-xs text-slate-500">Child {index+1}</legend><div className="grid gap-3 sm:grid-cols-2">{f.children.map(child=><label key={child.id} className="text-sm">{child.label}{child.required&&' *'}<input type={child.type} autoComplete="off" onInput={textValidity} {...attributes(child.type,child.required)} className={inputClass+' mt-2'} value={row[child.id]||''} required={child.required} maxLength={4000} onChange={e=>put(f.id,rows.map((r,i)=>i===index?{...r,[child.id]:e.target.value}:r))} /></label>)}</div><button type="button" className="mt-3 inline-flex items-center gap-2 text-xs text-slate-500" onClick={()=>put(f.id,rows.filter((_,i)=>i!==index))}><Trash2 className="h-3 w-3" />Remove child {index+1}</button></fieldset>)}<button type="button" className="rf-secondary" disabled={rows.length>=10} onClick={()=>put(f.id,[...rows,{}])}><Plus className="h-4 w-4" />Add child</button></div>}
   return <input aria-labelledby={'label-'+f.id} id={'answer-'+f.id} type={f.type} autoComplete={autofill(f.id,f.type)} onInput={textValidity} {...attributes(f.type,f.required)} className={inputClass} value={String(value||'')} onChange={e=>put(f.id,e.target.value)} required={f.required} maxLength={4000} {...(f.type==='date'?dateBounds(f):{})} />
  }
- return <form onSubmit={submit} className="rf-form grid gap-x-6 gap-y-6 md:grid-cols-2">
+ return <><form ref={formRef} onSubmit={submit} className="rf-form grid gap-x-6 gap-y-6 md:grid-cols-2">
   <div className="md:col-span-2"><h2 className="text-2xl font-medium tracking-tight">{definition.title}</h2><p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-500">{definition.description}</p></div>
   {preview&&<p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 md:col-span-2">Interactive preview. Responses and payments are not submitted.</p>}
   {testPayments&&definition.payment.enabled&&<p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 md:col-span-2">Test checkout only. No real payment will be collected.</p>}
@@ -35,4 +51,13 @@ export function FormRenderer({definition,slug,preview=false,testPayments=false,s
   {previewDone&&<p role="status" className="rounded-xl bg-green-50 p-4 text-sm text-green-900 md:col-span-2">The preview passes validation. No submission was saved.</p>}
   <div className="border-t pt-5 md:col-span-2"><p className="mb-4 text-xs leading-relaxed text-slate-500">Your responses will be shared with the Roots team to manage this form. {definition.payment.enabled?'Payment is processed securely by Stripe. Card details are not stored in this form.':''}</p><button disabled={pending} className="rf-primary" type="submit">{pending?'Please wait…':preview?'Test this preview':definition.payment.enabled?`Continue to payment · £${(definition.payment.amountPence/100).toFixed(2)}`:'Send submission'}<ArrowRight className="h-4 w-4" /></button></div>
  </form>
+ <Dialog open={confirmationOpen} onOpenChange={setConfirmationOpen}>
+  <DialogContent className="w-[calc(100%_-_2rem)] max-w-md rounded-2xl" onCloseAutoFocus={event=>{event.preventDefault();formRef.current?.querySelector<HTMLInputElement>('input:not([type="hidden"]):not([name="website"])')?.focus()}}>
+   <DialogHeader>
+    <DialogTitle>Application received</DialogTitle>
+    <DialogDescription>Thank you. Your Roots application has been submitted successfully. The Roots team will review it and email you with the outcome. If accepted, you will receive a payment link to secure your place. No payment is needed now.</DialogDescription>
+   </DialogHeader>
+   <DialogFooter><DialogClose asChild><button type="button" className="rf-primary">Done</button></DialogClose></DialogFooter>
+  </DialogContent>
+ </Dialog></>
 }

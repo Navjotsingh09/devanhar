@@ -24,7 +24,10 @@ alter table public.roots_form_submissions
 -- 4. The acceptance email uses the supplied NowDonate checkout unchanged.
 --    Query parameters tested on that checkout did not prefill its amount or
 --    reference. The email therefore states GBP 50 and asks families to include
---    their application reference. Verify the provider checkout separately.
+--    their application reference in "Your Message" after choosing "Yes" under
+--    "Would you like to add a Message?". Verify the provider checkout separately.
+--    Successful Roots applications show an on-page confirmation dialog, reset
+--    the form for another child, and do not start a checkout or imply acceptance.
 -- 5. Resend's idempotency key reduces duplicate sends for retries within its
 --    retention window; it is not a permanent exactly-once delivery guarantee.
 --    "sent" here means accepted by the provider, not delivered to an inbox.
