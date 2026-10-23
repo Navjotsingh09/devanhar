@@ -120,3 +120,13 @@ Media library, navigation/branding, 39 layout-preserving content editors and sub
 - Production account deactivation and access-control scripts remain unapplied after automatic approval review rejected that mutation. Sukhdeep also still needs email verification. No claim of complete account cleanup or acceptance is made.
 
 - Final local validation: 526 executable checks pass; focused TypeScript passes. Optional original-workbook import is unverified because the source workbook is unavailable. Production build and deployed checks are recorded separately below.
+
+## Deployment verification
+
+- Implementation commit c9129468c4e63d153575bca6d35669323d3564aa is pushed to feat/cms-completion / draft PR 66. GitHub's Vercel status reports success for deployment 3qeQmmuemP15J38aoKmSPiwZY8P6.
+- The production build passes; public Wrestling/SDA/PES routes are prerendered with one-minute revalidation. Staff workspaces remain dynamic.
+- Browser preview shows the latest Wrestling timetable and real gallery alongside the original Devanhaar branding. Newsletter optional-name and explicit-consent controls render. The media workspace redirects signed-out visitors to Staff Login.
+- Anonymous media/subscriber API calls return 401/403. The page mutation route refuses GET (405). No real newsletter signup or contact submission was sent during public browser QA.
+- No application errors were observed in the checked public page; only unrelated browser-extension metadata errors appeared.
+- Vercel connector team authorization expired (403). Deployment success was independently confirmed through GitHub status and the served preview; connector log inspection remains unavailable.
+- This is a preview release, not production publication or authenticated acceptance. The secure sign-in prompt was cancelled and was not retried. The prepared staff mutation remains rejected/pending explicit approval.
