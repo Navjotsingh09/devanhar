@@ -12,7 +12,7 @@ export const rootsAboutLong: string[] = [
 ]
 
 export const rootsAboutShort: string[] = [
-  "Roots is a four-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every participant feels welcomed, challenged and supported.",
+  "Roots is a three-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 12–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every participant feels welcomed, challenged and supported.",
   "Throughout the residential, participants climb, explore, compete and grow together. From outdoor activities and team challenges to inspiring discussions and workshops, everything is designed to help young people build confidence, resilience and lifelong friendships.",
   "Roots is not simply about the activities. It is about discovering potential, developing character and building a stronger connection with their Roots. Whether your child is already involved in the local community or taking their very first steps, every participant leaves with unforgettable memories, new friendships and the confidence to embrace whatever comes next.",
 ]
@@ -51,7 +51,7 @@ export const rootsExperienceCards: CorePillar[] = [
 ]
 
 export const rootsWhoIsItFor: string[] = [
-  "Roots welcomes young Sikhs aged 13–16 from every background and every stage of their Sikhi journey, whether that is continuing existing practices or taking a very first step.",
+  "Roots welcomes young Sikhs aged 12–16 from every background and every stage of their Sikhi journey, whether that is continuing existing practices or taking a very first step.",
   "Some participants arrive knowing lots of people. Others come on their own. Some regularly attend Gurdwara, while others are exploring their Sikh identity for the first time.",
   "No matter where they begin, everyone becomes part of one supportive community where they are encouraged to learn, grow and be themselves.",
 ]
@@ -60,7 +60,7 @@ export const rootsForParents: string[] = [
   "Imagine your child returning home with greater confidence, stronger friendships and stories they will be telling for years.",
   "Away from everyday routines and constant screen time, they will discover new abilities, overcome challenges, work together as a team and develop independence in a safe and encouraging environment.",
   "More importantly, they will experience the joy of being surrounded by positive role models, inspiring mentors and other young Sikhs who encourage one another to grow.",
-  "Roots is not simply four days away from home. It is the beginning of a lifelong journey. For many, it is the highlight of their summer and the start of friendships and experiences that continue long after the residential ends.",
+  "Roots is not simply three days away from home. It is the beginning of a lifelong journey and the start of friendships and experiences that continue long after the residential ends.",
 ]
 
 export const rootsBookingSteps: ApplicationStep[] = [
@@ -97,12 +97,12 @@ export const rootsFAQs: FAQItem[] = [
     answer: "No. Submitting the form is the first step. The Roots team will review your application and be in touch to confirm availability, discuss the cost and explain how to make payment. Your place is only confirmed once the team has contacted you.",
   },
   {
-    question: "How much does Roots cost?",
-    answer: "The current price is £75 per participant, subject to change. The exact cost will be confirmed when we contact you following your application.",
+    question: "When does Roots take place?",
+    answer: "Roots takes place from 19th to 21st December 2026.",
   },
   {
     question: "Who can attend Roots?",
-    answer: "Anyone aged 13–16. No pre-requisites required.",
+    answer: "Anyone aged 12–16. No pre-requisites required.",
   },
   {
     question: "Can my child attend if they do not know anyone?",

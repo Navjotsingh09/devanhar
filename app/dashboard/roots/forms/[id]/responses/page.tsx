@@ -2,15 +2,16 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Eye, Inbox } from 'lucide-react'
 import { requireRootsStaff } from '@/lib/staff-programme-server'
-import { paymentLabel, responseStates, type ResponseState } from '@/lib/roots-forms/response-actions'
+import { paymentLabel as responsePaymentLabel, responseStates, type ResponseState } from '@/lib/roots-forms/response-actions'
 import { ResponseActions } from '@/components/roots-forms/response-actions'
 export const dynamic='force-dynamic'
 export default async function Responses({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<{page?:string;view?:string}>}) {
   const client=await requireRootsStaff(),{id}=await params,q=await searchParams
   if(!/^[a-f0-9-]{36}$/i.test(id))notFound()
-  const {data:form,error:formError}=await client.from('roots_forms').select('id,title').eq('id',id).maybeSingle()
+  const {data:form,error:formError}=await client.from('roots_forms').select('id,title,slug').eq('id',id).maybeSingle()
   if(formError)return <p role="alert">Responses could not be loaded.</p>
   if(!form)notFound()
+  const paymentLabel = (state: string) => responsePaymentLabel(state, form.slug === 'roots-residential-camp-registration')
   const view:ResponseState=responseStates.includes(q.view as ResponseState)?q.view as ResponseState:'active'
   const number=Number(q.page),page=Number.isSafeInteger(number)&&number>0&&number<100000?number:1,offset=(page-1)*25
   const query=()=>client.from('roots_form_submissions').select('id,respondent_name,respondent_email,payment_state,payment_environment,created_at,record_state',{count:'exact'}).eq('form_id',id).eq('record_state',view)
