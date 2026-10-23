@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Eye, Inbox } from 'lucide-react'
-import { requireGeneralStaff } from '@/lib/staff-programme-server'
+import { requireRootsStaff } from '@/lib/staff-programme-server'
 import { paymentLabel, responseStates, type ResponseState } from '@/lib/roots-forms/response-actions'
 import { ResponseActions } from '@/components/roots-forms/response-actions'
 export const dynamic='force-dynamic'
 export default async function Responses({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<{page?:string;view?:string}>}) {
-  const client=await requireGeneralStaff(),{id}=await params,q=await searchParams
+  const client=await requireRootsStaff(),{id}=await params,q=await searchParams
   if(!/^[a-f0-9-]{36}$/i.test(id))notFound()
   const {data:form,error:formError}=await client.from('roots_forms').select('id,title').eq('id',id).maybeSingle()
   if(formError)return <p role="alert">Responses could not be loaded.</p>

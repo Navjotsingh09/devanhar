@@ -17,3 +17,12 @@ export async function requireGeneralStaff() {
  if (profile.error || !profile.data || !['staff','admin','super_admin'].includes(profile.data.role) || grants.error || !Array.isArray(grants.data) || (grants.data.length && !['admin','super_admin'].includes(profile.data.role))) throw new Error('Your account does not have access to this section')
  return supabase
 }
+
+/** Check Roots scope before every operational or service-role read. */
+export async function requireRootsStaff() {
+ const {client,user,authError,profile,grants}=await getRequestStaff()
+ if(authError||!user)throw new Error('Unauthorized')
+ if(profile.error||!profile.data||!['staff','admin','super_admin'].includes(profile.data.role)||grants.error||!Array.isArray(grants.data))throw new Error('Unable to verify Roots access')
+ if(!['admin','super_admin'].includes(profile.data.role)&&grants.data.length&&!grants.data.some(row=>row.programme==='roots'))throw new Error('Your account does not have Roots access')
+ return client
+}

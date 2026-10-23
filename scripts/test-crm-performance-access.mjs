@@ -47,3 +47,8 @@ for(const [name,grants] of Object.entries({scoped:{data:[{programme:'family'}],e
  const gate=load('lib/padel-admin.ts',{'@/lib/crm/request-staff':{getRequestStaff:async()=>context({grants})},'next/navigation':{redirect}}).checkPadelStaffAccess
  assert.equal(await gate(),null)
 })
+
+function rootsGuard(value){return load('lib/staff-programme-server.ts',{'server-only':{},'@/lib/supabase/server':{},'@/lib/crm/request-staff':{getRequestStaff:async()=>value},'next/navigation':{redirect}}).requireRootsStaff}
+for(const role of ['staff','admin','super_admin'])test(`Roots gate accepts ${role} with Roots scope`,async()=>{const value=context({profile:{data:{role},error:null},grants:{data:[{programme:'roots'}],error:null}});assert.equal(await rootsGuard(value)(),value.client)})
+for(const [name,changes]of Object.entries({otherProgramme:{grants:{data:[{programme:'family'}],error:null}},cms:{profile:{data:{role:'content_manager'},error:null},grants:{data:[{programme:'roots'}],error:null}},signedOut:{user:null},failedAuth:{authError:{}},failedProfile:{profile:{data:null,error:{}}},failedGrants:{grants:{data:null,error:{}}}}))test(`Roots gate refuses ${name}`,async()=>{await assert.rejects(rootsGuard(context(changes))())})
+test('Roots scope cannot use the general CRM gate',async()=>{await assert.rejects(guards(context({grants:{data:[{programme:'roots'}],error:null}})).general())})

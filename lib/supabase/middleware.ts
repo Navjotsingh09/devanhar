@@ -104,7 +104,8 @@ export async function updateSession(request: NextRequest) {
     if (programmes.length && isSpaPortal && isReadNavigation) {
       const url=request.nextUrl.clone();url.pathname='/auth/spa-access';url.search='';return finish(NextResponse.redirect(url))
     }
-    if (programmes.length && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
+    const rootsApi=programmes.includes('roots')&&(/^\/api\/roots-forms(?:\/|$)/.test(pathname)||(pathname==='/api/crm/submissions/export'&&request.nextUrl.searchParams.get('programme')==='roots'))
+    if (programmes.length && !rootsApi && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
       return finish(NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 }))
     }
   }

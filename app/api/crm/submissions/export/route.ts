@@ -1,4 +1,4 @@
-import { requireGeneralStaff } from '@/lib/staff-programme-server'
+import { requireGeneralStaff, requireRootsStaff } from '@/lib/staff-programme-server'
 import { listParams, loadSubmissionList, type QueryParams } from '@/lib/crm/submissions'
 
 import { programmeList, isCrmProgramme } from '@/lib/crm/programme-records'
@@ -9,10 +9,10 @@ function csv(value: string) {
   return '"' + safe.replaceAll('"', '""') + '"'
 }
 export async function GET(request: Request) {
-  let client
-  try { client = await requireGeneralStaff() }
-  catch { return Response.json({ error: 'Not authorised to export submissions' }, { status: 403, headers: { 'Cache-Control': 'private, no-store' } }) }
   const url = new URL(request.url)
+  let client
+  try { client = url.searchParams.get('programme')==='roots' ? await requireRootsStaff() : await requireGeneralStaff() }
+  catch { return Response.json({ error: 'Not authorised to export submissions' }, { status: 403, headers: { 'Cache-Control': 'private, no-store' } }) }
   const input: QueryParams = Object.fromEntries(url.searchParams)
   try {
     const programme = url.searchParams.get('programme') || ''

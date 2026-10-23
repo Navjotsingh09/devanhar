@@ -249,7 +249,7 @@ test('programme recovered-detail queries include the selected ID and programme p
 test('programme pages authorise before lists/details and do not preload full datasets', () => {
   for(const programme of ['padel','roots']){
     const page=fs.readFileSync(`app/dashboard/${programme}/page.tsx`,'utf8')
-    assert.match(page, programme==='padel' ? /await requirePadelStaff\(\)/ : /await requireGeneralStaff\(\)/)
+    assert.match(page, programme==='padel' ? /await requirePadelStaff\(\)/ : /await requireRootsStaff\(\)/)
     assert.doesNotMatch(page,/SERVICE_ROLE_KEY|\.select\(['"]\*['"]\)/)
     const record=fs.readFileSync(`app/dashboard/${programme}/[kind]/[id]/page.tsx`,'utf8')
     assert.ok(record.indexOf('await require') < record.indexOf('return <ProgrammeRecordDetail'))
@@ -266,7 +266,7 @@ test('actual Padel detail loader applies ID and LIMIT 1 before serialising full 
 test('programme CSV forces live table or scoped evidence and rejects invalid programme without data calls', async () => {
   let observed
   const route=load('app/api/crm/submissions/export/route.ts',{
-    '@/lib/staff-programme-server':{requireGeneralStaff:async()=>({})},
+    '@/lib/staff-programme-server':{requireGeneralStaff:async()=>({}),requireRootsStaff:async()=>({})},
     '@/lib/crm/programme-records':programmes,
     '@/lib/crm/submissions':{...model,loadSubmissionList:async(_c,params,scope)=>{observed={params,scope};return {rows:[],count:0}}},
   })

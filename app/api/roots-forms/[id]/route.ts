@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { requireGeneralStaff } from '@/lib/staff-programme-server'
+import { requireRootsStaff } from '@/lib/staff-programme-server'
 import { checkedDefinition, checkSlug, readJson, sameOrigin } from '@/lib/roots-forms/server'
 export async function PATCH(request:Request,{params}:{params:Promise<{id:string}>}){
  if(!sameOrigin(request))return NextResponse.json({error:'Request refused.'},{status:403})
- let client;try{client=await requireGeneralStaff()}catch{return NextResponse.json({error:'Your account cannot manage Roots forms.'},{status:403})}
+ let client;try{client=await requireRootsStaff()}catch{return NextResponse.json({error:'Your account cannot manage Roots forms.'},{status:403})}
  try{const {id}=await params,body=await readJson(request);if(!/^[0-9a-f-]{36}$/i.test(id)||!Number.isSafeInteger(body.revision)||body.revision<1)throw new Error('Reload this form before saving.')
  const {data:current,error:readError}=await client.from('roots_forms').select('id,slug,draft_schema,published_version,revision').eq('id',id).maybeSingle();if(readError||!current)return NextResponse.json({error:'This form is unavailable.'},{status:404})
  if(current.revision!==body.revision)return NextResponse.json({error:'Another editor changed this form. Reload before saving.'},{status:409})
