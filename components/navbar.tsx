@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import {useSiteSettings} from "@/components/cms/site-settings-provider"
 import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 import { ArrowRight, Menu, X, ShoppingBag, ChevronDown } from "lucide-react"
@@ -109,6 +110,10 @@ const navLinks: NavLink[] = [
 ]
 
 export function Navbar({ donationHref = "/donate" }: { donationHref?: string } = {}) {
+  const settings=useSiteSettings()
+  const navLinks:NavLink[]=settings.navigation.links
+  const MEGA_MENU_PROJECTS=settings.navigation.projects
+  const MEGA_MENU_COMING_SOON=settings.navigation.comingSoon
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -143,8 +148,8 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
     ? "text-white/70 hover:text-white"
     : "text-gray-600 hover:text-gray-900"
   const logoSrc = isTransparent
-    ? "/logos/main-white-transparent.png"
-    : "/logos/main-black-transparent.png"
+    ? settings.brand.lightLogo
+    : settings.brand.darkLogo
 
   const isActive = (link: NavLink) =>
     pathname === link.href ||

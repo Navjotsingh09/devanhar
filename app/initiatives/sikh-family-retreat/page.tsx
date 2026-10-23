@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Link from 'next/link'
 import { ArrowRight, CalendarDays, HeartHandshake, BookOpen, Trees, UsersRound, Mail } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
@@ -5,7 +11,7 @@ import { FooterSection } from '@/components/footer-section'
 import { FamilyRetreatFAQ } from '@/components/family-retreat/family-retreat-faq'
 import { FamilyRetreatHero } from '@/components/family-retreat/family-retreat-hero'
 
-export const metadata = {
+const originalMetadata = {
   title: 'Sikh Family Retreat | Sikh Family Initiative | Devanhaar',
   description: 'Explore the New Year Reset, Spring and Summer Sikh Family Retreats and register your family’s interest.',
 }
@@ -22,8 +28,10 @@ const experiences = [
   { icon: HeartHandshake, title: 'Feel part of the sangat', text: 'Come even if you do not know anyone. Meet other Sikh families in a welcoming, non-judgemental environment.' },
 ]
 
-export default function SikhFamilyRetreatPage() {
-  return <>
+export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sikh-family-retreat')
+
+  return withPageCopy((<>
     <Navbar />
     <main className="min-h-screen">
       <FamilyRetreatHero />
@@ -78,5 +86,7 @@ export default function SikhFamilyRetreatPage() {
       </section>
     </main>
     <FooterSection hideContact />
-  </>
+  </>), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sikh-family-retreat',originalMetadata)}

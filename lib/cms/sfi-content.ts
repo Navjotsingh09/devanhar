@@ -11,6 +11,7 @@ export function isSafeContentLink(value: string) {
     return url.protocol === 'https:' && !url.username && !url.password
   } catch { return false }
 }
+export function isSafeAssetLink(value:string){return isSafeContentLink(value)&&(value.startsWith('/')||/^https:\/\/[^/]+\.supabase\.co\/storage\/v1\/object\/public\/site-images\//.test(value))}
 const link = z.string().max(2000).refine(isSafeContentLink, 'Use a website path or an HTTPS link')
 const section = z.enum(['events', 'why', 'faq', 'community'])
 export const sfiSchema = z.object({
@@ -19,7 +20,7 @@ export const sfiSchema = z.object({
   hero: z.object({
     eyebrow: text.max(160), title: text.max(240), subtitle: text.max(500),
     paragraphs: z.tuple([text, text]),
-    image: z.string().max(2000).refine(value => value.startsWith('/') && isSafeContentLink(value), 'Use an existing image path starting with /'),
+    image: z.string().max(2000).refine(isSafeAssetLink, 'Choose an existing website image or uploaded media URL'),
     imageAlt: text.max(500),
   }).strict(),
   eventsIntro: z.object({ eyebrow: text.max(160), title: text.max(240), description: text }).strict(),

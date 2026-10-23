@@ -1,10 +1,16 @@
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import {
   kaursForums,
   kaursForumsDescription,
 } from "@/components/camps/camp-shared-data"
 
-export function KaursForumsSection() {
-  return (
+export async function KaursForumsSection({ cmsCopy = {} }: {cmsCopy?:PageCopy} = {}) {
+
+
+  return applyPageCopy(((
     <section className="border-y border-border bg-secondary/30 py-16 md:py-24">
       <div className="container mx-auto max-w-6xl px-6 lg:px-12">
         <div className="max-w-3xl">
@@ -51,5 +57,7 @@ export function KaursForumsSection() {
         </div>
       </div>
     </section>
-  )
+  )), cmsCopy)
 }
+
+registerCopyComponent(KaursForumsSection)

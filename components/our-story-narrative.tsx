@@ -1,4 +1,7 @@
 "use client";
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
 import { useSiteImages } from "@/hooks/use-site-images"
 
 import { useState } from "react";
@@ -80,12 +83,14 @@ const milestones: Milestone[] = [
 ];
 
 export default function OurStoryNarrative() {
+  const cmsCopy = usePageCopy()
+
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tappedIndex, setTappedIndex] = useState<number | null>(null);
   const { images: storyImages } = useSiteImages("about")
   const cmsImageMap = Object.fromEntries(storyImages.filter(img => img.category?.startsWith("story-")).map(img => [img.category!.replace("story-", ""), img.url]))
 
-  return (
+  return applyPageCopy(((
     <section className="w-full">
       <h2 className="sr-only">Our Journey</h2>
 
@@ -228,5 +233,5 @@ export default function OurStoryNarrative() {
         })}
       </div>
     </section>
-  );
+  )), cmsCopy);
 }

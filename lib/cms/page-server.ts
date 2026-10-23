@@ -1,4 +1,6 @@
 import 'server-only'
+import {isMigratedSlug,migratedDefault,validMigratedContent} from './migrated-content'
+import {defaultSettingsPage} from './site-settings'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { type SfiHead } from './sfi-content'
@@ -15,7 +17,7 @@ function serviceClient() {
 }
 
 export async function pageContext(slug: string, action: 'view' | 'edit' | 'publish' = 'view') {
-  if (!cmsSlugSchema.safeParse(slug).success) throw new CmsError('Unknown website page.', 404)
+  if (!cmsSlugSchema.safeParse(slug).success || (slug.startsWith('content-')&&!isMigratedSlug(slug))) throw new CmsError('Unknown website page.', 404)
   const session = await createClient()
   const { data: { user }, error } = await session.auth.getUser()
   if (error || !user) throw new CmsError('Please sign in again.', 401)
@@ -35,6 +37,7 @@ export async function pageContext(slug: string, action: 'view' | 'edit' | 'publi
   if (pageResult.error) throw new CmsError('Website content could not be loaded. Please retry.', 503)
   const page = pageResult.data
   const isAdmin = ['admin', 'super_admin'].includes(profile.data.role)
+  if(slug==='site-settings'&&!isAdmin)throw new CmsError('Only administrators can change shared navigation and branding.',403)
   let permissions = { view: isAdmin, edit: isAdmin, publish: isAdmin }
   if (!isAdmin) {
     if (!page) throw new CmsError('This page is not assigned to you.', 403)
@@ -54,7 +57,7 @@ export async function pageContext(slug: string, action: 'view' | 'edit' | 'publi
 export async function getPageEditorState(slug: string) {
   const context = await pageContext(slug)
   const { page, db, permissions } = context
-  let content = slug === 'home' ? defaultHomeContent : newPageContent()
+  let content:PageContent = slug === 'site-settings' ? defaultSettingsPage : slug === 'home' ? defaultHomeContent : migratedDefault(slug) ?? newPageContent()
   const revisionId = page?.draft_revision_id || page?.published_revision_id
   if (revisionId) {
     const { data, error } = await db.from('cms_page_revisions').select('body').eq('page_id', page!.id).eq('id', revisionId).single()
@@ -72,7 +75,7 @@ export async function getPageEditorState(slug: string) {
 
 export async function getPublishedPageContent(slug: string): Promise<PageContent | null> {
   try {
-    if (!cmsSlugSchema.safeParse(slug).success) return null
+    if (!cmsSlugSchema.safeParse(slug).success || (slug.startsWith('content-')&&!isMigratedSlug(slug))) return null
     const db = serviceClient()
     // The published pointer is the ONLY source for a public read. Never fall
     // back to a draft, including for signed-in staff visiting the public URL.
@@ -91,6 +94,9 @@ export function sameHead(page: { id: string; draft_revision_id: string | null; p
 
 export async function changePageContent(slug: string, action: 'save' | 'publish', content: PageContent, expected: SfiHead) {
   const { page, db, user, session } = await pageContext(slug, action === 'save' ? 'edit' : 'publish')
+  if(!validMigratedContent(slug,content))throw new CmsError('This page uses its existing layout. Edit the supplied content fields without changing their source identifiers.',400)
+  if(slug==='site-settings'&&(content.sections.length!==1||content.sections[0].type!=='siteSettings'||content.sections[0].hidden))throw new CmsError('Keep the shared navigation and branding settings visible.',400)
+  if(slug!=='site-settings'&&content.sections.some(s=>s.type==='siteSettings'))throw new CmsError('Use the shared navigation and branding editor for these settings.',400)
   if (!sameHead(page, expected)) throw new CmsError('Someone changed this page. Reload before saving or publishing.', 409)
   if (!page) {
     if (action !== 'save') throw new CmsError('Save a draft before publishing.', 409)

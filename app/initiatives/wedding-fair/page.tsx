@@ -1,12 +1,20 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { FamilyProjectPage } from "@/components/family-initiative/family-project-page"
 
-export const metadata = {
+const originalMetadata = {
   title: "Wedding Fair | Sikh Family Initiative | Devanhaar",
   description: "A Sikh-focused wedding fair connecting families with suppliers, inspiration and practical guidance.",
 }
 
-export default function WeddingFairPage() {
-  return (
+export default async function WeddingFairPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-wedding-fair')
+
+  return withPageCopy(((
     <FamilyProjectPage
       heroVariant="wedding"
       eyebrow="Sikh Family Initiative"
@@ -23,5 +31,7 @@ export default function WeddingFairPage() {
       ctaHref="/sfi"
       ctaLabel="See all family projects"
     />
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-wedding-fair',originalMetadata)}

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Check, Loader2 } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+
 
 export function NewsletterForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
@@ -17,35 +17,16 @@ export function NewsletterForm() {
     setErrorMsg("")
 
     try {
-      if (supabase) {
-        const { error } = await supabase
-          .from("newsletter_subscriptions")
-          .upsert([{ email }], { onConflict: "email" })
-
-        if (error) throw error
-      } else {
-        console.warn("Supabase not configured - newsletter subscription not saved")
-      }
-
-      // Notify admin
-      await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: email,
-          email,
-          subject: "New Newsletter Subscription",
-          message: email + " has subscribed to the Devanhaar newsletter.",
-          source_page: "Footer — Newsletter",
-        }),
-      })
+      const response=await fetch('/api/newsletter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.trim(),consent:true,website:''})})
+      const result=await response.json()
+      if(!response.ok)throw new Error(result.error||'Subscription could not be saved.')
 
       setStatus("success")
       setEmail("")
       setTimeout(() => setStatus("idle"), 5000)
     } catch (err) {
       console.error("Newsletter subscription error:", err)
-      setErrorMsg("Could not subscribe. Please try again.")
+      setErrorMsg(err instanceof Error ? err.message : "Could not subscribe. Please try again.")
       setStatus("error")
       setTimeout(() => setStatus("idle"), 4000)
     }
@@ -68,6 +49,8 @@ export function NewsletterForm() {
           <div className="flex gap-2">
             <input
               type="email"
+              autoComplete="email"
+              maxLength={254}
               aria-label="Email address"
               placeholder="Your email goes here"
               required
@@ -87,6 +70,7 @@ export function NewsletterForm() {
               )}
             </Button>
           </div>
+          <label className="mt-3 flex items-start gap-2 text-xs text-white/70"><input type="checkbox" required className="mt-0.5"/>I agree to receive the Devanhaar newsletter. I can unsubscribe at any time.</label>
           {status === "error" && (
             <p className="text-xs text-red-400 mt-2">{errorMsg}</p>
           )}

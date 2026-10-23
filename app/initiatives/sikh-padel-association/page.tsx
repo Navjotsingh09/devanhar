@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -17,7 +23,7 @@ import {
 import { getPublicPadelEvent } from "@/lib/padel-public-event"
 import { formatCountryFlag, getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
 
-export const metadata = {
+const originalMetadata = {
   title: "Sikh Padel Association | Devanhaar",
   description:
     "The Sikh Padel Association brings the Sikh community together through padel, tournaments and an ongoing player ranking system.",
@@ -25,7 +31,9 @@ export const metadata = {
 
 export const dynamic = "force-dynamic"
 
-export default async function SikhPadelAssociationPage() {
+export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sikh-padel-association')
+
   const [event, leaderboard] = await Promise.all([
     getPublicPadelEvent(),
     getPublicPadelLeaderboard().catch(() => {
@@ -35,7 +43,7 @@ export default async function SikhPadelAssociationPage() {
   ])
   const topPlayers = leaderboard?.slice(0, 3) ?? []
 
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -216,5 +224,7 @@ export default async function SikhPadelAssociationPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sikh-padel-association',originalMetadata)}
