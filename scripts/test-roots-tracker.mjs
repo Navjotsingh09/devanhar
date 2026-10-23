@@ -173,3 +173,41 @@ test('payment and detail UI transpile without syntax errors', () => {
     assert.equal(result.diagnostics?.length || 0, 0, path)
   }
 })
+function paymentPanel(props = {}) {
+  const jsx = (type, props) => ({type: typeof type === 'string' ? type : 'component', props})
+  const component = load('components/roots-forms/application-payment.tsx', {
+    'react/jsx-runtime': {jsx, jsxs: jsx},
+    react: {useState: initial => [initial, () => {}]},
+    'next/navigation': {useRouter: () => ({refresh() {}})},
+    '@/components/ui/button': {Button() {}},
+    '@/lib/roots-forms/application-tracker': model,
+  }).ApplicationPayment
+  return component({formId, responseId, accepted: true, paid: false, active: true, verification: null, setupReady: true, earliestDate: '2026-10-23', latestDate: '2026-10-25', ...props})
+}
+function nodes(tree, type) {
+  if (!tree || typeof tree !== 'object') return []
+  if (Array.isArray(tree)) return tree.flatMap(child => nodes(child, type))
+  return [...(tree.type === type ? [tree] : []), ...nodes(tree.props?.children, type)]
+}
+test('missing payment setup disables every entry control and explains the blocker', () => {
+  const tree = paymentPanel({setupReady: false})
+  assert.match(JSON.stringify(tree), /database setup is not installed or could not be loaded/)
+  assert.equal(nodes(tree, 'input').length, 4)
+  assert.ok(nodes(tree, 'input').every(input => input.props.disabled === true))
+  assert.equal(nodes(tree, 'component')[0].props.disabled, true)
+})
+test('only active accepted unpaid applications offer payment entry', () => {
+  assert.equal(nodes(paymentPanel(), 'form').length, 1)
+  for (const props of [{accepted: false}, {active: false}, {paid: true}]) assert.equal(nodes(paymentPanel(props), 'form').length, 0)
+})
+test('saved verification shows provider evidence and staff audit without allowing edits', () => {
+  const tree = paymentPanel({paid: true, verification: {provider_reference: 'DM-TEST', amount_pence: 5000, paid_on: '2026-10-24', verified_at: '2026-10-24T12:00:00Z', verified_by: 'staff-audit-id'}})
+  const text = JSON.stringify(tree)
+  for (const expected of [/Staff verified/, /DM-TEST/, /50\.00/, /staff-audit-id/, /2026-10-24/]) assert.match(text, expected)
+  assert.equal(nodes(tree, 'form').length, 0)
+})
+test('legacy paid state is not misrepresented as staff-verified evidence', () => {
+  const text = JSON.stringify(paymentPanel({paid: true}))
+  assert.match(text, /No staff-verification record is available/)
+  assert.doesNotMatch(text, /Paid · Staff verified/)
+})
