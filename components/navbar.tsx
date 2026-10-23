@@ -16,6 +16,13 @@ type NavLink = {
 
 const MEGA_MENU_PROJECTS = [
   {
+    title: "Wrestling Academy",
+    description: "Freestyle wrestling, Sikh and Punjabi heritage, and connection within the sangat.",
+    image: "/images/wrestling-mat.svg",
+    href: "/wrestling",
+    tag: "Sports",
+  },
+  {
     title: "Singhs Camps",
     description: "Immersive residential camp for young Sikh men — brotherhood, Gurmat and physical discipline.",
     image: "/initiatives/singhs-camp-top.jpg",

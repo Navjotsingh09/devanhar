@@ -7,6 +7,7 @@ export type ProjectSpace = {
   tools?: { title: string; url: string }[]
 }
 export const projectSpaces: ProjectSpace[] = [
+  {id:'wrestling-academy',title:'Wrestling Academy',publicPath:'/wrestling'},
   { id:'singhs-camp',title:'Singhs Camp',publicPath:'/initiatives/singhs-camp',children:[
     {id:'singhs-camp-uk',title:'Singhs Camp UK',publicPath:'/initiatives/singhs-camp/uk'},
     {id:'singhs-camp-eu',title:'Singhs Camp EU',publicPath:'/initiatives/singhs-camp/eu'},

@@ -1,5 +1,6 @@
 /** Canonical public content pages; aliases and transactional screens are excluded. */
 export const sitePages = [
+  { title: 'Wrestling Academy', path: '/wrestling', area: 'Programmes' },
   { title: 'Home', path: '/', area: 'Organisation', editor: '/dashboard/website/pages/home' },
   { title: 'About Devanhaar', path: '/about', area: 'Organisation' },
   { title: 'Team', path: '/team', area: 'Organisation' },
