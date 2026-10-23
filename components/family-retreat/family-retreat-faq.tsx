@@ -1,10 +1,15 @@
 'use client'
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { retreatFAQClosing, retreatFAQGroups, retreatFAQIntroduction } from './family-retreat-faq-data'
 
 export function FamilyRetreatFAQ() {
-  return <section id="faqs" className="scroll-mt-24 border-t border-border bg-secondary/30 py-16 md:py-24" aria-labelledby="retreat-faq-heading">
+  const cmsCopy = usePageCopy()
+
+  return applyPageCopy((<section id="faqs" className="scroll-mt-24 border-t border-border bg-secondary/30 py-16 md:py-24" aria-labelledby="retreat-faq-heading">
     <div className="container mx-auto max-w-4xl px-6 lg:px-12">
       <header className="mx-auto mb-10 max-w-3xl text-center">
         <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(43,100%,29%)]">Sikh Family Retreat</p>
@@ -32,5 +37,5 @@ export function FamilyRetreatFAQ() {
         <div className="space-y-4 text-base leading-relaxed text-muted-foreground">{retreatFAQClosing.map(paragraph => <p key={paragraph}>{paragraph}</p>)}</div>
       </div>
     </div>
-  </section>
+  </section>), cmsCopy)
 }

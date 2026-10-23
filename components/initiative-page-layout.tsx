@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { ArrowLeft, Expand, X, ChevronLeft, ChevronRight, Play } from "lucide-react"
@@ -32,6 +35,7 @@ interface Highlight {
 }
 
 interface InitiativePageProps {
+  slug?: string
   title: string
   tagline: string
   heroImage: string
@@ -52,6 +56,8 @@ interface InitiativePageProps {
 
 
 function FeaturedVideo({ url }: { url: string }) {
+  const cmsCopy = usePageCopy()
+
   const ref = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
 
@@ -77,7 +83,7 @@ function FeaturedVideo({ url }: { url: string }) {
   const baseParams = `rel=0&modestbranding=1&loop=1&playlist=${videoId}`
   const src = `${nocookieUrl}${separator}autoplay=1&mute=1&${baseParams}`
 
-  return (
+  return applyPageCopy(((
     <section className="py-8 lg:py-12">
       <div className="container mx-auto px-6 lg:px-12">
         <div
@@ -100,7 +106,7 @@ function FeaturedVideo({ url }: { url: string }) {
         </div>
       </div>
     </section>
-  )
+  )), cmsCopy)
 }
 
 export function InitiativePageLayout({
@@ -121,6 +127,8 @@ export function InitiativePageLayout({
   featuredVideoUrl,
   additionalSections,
 }: InitiativePageProps) {
+  const cmsCopy = usePageCopy()
+
   const [showCampForm, setShowCampForm] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [showPaymentSuccessPopup, setShowPaymentSuccessPopup] = useState(false)
@@ -164,7 +172,7 @@ export function InitiativePageLayout({
   const isSinghsCamp = title.trim().toLowerCase().startsWith("singhs camp")
   const effectiveCtaClick = onCtaClick ?? (isSinghsCamp ? () => setShowCampForm(true) : undefined)
 
-  return (
+  return applyPageCopy(((
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       <ScrollAnimations />
@@ -479,5 +487,5 @@ export function InitiativePageLayout({
 
       <FooterSection />
     </div>
-  )
+  )), cmsCopy)
 }

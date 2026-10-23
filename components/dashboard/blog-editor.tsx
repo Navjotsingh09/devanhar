@@ -1,4 +1,5 @@
 "use client"
+import {MediaField} from '@/components/cms/media-field'
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { BlogHistory, type ArticleRevision } from "./blog-history"
@@ -254,6 +255,7 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
             <Card>
               <CardHeader><CardTitle>Featured Image</CardTitle></CardHeader>
               <CardContent className="space-y-4">
+                <MediaField label="Cover image" value={form.coverImage||''} onChange={value=>set("coverImage",value)}/>
                 {currentCover ? (
                   <div className="overflow-hidden rounded-xl border bg-muted">
                     <img src={currentCover} alt={form.coverAlt || form.title || "Blog cover"} className="aspect-[16/10] w-full object-cover" />

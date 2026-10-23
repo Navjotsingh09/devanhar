@@ -1,0 +1,208 @@
+{
+  "brand": {
+    "name": "Devanhaar",
+    "darkLogo": "/logos/main-black-transparent.png",
+    "lightLogo": "/logos/main-white-transparent.png",
+    "accent": "#ffb800",
+    "contactEmail": "contact@devanhaar.com",
+    "address": "3 Waterside Drive, Langley, United Kingdom",
+    "charityNumber": "1203393",
+    "favicon": "/favicon.ico",
+    "design": {
+      "primary": "#feb601",
+      "secondary": "#f7f6f3",
+      "accent": "#e5a301",
+      "background": "#ffffff",
+      "text": "#22262a",
+      "mutedBackground": "#ebeced",
+      "mutedText": "#6d7078",
+      "font": "System",
+      "buttonStyle": "pill",
+      "borderRadius": 12
+    }
+  },
+  "navigation": {
+    "projects": [
+      {
+        "title": "Wrestling Academy",
+        "description": "Freestyle wrestling, Sikh and Punjabi heritage, and connection within the sangat.",
+        "image": "/initiatives/self-defence-top.png",
+        "href": "/wrestling",
+        "tag": "Sports"
+      },
+      {
+        "title": "Singhs Camps",
+        "description": "Immersive residential camp for young Sikh men \u2014 brotherhood, Gurmat and physical discipline.",
+        "image": "/initiatives/singhs-camp-top.jpg",
+        "href": "/initiatives/singhs-camp",
+        "tag": "Flagship"
+      },
+      {
+        "title": "Kaurs Camps",
+        "description": "A dedicated space for young Sikh women to explore identity and deepen their connection to Sikhi.",
+        "image": "/initiatives/kaurs-camp-top.jpg",
+        "href": "/initiatives/kaurs-camp",
+        "tag": "Community"
+      },
+      {
+        "title": "Kids Camps",
+        "description": "Fun, engaging camps for younger Sikhs \u2014 heritage, storytelling and age-appropriate Gurmat.",
+        "image": "/initiatives/kids-camps-top.jpg",
+        "href": "/initiatives/kids-camps",
+        "tag": "Youth"
+      },
+      {
+        "title": "Roots Residential",
+        "description": "Five-day outdoor adventure for ages 12\u201316 \u2014 leadership, Sikh values and unforgettable memories.",
+        "image": "/images/initiatives-hero.jpg",
+        "href": "/initiatives/roots-residential",
+        "tag": "Youth"
+      },
+      {
+        "title": "Sikh Family Initiative",
+        "description": "The umbrella for Sikh Family Retreat, Sikh Family Extravaganza and Wedding Fair.",
+        "image": "/initiatives/sikh-family-retreat-top.png",
+        "href": "/sfi",
+        "tag": "Family"
+      },
+      {
+        "title": "Punjab Education Support Project",
+        "description": "Building stronger schools through partnership, teacher development and long-term educational opportunity in Punjab.",
+        "image": "/images/pes-school-group-original-hd.webp",
+        "href": "/pes",
+        "tag": "Education"
+      },
+      {
+        "title": "Sikhi Vidyala",
+        "description": "Structured classes in Gurbani, Sikh history, Gurmukhi and Sikh philosophy for all ages.",
+        "image": "/initiatives/sikhi-vidyala-top.jpg",
+        "href": "/initiatives/sikhi-vidyala",
+        "tag": "Education"
+      },
+      {
+        "title": "Sikh Padel Association",
+        "description": "Community through padel \u2014 team tournaments, friendly competition and a live leaderboard.",
+        "image": "/initiatives/sikh-padel-association-top.jpg",
+        "href": "/spa",
+        "tag": "Sports"
+      },
+      {
+        "title": "Gurmat Academy",
+        "description": "Advanced learning in Sikh theology, Gurbani vichar and spiritual practice.",
+        "image": "/initiatives/gurmat-academy-top.jpg",
+        "href": "/ga",
+        "tag": "Coming soon"
+      }
+    ],
+    "comingSoon": [
+      {
+        "title": "University Projects",
+        "href": "/initiatives/university-projects"
+      },
+      {
+        "title": "Sikh Professional Network",
+        "href": "/initiatives/sikh-professional-network"
+      }
+    ],
+    "links": [
+      {
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Team",
+        "href": "/team",
+        "children": [
+          {
+            "label": "Career",
+            "href": "/careers",
+            "description": "Open vacancies and volunteer roles"
+          }
+        ]
+      },
+      {
+        "label": "Events",
+        "href": "/events"
+      },
+      {
+        "label": "Shop",
+        "href": "/shop"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Blog",
+        "href": "/insights"
+      }
+    ]
+  },
+  "footer": {
+    "navigate": [
+      {
+        "label": "About",
+        "href": "/about"
+      },
+      {
+        "label": "Projects",
+        "href": "/projects"
+      },
+      {
+        "label": "Team",
+        "href": "/team"
+      },
+      {
+        "label": "Events (Coming Soon)",
+        "href": "/events"
+      },
+      {
+        "label": "Shop",
+        "href": "/shop"
+      }
+    ],
+    "projects": [
+      {
+        "label": "Camps",
+        "href": "/#projects"
+      },
+      {
+        "label": "University Talks",
+        "href": "/#projects"
+      },
+      {
+        "label": "Sikhi Vidyala",
+        "href": "/#projects"
+      },
+      {
+        "label": "Gurmat Academy",
+        "href": "/#projects"
+      }
+    ],
+    "social": [
+      {
+        "label": "Instagram",
+        "href": "https://www.instagram.com/devanhaar"
+      },
+      {
+        "label": "YouTube",
+        "href": "https://www.youtube.com/@singhscampuk"
+      },
+      {
+        "label": "LinkedIn",
+        "href": "https://www.linkedin.com/company/devanhaar/?originalSubdomain=uk"
+      }
+    ]
+  },
+  "defaultSeo": {
+    "title": "Devanhaar | Create, Develop, Empower",
+    "description": "A Sikh-led charity creating educational and community spaces for learning, growth, and service across the UK, Europe, and beyond.",
+    "socialTitle": "",
+    "socialDescription": "",
+    "socialImage": ""
+  }
+}

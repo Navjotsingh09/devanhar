@@ -1,9 +1,15 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Privacy Policy - Devanhaar",
   description: "Devanhaar Privacy Policy (UK GDPR compliant).",
 }
@@ -144,8 +150,10 @@ const sections: { h: string; blocks: Block[] }[] = [
   },
 ]
 
-export default function PrivacyPage() {
-  return (
+export default async function PrivacyPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-privacy')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -188,5 +196,7 @@ export default function PrivacyPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-privacy',originalMetadata)}

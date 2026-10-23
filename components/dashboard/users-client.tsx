@@ -12,7 +12,8 @@ import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from '@/components/ui/card'
 import { Shield, ShieldCheck, User, Info } from 'lucide-react'
-import { updateUserRole } from '@/app/dashboard/users/actions'
+import {Button} from '@/components/ui/button'
+import { updateUserRole,setStaffActive } from '@/app/dashboard/users/actions'
 import { toast } from 'sonner'
 
 interface Profile {
@@ -20,12 +21,17 @@ interface Profile {
   full_name: string | null
   role: string
   created_at: string
+  email?:string
+  email_confirmed?:boolean
+  programmes?:string[]
+  disabled?:boolean
 }
 
 interface UsersClientProps {
   profiles: Profile[]
   currentUserId: string
   currentRole: string
+  canDeactivate?:boolean
 }
 
 const roleConfig: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; variant: 'default' | 'secondary' | 'outline' }> = {
@@ -34,10 +40,11 @@ const roleConfig: Record<string, { label: string; icon: React.ComponentType<{ cl
   content_manager: { label: 'Content Manager', icon: User, variant: 'secondary' },
   staff: { label: 'Staff', icon: User, variant: 'secondary' },
   vacancies_only: { label: 'Vacancies Only', icon: User, variant: 'outline' },
+  disabled: {label:'Deactivated',icon:User,variant:'outline'},
   volunteer: { label: 'Staff', icon: User, variant: 'secondary' },
 }
 
-export function UsersClient({ profiles, currentUserId, currentRole }: UsersClientProps) {
+export function UsersClient({ profiles, currentUserId, currentRole,canDeactivate=false }: UsersClientProps) {
   const [isPending, startTransition] = useTransition()
 
   const handleRoleChange = (userId: string, newRole: string) => {
@@ -113,6 +120,7 @@ export function UsersClient({ profiles, currentUserId, currentRole }: UsersClien
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Current Role</TableHead>
+                <TableHead>Verification & access</TableHead>
                 <TableHead>Joined</TableHead>
                 <TableHead className="text-right">Change Role</TableHead>
               </TableRow>
@@ -131,7 +139,7 @@ export function UsersClient({ profiles, currentUserId, currentRole }: UsersClien
                           <config.icon className="h-4 w-4" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium">{profile.full_name || 'Unnamed'}</p>
+                          <p className="text-sm font-medium">{profile.full_name || 'Unnamed'}</p><p className="mt-1 text-xs text-muted-foreground">{profile.email}</p>
                           {isCurrentUser && (
                             <span className="text-xs text-muted-foreground">(You)</span>
                           )}
@@ -141,6 +149,7 @@ export function UsersClient({ profiles, currentUserId, currentRole }: UsersClien
                     <TableCell>
                       <Badge variant={config.variant}>{config.label}</Badge>
                     </TableCell>
+                    <TableCell className="text-xs text-muted-foreground"><p>{profile.email_confirmed?'Email verified':'Email verification required'}</p><p className="mt-1">{profile.disabled?'Access removed':profile.programmes?.length?profile.programmes.join(', '):profile.role==='staff'?'General CRM staff':profile.role==='super_admin'?'All spaces':'Assigned access'}</p></TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(profile.created_at).toLocaleDateString('en-GB')}
                     </TableCell>
@@ -149,8 +158,8 @@ export function UsersClient({ profiles, currentUserId, currentRole }: UsersClien
                         <span className="text-xs text-muted-foreground">
                           {isCurrentUser ? 'Cannot edit own role' : 'Protected'}
                         </span>
-                      ) : (
-                        <Select
+                      ) : profile.disabled ? <Button size="sm" variant="outline" disabled={isPending} onClick={()=>startTransition(async()=>{try{await setStaffActive(profile.id,true);toast.success('Staff access restored')}catch(e){toast.error(e instanceof Error?e.message:'Update failed')}})}>Restore access</Button> : (
+                        <div className="flex flex-wrap justify-end gap-2"><Select
                           defaultValue={profile.role === 'volunteer' ? 'staff' : profile.role}
                           onValueChange={(val) => handleRoleChange(profile.id, val)}
                           disabled={isPending}
@@ -165,7 +174,7 @@ export function UsersClient({ profiles, currentUserId, currentRole }: UsersClien
                             <SelectItem value="staff">Staff</SelectItem>
                             <SelectItem value="vacancies_only">Vacancies Only</SelectItem>
                           </SelectContent>
-                        </Select>
+                        </Select><Button size="sm" variant="outline" disabled={isPending||!canDeactivate} title={canDeactivate?undefined:"Access changes await administrator approval"} onClick={()=>{if(confirm(`Deactivate ${profile.full_name||profile.email}? Their record is retained and access can be restored.`))startTransition(async()=>{try{await setStaffActive(profile.id,false);toast.success('Staff access deactivated')}catch(e){toast.error(e instanceof Error?e.message:'Update failed')}})}}>Deactivate</Button></div>
                       )}
                     </TableCell>
                   </TableRow>

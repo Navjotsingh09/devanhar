@@ -253,6 +253,7 @@ test('selected-record Back link restores validated list state and ignores arbitr
     '@/lib/crm/submission-detail': { validRecordId: detail.validRecordId, loadSubmissionDetail: async () => ({ submission: null, row: { id: '123' } }) },
     '@/components/dashboard/submissions-table': { SubmissionsTable: () => null },
     '@/components/dashboard/record-status': { RecordStatus: () => null },
+    '@/components/dashboard/enquiry-workflow':{EnquiryWorkflow:()=>null},
   })
   const rendered = await page.default({ params: Promise.resolve({ source: 'form_submissions', id: '123' }), searchParams: Promise.resolve({ page: '2', q: 'fixture', status: 'archived', order: 'oldest', source: 'auth.users', returnTo: 'https://example.org' }) })
   const children = rendered.props.children.flat(Infinity).filter(Boolean)

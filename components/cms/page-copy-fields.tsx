@@ -1,0 +1,8 @@
+"use client"
+import {mediaKind} from '@/lib/cms/media'
+import {useState} from 'react'
+import type {PageSection} from '@/lib/cms/page-content'
+import {Input} from '@/components/ui/input'
+import {MediaField} from './media-field'
+type Section=Extract<PageSection,{type:'pageCopy'}>
+export function PageCopyFields({section,onChange}:{section:Section;onChange:(section:Section)=>void}){const[q,setQ]=useState('');return <div className="space-y-5"><p className="text-sm text-muted-foreground">Edit page copy, links and media within the existing Devanhaar layout. Form behaviour, payment settings and staff permissions are managed in their own tools.</p><label className="block space-y-2 text-sm">Find content on this page<Input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search words or an image path"/></label>{section.data.fields.map((field,index)=>({field,index})).filter(({field})=>!q||`${field.source} ${field.value}`.toLowerCase().includes(q.toLowerCase())).map(({field,index})=><div key={field.key} className="space-y-3 rounded-lg border p-4"><p className="break-words text-xs text-muted-foreground">Original: {field.source}</p>{field.kind==='asset'?<MediaField kind={mediaKind(field.source)} label="Image or media" value={field.value} onChange={value=>onChange({...section,data:{fields:section.data.fields.map((f,i)=>i===index?{...f,value}:f)}})}/>:<label className="block space-y-2 text-sm"><span>{field.kind==='link'?'Link':'Page content'}</span><textarea className="w-full rounded-lg border bg-background p-3" rows={field.value.length>180?4:2} value={field.value} onChange={e=>onChange({...section,data:{fields:section.data.fields.map((f,i)=>i===index?{...f,value:e.target.value}:f)}})}/></label>}</div>)}</div>}

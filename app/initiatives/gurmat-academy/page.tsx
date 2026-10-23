@@ -1,13 +1,21 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { InitiativePageLayout } from "@/components/initiative-page-layout"
 
-export const metadata = {
+const originalMetadata = {
   title: "Devanhaar Gurmat Academy | Devanhaar",
   description:
     "A space for young students to develop their Sikhi through Gurbani Santhiya, Ithihaas, philosophy, and Seva.",
 }
 
-export default function GurmatAcademyPage() {
-  return (
+export default async function GurmatAcademyPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-gurmat-academy')
+
+  return withPageCopy(((
     <InitiativePageLayout
       title="Gurmat Academy"
       tagline="A space for young students to develop their Sikhi."
@@ -34,5 +42,7 @@ export default function GurmatAcademyPage() {
         "/initiatives/gurmat-academy-3.jpg",
       ]}
     />
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-gurmat-academy',originalMetadata)}

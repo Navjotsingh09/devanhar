@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 const publishedHome = cache(async () => await getPublishedPageContent('home') ?? defaultHomeContent)
 export async function generateMetadata() {
   const content = await publishedHome()
-  return { title: content.seo.title, description: content.seo.description, robots: { index: !content.seo.noIndex, follow: !content.seo.noIndex } }
+  return { title: content.seo.title, description: content.seo.description, robots: { index: !content.seo.noIndex, follow: !content.seo.noIndex },openGraph:{title:content.seo.socialTitle||content.seo.title,description:content.seo.socialDescription||content.seo.description,...(content.seo.socialImage?{images:[content.seo.socialImage]}:{})} }
 }
 export default async function Page() {
   const [content, opportunities, posts] = await Promise.all([publishedHome(), getOpenRegistrationOpportunities().catch(() => []), getPublishedBlogPosts()])

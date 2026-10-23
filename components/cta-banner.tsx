@@ -1,3 +1,7 @@
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,7 +16,7 @@ interface CTABannerProps {
   variant?: "dark" | "light"
 }
 
-export function CTABanner({
+export async function CTABanner({cmsCopy = {},
   heading,
   description,
   primaryLabel,
@@ -20,10 +24,12 @@ export function CTABanner({
   secondaryLabel,
   secondaryHref,
   variant = "dark",
-}: CTABannerProps) {
+}: (CTABannerProps) & {cmsCopy?:PageCopy}) {
+
+
   const isDark = variant === "dark"
 
-  return (
+  return applyPageCopy(((
     <section
       className={`py-16 md:py-24 ${
         isDark ? "bg-[#1a1f2e] text-white" : "border-t border-border bg-muted/30"
@@ -68,5 +74,7 @@ export function CTABanner({
         </div>
       </div>
     </section>
-  )
+  )), cmsCopy)
 }
+
+registerCopyComponent(CTABanner)

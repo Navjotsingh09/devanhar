@@ -1,3 +1,6 @@
+import {createElement} from 'react'
+import {copyValues} from '@/lib/cms/copy-schema'
+import {migratedPageLoaders} from '@/lib/cms/migrated-page-loaders'
 import { getPublishedBlogPosts } from '@/lib/blog-db'
 import { CmsPageRenderer } from '@/components/cms/page-renderer'
 import { getPageEditorState, CmsError } from '@/lib/cms/page-server'
@@ -10,6 +13,8 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
   let state
   try { state = await getPageEditorState(slug) }
   catch (error) { if (error instanceof CmsError && error.status === 401) redirect('/auth/login'); notFound() }
+  if(slug==='content-khalsa-catalyst')return <CmsPageRenderer content={state.content}/>
+  if(slug in migratedPageLoaders){const module=await migratedPageLoaders[slug as keyof typeof migratedPageLoaders]();const section=state.content.sections.find(s=>s.type==='pageCopy');return createElement(module.default as React.ComponentType<any>,{cmsCopy:section?.type==='pageCopy'?copyValues(section.data.fields):{},params:Promise.resolve({}),searchParams:Promise.resolve({})})}
   const opportunities = slug === 'home' ? await getOpenRegistrationOpportunities().catch(() => []) : []
   const posts = await getPublishedBlogPosts()
   return <CmsPageRenderer content={state.content} opportunities={opportunities} posts={posts} />
