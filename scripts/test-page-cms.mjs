@@ -19,7 +19,7 @@ function loadSource(source, modules) {
   return module.exports
 }
 const sfi = loadTypeScript('lib/cms/sfi-content.ts')
-const settings=load('lib/cms/site-settings.ts',{'./site-settings-default.json':JSON.parse(fs.readFileSync('lib/cms/site-settings-default.json','utf8')),'./sfi-content':sfi})
+const settings=load('lib/cms/site-settings.ts',{'./site-settings-default.json':JSON.parse(fs.readFileSync('lib/cms/site-settings-default.json','utf8')),'./sfi-content':sfi,'./theme':loadTypeScript('lib/cms/theme.ts')})
 const copySchema=load('lib/cms/copy-schema.ts',{'./site-settings':settings,'./sfi-content':sfi})
 const migrated=JSON.parse(fs.readFileSync('lib/cms/migrated-pages.json','utf8'))
 const model = load('lib/cms/page-content.ts', { './home-default.json': JSON.parse(fs.readFileSync('lib/cms/home-default.json', 'utf8')), './sfi-content': sfi,'./site-settings':settings,'./copy-schema':copySchema,'./migrated-pages.json':migrated,'./seo':loadTypeScript('lib/cms/seo.ts') })
@@ -219,7 +219,7 @@ const nativeModules = {
 for(const [file, name, type] of [
   ['hero-option-a','HeroOptionA','homeHero'],['pillars-section','PillarsSection','pillars'],['platform-section','PlatformSection','platform'],['projects-section','ProjectsSection','impact'],['media-section','MediaSection','social'],
 ]) test(`${name} retains default text, images and links when fed the homepage CMS defaults`,()=>{
-  const Component=load(`components/${file}.tsx`,nativeModules)[name]
+  const Component=loadTypeScript(`components/${file}.tsx`,nativeModules)[name]
   const render=content=>renderToStaticMarkup(React.createElement(Component,{content}))
   const original=render(undefined), configured=render(sample().sections.find(s=>s.type===type).data)
   assert.equal(configured.replace(/\s+/g,' '),original.replace(/\s+/g,' '))

@@ -29,7 +29,7 @@ jobs:
         run: node --test scripts/test-admin-payment-access.mjs scripts/test-blog-access.mjs scripts/test-blog-drafts.mjs scripts/test-blog-history.mjs scripts/test-sfi-cms.mjs scripts/test-page-cms.mjs scripts/test-cms-entries.mjs scripts/test-sidebar-access.mjs scripts/test-middleware-access.mjs scripts/test-dashboard-access.mjs scripts/test-content-assignment-access.mjs scripts/test-submissions-pagination.mjs scripts/test-crm-performance-access.mjs scripts/test-response-actions.mjs scripts/test-roots-validation.mjs
 
       - name: Test CMS completion and public-page preservation
-        run: node --test scripts/test-cms-completion.mjs scripts/test-cms-seo.mjs scripts/test-newsletter-workflows.mjs scripts/test-wrestling-page.mjs
+        run: node --test scripts/test-cms-completion.mjs scripts/test-cms-seo.mjs scripts/test-cms-theme.mjs scripts/test-cms-overview.mjs scripts/test-newsletter-workflows.mjs scripts/test-wrestling-page.mjs
 
       - name: Build application
         run: npm run build

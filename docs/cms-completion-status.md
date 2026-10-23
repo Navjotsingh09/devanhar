@@ -179,3 +179,33 @@ an isolated database.
 - Perform logged-in role, preview/publish, notification, payment and upload
   acceptance tests. Do not infer their success from source-level tests.
 - The external Dev Drive copy remains blocked by sandbox access.
+
+## Shared-database continuation
+
+The user chose to retain one Supabase project. A second project is not required.
+Staging therefore shares data, and publishing from staging can affect production.
+No migration or production environment change was made in this continuation.
+
+Added optional, revisioned typography, shared radius and button-shape controls.
+Old settings have no theme override, preserving the existing appearance. Font
+and button overrides use validated choices rather than arbitrary CSS. Bespoke
+programme styling remains intact.
+
+The drafts destination now combines accessible page, structured-content and
+article drafts, bounded to the latest 100 of each type. Article drafts are
+queried only when the verified staff account has existing blog access. Existing
+RLS remains the visibility boundary. Each record opens its existing editor.
+
+The page parity fixture now uses the shared TypeScript loader instead of the
+ad-hoc VM loader. All 36 page workflow/parity tests pass. Four theme-model tests
+and five draft-inbox/dashboard tests also pass: 45 freshly verified tests for
+this increment. The structured dashboard shows accessible record counts and
+recent saved content titles with draft/live state. These tests do not replace
+authenticated acceptance or establish completion of the entire brief.
+
+Both the Supabase dashboard and the CRM preview show sign-in screens. The user
+cannot sign in now. Database inspection/migration and authenticated acceptance
+are blocked until those sessions are available. Do not bypass authentication,
+request credentials in chat, or claim the designated staging URL was updated.
+The Supabase CLI also reports no authenticated access token. Its configuration
+was not changed. The follow-up newsletter migration remains unapplied.

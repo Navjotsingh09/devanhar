@@ -1,11 +1,13 @@
 import { z } from 'zod'
 import defaults from './site-settings-default.json'
 import { isSafeContentLink,isSafeAssetLink } from './sfi-content'
+import { themeSchema } from './theme'
 const text = z.string().trim().min(1).max(500)
 const link = z.string().max(2000).refine(isSafeContentLink, 'Use a website path or HTTPS URL')
 export const assetSchema = z.string().max(2000).refine(isSafeAssetLink, 'Choose a website asset or an uploaded media URL')
 const item = z.object({label:text,href:link}).strict()
 export const siteSettingsSchema = z.object({
+ theme:themeSchema.optional(),
  brand:z.object({name:text,darkLogo:assetSchema,lightLogo:assetSchema,accent:z.string().regex(/^#[0-9a-fA-F]{6}$/),contactEmail:z.string().email().max(254),address:text,charityNumber:text}).strict(),
  navigation:z.object({
   links:z.array(item.extend({children:z.array(item.extend({description:text.optional()})).max(20).optional()})).min(1).max(12),
