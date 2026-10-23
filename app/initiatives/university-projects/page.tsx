@@ -1,13 +1,21 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { InitiativePageLayout } from "@/components/initiative-page-layout"
 
-export const metadata = {
+const originalMetadata = {
   title: "University Projects | Devanhaar",
   description:
     "Delivering talks to universities across the country, hosting weekly Amrit Vela programmes and more.",
 }
 
-export default function UniversityProjectsPage() {
-  return (
+export default async function UniversityProjectsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-university-projects')
+
+  return withPageCopy(((
     <InitiativePageLayout
       title="University Projects"
       tagline="Delivering talks to universities across the country, hosting weekly Amrit Vela programmes and more."
@@ -57,5 +65,7 @@ export default function UniversityProjectsPage() {
         "/initiatives/university-projects-3.jpg",
       ]}
     />
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-university-projects',originalMetadata)}

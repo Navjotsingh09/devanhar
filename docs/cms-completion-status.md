@@ -93,3 +93,20 @@ Do not represent the sidebar, project spaces or page inventory as those editors.
 - Fresh guards protect Roots service-role operations; scoped API exceptions cover only Roots form routes and the explicitly scoped CSV export.
 - Database policies allow Roots records and Roots recovery evidence while denying general CRM and other programme access. General staff and administrators retain their existing access.
 - Sukhdeep's explicitly requested Super Admin profile was repaired. His email remains unconfirmed; authentication verification is still required.
+
+## Completion implementation in progress
+
+Media library, navigation/branding, 39 layout-preserving content editors and subscriber/form workflows are implemented in the working branch. Verification and account cleanup are in progress; this is not an acceptance sign-off.
+
+## Completion increment — verification checkpoint
+
+- Media: signed direct uploads (images, MP4/WebM clips and PDFs, up to 50 MB), paginated search, titles/alt text/folders, copy/view/select URL, metadata edits, recoverable archive/restore, and current-content usage checks. The old image DELETE endpoint cannot delete shared storage.
+- Navigation/branding: the current menu and footer data are the defaults for a shared revisioned editor. Logos, accent, contact details, main links/submenus, project cards and footer links use a responsive saved preview and separate publication. Only administrators can change global settings.
+- Existing pages: 39 additional canonical pages have default editors and SEO controls. Copy/media changes use the existing React layout; form values, event handlers, classes and styles remain unchanged. Draft previews render the actual page components. Khalsa Catalyst remains hidden until explicitly published. Public content is cached and public routes retain static/ISR rendering.
+- Subscribers: durable same-origin endpoint with normalized email and explicit consent; paginated search/status filters; filtered CSV with signed unsubscribe URLs; authenticated consent withdrawal; signed, explicit public unsubscribe confirmation. Staff cannot silently restore withdrawn consent.
+- Enquiries: saving is mandatory before notifications; a missing or failed notification service cannot silently lose an enquiry or ask the visitor to resubmit a record already saved.
+- Staff: roster audit completed. Taran and Sukhdeep have Super Admin profiles; Sundeep has active SPA-only membership; Luvpreet has Roots only; Karnjit has Kaurs/Vidyala/newsletter; Daljit has family; Amritpal retains general staff access. Sukhdeep's email is unverified and was not bypassed. Paramveer has no CRM profile; the legacy SPA account is absent. Mahaaan and Paramveer deactivation is prepared but NOT applied.
+- Automatic approval review rejected persistent access-control changes. `cms-staff-cleanup.sql`, `cms-roster-cleanup-apply.sql` and removal of `anon_update_nl` remain pending explicit approval. User management falls back to a fresh read-only roster and does not enable uninstalled deactivation actions.
+- Additive media/subscriber columns were applied and verified; existing records were retained.
+- 510 executable regression checks pass, including 58 new CMS/workflow checks. The optional SPA workbook import suite requires its original workbook, which is unavailable in this workspace; it was not represented as passing.
+- Focused TypeScript passes. Final production build and deployed browser checks are in progress. The staff browser session is expired; authenticated acceptance is NOT verified.

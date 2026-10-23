@@ -1,17 +1,22 @@
 'use client'
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Expand } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { pesPhotos } from '@/lib/pes-gallery-photos'
 
 export function PesGallery() {
+  const cmsCopy = usePageCopy()
+
   const [active, setActive] = useState<number | null>(null)
   const lastTrigger = useRef<HTMLButtonElement | null>(null)
   const photo = active === null ? null : pesPhotos[active]
   const move = (offset: number) => setActive(index => index === null ? null : (index + offset + pesPhotos.length) % pesPhotos.length)
 
-  return (
+  return applyPageCopy(((
     <section aria-labelledby="pes-gallery-heading" className="border-t border-border bg-white py-16 md:py-24">
       <div className="container mx-auto max-w-6xl px-6 lg:px-12">
         <div className="mb-10 max-w-3xl">
@@ -53,5 +58,5 @@ export function PesGallery() {
         </DialogContent>
       </Dialog>
     </section>
-  )
+  )), cmsCopy)
 }

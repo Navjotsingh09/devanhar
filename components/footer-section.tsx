@@ -1,3 +1,5 @@
+"use client"
+import {useSiteSettings} from '@/components/cms/site-settings-provider'
 import { Button } from "@/components/ui/button"
 import { Mail, MapPin } from "lucide-react"
 import { FooterDonateLink } from "@/components/footer-donate-link"
@@ -7,6 +9,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 export function FooterSection({ hideContact = false, donationHref = "/donate" }: { hideContact?: boolean; donationHref?: string }) {
+  const settings=useSiteSettings()
   return (
     <>
       {!hideContact && <>
@@ -33,8 +36,8 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Email</p>
-                    <a href="mailto:contact@devanhaar.com" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-                      contact@devanhaar.com
+                    <a href={`mailto:${settings.brand.contactEmail}`} className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                      {settings.brand.contactEmail}
                     </a>
                   </div>
                 </div>
@@ -45,7 +48,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
                   <div>
                     <p className="text-xs text-muted-foreground">Registered address</p>
                     <p className="text-sm font-medium text-foreground">
-                      3 Waterside Drive, Langley, United Kingdom
+                      {settings.brand.address}
                     </p>
                   </div>
                 </div>
@@ -66,7 +69,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16 pb-12 border-b border-white/[0.08]">
             <div>
               <Image
-                src="/logos/main-white-transparent.png"
+                src={settings.brand.lightLogo}
                 alt="Devanhaar"
                 width={160}
                 height={40}
@@ -90,13 +93,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
                 Navigate
               </h4>
               <ul className="space-y-3 text-sm">
-                {[
-                  { label: "About", href: "/about" },
-                  { label: "Projects", href: "/projects" },
-                  { label: "Team", href: "/team" },
-                  { label: "Events (Coming Soon)", href: "/events" },
-                  { label: "Shop", href: "/shop" },
-                ].map((l) => (
+                {settings.footer.navigate.map((l) => (
                   <li key={l.label}>
                     <Link
                       href={l.href}
@@ -113,12 +110,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
                 Projects
               </h4>
               <ul className="space-y-3 text-sm">
-                {[
-                  { label: "Camps", href: "/#projects" },
-                  { label: "University Talks", href: "/#projects" },
-                  { label: "Sikhi Vidyala", href: "/#projects" },
-                  { label: "Gurmat Academy", href: "/#projects" },
-                ].map((l) => (
+                {settings.footer.projects.map((l) => (
                   <li key={l.label}>
                     <Link
                       href={l.href}
@@ -155,21 +147,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
                 Connect
               </h4>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <a href="https://www.instagram.com/devanhaar" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a href="https://www.youtube.com/@singhscampuk" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
-                    YouTube
-                  </a>
-                </li>
-                <li>
-                  <a href="https://www.linkedin.com/company/devanhaar/?originalSubdomain=uk" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">
-                    LinkedIn
-                  </a>
-                </li>
+                {settings.footer.social.map(link=><li key={link.href}><a href={link.href} target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-white transition-colors">{link.label}</a></li>)}
               </ul>
             </div>
           </div>
@@ -184,7 +162,7 @@ export function FooterSection({ hideContact = false, donationHref = "/donate" }:
           {/* Bottom bar */}
           <div className="pt-6 border-t border-white/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-white/60">
-              © 2026 Devanhaar. Registered charity in England and Wales, No. 1203393. All rights
+              © {new Date().getFullYear()} {settings.brand.name}. Registered charity in England and Wales, No. {settings.brand.charityNumber}. All rights
               reserved.
             </p>
             <div className="flex items-center gap-x-6 gap-y-2 text-[11px] text-white/60 flex-wrap justify-center">

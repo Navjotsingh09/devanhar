@@ -1,5 +1,6 @@
 'use client'
 
+import {MediaField} from './media-field'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Eye, Plus, Save, Send, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import type { getSfiEditorState } from '@/lib/cms/sfi-server'
 type State = Awaited<ReturnType<typeof getSfiEditorState>>
 const labels = { events: 'Upcoming events', why: 'Why SFI', faq: 'Frequently asked questions', community: 'Community & seva' }
 function Field({ label, value, onChange, multiline = false }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean }) {
+  if(label==='Hero image path')return <MediaField label={label} value={value} onChange={onChange}/>
   return <label className="block space-y-2 text-sm font-medium"><span>{label}</span>{multiline
     ? <textarea value={value} onChange={event => onChange(event.target.value)} rows={4} className="w-full rounded-lg border border-input bg-background p-3 font-normal leading-6 focus:outline-none focus:ring-2 focus:ring-primary" />
     : <Input value={value} onChange={event => onChange(event.target.value)} className="font-normal" />}</label>

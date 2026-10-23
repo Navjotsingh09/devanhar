@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState, useCallback, useEffect } from "react"
 import Image from "next/image"
 import { X, Play, ChevronLeft, ChevronRight, Camera, Film, ArrowRight } from "lucide-react"
@@ -82,6 +85,8 @@ function LightboxModal({ images, index, onClose, onPrev, onNext }: {
   onPrev: () => void
   onNext: () => void
 }) {
+  const cmsCopy = usePageCopy()
+
   const img = images[index]
 
   useEffect(() => {
@@ -98,7 +103,7 @@ function LightboxModal({ images, index, onClose, onPrev, onNext }: {
     }
   }, [onClose, onPrev, onNext])
 
-  return (
+  return applyPageCopy(((
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/90 backdrop-blur-md" />
       <button aria-label="Close lightbox" onClick={onClose} className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors">
@@ -120,10 +125,12 @@ function LightboxModal({ images, index, onClose, onPrev, onNext }: {
         </div>
       </div>
     </div>
-  )
+  )), cmsCopy)
 }
 
 export function MediaPageContent() {
+  const cmsCopy = usePageCopy()
+
   const [activeTab, setActiveTab] = useState<"gallery" | "videos">("gallery")
   const [category, setCategory] = useState<GalleryCat>("all")
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -144,7 +151,7 @@ export function MediaPageContent() {
   const currentPlaylist = playlists[activePlaylist]
   const currentVideo = currentPlaylist.videos[activeVideo]
 
-  return (
+  return applyPageCopy(((
     <div className="pt-24 pb-0">
       {/* Hero */}
       <section className="border-b border-border">
@@ -354,5 +361,5 @@ export function MediaPageContent() {
         />
       )}
     </div>
-  )
+  )), cmsCopy)
 }

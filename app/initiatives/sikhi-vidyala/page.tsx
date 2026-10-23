@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Image from "next/image"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -7,7 +13,7 @@ import { ArrowRight, Clock, Calendar, Users, UserRound, BookOpen, Mic2, Globe, S
 import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 import { VidyalaGallery } from "@/components/vidyala-gallery"
 
-export const metadata = {
+const originalMetadata = {
   title: "Sikhi Vidyala | Devanhaar",
   description:
     "An educational institution providing knowledge on Sikh history, philosophy, and teachings to equip participants with parchaar skills.",
@@ -18,9 +24,11 @@ const GOLD = "#F5A623"
 
 export const dynamic = "force-dynamic"
 
-export default function SikhiVidyalaPage() {
+export default async function SikhiVidyalaPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sikhi-vidyala')
+
   const closed = isVidyalaApplicationsClosed()
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -365,5 +373,7 @@ export default function SikhiVidyalaPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sikhi-vidyala',originalMetadata)}

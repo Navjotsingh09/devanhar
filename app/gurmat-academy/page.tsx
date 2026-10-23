@@ -1,1 +1,1 @@
-export { default, metadata } from "../initiatives/gurmat-academy/page"
+export { default, generateMetadata } from "../initiatives/gurmat-academy/page"
