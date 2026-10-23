@@ -1,0 +1,104 @@
+.wrestling-page {
+  --wrestling-gold: #ffb800;
+  --wrestling-ink: #111525;
+  --wrestling-muted: #606571;
+  --wrestling-paper: #f8f7f3;
+  color: var(--wrestling-ink);
+  background: #fff;
+  font-family: var(--font-inter), Arial, sans-serif;
+}
+
+.wrestling-page .wrestling-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 32px;
+}
+
+.wrestling-page section { scroll-margin-top: 100px; }
+.wrestling-page .wrestling-section { padding-block: 72px; }
+.wrestling-page h2 { font-size: clamp(30px, 3.5vw, 48px); font-weight: 600; line-height: 1.12; letter-spacing: -.045em; margin-bottom: 24px; }
+.wrestling-page h3 { font-size: 24px; font-weight: 600; line-height: 1.25; letter-spacing: -.025em; margin-bottom: 16px; }
+.wrestling-page p { font-size: 15px; line-height: 1.8; }
+.wrestling-page .wrestling-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; color: #735100; margin-bottom: 18px; }
+.wrestling-page a:focus-visible,
+.wrestling-page [tabindex]:focus-visible { outline: 3px solid currentColor; outline-offset: 5px; }
+
+.wrestling-page .wrestling-hero { position: relative; isolation: isolate; overflow: hidden; background: var(--wrestling-ink); color: white; padding-top: 155px; }
+.wrestling-page .wrestling-hero-photo { object-fit: cover; object-position: center 40%; z-index: -3; }
+.wrestling-page .wrestling-hero-shade { position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, rgba(10,16,20,.94), rgba(10,16,20,.72) 48%, rgba(10,16,20,.2) 100%), linear-gradient(0deg, rgba(10,16,20,.55), transparent 60%); }
+.wrestling-page .wrestling-hero-content { padding-bottom: 76px; }
+.wrestling-page .wrestling-hero .wrestling-eyebrow { color: #ffcf52; margin-bottom: 30px; }
+.wrestling-page .wrestling-hero h1 { font-size: clamp(42px, 5.3vw, 76px); font-weight: 600; line-height: 1.02; letter-spacing: -.055em; max-width: 760px; }
+.wrestling-page .wrestling-hero h1 span { color: #ffbf20; }
+.wrestling-page .wrestling-hero-description { max-width: 430px; color: #e2e3df; margin-block: 28px; }
+.wrestling-page .wrestling-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 26px; }
+.wrestling-page .wrestling-button { display: inline-flex; align-items: center; justify-content: center; gap: 24px; padding: 15px 24px; border-radius: 100px; background: var(--wrestling-gold); color: #131515; font-size: 13px; font-weight: 600; text-align: center; }
+.wrestling-page .wrestling-button:hover { background: #ffcf52; }
+.wrestling-page .wrestling-discover { display: inline-flex; align-items: center; gap: 18px; font-size: 13px; padding-block: 10px; border-bottom: 1px solid #ffffff70; }
+.wrestling-page .wrestling-hero-facts { display: grid; grid-template-columns: repeat(4, 1fr); padding-block: 25px; border-top: 1px solid #ffffff35; background: #11152530; backdrop-filter: blur(8px); }
+.wrestling-page .wrestling-hero-facts > div { padding-inline: 24px; border-right: 1px solid #ffffff30; }
+.wrestling-page .wrestling-hero-facts > div:first-child { padding-left: 0; }
+.wrestling-page .wrestling-hero-facts > div:last-child { border: 0; }
+.wrestling-page .wrestling-hero-facts dt { font-size: 20px; font-weight: 500; letter-spacing: -.03em; }
+.wrestling-page .wrestling-hero-facts dd { font-size: 11px; color: #ecece0; margin-top: 6px; }
+
+.wrestling-page .wrestling-jumpnav { border-bottom: 1px solid #e7e5df; }
+.wrestling-page .wrestling-jumpnav > div { display: flex; align-items: center; gap: 28px; overflow-x: auto; padding-block: 18px; }
+.wrestling-page .wrestling-jumpnav a { flex-shrink: 0; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.wrestling-page .wrestling-jumpnav a:hover { text-decoration: underline; text-underline-offset: 6px; }
+.wrestling-page .wrestling-jump-cta { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; color: #735100; }
+.wrestling-page .wrestling-story { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 64px; }
+.wrestling-page .wrestling-introduction { font-size: 18px; color: var(--wrestling-muted); }
+.wrestling-page .wrestling-story-copy { padding-top: 34px; color: var(--wrestling-muted); }
+.wrestling-page .wrestling-story-copy p + p { margin-top: 20px; }
+.wrestling-page .wrestling-text-link { display: inline-flex; align-items: center; gap: 12px; margin-top: 24px; font-size: 13px; font-weight: 600; color: #735100; text-decoration: underline; text-underline-offset: 5px; }
+.wrestling-page .wrestling-section-heading { max-width: 760px; margin-bottom: 36px; }
+.wrestling-page .wrestling-section-heading > p:last-child { max-width: 660px; color: var(--wrestling-muted); }
+
+.wrestling-page .wrestling-heritage { background: var(--wrestling-ink); color: white; }
+.wrestling-page .wrestling-heritage .wrestling-eyebrow { color: #ffcf52; }
+.wrestling-page .wrestling-heritage .wrestling-section-heading > p:last-child { color: #d5d7de; }
+.wrestling-page .wrestling-heritage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.wrestling-page .wrestling-heritage-grid article { border-top: 1px solid #ffffff35; padding-top: 28px; }
+.wrestling-page .wrestling-heritage-grid article > p:last-child { color: #d5d7de; }
+.wrestling-page .wrestling-classes { background: var(--wrestling-paper); }
+.wrestling-page .wrestling-class-layout { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 64px; }
+.wrestling-page .wrestling-class-layout > div > p:not(.wrestling-eyebrow) { color: var(--wrestling-muted); }
+.wrestling-page .wrestling-class-layout .wrestling-button { margin-top: 28px; }
+.wrestling-page .wrestling-details-card { padding: 36px; border: 1px solid #e8e5dc; border-radius: 16px; background: white; }
+.wrestling-page .wrestling-timetable { min-width: 0; overflow-x: auto; background: white; padding: 24px; border-radius: 16px; }
+.wrestling-page table { width: 100%; text-align: left; font-size: 14px; border-collapse: collapse; }
+.wrestling-page th, .wrestling-page td { padding: 16px 12px; border-bottom: 1px solid #e7e5df; }
+.wrestling-page th { font-weight: 600; }
+.wrestling-page .wrestling-media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.wrestling-page .wrestling-media-image { position: relative; aspect-ratio: 4 / 3; }
+.wrestling-page .wrestling-media-image img, .wrestling-page .wrestling-media-grid video { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; }
+.wrestling-page figcaption { margin-top: 12px; font-size: 13px; color: var(--wrestling-muted); }
+.wrestling-page .wrestling-media-empty { border: 1px solid #e8e5dc; border-radius: 4px 50px 4px 4px; background: var(--wrestling-paper); padding: 48px; color: var(--wrestling-muted); }
+.wrestling-page .wrestling-media-empty p + p { margin-top: 20px; font-size: clamp(24px, 3vw, 36px); font-weight: 600; letter-spacing: -.035em; color: var(--wrestling-ink); }
+.wrestling-page .wrestling-final-cta { background: var(--wrestling-gold); }
+.wrestling-page .wrestling-final-cta > div { display: flex; justify-content: space-between; align-items: center; gap: 48px; }
+.wrestling-page .wrestling-final-cta p { max-width: 570px; }
+.wrestling-page .wrestling-final-cta .wrestling-button { background: var(--wrestling-ink); color: white; flex-shrink: 0; }
+.wrestling-page .wrestling-final-cta .wrestling-button:hover { background: #272d43; }
+
+@media (max-width: 1000px) {
+  .wrestling-page .wrestling-story, .wrestling-page .wrestling-class-layout { gap: 36px; }
+  .wrestling-page .wrestling-media-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wrestling-page .wrestling-final-cta > div { align-items: flex-start; flex-direction: column; gap: 28px; }
+}
+
+@media (max-width: 700px) {
+  .wrestling-page .wrestling-container { padding-inline: 24px; }
+  .wrestling-page .wrestling-section { padding-block: 48px; }
+  .wrestling-page .wrestling-hero { padding-top: 125px; }
+  .wrestling-page .wrestling-hero-content { padding-bottom: 48px; }
+  .wrestling-page .wrestling-hero h1 { font-size: clamp(36px, 8.8vw, 56px); }
+  .wrestling-page .wrestling-hero-facts { grid-template-columns: 1fr 1fr; gap: 24px 16px; }
+  .wrestling-page .wrestling-hero-facts > div { padding-inline: 0; border: 0; }
+  .wrestling-page .wrestling-hero-facts dt { font-size: 18px; }
+  .wrestling-page .wrestling-story, .wrestling-page .wrestling-heritage-grid, .wrestling-page .wrestling-class-layout, .wrestling-page .wrestling-media-grid { grid-template-columns: 1fr; gap: 32px; }
+  .wrestling-page .wrestling-story-copy { padding-top: 0; }
+  .wrestling-page .wrestling-details-card, .wrestling-page .wrestling-media-empty { padding: 28px; }
+}
