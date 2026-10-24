@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { rootsCampTemplate } from '@/lib/roots-forms/template'
+import { validateAnswers } from '@/lib/roots-forms/schema'
 
 export const dynamic = "force-dynamic"
 
@@ -35,6 +37,13 @@ export async function POST(req: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(body.parent_email)) {
       return NextResponse.json({ error: "Invalid email address." }, { status: 400 })
+    }
+
+    const template = rootsCampTemplate()
+    try {
+      validateAnswers({...template, fields: template.fields.filter(field => field.id === 'child_dob')}, {child_dob: body.camper_dob})
+    } catch (error) {
+      return NextResponse.json({error: error instanceof Error ? error.message : "Enter a valid date of birth."}, {status: 400})
     }
 
     const supabase = getSupabase()

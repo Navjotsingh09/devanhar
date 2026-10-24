@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, X } from "lucide-react"
+import { dateBounds } from '@/lib/roots-forms/schema'
 
 type FormData = {
   camper_first_name: string
@@ -187,7 +188,8 @@ export function RootsBookingForm() {
             <input className={inputCls} value={form.camper_last_name} onChange={set("camper_last_name")} placeholder="Last name" />
           </Field>
           <Field label="Date of birth" required>
-            <input type="date" className={inputCls} value={form.camper_dob} onChange={set("camper_dob")} />
+            <input type="date" className={inputCls} {...dateBounds({minAge:12,maxAge:16,pastOnly:true})} value={form.camper_dob} onChange={set("camper_dob")} />
+            <p className="mt-1 text-xs text-muted-foreground">Your child must be aged 12–16 on the date you register.</p>
           </Field>
           <Field label="Gender (optional)">
             <select className={selectCls} value={form.camper_gender} onChange={set("camper_gender")}>

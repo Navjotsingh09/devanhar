@@ -29,11 +29,11 @@ import { Button } from "@/components/ui/button"
 const originalMetadata = {
   title: "Roots Residential | Devanhaar",
   description:
-    "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values, all in one unforgettable experience.",
+    "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026. Outdoor activities, leadership, personal development and Sikh values.",
   keywords: ["Roots Residential", "Sikh youth camp", "Sikh residential", "Devanhaar", "young Sikhs UK"],
   openGraph: {
     title: "Roots Residential | Devanhaar",
-    description: "A four-day residential adventure for young Sikhs aged 13-16.",
+    description: "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026.",
     url: "https://devanhaar.com/initiatives/roots-residential",
   },
   alternates: { canonical: "https://devanhaar.com/initiatives/roots-residential" },
@@ -52,7 +52,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         <RootsHero />
 
         <nav className="roots-jumpnav" aria-label="Explore Roots">
-          <div><a href="#about-roots">Discover Roots</a><a href="#residentials">Residentials</a><a href="#roots-experience">The experience</a><a href="#roots-venue">Venue &amp; cost</a><a href="#booking-form" className="roots-jump-cta">Register your child <span aria-hidden="true">↗</span></a></div>
+          <div><a href="#about-roots">Discover Roots</a><a href="#residentials">Residentials</a><a href="#roots-experience">The experience</a><a href="#roots-venue">Venue</a><a href="#booking-form" className="roots-jump-cta">Register your child <span aria-hidden="true">↗</span></a></div>
         </nav>
 
         {/* Bookings intro card */}
@@ -65,10 +65,6 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                 Applications are now open
               </h2>
-              <div className="mb-4 rounded-xl border border-[hsl(43,100%,29%)]/30 bg-[hsl(43,100%,29%)]/10 px-5 py-4 sm:flex sm:items-center sm:justify-between">
-                <p className="text-sm font-semibold uppercase tracking-wide text-[hsl(43,100%,29%)]">Current price</p>
-                <p className="mt-1 text-2xl font-bold text-foreground sm:mt-0">£75 per participant</p>
-              </div>
               <div className="grid gap-3 sm:grid-cols-2 mb-8">
                 <div className="rounded-xl border border-border bg-background p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Location</p>
@@ -76,7 +72,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
                 </div>
                 <div className="rounded-xl border border-border bg-background p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dates</p>
-                  <p className="mt-1 text-lg font-bold text-foreground">23rd–30th August</p>
+                  <p className="mt-1 text-lg font-bold text-foreground">19th–21st December 2026</p>
                 </div>
               </div>
               <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
@@ -84,7 +80,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
                   Please complete one application per participant. The form will ask for the participant's details, parent or guardian contact information, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential.
                 </p>
                 <p>
-                  Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment. The current cost is £75 per participant.
+                  Once submitted, your booking request will be reviewed by the Roots team. Successful applicants will receive a congratulations email with a payment link to secure their place.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-4">
@@ -144,7 +140,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-kaurs-logo.jpg" alt="Bibia Kaurs Roots — girls' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Girls&apos; Residential</h3>
-                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Girls: 27th–30th August</p>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">19th–21st December 2026</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.
                 </p>
@@ -153,7 +149,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-singhs-logo.jpg" alt="Singhs Roots — boys' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Boys&apos; Residential</h3>
-                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Boys: 23rd–26th August</p>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">19th–21st December 2026</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.
                 </p>
@@ -166,7 +162,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
               </p>
             </div>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
-              The boys&apos; residential runs from 23rd–26th August, followed by the girls&apos; residential from 27th–30th August.
+              Roots runs from 19th to 21st December 2026, with separate arrangements for girls and boys.
             </p>
           </div>
         </section>
@@ -192,7 +188,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         {/* The Experience — 6 cards */}
         <div id="roots-experience" className="roots-experience scroll-mt-28"><CorePillarsGrid
           pillars={rootsExperienceCards}
-          heading="Four Days Full of Adventure"
+          heading="Three Days Full of Adventure"
           subheading="Every day at Roots offers something different. From climbing and bushcraft to campfires and team competitions, no two days are the same, and every day leaves a lasting impression."
         />
 
@@ -277,7 +273,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
                 </h2>
                 <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
                   <p>
-                    Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.
+                    Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for three days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.
                   </p>
                   <p>
                     From the grounds to the accommodation, every part of the site is designed to support an immersive residential experience.
@@ -301,14 +297,13 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         <section className="roots-pricing border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
-              Pricing
+              Getting there
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              <span className="text-5xl md:text-6xl text-[hsl(43,100%,29%)]">&pound;75.00</span>
-              <span className="text-lg md:text-xl font-normal text-muted-foreground ml-3">per participant</span>
+              Travel information
             </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              The current cost is £75 per participant. This is subject to change, and the final amount will be confirmed when we contact you following your application.
+              Arrival and transport details will be shared with confirmed participants.
             </p>
             <div className="mb-8 rounded-2xl border border-[hsl(43,100%,29%)]/30 bg-background p-5 md:p-6">
               <div className="flex items-start gap-4">
@@ -381,7 +376,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
               <p className="roots-eyebrow">Your next adventure starts here</p>
               <h2>Make room for<br /><span>something memorable.</span></h2>
               <p>One form per child, completed by a parent or guardian. The Roots team will confirm availability and arrange payment after reviewing your application.</p>
-              <div className="roots-registration-facts"><p><strong>13–16</strong> years old</p><p><strong>4 days</strong> of discovery</p><p><strong>£75</strong> per participant, subject to confirmation</p></div>
+              <div className="roots-registration-facts"><p><strong>12–16</strong> years old</p><p><strong>3 days</strong> of discovery</p><p><strong>£50</strong> per participant, payable after acceptance</p><p><strong>19th–21st December 2026</strong></p></div>
               <img src="/initiatives/roots-gallery-10.jpg" alt="Outdoor adventure at Roots Residential" loading="lazy" />
               <p className="roots-registration-note">Need a hand with your application?<br /><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a></p>
             </aside>
@@ -458,6 +453,5 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
     </>
   )), cmsCopy)
 }
-
 
 export async function generateMetadata(){return getMigratedPageMetadata('content-roots-residential',originalMetadata)}

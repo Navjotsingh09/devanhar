@@ -6026,10 +6026,10 @@
         "value": "Roots Residential | Devanhaar"
       },
       {
-        "key": "d7e9ff05c0390673",
-        "source": "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values, all in one unforgettable experience.",
+        "key": "14af07de9f1cab74",
+        "source": "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026. Outdoor activities, leadership, personal development and Sikh values.",
         "kind": "text",
-        "value": "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values, all in one unforgettable experience."
+        "value": "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026. Outdoor activities, leadership, personal development and Sikh values."
       },
       {
         "key": "da8a177b01234960",
@@ -6056,10 +6056,10 @@
         "value": "young Sikhs UK"
       },
       {
-        "key": "55c107fbdd3fc619",
-        "source": "A four-day residential adventure for young Sikhs aged 13-16.",
+        "key": "a9dea2a3e83eeb5c",
+        "source": "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026.",
         "kind": "text",
-        "value": "A four-day residential adventure for young Sikhs aged 13-16."
+        "value": "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026."
       },
       {
         "key": "51e631ba91db63c9",
@@ -6116,10 +6116,10 @@
         "value": "#roots-venue"
       },
       {
-        "key": "e1c11eebeeacf611",
-        "source": "Venue &amp; cost",
+        "key": "aea1b15df626f337",
+        "source": "Venue",
         "kind": "text",
-        "value": "Venue &amp; cost"
+        "value": "Venue"
       },
       {
         "key": "83db29a5174ea287",
@@ -6146,18 +6146,6 @@
         "value": "Applications are now open"
       },
       {
-        "key": "ba37e7dd09f6d654",
-        "source": "Current price",
-        "kind": "text",
-        "value": "Current price"
-      },
-      {
-        "key": "3be712303effd369",
-        "source": "£75 per participant",
-        "kind": "text",
-        "value": "£75 per participant"
-      },
-      {
         "key": "15b61974b2707a7b",
         "source": "Location",
         "kind": "text",
@@ -6176,10 +6164,10 @@
         "value": "Dates"
       },
       {
-        "key": "4de9ee9e85d8db6d",
-        "source": "23rd–30th August",
+        "key": "dfaf83045ec7e378",
+        "source": "19th–21st December 2026",
         "kind": "text",
-        "value": "23rd–30th August"
+        "value": "19th–21st December 2026"
       },
       {
         "key": "0d16ea7542129833",
@@ -6188,10 +6176,10 @@
         "value": "Please complete one application per participant. The form will ask for the participant's details, parent or guardian contact information, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential."
       },
       {
-        "key": "8fb5d332d5fd710a",
-        "source": "Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment. The current cost is £75 per participant.",
+        "key": "7a00a6d7684c52b2",
+        "source": "Once submitted, your booking request will be reviewed by the Roots team. Successful applicants will receive a congratulations email with a payment link to secure their place.",
         "kind": "text",
-        "value": "Once submitted, your booking request will be reviewed by the Roots team. An organiser will then contact you directly to confirm availability, discuss the cost, and explain how to make payment. The current cost is £75 per participant."
+        "value": "Once submitted, your booking request will be reviewed by the Roots team. Successful applicants will receive a congratulations email with a payment link to secure their place."
       },
       {
         "key": "448a9ed9deea2e3e",
@@ -6278,12 +6266,6 @@
         "value": "Girls&apos; Residential"
       },
       {
-        "key": "61353b741a801828",
-        "source": "Girls: 27th–30th August",
-        "kind": "text",
-        "value": "Girls: 27th–30th August"
-      },
-      {
         "key": "9330a8d225a5854d",
         "source": "A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.",
         "kind": "text",
@@ -6308,12 +6290,6 @@
         "value": "Boys&apos; Residential"
       },
       {
-        "key": "95ed9557d8fcef93",
-        "source": "Boys: 23rd–26th August",
-        "kind": "text",
-        "value": "Boys: 23rd–26th August"
-      },
-      {
         "key": "b78fde697e4b8687",
         "source": "A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.",
         "kind": "text",
@@ -6326,10 +6302,10 @@
         "value": "Girls and boys attend separate residentials, giving every young person a safe, comfortable space to take part, build friendships and grow with confidence. Safeguarding and welfare are at the heart of everything we do."
       },
       {
-        "key": "d888f49c85f4749a",
-        "source": "The boys&apos; residential runs from 23rd–26th August, followed by the girls&apos; residential from 27th–30th August.",
+        "key": "783cad26c2642e51",
+        "source": "Roots runs from 19th to 21st December 2026, with separate arrangements for girls and boys.",
         "kind": "text",
-        "value": "The boys&apos; residential runs from 23rd–26th August, followed by the girls&apos; residential from 27th–30th August."
+        "value": "Roots runs from 19th to 21st December 2026, with separate arrangements for girls and boys."
       },
       {
         "key": "f02ea55cc41684fe",
@@ -6344,10 +6320,10 @@
         "value": "Shared outdoor experiences at Roots"
       },
       {
-        "key": "63034992efb08c20",
-        "source": "Four Days Full of Adventure",
+        "key": "d0eca9d76cb6b1e4",
+        "source": "Three Days Full of Adventure",
         "kind": "text",
-        "value": "Four Days Full of Adventure"
+        "value": "Three Days Full of Adventure"
       },
       {
         "key": "f7deb532cce72425",
@@ -6446,10 +6422,10 @@
         "value": "The Venue"
       },
       {
-        "key": "4a262ae54c74b7db",
-        "source": "Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.",
+        "key": "40e47d66d7826ff0",
+        "source": "Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for three days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place.",
         "kind": "text",
-        "value": "Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for four days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place."
+        "value": "Roots takes place at Hilston Park, a residential activity centre in Wales set in beautiful grounds. The site provides the perfect backdrop for three days of adventure, reflection and community, with facilities, outdoor spaces and accommodation all in one place."
       },
       {
         "key": "a6f51d3443f9f9d6",
@@ -6482,34 +6458,22 @@
         "value": "Hilston Park venue in Wales"
       },
       {
-        "key": "dfe95783edfef791",
-        "source": "Pricing",
+        "key": "1258a77d6e5cd4b3",
+        "source": "Getting there",
         "kind": "text",
-        "value": "Pricing"
-      },
-      {
-        "key": "b3411fd261617e20",
-        "source": "&pound;75.00",
-        "kind": "text",
-        "value": "&pound;75.00"
-      },
-      {
-        "key": "29aca21fb6b6811f",
-        "source": "per participant",
-        "kind": "text",
-        "value": "per participant"
-      },
-      {
-        "key": "7908514cffed2c86",
-        "source": "The current cost is £75 per participant. This is subject to change, and the final amount will be confirmed when we contact you following your application.",
-        "kind": "text",
-        "value": "The current cost is £75 per participant. This is subject to change, and the final amount will be confirmed when we contact you following your application."
+        "value": "Getting there"
       },
       {
         "key": "29cc5ceb273006ad",
         "source": "Travel information",
         "kind": "text",
         "value": "Travel information"
+      },
+      {
+        "key": "a29e72ece896605c",
+        "source": "Arrival and transport details will be shared with confirmed participants.",
+        "kind": "text",
+        "value": "Arrival and transport details will be shared with confirmed participants."
       },
       {
         "key": "07bc900fac95eb43",
@@ -6614,10 +6578,10 @@
         "value": "One form per child, completed by a parent or guardian. The Roots team will confirm availability and arrange payment after reviewing your application."
       },
       {
-        "key": "0a10c9d681541d6a",
-        "source": "13–16",
+        "key": "8432e4edc77a2b2d",
+        "source": "12–16",
         "kind": "text",
-        "value": "13–16"
+        "value": "12–16"
       },
       {
         "key": "d0352ccd05cc9901",
@@ -6626,10 +6590,10 @@
         "value": "years old"
       },
       {
-        "key": "31c69ec3a61e82a5",
-        "source": "4 days",
+        "key": "360719440e92c924",
+        "source": "3 days",
         "kind": "text",
-        "value": "4 days"
+        "value": "3 days"
       },
       {
         "key": "d4c74531db35f5e3",
@@ -6638,16 +6602,16 @@
         "value": "of discovery"
       },
       {
-        "key": "d4c21330127d7947",
-        "source": "£75",
+        "key": "152ae9700e903c78",
+        "source": "£50",
         "kind": "text",
-        "value": "£75"
+        "value": "£50"
       },
       {
-        "key": "b8cd24e5c5ede060",
-        "source": "per participant, subject to confirmation",
+        "key": "17cb6eadd67671cf",
+        "source": "per participant, payable after acceptance",
         "kind": "text",
-        "value": "per participant, subject to confirmation"
+        "value": "per participant, payable after acceptance"
       },
       {
         "key": "5627683a64610987",
@@ -7220,10 +7184,10 @@
         "value": "belonging."
       },
       {
-        "key": "6adde076ef8e71ee",
-        "source": "Adventure, friendship and Sikh identity for young people aged 13–16. Four days to explore, connect and grow.",
+        "key": "294487dc22b361ba",
+        "source": "Adventure, friendship and Sikh identity for young people aged 12–16. Three days to explore, connect and grow.",
         "kind": "text",
-        "value": "Adventure, friendship and Sikh identity for young people aged 13–16. Four days to explore, connect and grow."
+        "value": "Adventure, friendship and Sikh identity for young people aged 12–16. Three days to explore, connect and grow."
       },
       {
         "key": "374d5e21275d04aa",
@@ -7244,10 +7208,10 @@
         "value": "Young people"
       },
       {
-        "key": "b24e641ba578fd02",
-        "source": "Four days",
+        "key": "83ccfb16cdf004bd",
+        "source": "Three days",
         "kind": "text",
-        "value": "Four days"
+        "value": "Three days"
       },
       {
         "key": "5eb85d98107f8630",
@@ -7268,10 +7232,16 @@
         "value": "Separate residentials"
       },
       {
-        "key": "7607f7a6d0d6a0a3",
-        "source": "Per participant · subject to confirmation",
+        "key": "4c12e8a3d17d2e05",
+        "source": "19–21 December 2026",
         "kind": "text",
-        "value": "Per participant · subject to confirmation"
+        "value": "19–21 December 2026"
+      },
+      {
+        "key": "28800ecf33e3674a",
+        "source": "Residential dates",
+        "kind": "text",
+        "value": "Residential dates"
       },
       {
         "key": "a360393632440c9f",
@@ -7304,10 +7274,10 @@
         "value": "Whether attending with friends or arriving on their own, every young person is welcomed into a supportive community where they are encouraged to be themselves, embrace new challenges and realise their full potential."
       },
       {
-        "key": "921426325e8a23b4",
-        "source": "Roots is a four-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every participant feels welcomed, challenged and supported.",
+        "key": "e2321058066e5e3b",
+        "source": "Roots is a three-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 12–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every participant feels welcomed, challenged and supported.",
         "kind": "text",
-        "value": "Roots is a four-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 13–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every participant feels welcomed, challenged and supported."
+        "value": "Roots is a three-day residential experience designed to inspire the next generation of young Sikhs. Created for young people aged 12–16, Roots combines outdoor adventure, leadership, personal development and Sikh values in an environment where every participant feels welcomed, challenged and supported."
       },
       {
         "key": "f374c32df1285a0f",
@@ -7394,10 +7364,10 @@
         "value": "Our team will be available throughout the programme to support participants' wellbeing, safety and individual needs."
       },
       {
-        "key": "34fbb4a2eb470714",
-        "source": "Roots welcomes young Sikhs aged 13–16 from every background and every stage of their Sikhi journey, whether that is continuing existing practices or taking a very first step.",
+        "key": "5b57628cdbb41a7b",
+        "source": "Roots welcomes young Sikhs aged 12–16 from every background and every stage of their Sikhi journey, whether that is continuing existing practices or taking a very first step.",
         "kind": "text",
-        "value": "Roots welcomes young Sikhs aged 13–16 from every background and every stage of their Sikhi journey, whether that is continuing existing practices or taking a very first step."
+        "value": "Roots welcomes young Sikhs aged 12–16 from every background and every stage of their Sikhi journey, whether that is continuing existing practices or taking a very first step."
       },
       {
         "key": "971b75ab462138b0",
@@ -7430,10 +7400,10 @@
         "value": "More importantly, they will experience the joy of being surrounded by positive role models, inspiring mentors and other young Sikhs who encourage one another to grow."
       },
       {
-        "key": "7fdbe5df459f39a4",
-        "source": "Roots is not simply four days away from home. It is the beginning of a lifelong journey. For many, it is the highlight of their summer and the start of friendships and experiences that continue long after the residential ends.",
+        "key": "0f4b4f89fc6ac0c9",
+        "source": "Roots is not simply three days away from home. It is the beginning of a lifelong journey and the start of friendships and experiences that continue long after the residential ends.",
         "kind": "text",
-        "value": "Roots is not simply four days away from home. It is the beginning of a lifelong journey. For many, it is the highlight of their summer and the start of friendships and experiences that continue long after the residential ends."
+        "value": "Roots is not simply three days away from home. It is the beginning of a lifelong journey and the start of friendships and experiences that continue long after the residential ends."
       },
       {
         "key": "b36abbfcb1208251",
@@ -7508,16 +7478,16 @@
         "value": "No. Submitting the form is the first step. The Roots team will review your application and be in touch to confirm availability, discuss the cost and explain how to make payment. Your place is only confirmed once the team has contacted you."
       },
       {
-        "key": "dda7b583cbddf197",
-        "source": "How much does Roots cost?",
+        "key": "05ec8425377ca094",
+        "source": "When does Roots take place?",
         "kind": "text",
-        "value": "How much does Roots cost?"
+        "value": "When does Roots take place?"
       },
       {
-        "key": "4580567f6a5ebd4b",
-        "source": "The current price is £75 per participant, subject to change. The exact cost will be confirmed when we contact you following your application.",
+        "key": "e7f949a062951572",
+        "source": "Roots takes place from 19th to 21st December 2026.",
         "kind": "text",
-        "value": "The current price is £75 per participant, subject to change. The exact cost will be confirmed when we contact you following your application."
+        "value": "Roots takes place from 19th to 21st December 2026."
       },
       {
         "key": "8cbdcbc1f8bde52b",
@@ -7526,10 +7496,10 @@
         "value": "Who can attend Roots?"
       },
       {
-        "key": "9e4f23100098bc97",
-        "source": "Anyone aged 13–16. No pre-requisites required.",
+        "key": "80d8608fcd1aaadf",
+        "source": "Anyone aged 12–16. No pre-requisites required.",
         "kind": "text",
-        "value": "Anyone aged 13–16. No pre-requisites required."
+        "value": "Anyone aged 12–16. No pre-requisites required."
       },
       {
         "key": "1b027138b382032a",
@@ -7558,7 +7528,7 @@
     ],
     "seo": {
       "title": "Roots Residential | Devanhaar",
-      "description": "A four-day residential adventure for young Sikhs aged 13-16. Outdoor activities, leadership, personal development and Sikh values, all in one unforgettable experience.",
+      "description": "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026. Outdoor activities, leadership, personal development and Sikh values.",
       "noIndex": false
     }
   },

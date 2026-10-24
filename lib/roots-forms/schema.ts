@@ -25,7 +25,7 @@ export const ukPhonePattern = String.raw`(?:0|\+44|0044)(?:\s|\(|\)|-)*[1-9](?:(
 export const emailPattern = String.raw`[^\s@]+@[^\s@]+\.[^\s@]+`
 export function campDefinition(definition:FormDefinition,slug?:string):FormDefinition {
   if(slug!=='roots-residential-camp-registration')return definition
-  return {...definition,fields:definition.fields.map(f=>f.id==='child_dob'&&f.type==='date'?{...f,minAge:13,maxAge:16,help:'Your child must be aged 13–16 on the date you register.'}:f)}
+  return {...definition,payment:{enabled:false,amountPence:0,currency:'gbp'},fields:definition.fields.map(f=>f.id==='child_dob'&&f.type==='date'?{...f,minAge:12,maxAge:16,help:'Your child must be aged 12–16 on the date you register.'}:f)}
 }
 export function dateBounds(field:Pick<FormField,'minAge'|'maxAge'|'pastOnly'>,now=new Date()) {
   const today=now.toISOString().slice(0,10)
