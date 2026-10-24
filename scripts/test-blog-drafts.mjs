@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
 import ts from 'typescript'
+import { loadTypeScript } from './helpers/load-typescript.mjs'
 const require=createRequire(import.meta.url)
 function load(path,modules={}) {
  const js=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText
@@ -11,7 +12,7 @@ function load(path,modules={}) {
  vm.runInNewContext(js,{module,exports:module.exports,URL,Date,console,require:name=>name in modules?modules[name]:require(name)})
  return module.exports
 }
-const sfi=load('lib/cms/sfi-content.ts',{'./sfi-default.json':JSON.parse(fs.readFileSync('lib/cms/sfi-default.json','utf8'))})
+const sfi=loadTypeScript('lib/cms/sfi-content.ts')
 const model=load('lib/blog-draft-content.ts',{'./cms/sfi-content':sfi})
 const input=()=>({slug:'sample-article',title:'A new draft',description:'Summary',content:'Private text',pillar:'Develop',status:'draft',date:'2026-10-22',expectedDraft:null,expectedUpdated:null})
 let writes=[],revalidated=[],rpcError=null

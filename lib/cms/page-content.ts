@@ -1,16 +1,22 @@
 import { z } from 'zod'
+import migratedPages from './migrated-pages.json'
+import {pageCopySchema} from './copy-schema'
 import homeDefaults from './home-default.json'
+import {siteSettingsSchema,assetSchema} from './site-settings'
 import { isSafeContentLink } from './sfi-content'
+import { pageSeoSchema } from './seo'
 const text = z.string().trim().min(1, 'This field is required').max(10000)
 const short = text.max(240)
 const link = z.string().max(2000).refine(isSafeContentLink, 'Use a website path or an HTTPS link')
-const image = z.string().max(2000).refine(v => v.startsWith('/') && isSafeContentLink(v), 'Use an existing website image path starting with /')
+const image = assetSchema
 const button = z.object({ label: short, href: link }).strict()
 const faq = z.object({ heading: short, subheading: text.max(500), items: z.array(z.object({ question: text.max(500), answer: text }).strict()).max(40) }).strict()
 const base = { id: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/), hidden: z.boolean() }
 const block = <T extends z.ZodTypeAny, K extends string>(type: K, data: T) => z.object({ ...base, type: z.literal(type), data }).strict()
 const icon = z.enum(['Lightbulb','Flame','TrendingUp','Handshake','Users','Heart','Globe','BookOpen','GraduationCap','School','Shield','House'])
 export const sectionSchema = z.discriminatedUnion('type', [
+  block('siteSettings',siteSettingsSchema),
+  block('pageCopy',pageCopySchema),
   block('projects',z.object({heading:short,limit:z.number().int().min(1).max(30)}).strict()),
   block('events',z.object({heading:short,limit:z.number().int().min(1).max(30),projectSlug:z.string().max(120).regex(/^[a-z0-9-]*$/)}).strict()),
   block('insights',z.object({heading:short,limit:z.number().int().min(1).max(30)}).strict()),
@@ -32,14 +38,14 @@ export const sectionSchema = z.discriminatedUnion('type', [
 ])
 export const pageContentSchema = z.object({
   schemaVersion: z.literal(1), title: short,
-  seo: z.object({ title: text.max(160), description: text.max(320), noIndex: z.boolean() }).strict(),
+  seo: pageSeoSchema,
   sections: z.array(sectionSchema).min(1).max(40).refine(sections => new Set(sections.map(s => s.id)).size === sections.length, 'Section IDs must be unique').refine(sections => sections.some(s => !s.hidden), 'Keep at least one section visible'),
 }).strict()
 export type PageContent = z.infer<typeof pageContentSchema>
 export type PageSection = z.infer<typeof sectionSchema>
 export const defaultHomeContent = pageContentSchema.parse(homeDefaults)
-export const cmsSlugSchema = z.string().regex(/^(home|page-[a-z0-9]+(?:-[a-z0-9]+)*)$/).max(100)
-export function pagePath(slug: string) { return slug === 'home' ? '/' : `/pages/${slug.replace(/^page-/, '')}` }
+export const cmsSlugSchema = z.string().regex(/^(home|site-settings|content-[a-z0-9]+(?:-[a-z0-9]+)*|page-[a-z0-9]+(?:-[a-z0-9]+)*)$/).max(100)
+export function pagePath(slug: string) { if(slug in migratedPages)return migratedPages[slug as keyof typeof migratedPages].path; return slug === 'site-settings' ? '/' : slug === 'home' ? '/' : `/pages/${slug.replace(/^page-/, '')}` }
 export function parsePageBody(body: string): PageContent | null {
   try { const result = pageContentSchema.safeParse(JSON.parse(body)); return result.success ? result.data : null } catch { return null }
 }

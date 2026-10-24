@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import defaults from "@/lib/cms/entries/catalog-defaults.json"
 import { getPublishedEntries } from "@/lib/cms/entries/server"
 import type { Metadata } from "next"
@@ -8,7 +14,7 @@ import { FAQSection } from "@/components/faq-section"
 import { CTABanner } from "@/components/cta-banner"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Our Projects | Devanhaar Sikh Charity",
   description:
     "Explore Devanhaar's live projects from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala and university outreach across the UK.",
@@ -58,10 +64,12 @@ const projectsFAQs = [
 ]
 
 export const dynamic = "force-dynamic"
-export default async function ProjectsPage() {
+export default async function ProjectsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-projects')
+
   const entries=await getPublishedEntries("project")
   const records=entries?.flatMap(entry=>entry.content.kind==="project"?[{slug:entry.slug,title:entry.slug==="self-defence-academy"?"Wrestling Academy":entry.content.title,description:entry.slug==="self-defence-academy"?"A community-led freestyle wrestling academy reconnecting the next generation with the wrestling heritage of the Sikh and Punjabi community.":entry.content.description,image:entry.content.image,href:entry.slug==="self-defence-academy"?"/wrestling":entry.content.websitePath||`/projects/${entry.slug}`,tag:entry.slug==="self-defence-academy"?"Wrestling":entry.content.category,icon:defaults.projects.find(p=>p.slug===entry.slug)?.icon||"Users",comingSoon:entry.slug==="self-defence-academy"?false:entry.content.comingSoon}]:[])
-  return (
+  return withPageCopy(((
     <div>
       <Navbar />
       <ScrollAnimations />
@@ -84,5 +92,7 @@ export default async function ProjectsPage() {
       </main>
       <FooterSection />
     </div>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-projects',originalMetadata)}

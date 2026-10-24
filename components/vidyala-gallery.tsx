@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import { X, ChevronLeft, ChevronRight } from "lucide-react"
@@ -17,6 +20,8 @@ const images = [
 ]
 
 export function VidyalaGallery() {
+  const cmsCopy = usePageCopy()
+
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
   const close = useCallback(() => setActiveIndex(null), [])
@@ -44,7 +49,7 @@ export function VidyalaGallery() {
     }
   }, [activeIndex, close, prev, next])
 
-  return (
+  return applyPageCopy(((
     <>
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -134,5 +139,5 @@ export function VidyalaGallery() {
         </div>
       )}
     </>
-  )
+  )), cmsCopy)
 }

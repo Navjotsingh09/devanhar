@@ -4,9 +4,10 @@ import fs from 'node:fs'
 import vm from 'node:vm'
 import {createRequire} from 'node:module'
 import ts from 'typescript'
+import { loadTypeScript } from './helpers/load-typescript.mjs'
 const require=createRequire(import.meta.url)
 function load(path,modules={}){const js=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,module={exports:{}};vm.runInNewContext(js,{module,exports:module.exports,Date,URL,Intl,console,process:{env:{}},require:name=>name in modules?modules[name]:require(name)});return module.exports}
-const sfi=load('lib/cms/sfi-content.ts',{'./sfi-default.json':JSON.parse(fs.readFileSync('lib/cms/sfi-default.json','utf8'))})
+const sfi=loadTypeScript('lib/cms/sfi-content.ts')
 const model=load('lib/cms/entries/content.ts',{'../sfi-content':sfi}),dates=load('lib/cms/datetime.ts')
 const defaults=JSON.parse(fs.readFileSync('lib/cms/entries/catalog-defaults.json','utf8'))
 for(const kind of ['project','event','announcement','notification','faq'])test(`${kind} default is valid`,()=>assert.ok(model.parseEntry(kind,model.entryTemplate(kind))))

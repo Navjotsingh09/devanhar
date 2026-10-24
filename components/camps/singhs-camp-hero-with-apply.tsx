@@ -1,13 +1,18 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState } from "react"
 import { CampLandingHero } from "./camp-landing-hero"
 import { CampApplicationForm } from "@/components/camp-application-form"
 
 export function SinghsCampHeroWithApply() {
+  const cmsCopy = usePageCopy()
+
   const [showForm, setShowForm] = useState(false)
 
-  return (
+  return applyPageCopy(((
     <>
       <CampLandingHero
         eyebrow="Brotherhood"
@@ -50,5 +55,5 @@ export function SinghsCampHeroWithApply() {
         </div>
       ) : null}
     </>
-  )
+  )), cmsCopy)
 }

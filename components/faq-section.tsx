@@ -1,4 +1,7 @@
 "use client"
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
 import {useSiteFaqs} from "@/components/cms/site-content-provider"
 
 import {
@@ -24,9 +27,11 @@ export function FAQSection({
   subheading = "Find answers to common questions below",
   items,
 }: FAQSectionProps) {
+  const cmsCopy = usePageCopy()
+
   const visibleItems=useSiteFaqs(items)
   if (!visibleItems.length) return null
-  return (
+  return applyPageCopy(((
     <section className="py-24 md:py-32 border-t border-border bg-secondary/30">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="max-w-3xl mx-auto text-center mb-16">
@@ -55,5 +60,5 @@ export function FAQSection({
         </div>
       </div>
     </section>
-  )
+  )), cmsCopy)
 }

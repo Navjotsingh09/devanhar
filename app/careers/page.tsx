@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -6,7 +12,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { createClient } from "@/lib/supabase/server"
 import { Briefcase, MapPin, ArrowRight, Clock } from "lucide-react"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Careers | Devanhaar",
   description:
     "Open vacancies and volunteer opportunities at Devanhaar. Join the sevadaars building Sikh-rooted programmes across the UK.",
@@ -49,7 +55,9 @@ const typeLabel: Record<string, string> = {
   internship: "Internship",
 }
 
-export default async function CareersPage() {
+export default async function CareersPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-careers')
+
   const vacancies = await getVacancies()
 
   const grouped = {
@@ -58,7 +66,7 @@ export default async function CareersPage() {
     internship: vacancies.filter((v) => v.vacancy_type === "internship"),
   }
 
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -127,12 +135,14 @@ export default async function CareersPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
 
-function VacancyCard({ v }: { v: Vacancy }) {
+async function VacancyCard({cmsCopy: suppliedCopy,  v }: ({ v: Vacancy }) & {cmsCopy?:PageCopy}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-careers')
+
   const closes = v.closes_at ? new Date(v.closes_at) : null
-  return (
+  return withPageCopy(((
     <Link
       href={`/careers/${v.id}`}
       className="group block rounded-2xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-md transition-all"
@@ -169,5 +179,7 @@ function VacancyCard({ v }: { v: Vacancy }) {
         )}
       </div>
     </Link>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-careers',originalMetadata)}

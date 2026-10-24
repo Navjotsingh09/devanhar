@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Check, Mail, MapPin, Clock, Instagram, Send } from "lucide-react"
@@ -34,6 +37,8 @@ const contactInfo = [
 ]
 
 export function ContactContent() {
+  const cmsCopy = usePageCopy()
+
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -81,7 +86,7 @@ export function ContactContent() {
     }
   }
 
-  return (
+  return applyPageCopy(((
     <main className="mt-20">
       {/* Hero */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
@@ -229,5 +234,5 @@ export function ContactContent() {
         </div>
       </section>
     </main>
-  )
+  )), cmsCopy)
 }

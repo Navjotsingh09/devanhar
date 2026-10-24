@@ -1,16 +1,21 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState } from "react"
 import { CampLandingHero } from "@/components/camps/camp-landing-hero"
 import { PadelRegistrationForm } from "@/components/padel-registration-form"
 import type { PublicPadelEvent } from "@/lib/padel-public-event"
 
 export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
+  const cmsCopy = usePageCopy()
+
   const [showForm, setShowForm] = useState(false)
 
   const eventLine = [event.date, event.time, event.venue].filter(Boolean).join(", ")
 
-  return (
+  return applyPageCopy(((
     <>
       <CampLandingHero
         eyebrow="Sikh Padel Association"
@@ -46,5 +51,5 @@ export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
         </div>
       ) : null}
     </>
-  )
+  )), cmsCopy)
 }

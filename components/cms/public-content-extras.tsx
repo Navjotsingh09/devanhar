@@ -1,9 +1,12 @@
+import {getPublicSiteSettings} from '@/lib/cms/site-settings-server'
+import {defaultSiteSettings} from '@/lib/cms/site-settings'
+import {SiteSettingsProvider} from './site-settings-provider'
 import {programmePaths} from '@/lib/cms/programme-paths'
 import {getPublishedEntries,type PublishedEntry} from '@/lib/cms/entries/server'
 import {SiteNotices} from './site-notices'
 import {SiteContentProvider} from './site-content-provider'
 export async function PublicContentExtras({children}:{children:React.ReactNode}){
- const[announcements,notifications,faqs]=await Promise.all([getPublishedEntries('announcement',undefined,true),getPublishedEntries('notification',undefined,true),getPublishedEntries('faq')])
+ const[settingsPage,announcements,notifications,faqs]=await Promise.all([getPublicSiteSettings(),getPublishedEntries('announcement',undefined,true),getPublishedEntries('notification',undefined,true),getPublishedEntries('faq')])
  const all=[...(announcements??[]),...(notifications??[]),...(faqs??[])]
  const[projects,events]=all.some(e=>e.projectId)?await Promise.all([getPublishedEntries('project'),getPublishedEntries('event')]):[[],[]]
  const targeted=(entry:PublishedEntry)=>{
@@ -15,5 +18,6 @@ export async function PublicContentExtras({children}:{children:React.ReactNode})
   return{...c,pages:requested.length?requested:['/__unavailable_project__']}
  }
  const items=[...(announcements??[]),...(notifications??[])].map(e=>({id:e.id,revision:e.revisionId,content:targeted(e)}))
- return <SiteContentProvider faqs={(faqs??[]).map(targeted)}>{children}<SiteNotices items={items}/></SiteContentProvider>
+ const setting=settingsPage?.sections.find(s=>s.type==='siteSettings')
+ return <SiteSettingsProvider settings={setting?.type==='siteSettings'?setting.data:defaultSiteSettings}><SiteContentProvider faqs={(faqs??[]).map(targeted)}>{children}<SiteNotices items={items}/></SiteContentProvider></SiteSettingsProvider>
 }

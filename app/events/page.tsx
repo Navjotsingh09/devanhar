@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { getPublishedEntries } from "@/lib/cms/entries/server"
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
@@ -58,17 +64,19 @@ const eventsConfig = [
   },
 ]
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Events | Devanhaar Sikh Charity",
   description:
     "Explore Devanhaar events including Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks with tailored registration forms.",
 }
 
 export const dynamic = "force-dynamic"
-export default async function EventsPage() {
+export default async function EventsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-events')
+
   const published=await getPublishedEntries("event")
   const records=published?.flatMap(entry=>entry.content.kind==="event"?[{slug:entry.slug,image:entry.content.image,title:entry.content.title,badge:entry.content.category,dateLabel:entry.content.dateLabel,shortDescription:entry.content.description,priceLabel:entry.content.priceLabel,comingSoon:entry.content.comingSoon&&entry.content.status!=="registration_open",closed:["completed","cancelled","sold_out"].includes(entry.content.status)}]:[])
-  return (
+  return withPageCopy(((
     <div>
       <Navbar />
       <ScrollAnimations />
@@ -173,5 +181,7 @@ export default async function EventsPage() {
         <FooterSection />
       </main>
     </div>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-events',originalMetadata)}

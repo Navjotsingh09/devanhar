@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -14,7 +20,7 @@ import {
   kaursGalleryImages,
 } from "@/components/camps/camp-shared-data"
 
-export const metadata = {
+const originalMetadata = {
   title: "Kaurs Camps | Devanhaar",
   description:
     "Kaurs Camps — UK and Europe residential retreats for Adult Sikh women. Apply for the UK camp or register your interest for Europe 2027.",
@@ -38,8 +44,10 @@ const faqs = [
   },
 ]
 
-export default function KaursCampLandingPage() {
-  return (
+export default async function KaursCampLandingPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-kaurs-camp')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -91,5 +99,7 @@ export default function KaursCampLandingPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-kaurs-camp',originalMetadata)}

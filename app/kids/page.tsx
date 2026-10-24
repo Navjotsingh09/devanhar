@@ -1,1 +1,1 @@
-export { default, metadata } from "../initiatives/kids-camps/page"
+export { default, generateMetadata } from "../initiatives/kids-camps/page"

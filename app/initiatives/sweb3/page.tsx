@@ -1,14 +1,22 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Sikh Web3 Initiative | Devanhaar",
   description: "Empowering Sikh communities through blockchain technology and Web3 innovation.",
 }
 
-export default function SWeb3Page() {
-  return (
+export default async function SWeb3Page({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sweb3')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <main className="min-h-screen mt-20">
@@ -21,5 +29,7 @@ export default function SWeb3Page() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sweb3',originalMetadata)}
