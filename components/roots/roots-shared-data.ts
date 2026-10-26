@@ -66,28 +66,28 @@ export const rootsForParents: string[] = [
 export const rootsBookingSteps: ApplicationStep[] = [
   {
     step: "01",
-    title: "Complete the booking form",
-    description: "Tell us about the participant, including their details, parent or guardian contact information, medical and dietary needs, emergency contact and anything else that will help us support them during the residential.",
+    title: "Complete the Boots Camp application",
+    description: "Tell us about the participant and provide parent or guardian contact details, medical and dietary needs, and an emergency contact.",
   },
   {
     step: "02",
     title: "Your form is reviewed",
-    description: "The Roots team will review your application and check availability, the participant's needs and any other considerations.",
+    description: "The Roots team will review the application and check availability and any support needs.",
   },
   {
     step: "03",
     title: "An organiser will contact you",
-    description: "An organiser will follow up directly to confirm availability, discuss the cost and explain how to make payment.",
+    description: "An organiser will contact the parent or guardian with the next steps and any further information.",
   },
   {
     step: "04",
     title: "Your place is confirmed",
-    description: "Once availability has been confirmed and the next steps completed, the Roots team will confirm the place.",
+    description: "The Roots team will confirm the place directly once the application has been reviewed.",
   },
   {
     step: "05",
-    title: "Residential information is shared",
-    description: "Confirmed participants will receive further details including arrival information, what to bring, accommodation guidance and the full programme timetable.",
+    title: "Boots Camp information is shared",
+    description: "Confirmed participants will receive the relevant Boots Camp arrangements and information about what to bring.",
   },
 ]
 
@@ -98,7 +98,7 @@ export const rootsFAQs: FAQItem[] = [
   },
   {
     question: "When does Roots take place?",
-    answer: "Roots takes place from 19th to 21st December 2026.",
+    answer: "Dates for the main Roots Residential will be announced soon. Boys' Boots Camp is a separate programme; the team will share its arrangements with applicants.",
   },
   {
     question: "Who can attend Roots?",
