@@ -23,11 +23,11 @@ import { Button } from "@/components/ui/button"
 export const metadata = {
   title: "Roots Residential | Devanhaar",
   description:
-    "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026. Outdoor activities, leadership, personal development and Sikh values.",
+    "A three-day residential adventure for young Sikhs aged 12–16. Residential dates will be announced soon. Outdoor activities, leadership, personal development and Sikh values.",
   keywords: ["Roots Residential", "Sikh youth camp", "Sikh residential", "Devanhaar", "young Sikhs UK"],
   openGraph: {
     title: "Roots Residential | Devanhaar",
-    description: "A three-day residential adventure for young Sikhs aged 12-16, from 19th to 21st December 2026.",
+    description: "A three-day residential adventure for young Sikhs aged 12–16. Residential dates will be announced soon.",
     url: "https://devanhaar.com/initiatives/roots-residential",
   },
   alternates: { canonical: "https://devanhaar.com/initiatives/roots-residential" },
@@ -44,57 +44,31 @@ export default function RootsResidentialPage() {
         <RootsHero />
 
         <nav className="roots-jumpnav" aria-label="Explore Roots">
-          <div><a href="#about-roots">Discover Roots</a><a href="#residentials">Residentials</a><a href="#roots-experience">The experience</a><a href="#roots-venue">Venue</a><a href="#booking-form" className="roots-jump-cta">Register your child <span aria-hidden="true">↗</span></a></div>
+          <div><a href="#about-roots">Discover Roots</a><a href="#residentials">Residentials</a><a href="#roots-experience">The experience</a><a href="#roots-venue">Venue</a><a href="#boots-camp-applications" className="roots-jump-cta">Boys&apos; Boots Camp <span aria-hidden="true">↗</span></a></div>
         </nav>
 
-        {/* Bookings intro card */}
-        <section className="roots-booking-intro border-t border-border">
-          <div className="container mx-auto px-6 lg:px-12 max-w-3xl py-10 md:py-14">
-            <div className="rounded-2xl border border-border bg-secondary/30 p-8 md:p-10">
-              <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
-                Bookings
-              </p>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Applications are now open
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2 mb-8">
-                <div className="rounded-xl border border-border bg-background p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Location</p>
-                  <p className="mt-1 text-lg font-bold text-foreground">Hilston Park, Wales</p>
+        <section id="boots-camp-applications" className="border-t border-border py-10 md:py-14 scroll-mt-28">
+          <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
+            <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 text-white shadow-xl">
+              <div className="grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10">
+                <div>
+                  <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
+                    Separate programme · Boys only
+                  </p>
+                  <h2 className="mb-4 text-2xl font-bold md:text-3xl">
+                    Boys&apos; Boots Camp applications are now open
+                  </h2>
+                  <p className="max-w-2xl text-sm leading-relaxed text-slate-300 md:text-base">
+                    Boots Camp is a focused, activity-based programme for boys, with practical challenges and teamwork to build confidence and resilience. It is a separate programme from the main Roots Residential.
+                  </p>
+                  <p className="mt-5 text-xs leading-relaxed text-slate-400 md:text-sm">
+                    Please note that this Boots Camp is open to boys only.
+                  </p>
                 </div>
-                <div className="rounded-xl border border-border bg-background p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Dates</p>
-                  <p className="mt-1 text-lg font-bold text-foreground">19th–21st December 2026</p>
-                </div>
-              </div>
-              <div className="space-y-4 text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
-                <p>
-                  Please complete one application per participant. The form will ask for the participant's details, parent or guardian contact information, medical and dietary needs, emergency contact details, and anything else that will help us support the young person during the residential.
-                </p>
-                <p>
-                  Once submitted, your booking request will be reviewed by the Roots team. Successful applicants will receive a congratulations email with a payment link to secure their place.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-4">
-                <Button
-                  asChild
-                  className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
-                >
-                  <a href="#booking-form">Complete the application</a>
+                <Button asChild className="w-full rounded-full bg-amber-400 px-7 text-slate-950 hover:bg-amber-300 md:w-auto">
+                  <a href="#booking-form">Apply for Boys&apos; Boots Camp</a>
                 </Button>
-                <a
-                  href="https://www.instagram.com/rootsprojectuk/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-foreground hover:underline"
-                >
-                  <Instagram className="h-4 w-4" />
-                  Instagram @rootsprojectuk
-                </a>
               </div>
-              <p className="mt-6 text-xs text-muted-foreground leading-relaxed max-w-xl">
-                Submitting the form does not automatically confirm your place. Your booking is only confirmed once the Roots team has reviewed your details and contacted you directly.
-              </p>
             </div>
           </div>
         </section>
@@ -132,7 +106,7 @@ export default function RootsResidentialPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-kaurs-logo.jpg" alt="Bibia Kaurs Roots — girls' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Girls&apos; Residential</h3>
-                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">19th–21st December 2026</p>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Dates coming soon</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for girls, led by female mentors, where every participant feels safe, supported and free to be themselves.
                 </p>
@@ -141,7 +115,7 @@ export default function RootsResidentialPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/initiatives/roots-singhs-logo.jpg" alt="Singhs Roots — boys' residential" className="h-28 w-auto object-contain mb-5" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">Boys&apos; Residential</h3>
-                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">19th–21st December 2026</p>
+                <p className="text-sm font-semibold text-[hsl(43,100%,29%)] mb-3">Dates coming soon</p>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
                   A dedicated residential for boys, led by male mentors, offering the same safe, supportive and welcoming environment.
                 </p>
@@ -154,7 +128,7 @@ export default function RootsResidentialPage() {
               </p>
             </div>
             <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
-              Roots runs from 19th to 21st December 2026, with separate arrangements for girls and boys.
+              Dates for the main girls&apos; and boys&apos; residentials will be announced soon.
             </p>
           </div>
         </section>
@@ -320,12 +294,7 @@ export default function RootsResidentialPage() {
                 </div>
               </div>
             </div>
-            <Button
-              asChild
-              className="rounded-full px-7 bg-[hsl(43,100%,29%)] hover:bg-[hsl(43,100%,25%)] text-white"
-            >
-              <a href="#booking-form">Book your place</a>
-            </Button>
+            <p className="text-sm font-semibold text-[hsl(43,100%,29%)]">Main residential dates: coming soon</p>
           </div>
         </section>
 
@@ -357,20 +326,20 @@ export default function RootsResidentialPage() {
         {/* Booking Process */}
         <div className="roots-process"><ApplicationProcessTimeline
           steps={rootsBookingSteps}
-          heading="How booking works"
-          subheading="From completing the form to confirming your place, here is what to expect."
+          heading="How the Boots Camp application works"
+          subheading="From submitting an application to receiving confirmation, here is what to expect."
         />
 
         </div>
         <section id="booking-form" className="roots-registration scroll-mt-28">
           <div className="roots-registration-layout">
             <aside className="roots-registration-intro">
-              <p className="roots-eyebrow">Your next adventure starts here</p>
-              <h2>Make room for<br /><span>something memorable.</span></h2>
-              <p>One form per child, completed by a parent or guardian. The Roots team will confirm availability and arrange payment after reviewing your application.</p>
-              <div className="roots-registration-facts"><p><strong>12–16</strong> years old</p><p><strong>3 days</strong> of discovery</p><p><strong>£50</strong> per participant, payable after acceptance</p><p><strong>19th–21st December 2026</strong></p></div>
-              <img src="/initiatives/roots-gallery-10.jpg" alt="Outdoor adventure at Roots Residential" loading="lazy" />
-              <p className="roots-registration-note">Need a hand with your application?<br /><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a></p>
+              <p className="roots-eyebrow">Boys&apos; Boots Camp</p>
+              <h2>Apply for a focused<br /><span>Roots experience.</span></h2>
+              <p>Complete one application for the participant. The Roots team will review it and contact you with the next steps for the Boys&apos; Boots Camp.</p>
+              <div className="roots-registration-facts"><p><strong>Boys only</strong></p><p><strong>Focused activities</strong></p><p><strong>Teamwork &amp; confidence</strong></p><p><strong>Separate from the residential</strong></p></div>
+              <img src="/initiatives/roots-gallery-10.jpg" alt="Outdoor adventure with the Roots team" loading="lazy" />
+              <p className="roots-registration-note">Questions about the Boots Camp?<br /><a href="mailto:Roots@Devanhaar.com">Roots@Devanhaar.com</a></p>
             </aside>
             <div className="roots-registration-card"><PublicCampForm /></div>
           </div>
@@ -380,7 +349,7 @@ export default function RootsResidentialPage() {
         <FAQSection
           items={rootsFAQs}
           heading="Frequently asked questions"
-          subheading="Common questions about Roots Residential."
+          subheading="Common questions about Roots and the separate Boys' Boots Camp."
         />
 
         {/* Contact */}
@@ -430,13 +399,13 @@ export default function RootsResidentialPage() {
         <section className="roots-final-cta border-t border-border bg-[hsl(43,100%,29%)] py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
-              Join us for Roots Residential
+              Main residential dates are coming soon
             </h2>
             <p className="text-base md:text-lg text-white/85 leading-relaxed mb-8 max-w-xl mx-auto">
-              Adventure. Friendship. Identity. Complete the form today and we'll be in touch with you directly.
+              The main Roots Residential is separate from the Boys&apos; Boots Camp. Explore the Boots Camp application while residential dates are being confirmed.
             </p>
             <Button asChild variant="secondary" className="rounded-full px-8 py-6 text-base">
-              <a href="#booking-form">Book your place</a>
+              <a href="#boots-camp-applications">Explore Boys&apos; Boots Camp</a>
             </Button>
           </div>
         </section>
