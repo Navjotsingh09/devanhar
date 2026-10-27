@@ -136,3 +136,8 @@ Media library, navigation/branding, 39 layout-preserving content editors and sub
 See cms-final-review-20261027.md for the current requirement matrix. The new increment reconciles the completion branch with the newer Roots application/decision releases, replaces the Drafts redirect with an actual cross-content workspace and adds the SEO overview. Insights metadata implementation is capability-gated because automatic approval review rejected its production column/function update; the migration remains prepared and unapplied. Existing article editing remains compatible.
 
 639 executable checks, focused TypeScript and the production build pass. A fresh rolled-back database transaction verifies draft/live isolation, publishing and Roots-scope denial, retaining zero test pages. This is not a logged-in browser acceptance sign-off.
+
+
+## User-applied database updates verified
+
+The user applied cms-article-metadata.sql, cms-staff-cleanup.sql and cms-roster-cleanup-apply.sql and reported success. Fresh schema/account reads verify installation, both target accounts banned with zero sessions and recoverable access records, and article metadata publication/restoration in a rolled-back authenticated transaction (zero retained fixtures). Earlier blocked-migration notes are historical. Existing capability gates now detect the installed column. Logged-in browser acceptance and production publication remain pending.

@@ -14,7 +14,7 @@ const DELETED_LEGACY_SLUGS = new Set([
   "devanhaar-community-network-launches",
 ])
 
-const listingColumns = "id,slug,title,excerpt,pillar,status,author_name,cover_image_url,cover_image_alt,tags,read_time,source,published_at,created_at,updated_at,draft_revision_id,archived_at"
+const listingColumns = "id,slug,title,excerpt,pillar,status,author_name,cover_image_url,cover_image_alt,tags,read_time,source,published_at,created_at,updated_at,draft_revision_id,archived_at,cms_metadata"
 
 type BlogRow = {
   cms_metadata?:unknown

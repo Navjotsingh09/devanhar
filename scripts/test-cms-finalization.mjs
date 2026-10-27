@@ -25,3 +25,9 @@ test('administrator drafts include saved article titles and the correct preview 
 test('programme staff do not fetch general CMS or blog drafts',async()=>{
  const f=draftFixture('staff',[{programme:'roots'}]),state=await f.server.loadDraftWorkspace('all',1);assert.equal(state.items.length,0);assert.equal(f.queries.length,0)
 })
+
+test('published article listings retain installed featured and SEO metadata',async()=>{
+ const row={id:'post',slug:'example',title:'Example',excerpt:'Summary',pillar:'Develop',status:'published',created_at:'2026-10-27T12:00:00Z',updated_at:'2026-10-27T12:00:00Z',cms_metadata:{featured:true,seoTitle:'Search title'}}
+ const db=load('lib/blog-db.ts',{'@/lib/supabase/server':{createClient:async()=>({from:()=>{let value;return{select(columns){value={...row};if(!columns.includes('cms_metadata'))delete value.cms_metadata;return this},eq(){return this},order(){return this},then(resolve,reject){return Promise.resolve({data:[value],error:null}).then(resolve,reject)}}}})}})
+ const posts=await db.getPublishedBlogPosts();assert.equal(posts[0].metadata.featured,true);assert.equal(posts[0].metadata.seoTitle,'Search title')
+})
