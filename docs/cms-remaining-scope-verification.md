@@ -26,3 +26,7 @@ The exact migration and the rollback-only cms-insights-delegation-check.sql are 
 ## Validation on 27 October 2026
 
 653 executable checks passed; focused TypeScript checks and the production build passed. The optional SPA workbook test was excluded because its source workbook is unavailable. Authenticated browser acceptance and the prepared production delegation checks have not run.
+
+## Full admin acceptance pack
+
+`cms-full-admin-acceptance.md` contains 55 concrete scenarios covering Super Admin, Admin and restricted roles. The repeatable `scripts/run-admin-acceptance.mjs` runner executed 24 offline regression files on 27 October 2026: 653 passed, 0 failed. Evidence is in `cms-admin-regression-20261027.json`. These results do not mark the manual browser scenarios as passed. Production Insights migration, authenticated acceptance and release remain blocked as documented above.
