@@ -50,9 +50,10 @@ export function OpenRegistrationNotices({ initialOpportunities }: { initialOppor
       try {
         const response = await fetch('/api/open-registrations', { cache: 'no-store', signal: controller.signal })
         const data = await response.json()
-        if (!disposed) setOpportunities(response.ok && Array.isArray(data.opportunities) ? data.opportunities : [])
+        if (!disposed && response.ok && Array.isArray(data.opportunities)) setOpportunities(data.opportunities)
       } catch (error) {
-        if (!disposed && !(error instanceof Error && error.name === 'AbortError')) setOpportunities([])
+        // Keep the last successful availability on a failed refresh.
+        // A successful empty response still removes closed announcements.
       }
     }
     const onVisible = () => {
