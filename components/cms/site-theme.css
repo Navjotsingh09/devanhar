@@ -1,0 +1,2 @@
+.cms-public-theme[data-custom-radius="true"] :is(.rounded-xl,.rounded-2xl){border-radius:var(--cms-radius)}
+.cms-public-theme[data-custom-buttons="true"] :is(button,a.rounded-full){border-radius:var(--cms-button-radius)}

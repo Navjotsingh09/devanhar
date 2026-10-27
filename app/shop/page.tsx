@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -6,7 +12,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { ShoppingBag, Bell, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Shop Coming Soon | Devanhaar",
   description:
     "The Devanhaar shop is coming soon. Official Sikh merchandise to support education, camps, and community programmes across the UK.",
@@ -19,8 +25,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://devanhaar.vercel.app/shop" },
 }
 
-export default function ShopPage() {
-  return (
+export default async function ShopPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-shop')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -62,5 +70,7 @@ export default function ShopPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-shop',originalMetadata)}

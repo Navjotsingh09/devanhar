@@ -46,11 +46,7 @@ as a test. Logged-in browser acceptance testing still requires a staff session.
 
 ## Remaining brief scope
 
-Migrating the remaining existing campaign layouts, the full media library, global branding/SEO/navigation/settings, subscribers, broader form operations, staff account cleanup and the full authenticated acceptance matrix remain implementation work. Project/event/notice/FAQ record editors are implemented below; they do not replace every existing campaign layout. The primary Submissions screen now loads only one 25-row dataset and does not
-call Stripe. Existing bulk camp/payment workflows remain available explicitly
-under Advanced operations; that legacy console still performs heavier work.
-Do not represent the sidebar, project spaces or page inventory as those editors.
-
+The implementation and verification status for the remaining scope is recorded in the completion increment below. Authenticated browser acceptance and the rejected production account update remain pending.
 ## Publishing repair — follow-up
 
 - Blog draft snapshots now live in a private immutable revision table. Saving a draft does not change a live article or its cover.
@@ -93,3 +89,50 @@ Do not represent the sidebar, project spaces or page inventory as those editors.
 - Fresh guards protect Roots service-role operations; scoped API exceptions cover only Roots form routes and the explicitly scoped CSV export.
 - Database policies allow Roots records and Roots recovery evidence while denying general CRM and other programme access. General staff and administrators retain their existing access.
 - Sukhdeep's explicitly requested Super Admin profile was repaired. His email remains unconfirmed; authentication verification is still required.
+
+## Completion implementation in progress
+
+Media library, navigation/branding, 39 layout-preserving content editors and subscriber/form workflows are implemented in the working branch. Verification and account cleanup are in progress; this is not an acceptance sign-off.
+
+## Completion increment — verification checkpoint
+
+- Media: signed direct uploads (images, MP4/WebM clips and PDFs, up to 50 MB), paginated search, titles/alt text/folders, copy/view/select URL, metadata edits, recoverable archive/restore, and current-content usage checks. The old image DELETE endpoint cannot delete shared storage.
+- Navigation/branding: the current menu and footer data are the defaults for a shared revisioned editor. Logos, accent, contact details, main links/submenus, project cards and footer links use a responsive saved preview and separate publication. Only administrators can change global settings.
+- Existing pages: 39 additional canonical pages have default editors and SEO controls. Copy/media changes use the existing React layout; form values, event handlers, classes and styles remain unchanged. Draft previews render the actual page components. Khalsa Catalyst remains hidden until explicitly published. Public content is cached and public routes retain static/ISR rendering.
+- Subscribers: durable same-origin endpoint with normalized email and explicit consent; paginated search/status filters; filtered CSV with signed unsubscribe URLs; authenticated consent withdrawal; signed, explicit public unsubscribe confirmation. Staff cannot silently restore withdrawn consent.
+- Enquiries: saving is mandatory before notifications; a missing or failed notification service cannot silently lose an enquiry or ask the visitor to resubmit a record already saved.
+- Staff: roster audit completed. Taran and Sukhdeep have Super Admin profiles; Sundeep has active SPA-only membership; Luvpreet has Roots only; Karnjit has Kaurs/Vidyala/newsletter; Daljit has family; Amritpal retains general staff access. Sukhdeep's email is unverified and was not bypassed. Paramveer has no CRM profile; the legacy SPA account is absent. Mahaaan and Paramveer deactivation is prepared but NOT applied.
+- Automatic approval review rejected persistent access-control changes. `cms-staff-cleanup.sql`, `cms-roster-cleanup-apply.sql` and removal of `anon_update_nl` remain pending explicit approval. User management falls back to a fresh read-only roster and does not enable uninstalled deactivation actions.
+- Additive media/subscriber columns were applied and verified; existing records were retained.
+- At the checkpoint, 510 executable regression checks passed, including 58 new CMS/workflow checks. The optional SPA workbook import suite requires its original workbook, which is unavailable in this workspace; it was not represented as passing.
+- Focused TypeScript passes. Final production build and deployed browser checks are in progress. The staff browser session is expired; authenticated acceptance is NOT verified.
+
+
+## Final implementation increment — 23 October 2026
+
+- Media supports images, video, PDF, DOCX and text uploads up to 50 MB, descriptions, uploader/date metadata, stable reusable links and explicit replacement publication with recoverable version history. Replacement files retain the old storage objects. Legacy hard-coded image slots remain protected from archive/replacement through the library.
+- Branding includes scoped colours, fonts, buttons, border radius, logos/favicon and default social/SEO metadata. Original defaults retain the current Devanhaar design. Only Super Admin can save or publish critical branding/default SEO; Admin can manage navigation/footer. Integration setup status reveals no credentials.
+- Existing migrated pages include visibility and social metadata. Latest main Wrestling content, timetable, real media and equal-size gallery tiles are retained; its editor manifest was refreshed from the actual source.
+- Subscriber records include optional name/source and explicit consent; withdrawal clears consent. Authenticated staff withdrawal uses a fresh programme guard and server write because the existing authenticated database role has no subscriber UPDATE policy. No RLS grants were expanded.
+- General enquiry details include status, eligible staff assignment, internal notes and stale-save refusal under existing submission access. The contact endpoint persists before optional notification.
+- Previously approved additive media/subscriber metadata columns are applied. The policy removal in cms-completion-schema.sql is still pending and explicitly marked.
+- Sign-in prompt was cancelled by the user. No further sign-in attempt was made; logged-in browser acceptance is NOT verified.
+- Production account deactivation and access-control scripts remain unapplied after automatic approval review rejected that mutation. Sukhdeep also still needs email verification. No claim of complete account cleanup or acceptance is made.
+
+- Final local validation: 526 executable checks pass; focused TypeScript passes. Optional original-workbook import is unverified because the source workbook is unavailable. Production build and deployed checks are recorded separately below.
+
+## Deployment verification
+
+- Implementation commit c9129468c4e63d153575bca6d35669323d3564aa is pushed to feat/cms-completion / draft PR 66. GitHub's Vercel status reports success for deployment 3qeQmmuemP15J38aoKmSPiwZY8P6.
+- The production build passes; public Wrestling/SDA/PES routes are prerendered with one-minute revalidation. Staff workspaces remain dynamic.
+- Browser preview shows the latest Wrestling timetable and real gallery alongside the original Devanhaar branding. Newsletter optional-name and explicit-consent controls render. The media workspace redirects signed-out visitors to Staff Login.
+- Anonymous media/subscriber API calls return 401/403. The page mutation route refuses GET (405). No real newsletter signup or contact submission was sent during public browser QA.
+- No application errors were observed in the checked public page; only unrelated browser-extension metadata errors appeared.
+- Vercel connector team authorization expired (403). Deployment success was independently confirmed through GitHub status and the served preview; connector log inspection remains unavailable.
+- This is a preview release, not production publication or authenticated acceptance. The secure sign-in prompt was cancelled and was not retried. The prepared staff mutation remains rejected/pending explicit approval.
+
+## Reconciliation — 27 October 2026
+
+See cms-final-review-20261027.md for the current requirement matrix. The new increment reconciles the completion branch with the newer Roots application/decision releases, replaces the Drafts redirect with an actual cross-content workspace and adds the SEO overview. Insights metadata implementation is capability-gated because automatic approval review rejected its production column/function update; the migration remains prepared and unapplied. Existing article editing remains compatible.
+
+639 executable checks, focused TypeScript and the production build pass. A fresh rolled-back database transaction verifies draft/live isolation, publishing and Roots-scope denial, retaining zero test pages. This is not a logged-in browser acceptance sign-off.

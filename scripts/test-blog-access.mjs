@@ -12,7 +12,7 @@ const hooks = registerHooks({
   resolve(specifier, context, nextResolve) {
     const stubs = {
        'server-only': 'export {}',
-      '@/lib/blog-draft-content': 'export const blogInputSchema={safeParse:data=>({success:true,data})}; export const blogRevisionBody=data=>data;',
+      '@/lib/blog-draft-content': 'export const blogInputSchema={safeParse:data=>({success:true,data})}; export const blogRevisionBody=data=>data; export const hasArticleMetadata=()=>false; export const articleMetadataEnabled=async()=>false;',
       '@/lib/supabase/server': `export async function createClient() { return ${stubState}.client }`,
       '@supabase/supabase-js': `export function createClient() {
         const state = ${stubState}; state.privilegedClients++; return state.admin

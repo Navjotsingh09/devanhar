@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Link from "next/link"
 import "./roots-page.css"
 import { Bus, ExternalLink, Instagram, Shield } from "lucide-react"
@@ -20,7 +26,7 @@ import {
 } from "@/components/roots/roots-shared-data"
 import { Button } from "@/components/ui/button"
 
-export const metadata = {
+const originalMetadata = {
   title: "Roots Residential | Devanhaar",
   description:
     "A three-day residential adventure for young Sikhs aged 12–16. Residential dates will be announced soon. Outdoor activities, leadership, personal development and Sikh values.",
@@ -35,8 +41,10 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default function RootsResidentialPage() {
-  return (
+export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-roots-residential')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -412,5 +420,8 @@ export default function RootsResidentialPage() {
       </main>
       <FooterSection hideContact />
     </>
-  )
+  )), cmsCopy)
 }
+
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-roots-residential',originalMetadata)}

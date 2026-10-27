@@ -1,4 +1,6 @@
 "use client"
+import {parseArticleMetadata} from '@/lib/blog-metadata'
+import {MediaField} from '@/components/cms/media-field'
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { BlogHistory, type ArticleRevision } from "./blog-history"
@@ -28,7 +30,7 @@ function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
 }
 
-export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedPost; history?: ArticleRevision[] }) {
+export function BlogEditor({ initialPost, history=[],metadataEnabled=false }: { initialPost?: ManagedPost; history?: ArticleRevision[];metadataEnabled?:boolean }) {
   const router = useRouter()
   const contentRef = useRef<HTMLTextAreaElement>(null)
   const [preview, setPreview] = useState(false)
@@ -63,6 +65,8 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
     return()=>window.removeEventListener('beforeunload',warn)
   },[dirty])
 
+  const metadata=parseArticleMetadata(form.metadata)
+  const setMetadata=(patch:Partial<typeof metadata>)=>set('metadata',{...metadata,...patch})
   const tagsText = useMemo(() => (form.tags ?? []).join(", "), [form.tags])
   const effectiveSlug = form.slug || slugify(form.title)
   const currentCover = form.coverImage || (initialPost ? getBlogCoverImage(initialPost.slug) : "")
@@ -170,6 +174,7 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...next,
+          requestMetadata:metadataEnabled,
           originalSlug: initialPost?.slug,
           expectedDraft: initialPost?.draftId ?? null,
           expectedUpdated: initialPost?.updatedAt ?? null,
@@ -251,9 +256,17 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
           </Card>
 
           <div className="space-y-6">
+            <Card><CardHeader><CardTitle>SEO & related content</CardTitle></CardHeader><CardContent className="space-y-4"><fieldset disabled={!metadataEnabled} className="space-y-4">{!metadataEnabled&&<p role="status" className="text-sm text-muted-foreground">Article metadata is awaiting its reviewed database update. Existing article editing and publishing remain available.</p>}
+              {(['seoTitle','seoDescription','socialTitle','socialDescription'] as const).map(key=><label className="block space-y-2 text-sm" key={key}><span>{{seoTitle:'SEO title',seoDescription:'SEO description',socialTitle:'Social title',socialDescription:'Social description'}[key]}</span><input className="w-full rounded-lg border bg-background p-3" maxLength={key.endsWith('Description')?320:160} value={metadata[key]} onChange={e=>setMetadata({[key]:e.target.value})}/></label>)}
+              <MediaField label="Social image" value={metadata.socialImage} onChange={socialImage=>setMetadata({socialImage})}/>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={metadata.noIndex} onChange={e=>setMetadata({noIndex:e.target.checked})}/>Hide from search engines after publishing</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={metadata.featured} onChange={e=>setMetadata({featured:e.target.checked})}/>Feature in related articles</label>
+              <h3 className="text-sm font-semibold">Related projects, events or pages</h3>{metadata.relatedLinks.map((item,index)=><fieldset className="space-y-2 rounded-lg border p-3" key={index}><legend className="text-xs">Related link {index+1}</legend><label className="block text-sm">Label<input className="w-full rounded-lg border p-2" value={item.label} maxLength={160} onChange={e=>setMetadata({relatedLinks:metadata.relatedLinks.map((v,i)=>i===index?{...v,label:e.target.value}:v)})}/></label><label className="block text-sm">Website path<input className="w-full rounded-lg border p-2" placeholder="/projects/project-name" value={item.href} onChange={e=>setMetadata({relatedLinks:metadata.relatedLinks.map((v,i)=>i===index?{...v,href:e.target.value}:v)})}/></label><Button size="sm" variant="outline" onClick={()=>setMetadata({relatedLinks:metadata.relatedLinks.filter((_,i)=>i!==index)})}>Remove link</Button></fieldset>)}<Button variant="outline" disabled={metadata.relatedLinks.length>=12} onClick={()=>setMetadata({relatedLinks:[...metadata.relatedLinks,{label:'Related programme',href:'/projects'}]})}>Add related link</Button></fieldset>
+            </CardContent></Card>
             <Card>
               <CardHeader><CardTitle>Featured Image</CardTitle></CardHeader>
               <CardContent className="space-y-4">
+                <MediaField label="Cover image" value={form.coverImage||''} onChange={value=>set("coverImage",value)}/>
                 {currentCover ? (
                   <div className="overflow-hidden rounded-xl border bg-muted">
                     <img src={currentCover} alt={form.coverAlt || form.title || "Blog cover"} className="aspect-[16/10] w-full object-cover" />

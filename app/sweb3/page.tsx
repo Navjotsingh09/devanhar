@@ -1,1 +1,1 @@
-export { default, metadata } from "../initiatives/sweb3/page"
+export { default, generateMetadata } from "../initiatives/sweb3/page"

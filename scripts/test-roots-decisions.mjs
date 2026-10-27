@@ -183,8 +183,8 @@ test('public Roots copy is consistent and only the booking sidebar shows its pri
   assert.doesNotMatch(page+hero+shared,/£75|pound;75|Current price|13[–-]16|four.day|Four Days|August/)
   assert.doesNotMatch(page.slice(0,page.indexOf('<section id="booking-form"')),/£\d|pound;\d/)
   assert.doesNotMatch(hero+shared,/£\d|pound;\d/)
-  assert.match(page,/12–16/);assert.match(page,/>3 days</);assert.match(page,/£50/)
-  assert.match(hero,/19–21 December 2026/);assert.match(shared,/three-day/)
+  assert.match(page,/12–16/);assert.match(hero,/>Three days</);assert.match(page,/Boys&apos; Boots Camp/)
+  assert.match(hero,/>Coming soon</);assert.match(page,/Dates for the main girls/);assert.match(shared,/three-day/)
 })
 test('changed Roots TSX components have no syntax errors',()=>{
   for(const path of ['components/roots-forms/application-decision.tsx','components/roots/roots-bookings-table.tsx','components/roots/roots-booking-form.tsx','app/dashboard/roots/forms/[id]/responses/[responseId]/page.tsx','app/initiatives/roots-residential/page.tsx']){

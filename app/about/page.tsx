@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Heart, Users, Sparkles, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
@@ -11,7 +17,7 @@ import { getSiteImage } from "@/lib/site-images-server"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "About Us - Devanhaar",
   description:
     "With Guru Sahib's Kirpa, since its inception, Devanhaar has grown to develop multiple projects UK wide.",
@@ -51,10 +57,12 @@ const values = [
   },
 ]
 
-export default async function AboutPage() {
+export default async function AboutPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-about')
+
   const heroImg = await getSiteImage("hero", "about", "/images/about-hero.webp")
 
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <main className="pt-28">
@@ -282,5 +290,7 @@ export default async function AboutPage() {
       <ScrollAnimations />
       </main>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-about',originalMetadata)}

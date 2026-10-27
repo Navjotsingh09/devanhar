@@ -1,3 +1,4 @@
+import {parseArticleMetadata} from '@/lib/blog-metadata'
 import { InsightContent } from '@/components/cms/insight-content'
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -17,10 +18,8 @@ export async function generateMetadata({
   const { slug } = await params
   const post = await getPublishedBlogPostBySlug(slug)
   if (!post) return { title: "Not Found - Devanhaar" }
-  return {
-    title: `${post.title} - Devanhaar Blog`,
-    description: post.description,
-  }
+  const seo=parseArticleMetadata(post.metadata)
+  return {title:seo.seoTitle||`${post.title} - Devanhaar Blog`,description:seo.seoDescription||post.description,robots:{index:!seo.noIndex,follow:!seo.noIndex},openGraph:{type:'article',title:seo.socialTitle||seo.seoTitle||post.title,description:seo.socialDescription||seo.seoDescription||post.description,images:seo.socialImage?[seo.socialImage]:post.coverImage?[post.coverImage]:[]}}
 }
 
 export default async function InsightPostPage({
@@ -34,7 +33,7 @@ export default async function InsightPostPage({
 
   const [uploadedCovers, publishedPosts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
 
-  const related = publishedPosts.filter((item) => item.slug !== post.slug).slice(0, 2)
+  const related = publishedPosts.filter((item) => item.slug !== post.slug).sort((a,b)=>Number(!!b.metadata?.featured)-Number(!!a.metadata?.featured)).slice(0, 2)
 
   return <InsightContent post={post} related={related} uploadedCovers={uploadedCovers} />
 }

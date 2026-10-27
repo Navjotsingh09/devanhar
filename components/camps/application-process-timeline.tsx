@@ -1,3 +1,7 @@
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import type { ApplicationStep } from "./camp-shared-data"
 
 interface ApplicationProcessTimelineProps {
@@ -6,12 +10,14 @@ interface ApplicationProcessTimelineProps {
   subheading?: string
 }
 
-export function ApplicationProcessTimeline({
+export async function ApplicationProcessTimeline({cmsCopy = {},
   steps,
   heading = "How the application process works",
   subheading = "From submitting your details to arriving at camp — here is exactly what to expect.",
-}: ApplicationProcessTimelineProps) {
-  return (
+}: (ApplicationProcessTimelineProps) & {cmsCopy?:PageCopy}) {
+
+
+  return applyPageCopy(((
     <section className="border-t border-border py-20 md:py-28">
       <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
         <div className="max-w-3xl mb-12 md:mb-16">
@@ -42,5 +48,7 @@ export function ApplicationProcessTimeline({
         </ol>
       </div>
     </section>
-  )
+  )), cmsCopy)
 }
+
+registerCopyComponent(ApplicationProcessTimeline)

@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -8,7 +14,7 @@ import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
 import { getUploadedBlogCovers } from "@/lib/blog-images"
 import { getPublishedBlogPosts } from "@/lib/blog-db"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Blog - Devanhaar",
   description:
     "Stories, updates and ideas from Devanhaar across education, empowerment, community and Sikh youth development.",
@@ -22,12 +28,14 @@ function formatDate(date: string) {
   })
 }
 
-export default async function InsightsPage() {
+export default async function InsightsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-insights')
+
   const [uploadedCovers, posts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
   const coverFor = (post: (typeof posts)[number]) => post.coverImage || (!post.persisted ? uploadedCovers[post.slug] : undefined) || getBlogCoverImage(post.slug)
   const [heroPost, ...morePosts] = posts
 
-  return (
+  return withPageCopy(((
     <main className="min-h-screen bg-white text-black">
       <Navbar />
 
@@ -135,5 +143,7 @@ export default async function InsightsPage() {
 
       <FooterSection />
     </main>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-insights',originalMetadata)}

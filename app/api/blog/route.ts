@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getBlogStaff } from '@/lib/blog-staff-server'
-import { blogInputSchema, blogRevisionBody } from '@/lib/blog-draft-content'
+import { blogInputSchema, blogRevisionBody, articleMetadataEnabled, hasArticleMetadata } from '@/lib/blog-draft-content'
 export async function POST(request: NextRequest) {
   try {
     const { user, allowed, client } = await getBlogStaff()
@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
     const body = parsed.data
     if (body.originalSlug && body.originalSlug !== body.slug) return NextResponse.json({ error: 'An existing article keeps its URL. Create a new article for a different address.' }, { status: 400 })
     if (body.status === 'published' && !body.content.trim()) return NextResponse.json({ error: 'Article content is required.' }, { status: 400 })
-    const { data, error } = await client.rpc('blog_write_revision', { p_slug: body.slug, p_body: blogRevisionBody(body), p_expected_draft: body.expectedDraft, p_expected_updated: body.expectedUpdated, p_publish: body.status === 'published' })
+    const metadataEnabled=hasArticleMetadata(body)?await articleMetadataEnabled(client):false
+    if(hasArticleMetadata(body)&&!metadataEnabled)return NextResponse.json({error:'Article metadata is awaiting its reviewed database update. Your draft has not changed.'},{status:503})
+    const { data, error } = await client.rpc('blog_write_revision', { p_slug: body.slug, p_body: blogRevisionBody(body,metadataEnabled), p_expected_draft: body.expectedDraft, p_expected_updated: body.expectedUpdated, p_publish: body.status === 'published' })
     if (error) return NextResponse.json({ error: error.code === '40001' ? error.message : error.code === '42501' ? 'Blog access is no longer available.' : 'The article could not be saved. Reload and retry.' }, { status: error.code === '40001' || error.code === '23505' ? 409 : error.code === '42501' ? 403 : 503 })
     revalidatePath('/dashboard/blog')
     if (body.status === 'published') { revalidatePath('/'); revalidatePath('/insights'); revalidatePath(`/insights/${body.slug}`) }

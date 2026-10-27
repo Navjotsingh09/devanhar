@@ -7,5 +7,5 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ s
   const post = await getDashboardBlogPostBySlug(slug)
   if (!post || post.archived) notFound()
   const history=post.id?await getDashboardBlogHistory(post.id):[]
-  return <BlogEditor key={post.updatedAt} initialPost={post} history={history.map(revision=>({...revision,isCurrentDraft:revision.id===post.draftId}))} />
+  return <BlogEditor metadataEnabled={post.metadataAvailable===true} key={post.updatedAt} initialPost={post} history={history.map(revision=>({...revision,isCurrentDraft:revision.id===post.draftId}))} />
 }

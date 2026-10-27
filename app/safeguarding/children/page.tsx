@@ -1,17 +1,25 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Safeguarding Children & Young People Policy | Devanhaar",
   description:
     "Devanhaar Safeguarding Children & Young People Policy (2026–2027), approved by the Board of Trustees.",
   alternates: { canonical: "https://devanhaar.vercel.app/safeguarding/children" },
 }
 
-export default function SafeguardingChildrenPage() {
-  return (
+export default async function SafeguardingChildrenPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-safeguarding-children')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -192,5 +200,7 @@ export default function SafeguardingChildrenPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-safeguarding-children',originalMetadata)}

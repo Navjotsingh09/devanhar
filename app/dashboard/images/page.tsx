@@ -314,9 +314,7 @@ export default function SiteImagesPage() {
                   <img src={img.url} alt={img.alt_text || img.label || ""}
                     className="w-full h-40 object-cover" />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(img.id)}>
-                      <Trash2 className="h-4 w-4 mr-1" /> Delete
-                    </Button>
+                    <a href="/dashboard/website/media" className="rounded bg-white px-4 py-2 text-sm text-black">View in media library</a>
                   </div>
                   {img.label && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate">

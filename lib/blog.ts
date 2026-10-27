@@ -1,6 +1,9 @@
+import type {ArticleMetadata} from './blog-metadata'
 export type Pillar = "Develop" | "Elevate" | "Empower" | "Connect"
 
 export interface BlogPost {
+  metadataAvailable?:boolean
+  metadata?: ArticleMetadata
   id?: string
   slug: string
   title: string

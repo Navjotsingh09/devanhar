@@ -21,3 +21,12 @@ export async function updateUserName(userId: string, fullName: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/dashboard/users')
 }
+
+export async function setStaffActive(userId:string,active:boolean){
+ if(!/^[a-f0-9-]{36}$/i.test(userId))throw new Error('Choose an existing staff account')
+ const supabase=await createClient(),{data:{user},error:authError}=await supabase.auth.getUser()
+ if(authError||!user)throw new Error('Please sign in again')
+ const{error}=await supabase.rpc('staff_set_active',{p_target:userId,p_active:active})
+ if(error)throw new Error(error.message)
+ revalidatePath('/dashboard/users')
+}

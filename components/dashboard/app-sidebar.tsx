@@ -189,7 +189,11 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
   const websiteItems: NavItem[] = [
     ...(websiteEnabled ? [{ title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
     { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
-    { title: 'Page drafts', url: '/dashboard/website/drafts', icon: Newspaper },
+    {title:'Media library',url:'/dashboard/website/media',icon:ImageIcon},
+    {title:'Navigation & branding',url:'/dashboard/website/pages/site-settings',icon:Settings},
+    {title:'SEO',url:'/dashboard/website/seo',icon:Search},
+    {title:'Integrations',url:'/dashboard/website/integrations',icon:Settings},
+    { title: 'Drafts', url: '/dashboard/website/drafts', icon: Newspaper },
     ...(['project','event','announcement','notification','faq'] as const).map(kind=>({title:kind==='faq'?'FAQs':kind[0].toUpperCase()+kind.slice(1)+'s',url:`/dashboard/website/content/${kind}`,icon:Newspaper})),
     { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper },
     { title: 'Content assignments', url: '/dashboard/website/assignments', icon: Users }] : []),

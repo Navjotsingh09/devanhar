@@ -1,3 +1,5 @@
+import {applyPageCopy,registerCopyComponent} from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowDown, ArrowRight } from "lucide-react"
@@ -7,8 +9,8 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { wrestlingContent } from "@/lib/wrestling-content"
 import "./wrestling-page.css"
 
-export function WrestlingPage() {
-  return (
+export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
+  return applyPageCopy((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -202,5 +204,7 @@ export function WrestlingPage() {
       </main>
       <FooterSection />
     </>
-  )
+  ), cmsCopy)
 }
+
+registerCopyComponent(WrestlingPage)

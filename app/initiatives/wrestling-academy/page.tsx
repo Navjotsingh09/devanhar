@@ -1,1 +1,1 @@
-export {default,metadata} from '../../wrestling/page'
+export {default,generateMetadata} from '../../wrestling/page'

@@ -1,3 +1,4 @@
+import {parseArticleMetadata} from './blog-metadata'
 import { createClient } from "@/lib/supabase/server"
 import { type BlogPost, type Pillar } from "@/lib/blog"
 
@@ -16,6 +17,7 @@ const DELETED_LEGACY_SLUGS = new Set([
 const listingColumns = "id,slug,title,excerpt,pillar,status,author_name,cover_image_url,cover_image_alt,tags,read_time,source,published_at,created_at,updated_at,draft_revision_id,archived_at"
 
 type BlogRow = {
+  cms_metadata?:unknown
   id: string
   slug: string
   title: string
@@ -38,6 +40,8 @@ type BlogRow = {
 
 function mapRow(row: BlogRow): BlogPost {
   return {
+    metadataAvailable:Object.hasOwn(row,"cms_metadata"),
+    metadata:parseArticleMetadata(row.cms_metadata),
     id: row.id,
     slug: row.slug,
     title: row.title,

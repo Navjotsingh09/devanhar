@@ -11,7 +11,10 @@ function escapeHtml(s: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    if (req.headers.get("origin") !== new URL(req.url).origin) return NextResponse.json({error:"Please use the website contact form."},{status:403})
+    const raw=await req.text()
+    if(raw.length>4000000)return NextResponse.json({error:"Message is too large."},{status:413})
+    const body = JSON.parse(raw)
     const { name, email, subject, message, source_page, form_fields, phone, save_submission, attachment } = body as {
       name?: string
       email?: string
@@ -24,7 +27,7 @@ export async function POST(req: NextRequest) {
       attachment?: { filename?: string; content?: string }
     }
 
-    if (!name?.trim() || !email?.trim()) {
+    if (typeof name !== "string" || !name.trim() || name.length > 200 || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || email.length > 254 || (message && (typeof message !== "string" || message.length > 20000))) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 })
     }
 
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
     const safeMessage = escapeHtml((message || "").trim())
     const safePage = escapeHtml((source_page || "Unknown").trim())
 
-    if (save_submission) {
+    {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
       const supabaseKey =
         process.env.SUPABASE_SERVICE_ROLE_KEY ||
@@ -103,14 +106,15 @@ export async function POST(req: NextRequest) {
     const text = `New Form Submission\nSource: ${source_page || "Unknown"}\n\nName: ${name}\nEmail: ${email}\nSubject: ${subject || "Website Enquiry"}\n${message ? `Message: ${message}\n` : ""}${form_fields ? Object.entries(form_fields).map(([k, v]) => `${k}: ${v}`).join("\n") : ""}`
 
     if (!process.env.RESEND_API_KEY) {
-      console.log("[contact] RESEND_API_KEY not set, logging submission:", { name, email, source_page })
-      return NextResponse.json({ success: true, fallback: true })
+      console.log("[contact] Enquiry saved; notification service is not configured")
+      return NextResponse.json({ success: true, notificationSent: false })
     }
 
     const { Resend } = await import("resend")
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    await resend.emails.send({
+    let notificationSent=false
+    try { const delivery = await resend.emails.send({
       from: FROM_EMAIL,
       to: ADMIN_EMAIL,
       replyTo: email.trim(),
@@ -120,7 +124,9 @@ export async function POST(req: NextRequest) {
       ...(attachment?.filename && attachment.content ? { attachments: [{ filename: attachment.filename, content: Buffer.from(attachment.content, "base64") }] } : {}),
     })
 
-    return NextResponse.json({ success: true })
+    notificationSent=!delivery.error
+    }catch{ console.error("[contact] Enquiry saved; notification delivery failed") }
+    return NextResponse.json({ success: true, notificationSent })
   } catch (err) {
     console.error("[contact] Error sending notification:", err)
     return NextResponse.json({ error: "Failed to send message" }, { status: 500 })

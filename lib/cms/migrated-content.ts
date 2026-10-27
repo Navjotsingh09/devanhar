@@ -1,0 +1,6 @@
+import pages from './migrated-pages.json'
+import {pageContentSchema,newPageContent,type PageContent} from './page-content'
+export const migratedPages=pages as Record<string,{title:string;path:string;area:string;file:string;files:string[];seo:{title:string;description:string;noIndex:boolean};fields:{key:string;kind:'text'|'link'|'asset';source:string;value:string}[]}>
+export function isMigratedSlug(slug:string){return Object.hasOwn(migratedPages,slug)}
+export function migratedDefault(slug:string):PageContent|null{const page=migratedPages[slug];if(!page)return null;if(!page.fields.length){const content=newPageContent();content.title=page.title;content.seo={...page.seo,socialTitle:'',socialDescription:'',socialImage:''};return content}return pageContentSchema.parse({schemaVersion:1,title:page.title,seo:page.seo,sections:[{id:'page-copy',type:'pageCopy',hidden:false,data:{fields:page.fields}}]})}
+export function validMigratedContent(slug:string,content:PageContent){const page=migratedPages[slug];if(!page||!page.fields.length)return true;const section=content.sections[0];return content.sections.length===1&&section.type==='pageCopy'&&!section.hidden&&section.data.fields.length===page.fields.length&&section.data.fields.every((field,index)=>['key','kind','source'].every(key=>field[key as 'key']===page.fields[index][key as 'key']))}

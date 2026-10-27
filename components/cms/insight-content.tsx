@@ -1,3 +1,4 @@
+import {parseArticleMetadata} from '@/lib/blog-metadata'
 import Image from "next/image"
 
 import Link from "next/link"
@@ -17,6 +18,7 @@ function formatDate(date: string) {
 }
 
 export function InsightContent({ post, related = [], uploadedCovers = {} }: { post: BlogPost; related?: BlogPost[]; uploadedCovers?: Record<string, string> }) {
+  const metadata=parseArticleMetadata(post.metadata)
   const coverFor = (item: BlogPost) => item.coverImage || (!item.persisted ? uploadedCovers[item.slug] : undefined) || getBlogCoverImage(item.slug)
   return (
     <main className="min-h-screen bg-white text-black">
@@ -74,6 +76,7 @@ export function InsightContent({ post, related = [], uploadedCovers = {} }: { po
             {post.description}
           </p>
           <BlogContent content={post.content} />
+          {!!metadata.relatedLinks.length&&<aside aria-label="Related programmes and events" className="mt-12 border-t border-black/10 pt-6"><h2 className="text-xl font-semibold">Explore more</h2><ul className="mt-4 space-y-3">{metadata.relatedLinks.map(item=><li key={item.href}><Link className="underline underline-offset-4" href={item.href}>{item.label} →</Link></li>)}</ul></aside>}
         </div>
       </article>
 

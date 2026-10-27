@@ -1,9 +1,15 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Terms of Service - Devanhaar",
   description: "Terms of Service for Devanhaar.",
 }
@@ -134,8 +140,10 @@ const sections: { h: string; blocks: Block[] }[] = [
   },
 ]
 
-export default function TermsPage() {
-  return (
+export default async function TermsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-terms')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -178,5 +186,7 @@ export default function TermsPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-terms',originalMetadata)}

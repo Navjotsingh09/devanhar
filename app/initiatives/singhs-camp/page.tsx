@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -13,7 +19,7 @@ import {
   singhsGalleryImages,
 } from "@/components/camps/camp-shared-data"
 
-export const metadata = {
+const originalMetadata = {
   title: "Singhs Camps | Devanhaar",
   description:
     "Singhs Camps — UK and Europe residential retreats for Adult Sikh men. Apply for the UK camp or register your interest for Europe 2027.",
@@ -62,8 +68,10 @@ const faqs = [
   },
 ]
 
-export default function SinghsCampLandingPage() {
-  return (
+export default async function SinghsCampLandingPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-singhs-camp')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -91,5 +99,7 @@ export default function SinghsCampLandingPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-singhs-camp',originalMetadata)}

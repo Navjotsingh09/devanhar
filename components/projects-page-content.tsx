@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useSiteImages } from "@/hooks/use-site-images"
 import Image from "next/image"
 import Link from "next/link"
@@ -129,11 +132,13 @@ const stats = [
 ]
 
 export function ProjectsPageContent({ records }: { records?: Project[] } = {}) {
+  const cmsCopy = usePageCopy()
+
   const { images: projectImages } = useSiteImages("projects")
   const cmsImageMap = Object.fromEntries(projectImages.filter(img => img.category).map(img => [img.category!, img.url]))
   const getProjectImage = (slug: string, fallback: string) => cmsImageMap[slug] || fallback
 
-  return (
+  return applyPageCopy(((
     <div className="pt-24 pb-0">
       {/* Hero Section */}
       <section className="py-20 md:py-28">
@@ -242,5 +247,5 @@ export function ProjectsPageContent({ records }: { records?: Project[] } = {}) {
       </section>
 
     </div>
-  )
+  )), cmsCopy)
 }
