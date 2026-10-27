@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -33,7 +35,7 @@ export default async function ShopPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Page
       <Navbar />
       <ScrollAnimations />
       <main>
-        <section className="min-h-[80vh] flex items-center justify-center bg-background">
+        <section data-cms-section="65254d7dbf0f3e3d" className="min-h-[80vh] flex items-center justify-center bg-background">
           <div className="max-w-3xl mx-auto px-6 py-32 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-8">
               <ShoppingBag className="w-3.5 h-3.5" />
@@ -68,7 +70,7 @@ export default async function ShopPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Page
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

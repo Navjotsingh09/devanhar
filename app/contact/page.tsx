@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -65,7 +67,7 @@ export default async function ContactPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
         subheading="Common questions about reaching out to Devanhaar."
         items={contactFAQs}
       />
-      <FooterSection hideContact />
+      <><NativePageSections /><FooterSection hideContact /></>
     </>
   )), cmsCopy)
 }

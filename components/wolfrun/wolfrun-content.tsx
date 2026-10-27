@@ -561,7 +561,7 @@ export function WolfRunContent() {
   return applyPageCopy(((
     <>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section data-cms-section="2172c21c5c159980" className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0">
           <img src="/images/events/wolfrun-hero.jpg" alt="" className="w-full h-full object-cover" />
         </div>
@@ -604,7 +604,7 @@ export function WolfRunContent() {
       </section>
 
       {/* What is Wolf Run */}
-      <section className="py-20 bg-background" data-animate>
+      <section data-cms-section="9f1211bea61b7357" className="py-20 bg-background" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">What is the Wolf Run?</h2>
@@ -650,7 +650,7 @@ export function WolfRunContent() {
       </section>
 
       {/* Why Devanhaar */}
-      <section className="py-20 bg-muted/30" data-animate>
+      <section data-cms-section="91cd94068b82cebc" className="py-20 bg-muted/30" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Why We&apos;re Running for Devanhaar</h2>
@@ -680,7 +680,7 @@ export function WolfRunContent() {
       </section>
 
       {/* The Packs */}
-      <section className="py-20 bg-background" data-animate>
+      <section data-cms-section="ae449c7f611ec46f" className="py-20 bg-background" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Join the Pack</h2>
@@ -724,7 +724,7 @@ export function WolfRunContent() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-muted/30" data-animate>
+      <section data-cms-section="d8f49f8b28409d64" className="py-20 bg-muted/30" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How Fundraising Works</h2>
@@ -774,7 +774,7 @@ export function WolfRunContent() {
       </section>
 
       {/* Event Details */}
-      <section className="py-20 bg-background" data-animate>
+      <section data-cms-section="ab592ae28c40fbb7" className="py-20 bg-background" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8">Event Details</h2>
@@ -824,7 +824,7 @@ export function WolfRunContent() {
       </section>
 
       {/* FAQs */}
-      <section className="py-20 bg-muted/30" data-animate>
+      <section data-cms-section="fba7caf794a8ad1e" className="py-20 bg-muted/30" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
@@ -855,7 +855,7 @@ export function WolfRunContent() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900" data-animate>
+      <section data-cms-section="c9624b7c225ba032" className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Make a Difference?</h2>

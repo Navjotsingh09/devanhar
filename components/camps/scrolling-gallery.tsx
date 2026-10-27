@@ -14,7 +14,7 @@ export async function ScrollingGallery({cmsCopy = {},  images, heading }: (Scrol
   const loop = [...images, ...images]
 
   return applyPageCopy(((
-    <section className="py-20 md:py-28 border-t border-border overflow-hidden">
+    <section data-cms-section="2199e44e91d0ec98" className="py-20 md:py-28 border-t border-border overflow-hidden">
       <div className="container mx-auto px-6 lg:px-12 max-w-6xl mb-10 md:mb-14">
         {heading ? (
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">

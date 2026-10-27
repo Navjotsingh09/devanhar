@@ -17,7 +17,7 @@ export function PesGallery() {
   const move = (offset: number) => setActive(index => index === null ? null : (index + offset + pesPhotos.length) % pesPhotos.length)
 
   return applyPageCopy(((
-    <section aria-labelledby="pes-gallery-heading" className="border-t border-border bg-white py-16 md:py-24">
+    <section data-cms-section="ab968bf8d872fb6c" aria-labelledby="pes-gallery-heading" className="border-t border-border bg-white py-16 md:py-24">
       <div className="container mx-auto max-w-6xl px-6 lg:px-12">
         <div className="mb-10 max-w-3xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">Our partner school</p>

@@ -91,7 +91,7 @@ export default function OurStoryNarrative() {
   const cmsImageMap = Object.fromEntries(storyImages.filter(img => img.category?.startsWith("story-")).map(img => [img.category!.replace("story-", ""), img.url]))
 
   return applyPageCopy(((
-    <section className="w-full">
+    <section data-cms-section="071c9b90d0c09fa0" className="w-full">
       <h2 className="sr-only">Our Journey</h2>
 
       {/* Desktop: horizontal hover-expandable columns */}

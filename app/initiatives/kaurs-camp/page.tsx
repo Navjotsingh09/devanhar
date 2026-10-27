@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -76,7 +78,7 @@ export default async function KaursCampLandingPage({ cmsCopy: suppliedCopy }: {c
           ]}
         />
 
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
+        <section data-cms-section="ef955820460f4c76" className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
             About The Kaur's Space
           </h2>
@@ -97,7 +99,7 @@ export default async function KaursCampLandingPage({ cmsCopy: suppliedCopy }: {c
 
         <FAQSection items={faqs} />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

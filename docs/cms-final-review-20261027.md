@@ -36,3 +36,5 @@ The separate staff update was rejected previously because it changes production 
 The user reported successful execution of all three scripts. A fresh read confirms the article metadata column, metadata-aware writer/restorer, staff_set_active and cms_staff_roster are installed. Mahaaan and Paramveer are banned with zero active sessions and recoverable prior-access records. The previous automatic-review blockers above are historical; no further schema application is pending for these scripts.
 
 A rolled-back authenticated transaction verifies private draft metadata, exact published metadata and metadata-preserving restoration followed by publication. Retained test articles = 0. Published article listings now select the installed metadata column so featured related-article ordering works. Logged-in browser acceptance and production publication remain pending.
+
+Latest scope and acceptance status: see `cms-remaining-scope-verification.md`. Earlier completion statements do not constitute final production acceptance.

@@ -154,7 +154,7 @@ export function MediaPageContent() {
   return applyPageCopy(((
     <div className="pt-24 pb-0">
       {/* Hero */}
-      <section className="border-b border-border">
+      <section data-cms-section="636e3374368c229a" className="border-b border-border">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-32">
           <div className="max-w-4xl" data-animate>
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-500 mb-4">Press &amp; Media</p>
@@ -335,7 +335,7 @@ export function MediaPageContent() {
       )}
 
       {/* Press Enquiries */}
-      <section className="border-t border-border bg-muted/30">
+      <section data-cms-section="b99b7906673c3f3b" className="border-t border-border bg-muted/30">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-28">
           <div className="text-center max-w-2xl mx-auto" data-animate>
             <h2 className="text-3xl md:text-5xl font-light text-foreground mb-6 tracking-tight">Press Enquiries</h2>

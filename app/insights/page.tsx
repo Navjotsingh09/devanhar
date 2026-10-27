@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -39,7 +41,7 @@ export default async function InsightsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:
     <main className="min-h-screen bg-white text-black">
       <Navbar />
 
-      <section className="mx-auto w-full max-w-[1180px] px-5 pb-24 pt-32 md:px-8 md:pb-32 md:pt-40">
+      <section data-cms-section="7ccc5e501e26a689" className="mx-auto w-full max-w-[1180px] px-5 pb-24 pt-32 md:px-8 md:pb-32 md:pt-40">
         <div className="mb-10 flex items-end justify-between gap-6 md:mb-12">
           <h1 className="text-[clamp(4.25rem,10vw,8.5rem)] font-semibold leading-[0.82] tracking-[-0.07em]">
             Blog.
@@ -93,7 +95,7 @@ export default async function InsightsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:
           </article>
         )}
 
-        <section>
+        <section data-cms-section="28d3b8697404ff82">
           <div className="mb-9 flex items-end justify-between border-b border-black/10 pb-5">
             <h2 className="text-5xl font-semibold tracking-[-0.055em] md:text-7xl">More Posts</h2>
             <span className="pb-1 text-sm text-black/45">{morePosts.length} stories</span>
@@ -141,7 +143,7 @@ export default async function InsightsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:
         </section>
       </section>
 
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </main>
   )), cmsCopy)
 }

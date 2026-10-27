@@ -56,6 +56,9 @@ export async function updateSession(request: NextRequest) {
   )
 
   const pathname = request.nextUrl.pathname
+  // Public availability is identical for visitors and signed-in programme staff.
+  // Only this read-only route skips account restrictions; private APIs stay guarded.
+  if (pathname === '/api/open-registrations' && ['GET', 'HEAD'].includes(request.method)) return supabaseResponse
   const isSpaAuth = ['/spa-admin/login','/spa-admin/forgot-password','/spa-admin/update-password'].includes(pathname)
   const isSpaPortal = pathname.startsWith('/spa-admin') && !isSpaAuth
   const isReadNavigation = ['GET','HEAD'].includes(request.method)
@@ -87,7 +90,7 @@ export async function updateSession(request: NextRequest) {
     }
     const role = profileResult.data?.role
     const programmes = ['admin','super_admin','content_manager'].includes(role || '') ? [] : grants.map(row => row.programme) as StaffProgramme[]
-    if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/') && !['/api/contact','/api/newsletter','/api/newsletter/unsubscribe'].includes(pathname)) return finish(NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 }))
+    if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/') && !(pathname==='/api/blog'||pathname.startsWith('/api/blog/')) && !['/api/contact','/api/newsletter','/api/newsletter/unsubscribe'].includes(pathname)) return finish(NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 }))
     if (role === 'content_manager' && pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, [], role)) {
       if (!['GET','HEAD'].includes(request.method)) return finish(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
       const url = request.nextUrl.clone(); url.pathname = '/dashboard/website'; url.search = ''; return finish(NextResponse.redirect(url))

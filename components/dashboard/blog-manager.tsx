@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import type { BlogPost } from "@/lib/blog"
 
-export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
+export function BlogManager({ initialPosts,canCreate=true,canArchive=true }: { initialPosts: BlogPost[];canCreate?:boolean;canArchive?:boolean }) {
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts)
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<"all" | "published" | "draft" | "archived">("all")
@@ -63,9 +63,9 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
           <Button variant="outline" asChild>
             <Link href="/insights" target="_blank"><Eye className="mr-2 h-4 w-4" />View public blog</Link>
           </Button>
-          <Button asChild className="bg-amber-500 text-black hover:bg-amber-400">
+          {canCreate&&<Button asChild className="bg-amber-500 text-black hover:bg-amber-400">
             <Link href="/dashboard/blog/new"><Plus className="mr-2 h-4 w-4" />New post</Link>
-          </Button>
+          </Button>}
         </div>
       </div>
 
@@ -113,7 +113,7 @@ export function BlogManager({ initialPosts }: { initialPosts: BlogPost[] }) {
               <div className="flex flex-wrap justify-end gap-1.5">
                 {postStatus === "published" && <Button size="sm" variant="outline" asChild title="View"><Link href={`/insights/${post.slug}`} target="_blank"><Eye className="mr-2 h-4 w-4" />View</Link></Button>}
                 <Button size="sm" variant="outline" asChild title="Edit"><Link aria-disabled={post.archived} tabIndex={post.archived ? -1 : undefined} className={post.archived ? "pointer-events-none opacity-40" : ""} href={`/dashboard/blog/${post.slug}/edit`}><Edit3 className="mr-2 h-4 w-4" />Edit</Link></Button>
-                <Button size="sm" variant="outline" disabled={deleting===post.slug} onClick={()=>void deletePost(post)} title={post.archived ? "Restore article" : "Archive article"}>
+                <Button size="sm" variant="outline" disabled={!canArchive||deleting===post.slug} onClick={()=>void deletePost(post)} title={post.archived ? "Restore article" : "Archive article"}>
                   {post.archived ? <RotateCcw className="mr-2 h-4 w-4" /> : <Archive className="mr-2 h-4 w-4" />}{post.archived ? "Restore" : "Archive"}
                 </Button>
               </div>

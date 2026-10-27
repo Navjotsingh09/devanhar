@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -87,7 +89,7 @@ export default async function MediaPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Pag
           variant="light"
         />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </div>
   )), cmsCopy)
 }

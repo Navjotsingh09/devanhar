@@ -18,7 +18,7 @@ const input=()=>({slug:'sample-article',title:'A new draft',description:'Summary
 let writes=[],revalidated=[],rpcError=null
 const routes=load('app/api/blog/route.ts',{
  'next/server':{NextResponse:{json:(body,init)=>Response.json(body,init)}},
- 'next/cache':{revalidatePath:path=>revalidated.push(path)},
+ 'next/cache':{revalidatePath:path=>revalidated.push(path),revalidateTag:()=>{}},
  '@/lib/blog-staff-server':{getBlogStaff:async()=>({user:{id:'actor'},allowed:true,client:{rpc:async(name,args)=>{writes.push({name,args});return{data:'id',error:rpcError}}}})},
  '@/lib/blog-draft-content':model,
 })
@@ -50,7 +50,7 @@ test('cross-origin writes, URL changes and invalid payloads fail before RPC',asy
 test('public readers never query private revisions or replace the live title with draft text',async()=>{
  const tables=[]
  const row={id:'id',slug:'sample-article',title:'Live title',excerpt:'Live excerpt',content:'Live body',pillar:'Develop',status:'published',created_at:'2026-10-22T12:00:00Z',updated_at:'2026-10-22T12:00:00Z',draft_revision_id:'private-id'}
- const db=load('lib/blog-db.ts',{'./blog-metadata':metadata,'@/lib/supabase/server':{createClient:async()=>({from:table=>{tables.push(table);return {select(){return this},eq(){return this},order(){return this},maybeSingle:async()=>({data:row,error:null}),then(resolve,reject){return Promise.resolve({data:[row],error:null}).then(resolve,reject)}}}})}})
+ const db=load('lib/blog-db.ts',{'./blog-staff-server':{},'./blog-metadata':metadata,'next/cache':{unstable_cache:fn=>fn},'@/lib/supabase/server':{createClient:()=>{throw Error('Private client used for public read')}},'./cms/service':{cmsService:()=>({from:table=>{tables.push(table);return {select(){return this},eq(){return this},is(){return this},order(){return this},maybeSingle:async()=>({data:row,error:null}),then(resolve,reject){return Promise.resolve({data:[row],error:null}).then(resolve,reject)}}}})}})
  assert.equal((await db.getPublishedBlogPostBySlug('sample-article')).title,'Live title')
  assert.equal((await db.getPublishedBlogPosts())[0].title,'Live title')
  assert.deepEqual(tables,['blog_posts','blog_posts'])

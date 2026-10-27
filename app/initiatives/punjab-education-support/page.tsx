@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -70,7 +72,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
     <>
       <Navbar />
       <main className="min-h-screen bg-white">
-        <section className="relative min-h-[690px] overflow-hidden bg-[#101b2d] text-white md:min-h-[740px]">
+        <section data-cms-section="da451802c222a954" className="relative min-h-[690px] overflow-hidden bg-[#101b2d] text-white md:min-h-[740px]">
           <img
             src="/images/pes-school-group-original-hd.webp"
             alt="Students and teachers from Maharaja Ranjit Singh Public School gathered at the school entrance"
@@ -92,7 +94,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
 
-        <section className="relative z-20 -mt-16 pb-8">
+        <section data-cms-section="e2a5e493595eaf75" className="relative z-20 -mt-16 pb-8">
           <div className="container mx-auto grid max-w-6xl gap-4 px-6 md:grid-cols-3 lg:px-12">
             <article className="rounded-[1.5rem] border border-border bg-white p-6 shadow-xl shadow-black/5">
               <GraduationCap className="h-6 w-6 text-[hsl(43,100%,29%)]" />
@@ -118,7 +120,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
 
-        <section className="py-16 md:py-24">
+        <section data-cms-section="15b9dd38db768f13" className="py-16 md:py-24">
           <div className="container mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">
@@ -147,7 +149,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
 
         <PesGallery />
 
-        <section className="bg-[#f8f8f5] py-16 md:py-24">
+        <section data-cms-section="edce5d5317b5937e" className="bg-[#f8f8f5] py-16 md:py-24">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
             <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
               <div className="rounded-[2rem] bg-[#101b2d] p-8 text-white md:p-10">
@@ -177,7 +179,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
 
-        <section className="py-16 md:py-24">
+        <section data-cms-section="534485050080f499" className="py-16 md:py-24">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
             <div className="grid gap-12 lg:grid-cols-2">
               <article className="rounded-[2rem] border border-border p-8 md:p-10">
@@ -221,7 +223,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
 
-        <section className="bg-[#101b2d] py-16 text-white md:py-20">
+        <section data-cms-section="fefaf0ee6216d032" className="bg-[#101b2d] py-16 text-white md:py-20">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
             <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
               <div>
@@ -245,7 +247,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
 
-        <section className="bg-[#f8f8f5] py-16 md:py-24">
+        <section data-cms-section="267c5d4f9e0eb80a" className="bg-[#f8f8f5] py-16 md:py-24">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
             <div className="max-w-3xl">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">
@@ -276,7 +278,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
 
-        <section className="py-16 md:py-24">
+        <section data-cms-section="afd9c7301f8c16cd" className="py-16 md:py-24">
           <div className="container mx-auto grid max-w-6xl gap-6 px-6 lg:grid-cols-2 lg:px-12">
             <article className="rounded-[2rem] bg-[#101b2d] p-8 text-white md:p-10">
               <HandHeart className="h-7 w-7 text-amber-300" />
@@ -315,7 +317,7 @@ export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy
           </div>
         </section>
       </main>
-      <FooterSection hideContact />
+      <><NativePageSections /><FooterSection hideContact /></>
     </>
   )), cmsCopy)
 }

@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -40,7 +42,7 @@ export default async function WolfRunPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
       <Navbar />
       <ScrollAnimations />
       <WolfRunContent />
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </main>
   )), cmsCopy)
 }

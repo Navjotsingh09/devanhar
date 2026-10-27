@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {applyPageCopy,registerCopyComponent} from '@/lib/cms/copy-node'
 import type {PageCopy} from '@/lib/cms/copy-schema'
 import Image from "next/image"
@@ -15,7 +17,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
       <Navbar />
       <ScrollAnimations />
       <main className="wrestling-page">
-        <section className="wrestling-hero" aria-labelledby="wrestling-title">
+        <section data-cms-section="6e12cedc9861bc04" className="wrestling-hero" aria-labelledby="wrestling-title">
           <Image
             src="/wrestling/team-01.webp"
             alt=""
@@ -61,7 +63,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
           </div>
         </nav>
 
-        <section id="about-wrestling" className="wrestling-section" aria-labelledby="wrestling-about-title">
+        <section data-cms-section="637ec0f288343484" id="about-wrestling" className="wrestling-section" aria-labelledby="wrestling-about-title">
           <div className="wrestling-container wrestling-story">
             <div>
               <p className="wrestling-eyebrow">Overview</p>
@@ -80,7 +82,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
           </div>
         </section>
 
-        <section id="wrestling-heritage" className="wrestling-section wrestling-heritage" aria-labelledby="wrestling-heritage-title">
+        <section data-cms-section="5ad2326d3f733b0f" id="wrestling-heritage" className="wrestling-section wrestling-heritage" aria-labelledby="wrestling-heritage-title">
           <div className="wrestling-container">
             <div className="wrestling-section-heading">
               <p className="wrestling-eyebrow">Our heritage</p>
@@ -96,7 +98,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
           </div>
         </section>
 
-        <section id="classes" className="wrestling-section wrestling-classes" aria-labelledby="wrestling-classes-title">
+        <section data-cms-section="f2a4c16fdb725cab" id="classes" className="wrestling-section wrestling-classes" aria-labelledby="wrestling-classes-title">
           <div className="wrestling-container wrestling-class-layout">
             <div>
               <p className="wrestling-eyebrow">Train with us</p>
@@ -159,7 +161,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
           </div>
         </section>
 
-        <section id="wrestling-media" className="wrestling-section" aria-labelledby="wrestling-media-title">
+        <section data-cms-section="5b7e58b7d5d76806" id="wrestling-media" className="wrestling-section" aria-labelledby="wrestling-media-title">
           <div className="wrestling-container">
             <div className="wrestling-section-heading">
               <p className="wrestling-eyebrow">Life at the academy</p>
@@ -189,7 +191,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
           </div>
         </section>
 
-        <section className="wrestling-section wrestling-final-cta" aria-labelledby="wrestling-get-involved">
+        <section data-cms-section="e4ca31ece7dda51a" className="wrestling-section wrestling-final-cta" aria-labelledby="wrestling-get-involved">
           <div className="wrestling-container">
             <div>
               <p className="wrestling-eyebrow">Get involved</p>
@@ -202,7 +204,7 @@ export function WrestlingPage({cmsCopy={}}:{cmsCopy?:PageCopy}={}) {
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   ), cmsCopy)
 }

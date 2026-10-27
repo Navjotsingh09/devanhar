@@ -35,7 +35,7 @@ export function InsightContent({ post, related = [], uploadedCovers = {} }: { po
 
         <header>
           <div className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-black/45">
-            {post.pillar}
+            {metadata.category||post.pillar}
           </div>
           <h1 className="max-w-[1050px] text-[clamp(3.2rem,8vw,7.75rem)] font-semibold leading-[0.9] tracking-[-0.065em]">
             {post.title}
@@ -75,6 +75,7 @@ export function InsightContent({ post, related = [], uploadedCovers = {} }: { po
           <p className="mb-12 text-2xl leading-[1.45] tracking-[-0.02em] text-black/70 md:text-3xl">
             {post.description}
           </p>
+          {metadata.subtitle&&<p className="mb-8 text-xl font-medium">{metadata.subtitle}</p>}
           <BlogContent content={post.content} />
           {!!metadata.relatedLinks.length&&<aside aria-label="Related programmes and events" className="mt-12 border-t border-black/10 pt-6"><h2 className="text-xl font-semibold">Explore more</h2><ul className="mt-4 space-y-3">{metadata.relatedLinks.map(item=><li key={item.href}><Link className="underline underline-offset-4" href={item.href}>{item.label} →</Link></li>)}</ul></aside>}
         </div>

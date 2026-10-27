@@ -48,3 +48,5 @@ export function CmsPageRenderer({ content, opportunities = [], posts = [] }: { c
   const startsWithHero = ['hero', 'homeHero'].includes(visible[0]?.type)
   return <main className={`min-h-screen bg-background text-foreground ${startsWithHero ? '' : 'pt-28'}`}><ScrollAnimations /><Navbar />{visible.map(section => <Section key={section.id} section={section} opportunities={opportunities} posts={posts} />)}<FooterSection /></main>
 }
+
+export function CmsContentSections({sections,posts=[]}:{sections:PageSection[];posts?:BlogPost[]}){return <>{sections.filter(s=>!s.hidden).map(section=><Section key={section.id} section={section} opportunities={[]} posts={posts}/>)}</>}

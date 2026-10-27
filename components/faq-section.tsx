@@ -32,7 +32,7 @@ export function FAQSection({
   const visibleItems=useSiteFaqs(items)
   if (!visibleItems.length) return null
   return applyPageCopy(((
-    <section className="py-24 md:py-32 border-t border-border bg-secondary/30">
+    <section data-cms-section="1c65d527f1a639cf" className="py-24 md:py-32 border-t border-border bg-secondary/30">
       <div className="container mx-auto px-6 lg:px-12">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">

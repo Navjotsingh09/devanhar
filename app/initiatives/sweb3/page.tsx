@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -20,14 +22,14 @@ export default async function SWeb3Page({ cmsCopy: suppliedCopy }: {cmsCopy?:Pag
     <>
       <Navbar />
       <main className="min-h-screen mt-20">
-        <section className="py-16 md:py-24">
+        <section data-cms-section="55c0238e7b2363fe" className="py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Sikh Web3 Initiative</h1>
             <p className="text-lg text-muted-foreground max-w-2xl">Education, participation, and innovation in blockchain and Web3.</p>
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

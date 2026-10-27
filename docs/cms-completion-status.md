@@ -141,3 +141,5 @@ See cms-final-review-20261027.md for the current requirement matrix. The new inc
 ## User-applied database updates verified
 
 The user applied cms-article-metadata.sql, cms-staff-cleanup.sql and cms-roster-cleanup-apply.sql and reported success. Fresh schema/account reads verify installation, both target accounts banned with zero sessions and recoverable access records, and article metadata publication/restoration in a rolled-back authenticated transaction (zero retained fixtures). Earlier blocked-migration notes are historical. Existing capability gates now detect the installed column. Logged-in browser acceptance and production publication remain pending.
+
+Latest scope and acceptance status: see `cms-remaining-scope-verification.md`. Earlier completion statements do not constitute final production acceptance.

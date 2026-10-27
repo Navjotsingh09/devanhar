@@ -30,7 +30,7 @@ export async function CTABanner({cmsCopy = {},
   const isDark = variant === "dark"
 
   return applyPageCopy(((
-    <section
+    <section data-cms-section="14e7647a5bd3b673"
       className={`py-16 md:py-24 ${
         isDark ? "bg-[#1a1f2e] text-white" : "border-t border-border bg-muted/30"
       }`}

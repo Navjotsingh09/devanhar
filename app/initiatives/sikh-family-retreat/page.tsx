@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -43,7 +45,7 @@ export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {
           <a href="#retreat-contact" className="text-muted-foreground hover:text-foreground">Contact the team</a>
         </div>
       </nav>
-      <section id="about" className="scroll-mt-24 py-14 md:py-20">
+      <section data-cms-section="4f287e692e457c30" id="about" className="scroll-mt-24 py-14 md:py-20">
         <div className="container mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:px-12">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(43,100%,29%)]">A retreat for the whole family</p>
@@ -62,7 +64,7 @@ export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {
           </div>
         </div>
       </section>
-      <section id="interest-form" className="scroll-mt-24 border-t border-border bg-[#f7f5ef] py-14 md:py-20">
+      <section data-cms-section="f5df5d6bb4ca4500" id="interest-form" className="scroll-mt-24 border-t border-border bg-[#f7f5ef] py-14 md:py-20">
         <div id="retreats" className="container mx-auto max-w-6xl scroll-mt-28 px-6 lg:px-12">
           <div className="mb-8 max-w-2xl"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(43,100%,29%)]">Something to look forward to, together</p><h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Choose your next family retreat</h2><p className="mt-4 text-base leading-relaxed text-muted-foreground">Select a retreat to register your family’s interest. We will keep you updated as booking information is released.</p></div>
           <div className="grid gap-5 lg:grid-cols-3">
@@ -78,14 +80,14 @@ export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {
         </div>
       </section>
       <FamilyRetreatFAQ />
-      <section id="retreat-contact" className="scroll-mt-24 bg-[#101b2d] py-14 text-white md:py-16">
+      <section data-cms-section="d541c0ecfe5d3062" id="retreat-contact" className="scroll-mt-24 bg-[#101b2d] py-14 text-white md:py-16">
         <div className="container mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:gap-16 lg:px-12">
           <div><Mail aria-hidden="true" className="h-6 w-6 text-amber-300" /><h2 className="mt-4 text-2xl font-bold md:text-3xl">Let’s help you feel at home.</h2><p className="mt-4 max-w-lg text-sm leading-relaxed text-white/75">Questions about accommodation, accessibility or what your family needs to feel comfortable? Speak to the Sikh Family Initiative team before registering interest.</p><a href="mailto:TheSikhFI@devanhaar.com" className="mt-6 inline-flex min-h-11 items-center gap-2 break-all text-sm font-semibold text-amber-300 underline underline-offset-4 hover:text-amber-200">TheSikhFI@devanhaar.com<ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" /></a></div>
           <div className="border-t border-white/15 pt-8 md:border-l md:border-t-0 md:pl-10 md:pt-0"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-300">Part of something bigger</p><h2 className="mt-4 text-2xl font-bold md:text-3xl">Sikh Family Initiative</h2><p className="mt-4 text-sm leading-relaxed text-white/75">Retreats, Sikh Family Extravaganza and Wedding Fair bring families together throughout the year.</p><Link href="/sfi" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold transition hover:bg-white/10">View all family projects<ArrowRight aria-hidden="true" className="h-4 w-4" /></Link></div>
         </div>
       </section>
     </main>
-    <FooterSection hideContact />
+    <><NativePageSections /><FooterSection hideContact /></>
   </>), cmsCopy)
 }
 

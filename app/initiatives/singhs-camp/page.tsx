@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -78,7 +80,7 @@ export default async function SinghsCampLandingPage({ cmsCopy: suppliedCopy }: {
       <main className="min-h-screen">
         <SinghsCampHeroWithApply />
 
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
+        <section data-cms-section="b3034e448c9471f1" className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
             History
           </h2>
@@ -97,7 +99,7 @@ export default async function SinghsCampLandingPage({ cmsCopy: suppliedCopy }: {
 
         <FAQSection items={faqs} />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

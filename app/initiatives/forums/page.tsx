@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -20,14 +22,14 @@ export default async function ForumsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Pa
     <>
       <Navbar />
       <main className="min-h-screen mt-20">
-        <section className="py-16 md:py-24">
+        <section data-cms-section="3a293ffebc264257" className="py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Community Forums</h1>
             <p className="text-lg text-muted-foreground max-w-2xl">Derby, London, and Birmingham community groups with regular meetups.</p>
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

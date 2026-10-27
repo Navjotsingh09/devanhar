@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -90,14 +92,14 @@ export default async function SafeguardingPage({ cmsCopy: suppliedCopy }: {cmsCo
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen mt-20">
-        <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
+        <section data-cms-section="c55033e12dca2e1c" className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container mx-auto px-6 lg:px-12">
             <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-4">Legal</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">Safeguarding &amp; Security Statement</h1>
             <p className="text-sm text-muted-foreground">Last updated 10 June 2026</p>
           </div>
         </section>
-        <section className="py-16 md:py-20">
+        <section data-cms-section="6975d156f54e6b6f" className="py-16 md:py-20">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl prose prose-gray dark:prose-invert">
             {sections.map((s, i) => (
               <div key={i}>
@@ -124,7 +126,7 @@ export default async function SafeguardingPage({ cmsCopy: suppliedCopy }: {cmsCo
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

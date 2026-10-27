@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -33,7 +35,7 @@ export default async function TeamPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Page
       <Navbar />
       <ScrollAnimations />
       <main>
-        <section className="min-h-[80vh] flex items-center justify-center bg-background">
+        <section data-cms-section="a7f50d775a0e17af" className="min-h-[80vh] flex items-center justify-center bg-background">
           <div className="max-w-3xl mx-auto px-6 py-32 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-8">
               <Users className="w-3.5 h-3.5" />
@@ -68,7 +70,7 @@ export default async function TeamPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Page
           </div>
         </section>
 
-        <section id="trustees" className="py-20 md:py-28 bg-muted/30 border-t border-border/50">
+        <section data-cms-section="a2af70844e15d25f" id="trustees" className="py-20 md:py-28 bg-muted/30 border-t border-border/50">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-14">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-6">
@@ -105,7 +107,7 @@ export default async function TeamPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Page
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

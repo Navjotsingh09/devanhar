@@ -141,7 +141,7 @@ export function ProjectsPageContent({ records }: { records?: Project[] } = {}) {
   return applyPageCopy(((
     <div className="pt-24 pb-0">
       {/* Hero Section */}
-      <section className="py-20 md:py-28">
+      <section data-cms-section="5f06d3289493d743" className="py-20 md:py-28">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -178,7 +178,7 @@ export function ProjectsPageContent({ records }: { records?: Project[] } = {}) {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-[#1a1f2e]">
+      <section data-cms-section="0115234e5199a833" className="py-16 bg-[#1a1f2e]">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {stats.map((stat) => (
@@ -197,7 +197,7 @@ export function ProjectsPageContent({ records }: { records?: Project[] } = {}) {
 
 
       {/* All Initiatives */}
-      <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24">
+      <section data-cms-section="fd3c13e9438f8f1d" className="container mx-auto px-6 lg:px-12 py-16 md:py-24">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {(records ?? projects).map((project) => {
             const Icon = typeof project.icon === "string" ? ({Users,Heart,Sparkles,BookOpen,GraduationCap,School,Shield,Trophy,Home,TreePine}[project.icon as "Users"] || Users) : project.icon

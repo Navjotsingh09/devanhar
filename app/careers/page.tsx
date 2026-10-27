@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -72,7 +74,7 @@ export default async function CareersPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
       <ScrollAnimations />
       <main className="pt-24 pb-20 bg-background">
         {/* Hero */}
-        <section className="py-20 md:py-28">
+        <section data-cms-section="1bbe981bfc4fdd6a" className="py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12 text-center max-w-3xl">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
               Careers
@@ -95,7 +97,7 @@ export default async function CareersPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
         </section>
 
         {/* Listings */}
-        <section className="container mx-auto px-6 lg:px-12 max-w-5xl">
+        <section data-cms-section="ac1ac45ef7dea32c" className="container mx-auto px-6 lg:px-12 max-w-5xl">
           {vacancies.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Briefcase className="w-10 h-10 text-muted-foreground/50 mx-auto mb-4" />
@@ -133,7 +135,7 @@ export default async function CareersPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
           )}
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

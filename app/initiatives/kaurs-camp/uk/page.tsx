@@ -19,7 +19,7 @@ export default async function KaursCampUkPage({ cmsCopy: suppliedCopy }: {cmsCop
 
   return withPageCopy(((
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-secondary/30">
+      <section data-cms-section="4795754464df3e5a" className="border-b border-border bg-secondary/30">
         <div className="container mx-auto px-6 lg:px-12 max-w-4xl py-16 md:py-24">
           <Link
             href="/initiatives/kaurs-camp"

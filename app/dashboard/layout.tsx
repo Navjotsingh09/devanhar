@@ -1,3 +1,4 @@
+import {getBlogStaff} from '@/lib/blog-staff-server'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/dashboard/app-sidebar'
 import { DashboardHeader } from '@/components/dashboard/dashboard-header'
@@ -54,12 +55,21 @@ export default async function DashboardLayout({
     const result = await supabase.from('cms_pages').select('id').eq('slug','sfi').maybeSingle()
     canEditSfi = !result.error && !!result.data
   }
+  let cmsProjects:{slug:string;title:string}[]=[],cmsKinds:string[]=[],canUseInsights=false
+  if(role==='content_manager'){
+    const[content,assignments,blog]=await Promise.all([supabase.from('cms_entries').select('id,kind,slug').eq('archived',false).limit(200),supabase.from('cms_entry_assignments').select('can_view,can_edit,can_create').eq('user_id',user.id),getBlogStaff()])
+    if(content.error||assignments.error)throw new Error('Assigned CMS navigation could not be verified.')
+    cmsProjects=(content.data??[]).filter(e=>e.kind==='project').map(e=>({slug:e.slug,title:e.slug.replaceAll('-',' ')}))
+    cmsKinds=[...new Set((content.data??[]).map(e=>e.kind))]
+    if(assignments.data?.some(a=>a.can_view&&a.can_edit&&a.can_create))cmsKinds=[...new Set([...cmsKinds,'event','faq'])]
+    canUseInsights=blog.allowed
+  }
   const userData = {
     email: user.email || '',
     fullName: profile?.full_name || user.email || 'Staff',
     role: programmes.length ? 'programme_manager' : role,
     programmes,
-    canEditSfi,
+    canEditSfi,cmsProjects,cmsKinds,canUseInsights,
   }
 
   return (

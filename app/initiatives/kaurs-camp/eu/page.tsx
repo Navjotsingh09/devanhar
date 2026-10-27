@@ -19,7 +19,7 @@ export default async function KaursCampEuPage({ cmsCopy: suppliedCopy }: {cmsCop
 
   return withPageCopy(((
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-secondary/30">
+      <section data-cms-section="3f5d4f625a249b7a" className="border-b border-border bg-secondary/30">
         <div className="container mx-auto px-6 lg:px-12 max-w-4xl py-16 md:py-24">
           <Link
             href="/initiatives/kaurs-camp"
@@ -40,7 +40,7 @@ export default async function KaursCampEuPage({ cmsCopy: suppliedCopy }: {cmsCop
           </p>
         </div>
       </section>
-      <section className="py-16 md:py-24">
+      <section data-cms-section="0ffb435edbfe7fd5" className="py-16 md:py-24">
         <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
           <RegisterInterestForm camp="kaurs-camp-eu" />
         </div>

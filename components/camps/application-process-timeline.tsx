@@ -18,7 +18,7 @@ export async function ApplicationProcessTimeline({cmsCopy = {},
 
 
   return applyPageCopy(((
-    <section className="border-t border-border py-20 md:py-28">
+    <section data-cms-section="40391e2fe2740f4e" className="border-t border-border py-20 md:py-28">
       <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
         <div className="max-w-3xl mb-12 md:mb-16">
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">

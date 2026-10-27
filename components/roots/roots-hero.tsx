@@ -25,7 +25,7 @@ export function RootsHero() {
     }
   }, [])
   return applyPageCopy(((
-    <section className="roots-hero">
+    <section data-cms-section="7f295fdd24f9c757" className="roots-hero">
       <img src="/initiatives/roots-gallery-11.jpg" alt="Outdoor adventure in the woodland at Roots Residential" className="roots-hero-background" fetchPriority="high" />
       <div className="roots-hero-shade" />
       <div className="roots-hero-content">

@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -50,7 +52,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
       <main className="min-h-screen">
         <PadelHeroWithRegister event={event} />
 
-        <section className="bg-[#fafafb] py-10 md:py-14">
+        <section data-cms-section="488d85df5048eccd" className="bg-[#fafafb] py-10 md:py-14">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
             <div className="rounded-[18px] border border-[#dedfe3] bg-white p-5 shadow-[0_8px_28px_rgba(0,0,0,0.06)] md:p-7">
               <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -148,7 +150,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
           </p>
         </div>
 
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
+        <section data-cms-section="8f2647c4074d609c" className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
             About the Sikh Padel Association
           </h2>
@@ -159,7 +161,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
           </div>
         </section>
 
-        <section className="border-t border-border bg-secondary/30 py-16 md:py-24">
+        <section data-cms-section="7927489f613e01fd" className="border-t border-border bg-secondary/30 py-16 md:py-24">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Upcoming event
@@ -222,7 +224,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
 
         <FAQSection items={padelFaqs} />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

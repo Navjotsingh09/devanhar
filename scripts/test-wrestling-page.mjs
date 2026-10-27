@@ -27,6 +27,7 @@ function load(path, modules = {}) {
 const { wrestlingContent } = load("lib/wrestling-content.ts")
 function render(content = wrestlingContent) {
   const { WrestlingPage } = load("components/wrestling/wrestling-page.tsx", {
+    "@/components/cms/native-page-sections":{NativePageSections:()=>null},
     "@/lib/cms/copy-node": {applyPageCopy:node=>node,registerCopyComponent:()=>{}},
     "next/link": ({ children, ...props }) => React.createElement("a", props, children),
     "next/image": ({ fill, priority, ...props }) => React.createElement("img", props),

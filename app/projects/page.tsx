@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -90,7 +92,7 @@ export default async function ProjectsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:
           variant="dark"
         />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </div>
   )), cmsCopy)
 }

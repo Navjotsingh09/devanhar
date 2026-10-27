@@ -8,7 +8,8 @@
     "files": [
       "app/wrestling/page.tsx",
       "components/wrestling/wrestling-page.tsx",
-      "lib/wrestling-content.ts"
+      "lib/wrestling-content.ts",
+      "components/wrestling/wrestling-page.css"
     ],
     "fields": [
       {
@@ -724,7 +725,51 @@
       "title": "Devanhaar Wrestling Academy | Freestyle Wrestling & Sikh Heritage",
       "description": "A community-led freestyle wrestling academy carrying forward Sikh and Punjabi wrestling heritage through discipline, wellbeing and connection within the sangat.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "6e12cedc9861bc04",
+        "group": "741fcc61a94fdcd4",
+        "label": "Devanhaar Wrestling Academy.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "637ec0f288343484",
+        "group": "741fcc61a94fdcd4",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "5ad2326d3f733b0f",
+        "group": "741fcc61a94fdcd4",
+        "label": "A tradition of strength. A foundation for the future.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "f2a4c16fdb725cab",
+        "group": "741fcc61a94fdcd4",
+        "label": "Class Information &amp; Timetable",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "5b7e58b7d5d76806",
+        "group": "741fcc61a94fdcd4",
+        "label": "Our Wrestlers in Action",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e4ca31ece7dda51a",
+        "group": "741fcc61a94fdcd4",
+        "label": "Connect with Devanhaar Wrestling Academy.",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-about": {
     "title": "About Devanhaar",
@@ -1229,7 +1274,58 @@
       "title": "About Us - Devanhaar",
       "description": "With Guru Sahib's Kirpa, since its inception, Devanhaar has grown to develop multiple projects UK wide.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "f8fb1425f881ee82",
+        "group": "485e5623b4f3b47e",
+        "label": "Empowering Sikhs to Grow, Lead & Connect",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "803d7221d8bac5ac",
+        "group": "485e5623b4f3b47e",
+        "label": "page · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1835de163174a68d",
+        "group": "485e5623b4f3b47e",
+        "label": "Creating Meaningful Spaces for Growth in Sikhi",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "498a9690ed7a7ac4",
+        "group": "485e5623b4f3b47e",
+        "label": "Powered by Sevadaars Across the UK",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "4337a55e7441b656",
+        "group": "485e5623b4f3b47e",
+        "label": "Our Values",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "6afaa53020b0448f",
+        "group": "485e5623b4f3b47e",
+        "label": "Be Part of the Journey",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "071c9b90d0c09fa0",
+        "group": "e60d1a07618cfa1f",
+        "label": "Our Journey",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-team": {
     "title": "Team",
@@ -1360,7 +1456,23 @@
       "title": "Team Coming Soon | Devanhaar",
       "description": "The Devanhaar team page is coming soon. Stay tuned to learn more about the sevadaars serving camps, education, and community projects across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "a7f50d775a0e17af",
+        "group": "4b13adda5c039d51",
+        "label": "Team Coming Soon",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a2af70844e15d25f",
+        "group": "4b13adda5c039d51",
+        "label": "Our Trustees",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-contact": {
     "title": "Contact",
@@ -1757,7 +1869,37 @@
       "title": "Contact Us | Devanhaar Sikh Charity",
       "description": "Get in touch with Devanhaar. Reach out about volunteering, partnerships, donations, camp registration, or general enquiries. We are here to help.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "319d9aaefba227d1",
+        "group": "4dc31bbf641d3459",
+        "label": "We&apos;d Love to Hear From You",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d8f9425760810ad8",
+        "group": "4dc31bbf641d3459",
+        "label": "contact content · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "50ab7b14a17f7474",
+        "group": "4dc31bbf641d3459",
+        "label": "Send Us a Message",
+        "locked": true,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-projects": {
     "title": "Projects",
@@ -2341,7 +2483,44 @@
       "title": "Our Projects | Devanhaar Sikh Charity",
       "description": "Explore Devanhaar's live projects from Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala and university outreach across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "5f06d3289493d743",
+        "group": "d4e4dfb2ef1f8b9e",
+        "label": "Creating Lasting Impact",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "0115234e5199a833",
+        "group": "d4e4dfb2ef1f8b9e",
+        "label": "projects page content · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "fd3c13e9438f8f1d",
+        "group": "d4e4dfb2ef1f8b9e",
+        "label": "projects page content · section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "14e7647a5bd3b673",
+        "group": "91b10f8c4b50ad1f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-events": {
     "title": "Events",
@@ -2544,7 +2723,23 @@
       "title": "Events | Devanhaar Sikh Charity",
       "description": "Explore Devanhaar events including Horse Riding, Shooting, Wolf Run, and Yorkshire 3 Peaks with tailored registration forms.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "eafa7fd921f843f5",
+        "group": "831e82f04563a6f0",
+        "label": "Event Pathways With Dedicated Registration",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "5a1cf2f373cb1000",
+        "group": "831e82f04563a6f0",
+        "label": "Active Event Pages",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-donate": {
     "title": "Donate",
@@ -2553,7 +2748,8 @@
     "existingEditor": false,
     "file": "app/donate/page.tsx",
     "files": [
-      "app/donate/page.tsx"
+      "app/donate/page.tsx",
+      "components/donate-content.tsx"
     ],
     "fields": [
       {
@@ -2633,13 +2829,349 @@
         "source": "https://devanhaar.vercel.app/donate",
         "kind": "link",
         "value": "https://devanhaar.vercel.app/donate"
+      },
+      {
+        "key": "f8014271a069d8d1",
+        "source": "use client",
+        "kind": "text",
+        "value": "use client"
+      },
+      {
+        "key": "dc1b056d7130c048",
+        "source": "Provides learning materials for one child at Kids Camp",
+        "kind": "text",
+        "value": "Provides learning materials for one child at Kids Camp"
+      },
+      {
+        "key": "b74ad63611401ad8",
+        "source": "Funds a day of langar seva for community events",
+        "kind": "text",
+        "value": "Funds a day of langar seva for community events"
+      },
+      {
+        "key": "22d1feede188f084",
+        "source": "Supports one young person's camp registration",
+        "kind": "text",
+        "value": "Supports one young person's camp registration"
+      },
+      {
+        "key": "120d9cb93061a9e0",
+        "source": "Covers travel costs for university outreach talks",
+        "kind": "text",
+        "value": "Covers travel costs for university outreach talks"
+      },
+      {
+        "key": "89ef0944ffcef564",
+        "source": "Sponsors an entire family's camp experience",
+        "kind": "text",
+        "value": "Sponsors an entire family's camp experience"
+      },
+      {
+        "key": "3ccd9d6586ef9143",
+        "source": "Something went wrong. Please try again.",
+        "kind": "text",
+        "value": "Something went wrong. Please try again."
+      },
+      {
+        "key": "a828704270313fe4",
+        "source": "Unable to connect to payment service. Please try again.",
+        "kind": "text",
+        "value": "Unable to connect to payment service. Please try again."
+      },
+      {
+        "key": "bcc6c05f754676ac",
+        "source": "/api/payment-status",
+        "kind": "link",
+        "value": "/api/payment-status"
+      },
+      {
+        "key": "c4ecc0ee6ef92aee",
+        "source": "Great futures are built with a small donation",
+        "kind": "text",
+        "value": "Great futures are built with a small donation"
+      },
+      {
+        "key": "3c318d2ffa52925f",
+        "source": "Empowering community initiatives through education, workshops and mentorship &mdash; your generosity makes it all possible.",
+        "kind": "text",
+        "value": "Empowering community initiatives through education, workshops and mentorship &mdash; your generosity makes it all possible."
+      },
+      {
+        "key": "325ecfa0cee3526b",
+        "source": "Donation Type",
+        "kind": "text",
+        "value": "Donation Type"
+      },
+      {
+        "key": "ddd7eb99b3575ba4",
+        "source": "One-time",
+        "kind": "text",
+        "value": "One-time"
+      },
+      {
+        "key": "9b11f6b707d2a03e",
+        "source": "Monthly",
+        "kind": "text",
+        "value": "Monthly"
+      },
+      {
+        "key": "d89999a0a8081139",
+        "source": "Quarterly",
+        "kind": "text",
+        "value": "Quarterly"
+      },
+      {
+        "key": "6e69b59ed34d42ef",
+        "source": "Yearly",
+        "kind": "text",
+        "value": "Yearly"
+      },
+      {
+        "key": "17f930af44eaa375",
+        "source": "Regular giving provides sustained support for our programmes",
+        "kind": "text",
+        "value": "Regular giving provides sustained support for our programmes"
+      },
+      {
+        "key": "0de55a88b53aa655",
+        "source": "Select Amount",
+        "kind": "text",
+        "value": "Select Amount"
+      },
+      {
+        "key": "cc321835c51c18f2",
+        "source": "Other amount",
+        "kind": "text",
+        "value": "Other amount"
+      },
+      {
+        "key": "cd1facb87ad96034",
+        "source": "Add Gift Aid",
+        "kind": "text",
+        "value": "Add Gift Aid"
+      },
+      {
+        "key": "b54b26cba790498f",
+        "source": "+25%",
+        "kind": "text",
+        "value": "+25%"
+      },
+      {
+        "key": "e1f865b6a3047310",
+        "source": "I am a UK taxpayer and understand that if I pay less Income Tax and/or Capital Gains Tax than the amount of Gift Aid claimed on all my donations, it is my responsibility to pay any difference.",
+        "kind": "text",
+        "value": "I am a UK taxpayer and understand that if I pay less Income Tax and/or Capital Gains Tax than the amount of Gift Aid claimed on all my donations, it is my responsibility to pay any difference."
+      },
+      {
+        "key": "f63cfe522fbf2bc6",
+        "source": "We'll reclaim an extra £",
+        "kind": "text",
+        "value": "We'll reclaim an extra £"
+      },
+      {
+        "key": "0c2bfc9fcdf81d27",
+        "source": "from HMRC!",
+        "kind": "text",
+        "value": "from HMRC!"
+      },
+      {
+        "key": "d0d678dce543be45",
+        "source": "Your Details",
+        "kind": "text",
+        "value": "Your Details"
+      },
+      {
+        "key": "2c6b2e253c01fb2e",
+        "source": "Your name",
+        "kind": "text",
+        "value": "Your name"
+      },
+      {
+        "key": "f2488fd4ef4adbc6",
+        "source": "Email address",
+        "kind": "text",
+        "value": "Email address"
+      },
+      {
+        "key": "f40a853e58a18759",
+        "source": "Processing...",
+        "kind": "text",
+        "value": "Processing..."
+      },
+      {
+        "key": "21c9a222f2c24365",
+        "source": "Donate £",
+        "kind": "text",
+        "value": "Donate £"
+      },
+      {
+        "key": "51ef16e2fd635ded",
+        "source": "Secure payment powered by NowDonate™",
+        "kind": "text",
+        "value": "Secure payment powered by NowDonate™"
+      },
+      {
+        "key": "b1a9f53ec9169ff5",
+        "source": "Donation Summary",
+        "kind": "text",
+        "value": "Donation Summary"
+      },
+      {
+        "key": "49e96d7cdf58069c",
+        "source": "Amount",
+        "kind": "text",
+        "value": "Amount"
+      },
+      {
+        "key": "16b6668d9831a1b8",
+        "source": "Frequency",
+        "kind": "text",
+        "value": "Frequency"
+      },
+      {
+        "key": "d96de92d916dce9c",
+        "source": "Gift Aid (25%)",
+        "kind": "text",
+        "value": "Gift Aid (25%)"
+      },
+      {
+        "key": "f77c3fa8b984b6e4",
+        "source": "+£",
+        "kind": "text",
+        "value": "+£"
+      },
+      {
+        "key": "890abb32ee6a47e8",
+        "source": "Total Impact",
+        "kind": "text",
+        "value": "Total Impact"
+      },
+      {
+        "key": "1278d40dec8ecfc4",
+        "source": "Registered UK Charity",
+        "kind": "text",
+        "value": "Registered UK Charity"
+      },
+      {
+        "key": "57caa6843914d9d4",
+        "source": "100% goes to programmes",
+        "kind": "text",
+        "value": "100% goes to programmes"
+      },
+      {
+        "key": "aafc9e2dfc0de6e9",
+        "source": "Secure & encrypted",
+        "kind": "text",
+        "value": "Secure & encrypted"
+      },
+      {
+        "key": "5601c04f53577c13",
+        "source": "Your Impact",
+        "kind": "text",
+        "value": "Your Impact"
+      },
+      {
+        "key": "1824387a93fc4c66",
+        "source": "See What Your Donation Achieves",
+        "kind": "text",
+        "value": "See What Your Donation Achieves"
+      },
+      {
+        "key": "0c0b240b6cd82bc7",
+        "source": "Every pound makes a difference. Here's how your generosity transforms lives.",
+        "kind": "text",
+        "value": "Every pound makes a difference. Here's how your generosity transforms lives."
+      },
+      {
+        "key": "4f3e54b93ee6da5b",
+        "source": "\"Devanhaar gave me a community and a sense of purpose. The camp changed my life — I went from feeling disconnected from my roots to being proud of who I am.\"",
+        "kind": "text",
+        "value": "\"Devanhaar gave me a community and a sense of purpose. The camp changed my life — I went from feeling disconnected from my roots to being proud of who I am.\""
+      },
+      {
+        "key": "6df469cddc219e1b",
+        "source": "Harpreet Singh",
+        "kind": "text",
+        "value": "Harpreet Singh"
+      },
+      {
+        "key": "16d2df7fb733f8ea",
+        "source": "Singhs Camp UK 2023 Participant",
+        "kind": "text",
+        "value": "Singhs Camp UK 2023 Participant"
+      },
+      {
+        "key": "18b90104390c0487",
+        "source": "Registered Charity",
+        "kind": "text",
+        "value": "Registered Charity"
+      },
+      {
+        "key": "59f68c8f8fbc6214",
+        "source": "UK Charity Commission",
+        "kind": "text",
+        "value": "UK Charity Commission"
+      },
+      {
+        "key": "cf849dedaf2970fd",
+        "source": "Secure Payments",
+        "kind": "text",
+        "value": "Secure Payments"
+      },
+      {
+        "key": "7caca0833af8097f",
+        "source": "256-bit SSL Encryption",
+        "kind": "text",
+        "value": "256-bit SSL Encryption"
+      },
+      {
+        "key": "7dca07c652f64a9b",
+        "source": "100% Impact",
+        "kind": "text",
+        "value": "100% Impact"
+      },
+      {
+        "key": "cb0a6348d9d1e218",
+        "source": "Every penny counts",
+        "kind": "text",
+        "value": "Every penny counts"
       }
     ],
     "seo": {
       "title": "Donate | Support Devanhaar Sikh Charity",
       "description": "Support the future of Sikh education, camps, and community programmes. Make a secure donation to Devanhaar and help empower Sikh youth across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "81563867a5212b88",
+        "group": "d417996f9aa2cbab",
+        "label": "Great futures are built with a small donation",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a971e7ef0a76a73b",
+        "group": "d417996f9aa2cbab",
+        "label": "See What Your Donation Achieves",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "33215bc78d0c377b",
+        "group": "d417996f9aa2cbab",
+        "label": "donate content · section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "7a2e37a3083818f6",
+        "group": "d417996f9aa2cbab",
+        "label": "donate content · section 4",
+        "locked": true,
+        "hidden": false
+      }
+    ]
   },
   "content-media": {
     "title": "Media",
@@ -3355,7 +3887,37 @@
       "title": "Media & Press | Devanhaar Sikh Charity",
       "description": "News, press coverage, and stories from Devanhaar. Read about our Sikh camps, university talks, community events, and the impact of our charitable work across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "636e3374368c229a",
+        "group": "d239524ce1cbb212",
+        "label": "Media",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "b99b7906673c3f3b",
+        "group": "d239524ce1cbb212",
+        "label": "Press Enquiries",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "14e7647a5bd3b673",
+        "group": "91b10f8c4b50ad1f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-sikh-family-retreat": {
     "title": "Sikh Family Retreat",
@@ -4359,7 +4921,51 @@
       "title": "Sikh Family Retreat | Sikh Family Initiative | Devanhaar",
       "description": "Explore the New Year Reset, Spring and Summer Sikh Family Retreats and register your family’s interest.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "4f287e692e457c30",
+        "group": "517e2aaae2b498e8",
+        "label": "A little time away. A closer connection.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "f5df5d6bb4ca4500",
+        "group": "517e2aaae2b498e8",
+        "label": "Choose your next family retreat",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d541c0ecfe5d3062",
+        "group": "517e2aaae2b498e8",
+        "label": "Let’s help you feel at home.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "78f970f40ee76a8f",
+        "group": "d5345dfb617620c9",
+        "label": "Frequently asked questions",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "de5d2d5529488c7b",
+        "group": "62bb9fb2d79fb6ff",
+        "label": "family retreat faq · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "5f07a5aa3230f198",
+        "group": "eb11819f36756e25",
+        "label": "Sikh Family Retreat",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-sikh-family-extravaganza": {
     "title": "Sikh Family Extravaganza",
@@ -4479,7 +5085,30 @@
       "title": "Sikh Family Extravaganza | Sikh Family Initiative | Devanhaar",
       "description": "A large Sikh family celebration bringing generations together through activities, connection and community.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "078a67bbdc62d7c3",
+        "group": "87c27334eeed44e6",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "3e9ff67129512ba4",
+        "group": "87c27334eeed44e6",
+        "label": "family project page · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "b5a902e6c8b32ce2",
+        "group": "87c27334eeed44e6",
+        "label": "Part of Sikh Family Initiative",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-wedding-fair": {
     "title": "Wedding Fair",
@@ -4611,7 +5240,30 @@
       "title": "Wedding Fair | Sikh Family Initiative | Devanhaar",
       "description": "A Sikh-focused wedding fair connecting families with suppliers, inspiration and practical guidance.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "078a67bbdc62d7c3",
+        "group": "87c27334eeed44e6",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "3e9ff67129512ba4",
+        "group": "87c27334eeed44e6",
+        "label": "family project page · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "b5a902e6c8b32ce2",
+        "group": "87c27334eeed44e6",
+        "label": "Part of Sikh Family Initiative",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-singhs-camp": {
     "title": "Singhs Camp",
@@ -5229,7 +5881,51 @@
       "title": "Singhs Camps | Devanhaar",
       "description": "Singhs Camps — UK and Europe residential retreats for Adult Sikh men. Apply for the UK camp or register your interest for Europe 2027.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "b3034e448c9471f1",
+        "group": "54f5c1541e3cf184",
+        "label": "History",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "998be3addea7e893",
+        "group": "d9aef483db3edd42",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "70c935e7a1a12553",
+        "group": "e14302daaf07ecf4",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "2199e44e91d0ec98",
+        "group": "9c70dcf43335560e",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "40391e2fe2740f4e",
+        "group": "80a7716d4818547c",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-singhs-camp-uk": {
     "title": "Singhs Camp UK",
@@ -5238,9 +5934,34 @@
     "existingEditor": false,
     "file": "app/initiatives/singhs-camp/uk/page.tsx",
     "files": [
-      "app/initiatives/singhs-camp/uk/page.tsx"
+      "app/initiatives/singhs-camp/uk/page.tsx",
+      "app/initiatives/singhs-camp/uk/page-content.tsx"
     ],
     "fields": [
+      {
+        "key": "aaf2320646108059",
+        "source": "title",
+        "kind": "text",
+        "value": "title"
+      },
+      {
+        "key": "1b7495d269a1cd1a",
+        "source": "Singhs Camp UK | Devanhaar",
+        "kind": "text",
+        "value": "Singhs Camp UK | Devanhaar"
+      },
+      {
+        "key": "c9046f7a37ad0ea7",
+        "source": "description",
+        "kind": "text",
+        "value": "description"
+      },
+      {
+        "key": "f3f15c7c7342fa1d",
+        "source": "Spaces are limited. Submit your application below and our team will review it and be in touch.",
+        "kind": "text",
+        "value": "Spaces are limited. Submit your application below and our team will review it and be in touch."
+      },
       {
         "key": "f8014271a069d8d1",
         "source": "use client",
@@ -5272,12 +5993,6 @@
         "value": "Apply to Singhs Camp UK"
       },
       {
-        "key": "f3f15c7c7342fa1d",
-        "source": "Spaces are limited. Submit your application below and our team will review it and be in touch.",
-        "kind": "text",
-        "value": "Spaces are limited. Submit your application below and our team will review it and be in touch."
-      },
-      {
         "key": "dec2c5d3c743065d",
         "source": "Start your application",
         "kind": "text",
@@ -5288,7 +6003,16 @@
       "title": "Singhs Camp UK | Devanhaar",
       "description": "Spaces are limited. Submit your application below and our team will review it and be in touch.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "cf6bb36f1f2ab059",
+        "group": "68bf6faa325baedb",
+        "label": "Apply to Singhs Camp UK",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-singhs-camp-eu": {
     "title": "Singhs Camp EU",
@@ -5347,7 +6071,23 @@
       "title": "Singhs Camp EU 2027 — Register interest | Devanhaar",
       "description": "Register your interest for Singhs Camp EU launching in 2027. Be the first to hear when applications open.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "9b8d0839383d1ab4",
+        "group": "586523117480154f",
+        "label": "Register your interest",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "59433396daed4bc0",
+        "group": "586523117480154f",
+        "label": "page · section 2",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-kaurs-camp": {
     "title": "Kaurs Camp",
@@ -5923,7 +6663,58 @@
       "title": "Kaurs Camps | Devanhaar",
       "description": "Kaurs Camps — UK and Europe residential retreats for Adult Sikh women. Apply for the UK camp or register your interest for Europe 2027.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "ef955820460f4c76",
+        "group": "58326b3e21fad978",
+        "label": "About The Kaur's Space",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "998be3addea7e893",
+        "group": "d9aef483db3edd42",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "70c935e7a1a12553",
+        "group": "e14302daaf07ecf4",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "2199e44e91d0ec98",
+        "group": "9c70dcf43335560e",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "40391e2fe2740f4e",
+        "group": "80a7716d4818547c",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "9cc58ebe0145ed81",
+        "group": "7e626c2027fac2d9",
+        "label": "About the Kaurs Forums movement",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-kaurs-camp-uk": {
     "title": "Kaurs Camp UK",
@@ -5988,7 +6779,16 @@
       "title": "Kaurs Camp UK | Devanhaar",
       "description": "Kaurs Camp UK applications are not currently open. Get in touch to be the first to hear when they do.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "4795754464df3e5a",
+        "group": "6a24d143a2ca7f2c",
+        "label": "Applications are not currently open",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-kaurs-camp-eu": {
     "title": "Kaurs Camp EU",
@@ -6047,7 +6847,23 @@
       "title": "Kaurs Camp EU 2027 — Register interest | Devanhaar",
       "description": "Register your interest for Kaurs Camp EU launching in 2027. Be the first to hear when applications open.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "3f5d4f625a249b7a",
+        "group": "5115f509e108d442",
+        "label": "Register your interest",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "0ffb435edbfe7fd5",
+        "group": "5115f509e108d442",
+        "label": "page · section 2",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-kids-camps": {
     "title": "Kids Camps",
@@ -6330,7 +7146,65 @@
       "title": "Kids Camps | Devanhaar",
       "description": "Inspiring the next generation to embrace Sikhi through interactive learning, practical workshops, and fun activities.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "179ff77cc1a68c19",
+        "group": "3a4c2a7265c97dac",
+        "label": "initiative page layout · section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a72145082e56ece8",
+        "group": "11f7abdceeab9b5f",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d20430ee048d451f",
+        "group": "11f7abdceeab9b5f",
+        "label": "initiative page layout · section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ba5828cf8a7c4814",
+        "group": "5fa323c485713218",
+        "label": "Highlights",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "85df39cb8dababbf",
+        "group": "343ba68f67c6c1cf",
+        "label": "Gallery",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e0828c777aa98ef2",
+        "group": "ac09d2636e6ac85a",
+        "label": "Testimonials",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "38f3efa27126e2ba",
+        "group": "1b12a186808bc15c",
+        "label": "Get Involved with",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-roots-residential": {
     "title": "Roots Residential",
@@ -7836,7 +8710,128 @@
       "title": "Roots Residential | Devanhaar",
       "description": "A three-day residential adventure for young Sikhs aged 12–16. Residential dates will be announced soon. Outdoor activities, leadership, personal development and Sikh values.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "4f6b6e4b9db7e85c",
+        "group": "6132090f86258429",
+        "label": "Boys&apos; Boots Camp applications are now open",
+        "locked": true,
+        "hidden": false
+      },
+      {
+        "id": "598249549294494b",
+        "group": "6132090f86258429",
+        "label": "A Residential Adventure Experience",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "bbfdf0e93a142ffe",
+        "group": "6132090f86258429",
+        "label": "Separate residentials for girls and boys",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "76f0d7fd0ac9dfe1",
+        "group": "6132090f86258429",
+        "label": "Adventure. Friendship. Identity.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ef8bb470a9c01b55",
+        "group": "6132090f86258429",
+        "label": "Moments from Roots",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "935034087c21cfef",
+        "group": "9fe3b5e86ee78bab",
+        "label": "Everyone Belongs",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "51ad48931f87cf08",
+        "group": "9fe3b5e86ee78bab",
+        "label": "An Experience That Lasts Beyond Summer",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "9d198fa881713c5a",
+        "group": "6132090f86258429",
+        "label": "Hilston Park, Wales",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "6a3401e5d991e5ae",
+        "group": "6132090f86258429",
+        "label": "Travel information",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "f4b2d70f76762a85",
+        "group": "6132090f86258429",
+        "label": "What others think",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "0af46199de274a35",
+        "group": "6132090f86258429",
+        "label": "Apply for a focused Roots experience.",
+        "locked": true,
+        "hidden": false
+      },
+      {
+        "id": "12584b8109507822",
+        "group": "6132090f86258429",
+        "label": "Have a question before booking?",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "77dd74a29549783b",
+        "group": "6132090f86258429",
+        "label": "Main residential dates are coming soon",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "70c935e7a1a12553",
+        "group": "e14302daaf07ecf4",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "40391e2fe2740f4e",
+        "group": "80a7716d4818547c",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "7f295fdd24f9c757",
+        "group": "e28537991f74425c",
+        "label": "A little adventure. A stronger sense of belonging.",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-sikhi-vidyala": {
     "title": "Sikhi Vidyala",
@@ -8502,7 +9497,65 @@
       "title": "Sikhi Vidyala | Devanhaar",
       "description": "An educational institution providing knowledge on Sikh history, philosophy, and teachings to equip participants with parchaar skills.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "9956a23397288f1b",
+        "group": "8f4570bd51174720",
+        "label": "Sikhi Vidyala",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "136a1d63559f19f6",
+        "group": "8f4570bd51174720",
+        "label": "page · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "6e1d1654c52eb177",
+        "group": "8f4570bd51174720",
+        "label": "A course in Sikhi & Parchaar",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e5948efcce2e6060",
+        "group": "8f4570bd51174720",
+        "label": "What You&apos;ll Learn",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "c9f31a3e558e6f6d",
+        "group": "8f4570bd51174720",
+        "label": "Meet the Teachers",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a1df1d99f05f4ddf",
+        "group": "8f4570bd51174720",
+        "label": "Hear from Previous Students",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "4a22c1acbd0753c6",
+        "group": "8f4570bd51174720",
+        "label": "Life at the Vidyala",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "441ee0404febca9c",
+        "group": "8f4570bd51174720",
+        "label": "Content section 8",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-sikh-padel-association": {
     "title": "Sikh Padel Association",
@@ -9644,7 +10697,65 @@
       "title": "Sikh Padel Association | Devanhaar",
       "description": "The Sikh Padel Association brings the Sikh community together through padel, tournaments and an ongoing player ranking system.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "488d85df5048eccd",
+        "group": "51b5e5df3ba39835",
+        "label": "See where every player stands.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "8f2647c4074d609c",
+        "group": "51b5e5df3ba39835",
+        "label": "About the Sikh Padel Association",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "7927489f613e01fd",
+        "group": "51b5e5df3ba39835",
+        "label": "Content section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "998be3addea7e893",
+        "group": "d9aef483db3edd42",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "70c935e7a1a12553",
+        "group": "e14302daaf07ecf4",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "2199e44e91d0ec98",
+        "group": "9c70dcf43335560e",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "40391e2fe2740f4e",
+        "group": "80a7716d4818547c",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-sikh-professional-network": {
     "title": "Sikh Professional Network",
@@ -9981,7 +11092,65 @@
       "title": "Sikh Professional Network | Devanhaar",
       "description": "Connecting Sikh professionals across industries through mentorship, networking, and career development.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "179ff77cc1a68c19",
+        "group": "3a4c2a7265c97dac",
+        "label": "initiative page layout · section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a72145082e56ece8",
+        "group": "11f7abdceeab9b5f",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d20430ee048d451f",
+        "group": "11f7abdceeab9b5f",
+        "label": "initiative page layout · section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ba5828cf8a7c4814",
+        "group": "5fa323c485713218",
+        "label": "Highlights",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "85df39cb8dababbf",
+        "group": "343ba68f67c6c1cf",
+        "label": "Gallery",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e0828c777aa98ef2",
+        "group": "ac09d2636e6ac85a",
+        "label": "Testimonials",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "38f3efa27126e2ba",
+        "group": "1b12a186808bc15c",
+        "label": "Get Involved with",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-university-projects": {
     "title": "University Projects",
@@ -10306,7 +11475,65 @@
       "title": "University Projects | Devanhaar",
       "description": "Delivering talks to universities across the country, hosting weekly Amrit Vela programmes and more.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "179ff77cc1a68c19",
+        "group": "3a4c2a7265c97dac",
+        "label": "initiative page layout · section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a72145082e56ece8",
+        "group": "11f7abdceeab9b5f",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d20430ee048d451f",
+        "group": "11f7abdceeab9b5f",
+        "label": "initiative page layout · section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ba5828cf8a7c4814",
+        "group": "5fa323c485713218",
+        "label": "Highlights",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "85df39cb8dababbf",
+        "group": "343ba68f67c6c1cf",
+        "label": "Gallery",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e0828c777aa98ef2",
+        "group": "ac09d2636e6ac85a",
+        "label": "Testimonials",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "38f3efa27126e2ba",
+        "group": "1b12a186808bc15c",
+        "label": "Get Involved with",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-khalsa-catalyst": {
     "title": "Khalsa Catalyst",
@@ -10317,12 +11544,20 @@
     "files": [
       "app/initiatives/khalsa-catalyst/page.tsx"
     ],
-    "fields": [],
+    "fields": [
+      {
+        "key": "69025380d6779427",
+        "source": "Khalsa Catalyst | Devanhaar",
+        "kind": "text",
+        "value": "Khalsa Catalyst | Devanhaar"
+      }
+    ],
     "seo": {
       "title": "Khalsa Catalyst | Devanhaar",
       "description": "Khalsa Catalyst",
       "noIndex": false
-    }
+    },
+    "nativeSections": []
   },
   "content-gurmat-academy": {
     "title": "Gurmat Academy",
@@ -10623,7 +11858,65 @@
       "title": "Devanhaar Gurmat Academy | Devanhaar",
       "description": "A space for young students to develop their Sikhi through Gurbani Santhiya, Ithihaas, philosophy, and Seva.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "179ff77cc1a68c19",
+        "group": "3a4c2a7265c97dac",
+        "label": "initiative page layout · section 1",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "a72145082e56ece8",
+        "group": "11f7abdceeab9b5f",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d20430ee048d451f",
+        "group": "11f7abdceeab9b5f",
+        "label": "initiative page layout · section 3",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ba5828cf8a7c4814",
+        "group": "5fa323c485713218",
+        "label": "Highlights",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "85df39cb8dababbf",
+        "group": "343ba68f67c6c1cf",
+        "label": "Gallery",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e0828c777aa98ef2",
+        "group": "ac09d2636e6ac85a",
+        "label": "Testimonials",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "38f3efa27126e2ba",
+        "group": "1b12a186808bc15c",
+        "label": "Get Involved with",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1c65d527f1a639cf",
+        "group": "75c821b94413e85f",
+        "label": "Content section 1",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-punjab-education-support": {
     "title": "Punjab Education Support",
@@ -11073,7 +12366,72 @@
       "title": "Punjab Education Support Project | Devanhaar",
       "description": "Building stronger schools through partnership, opportunity and shared learning between Punjab and the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "da451802c222a954",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "Building stronger schools through partnership, opportunity and shared learning",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "e2a5e493595eaf75",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "page · section 2",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "15b9dd38db768f13",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "Sustainable change, built together.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "edce5d5317b5937e",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "Supporting the people who make the biggest difference",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "534485050080f499",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "Partnership beyond a single visit.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "fefaf0ee6216d032",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "UK - Punjab School Twinning Project launch celebration",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "267c5d4f9e0eb80a",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "A programme that becomes stronger every year.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "afd9c7301f8c16cd",
+        "group": "9e4f644e8e8a3dbd",
+        "label": "Support the project.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ab968bf8d872fb6c",
+        "group": "67269a6d64f82cfd",
+        "label": "Learning, connection and opportunity.",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-forums": {
     "title": "Forums",
@@ -11114,7 +12472,16 @@
       "title": "Community Forums | Devanhaar",
       "description": "Join local Sikh community forums across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "3a293ffebc264257",
+        "group": "28a6e9730bd1f948",
+        "label": "Community Forums",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-sweb3": {
     "title": "SWeb3",
@@ -11155,7 +12522,16 @@
       "title": "Sikh Web3 Initiative | Devanhaar",
       "description": "Empowering Sikh communities through blockchain technology and Web3 innovation.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "55c0238e7b2363fe",
+        "group": "2a9828672b0d1031",
+        "label": "Sikh Web3 Initiative",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-events-wolfrun": {
     "title": "Wolf Run",
@@ -11821,7 +13197,65 @@
       "title": "Wolf Run for Devanhaar | Born to Battle. Built to Endure.",
       "description": "Join the Devanhaar pack for the Wolf Run — the UK's wildest obstacle run. Become a fundraiser, share your link, and collect sponsorships to support Sikh education, camps, and community programmes.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "2172c21c5c159980",
+        "group": "1ae23c22298b41af",
+        "label": "Born to Battle. Built to Endure.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "9f1211bea61b7357",
+        "group": "1ae23c22298b41af",
+        "label": "What is the Wolf Run?",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "91cd94068b82cebc",
+        "group": "1ae23c22298b41af",
+        "label": "Why We&apos;re Running for Devanhaar",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ae449c7f611ec46f",
+        "group": "1ae23c22298b41af",
+        "label": "Join the Pack",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "d8f49f8b28409d64",
+        "group": "1ae23c22298b41af",
+        "label": "How Fundraising Works",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ab592ae28c40fbb7",
+        "group": "1ae23c22298b41af",
+        "label": "Event Details",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "fba7caf794a8ad1e",
+        "group": "1ae23c22298b41af",
+        "label": "Frequently Asked Questions",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "c9624b7c225ba032",
+        "group": "1ae23c22298b41af",
+        "label": "Ready to Make a Difference?",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-insights": {
     "title": "Insights / blog",
@@ -11892,7 +13326,23 @@
       "title": "Blog - Devanhaar",
       "description": "Stories, updates and ideas from Devanhaar across education, empowerment, community and Sikh youth development.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "7ccc5e501e26a689",
+        "group": "44e17425a8374efa",
+        "label": "Blog.",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "28d3b8697404ff82",
+        "group": "8bd53a19cc1bff5a",
+        "label": "More Posts",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-shop": {
     "title": "Shop products",
@@ -11987,7 +13437,16 @@
       "title": "Shop Coming Soon | Devanhaar",
       "description": "The Devanhaar shop is coming soon. Official Sikh merchandise to support education, camps, and community programmes across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "65254d7dbf0f3e3d",
+        "group": "561c7aef9211ed57",
+        "label": "Shop Coming Soon",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-careers": {
     "title": "Careers / vacancies",
@@ -12100,7 +13559,23 @@
       "title": "Careers | Devanhaar",
       "description": "Open vacancies and volunteer opportunities at Devanhaar. Join the sevadaars building Sikh-rooted programmes across the UK.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "1bbe981bfc4fdd6a",
+        "group": "eccd4ef35fe1745f",
+        "label": "Build with us",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "ac1ac45ef7dea32c",
+        "group": "eccd4ef35fe1745f",
+        "label": "No open roles right now",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-safeguarding": {
     "title": "Safeguarding & security",
@@ -12465,7 +13940,23 @@
       "title": "Safeguarding & Security Statement - Devanhaar",
       "description": "Devanhaar Safeguarding & Security Statement.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "c55033e12dca2e1c",
+        "group": "009a718645c93e44",
+        "label": "Safeguarding &amp; Security Statement",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "6975d156f54e6b6f",
+        "group": "009a718645c93e44",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-safeguarding-adults": {
     "title": "Safeguarding adults",
@@ -12758,7 +14249,23 @@
       "title": "Safeguarding Adults at Risk Policy | Devanhaar",
       "description": "Devanhaar Safeguarding Adults at Risk Policy (2025–2026), approved by the Board of Trustees.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "fd278d2f1da5ec2c",
+        "group": "cfe39642bfd9f565",
+        "label": "Safeguarding Adults at Risk Policy",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "1242b297d03d722e",
+        "group": "cfe39642bfd9f565",
+        "label": "1. Purpose",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-safeguarding-children": {
     "title": "Safeguarding children",
@@ -13117,7 +14624,23 @@
       "title": "Safeguarding Children & Young People Policy | Devanhaar",
       "description": "Devanhaar Safeguarding Children & Young People Policy (2026–2027), approved by the Board of Trustees.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "e7aa15a9d43b2885",
+        "group": "7ea15fdce548b551",
+        "label": "Safeguarding Children &amp; Young People Policy",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "3c20275680838621",
+        "group": "7ea15fdce548b551",
+        "label": "1. Purpose",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-data-complaint": {
     "title": "Data complaints",
@@ -13126,9 +14649,34 @@
     "existingEditor": false,
     "file": "app/data-complaint/page.tsx",
     "files": [
-      "app/data-complaint/page.tsx"
+      "app/data-complaint/page.tsx",
+      "app/data-complaint/page-content.tsx"
     ],
     "fields": [
+      {
+        "key": "aaf2320646108059",
+        "source": "title",
+        "kind": "text",
+        "value": "title"
+      },
+      {
+        "key": "f3ba5a4a4588bea6",
+        "source": "Data complaints | Devanhaar",
+        "kind": "text",
+        "value": "Data complaints | Devanhaar"
+      },
+      {
+        "key": "c9046f7a37ad0ea7",
+        "source": "description",
+        "kind": "text",
+        "value": "description"
+      },
+      {
+        "key": "a492aa03757bb446",
+        "source": "We could not submit your complaint. Please email contact@devanhaar.com directly.",
+        "kind": "text",
+        "value": "We could not submit your complaint. Please email contact@devanhaar.com directly."
+      },
       {
         "key": "f8014271a069d8d1",
         "source": "use client",
@@ -13236,12 +14784,6 @@
         "source": "Submission failed",
         "kind": "text",
         "value": "Submission failed"
-      },
-      {
-        "key": "a492aa03757bb446",
-        "source": "We could not submit your complaint. Please email contact@devanhaar.com directly.",
-        "kind": "text",
-        "value": "We could not submit your complaint. Please email contact@devanhaar.com directly."
       },
       {
         "key": "b8c21e4adfb31f08",
@@ -13746,7 +15288,23 @@
       "title": "Data complaints | Devanhaar",
       "description": "We could not submit your complaint. Please email contact@devanhaar.com directly.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "95a88026dc438922",
+        "group": "b05965d5ddeec916",
+        "label": "Data Complaint",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "8cd8f7bf7e3a85cb",
+        "group": "b05965d5ddeec916",
+        "label": "Data Complaint Intake",
+        "locked": true,
+        "hidden": false
+      }
+    ]
   },
   "content-privacy": {
     "title": "Privacy",
@@ -14831,7 +16389,23 @@
       "title": "Privacy Policy - Devanhaar",
       "description": "Devanhaar Privacy Policy (UK GDPR compliant).",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "7d56164e7a656624",
+        "group": "c0d88736812edbf6",
+        "label": "Privacy Policy",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "6f4223028eb1c9f1",
+        "group": "c0d88736812edbf6",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-terms": {
     "title": "Terms",
@@ -15412,7 +16986,23 @@
       "title": "Terms of Service - Devanhaar",
       "description": "Terms of Service for Devanhaar.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "7498f77de61a1648",
+        "group": "1f31f4fba90961f5",
+        "label": "Terms of Service",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "201b2add70d00f52",
+        "group": "1f31f4fba90961f5",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   },
   "content-cookies": {
     "title": "Cookies",
@@ -16197,6 +17787,22 @@
       "title": "Cookie Policy - Devanhaar",
       "description": "Devanhaar Cookie Policy.",
       "noIndex": false
-    }
+    },
+    "nativeSections": [
+      {
+        "id": "6b66dcadcbea7d7c",
+        "group": "d2810b27195bf2b6",
+        "label": "Cookie Policy",
+        "locked": false,
+        "hidden": false
+      },
+      {
+        "id": "17fa838518fb2da7",
+        "group": "d2810b27195bf2b6",
+        "label": "Content section 2",
+        "locked": false,
+        "hidden": false
+      }
+    ]
   }
 }

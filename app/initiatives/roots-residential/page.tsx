@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -55,7 +57,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
           <div><a href="#about-roots">Discover Roots</a><a href="#residentials">Residentials</a><a href="#roots-experience">The experience</a><a href="#roots-venue">Venue</a><a href="#boots-camp-applications" className="roots-jump-cta">Boys&apos; Boots Camp <span aria-hidden="true">↗</span></a></div>
         </nav>
 
-        <section id="boots-camp-applications" className="border-t border-border py-10 md:py-14 scroll-mt-28">
+        <section data-cms-section="4f6b6e4b9db7e85c" id="boots-camp-applications" className="border-t border-border py-10 md:py-14 scroll-mt-28">
           <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
             <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 text-white shadow-xl">
               <div className="grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10">
@@ -82,7 +84,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* About Roots I — A Residential Adventure Experience */}
-        <section id="about-roots" className="roots-story border-t border-border py-10 md:py-14">
+        <section data-cms-section="598249549294494b" id="about-roots" className="roots-story border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <figure className="roots-story-photo"><img src="/initiatives/roots-gallery-07.jpg" alt="Young people taking part in an outdoor Roots adventure" loading="lazy" /><figcaption>Adventure. Friendship. Identity.</figcaption></figure>
             <div className="roots-story-copy">
@@ -101,7 +103,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* Safe space — separate residentials */}
-        <section id="residentials" className="roots-residentials border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section data-cms-section="bbfdf0e93a142ffe" id="residentials" className="roots-residentials border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               A safe space for everyone
@@ -142,7 +144,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* About Roots II */}
-        <section id="roots-identity" className="roots-identity border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section data-cms-section="76f0d7fd0ac9dfe1" id="roots-identity" className="roots-identity border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               About Roots
@@ -168,7 +170,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
 
         </div>
         {/* Photo gallery — portrait cards to avoid cropping tall photos */}
-        <section className="roots-gallery py-20 md:py-28 border-t border-border overflow-hidden">
+        <section data-cms-section="ef8bb470a9c01b55" className="roots-gallery py-20 md:py-28 border-t border-border overflow-hidden">
           <div className="container mx-auto px-6 lg:px-12 max-w-6xl mb-10 md:mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">Moments from Roots</h2>
           </div>
@@ -200,7 +202,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
 
         <div className="roots-audience">
         {/* Who Roots Is For */}
-        <section className="border-t border-border py-10 md:py-14">
+        <section data-cms-section="935034087c21cfef" className="border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Who Roots is for
@@ -217,7 +219,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* For Parents */}
-        <section className="border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section data-cms-section="51ad48931f87cf08" className="border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               For Parents
@@ -235,7 +237,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
 
         </div>
         {/* Hilston Park */}
-        <section id="roots-venue" className="roots-venue border-t border-border py-10 md:py-14">
+        <section data-cms-section="9d198fa881713c5a" id="roots-venue" className="roots-venue border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-5xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               The Venue
@@ -268,7 +270,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* Pricing */}
-        <section className="roots-pricing border-t border-border bg-secondary/30 py-10 md:py-14">
+        <section data-cms-section="6a3401e5d991e5ae" className="roots-pricing border-t border-border bg-secondary/30 py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Getting there
@@ -307,7 +309,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* Testimonials */}
-        <section className="border-t border-border py-10 md:py-14">
+        <section data-cms-section="f4b2d70f76762a85" className="border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Testimonials
@@ -339,7 +341,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         />
 
         </div>
-        <section id="booking-form" className="roots-registration scroll-mt-28">
+        <section data-cms-section="0af46199de274a35" id="booking-form" className="roots-registration scroll-mt-28">
           <div className="roots-registration-layout">
             <aside className="roots-registration-intro">
               <p className="roots-eyebrow">Boys&apos; Boots Camp</p>
@@ -361,7 +363,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         />
 
         {/* Contact */}
-        <section className="border-t border-border py-10 md:py-14">
+        <section data-cms-section="12584b8109507822" className="border-t border-border py-10 md:py-14">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
               Get in touch
@@ -404,7 +406,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
         </section>
 
         {/* Final CTA */}
-        <section className="roots-final-cta border-t border-border bg-[hsl(43,100%,29%)] py-20 md:py-28">
+        <section data-cms-section="77dd74a29549783b" className="roots-final-cta border-t border-border bg-[hsl(43,100%,29%)] py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
               Main residential dates are coming soon
@@ -418,7 +420,7 @@ export default async function RootsResidentialPage({ cmsCopy: suppliedCopy }: {c
           </div>
         </section>
       </main>
-      <FooterSection hideContact />
+      <><NativePageSections /><FooterSection hideContact /></>
     </>
   )), cmsCopy)
 }

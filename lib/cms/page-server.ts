@@ -1,5 +1,5 @@
 import 'server-only'
-import {isMigratedSlug,migratedDefault,validMigratedContent} from './migrated-content'
+import {isMigratedSlug,migratedDefault,validMigratedContent,normalizeMigratedContent} from './migrated-content'
 import {defaultSettingsPage} from './site-settings'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
@@ -65,12 +65,15 @@ export async function getPageEditorState(slug: string) {
     if (error || !parsed) throw new CmsError('This revision could not be read. Nothing has been changed.', 503)
     content = parsed
   }
+  const originalContent=content
+  content=normalizeMigratedContent(slug,content)
+  const needsResave=JSON.stringify(originalContent)!==JSON.stringify(content)
   const head: SfiHead = { pageId: page?.id ?? null, draftId: page?.draft_revision_id ?? null, publishedId: page?.published_revision_id ?? null }
   const { data: history, error: historyError } = page
     ? await db.from('cms_page_revisions').select('id, revision_number, created_at, created_by').eq('page_id', page.id).order('revision_number', { ascending: false }).limit(20)
     : { data: [], error: null }
   if (historyError) throw new CmsError('Revision history could not be loaded.', 503)
-  return { content, head, permissions, canEditCritical:context.role==='super_admin', history: history ?? [], updatedAt: page?.updated_at ?? null }
+  return { content, head, permissions,needsResave, canEditCritical:context.role==='super_admin', history: history ?? [], updatedAt: page?.updated_at ?? null }
 }
 
 export async function getPublishedPageContent(slug: string): Promise<PageContent | null> {
@@ -161,7 +164,7 @@ export async function restorePageRevision(slug: string, revisionId: string, expe
   const { data, error } = await db.from('cms_page_revisions').select('body').eq('page_id', page.id).eq('id', revisionId).single()
   const content = data && parsePageBody(data.body)
   if (error || !content) throw new CmsError('This revision cannot be restored.', 404)
-  await changePageContent(slug, 'save', content, expected)
+  await changePageContent(slug, 'save', normalizeMigratedContent(slug,content), expected)
 }
 
 export async function changePageVisibility(slug: string, action: 'discard' | 'unpublish', expected: SfiHead) {

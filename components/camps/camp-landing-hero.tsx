@@ -33,7 +33,7 @@ export function CampLandingHero({
   const cmsCopy = usePageCopy()
 
   return applyPageCopy(((
-    <section className="relative w-full overflow-hidden">
+    <section data-cms-section="998be3addea7e893" className="relative w-full overflow-hidden">
       <div className="relative h-[60vh] min-h-[420px] md:h-[72vh] w-full">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {heroImage ? (

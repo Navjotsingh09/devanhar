@@ -1,5 +1,7 @@
 "use client"
 
+import {NativePageSections} from '@/components/cms/native-page-sections'
+
 import { applyPageCopy } from '@/lib/cms/copy-node'
 import { usePageCopy } from '@/components/cms/page-copy-provider'
 
@@ -84,7 +86,7 @@ function FeaturedVideo({ url }: { url: string }) {
   const src = `${nocookieUrl}${separator}autoplay=1&mute=1&${baseParams}`
 
   return applyPageCopy(((
-    <section className="py-8 lg:py-12">
+    <section data-cms-section="179ff77cc1a68c19" className="py-8 lg:py-12">
       <div className="container mx-auto px-6 lg:px-12">
         <div
           ref={ref}
@@ -214,7 +216,7 @@ export function InitiativePageLayout({
       )}
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-0 overflow-hidden">
+      <section data-cms-section="a72145082e56ece8" className="relative pt-32 pb-0 overflow-hidden">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -261,7 +263,7 @@ export function InitiativePageLayout({
       </section>
 
       {/* Description Section */}
-      <section className="pt-20 pb-8 lg:pt-28 lg:pb-12">
+      <section data-cms-section="d20430ee048d451f" className="pt-20 pb-8 lg:pt-28 lg:pb-12">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-3xl">
             {description.map((paragraph, i) => (
@@ -283,7 +285,7 @@ export function InitiativePageLayout({
 
       {/* Highlights */}
       {highlights && highlights.length > 0 && (
-        <section className="py-16 bg-[#f8f8f8]">
+        <section data-cms-section="ba5828cf8a7c4814" className="py-16 bg-[#f8f8f8]">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
               Highlights
@@ -316,7 +318,7 @@ export function InitiativePageLayout({
 
       {/* Gallery */}
       {galleryImages && galleryImages.length > 0 && (
-        <section className="py-16 lg:py-24">
+        <section data-cms-section="85df39cb8dababbf" className="py-16 lg:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
               Gallery
@@ -402,7 +404,7 @@ export function InitiativePageLayout({
 
       {/* Testimonials */}
       {(videoTestimonials && videoTestimonials.length > 0) || (testimonials && testimonials.length > 0) ? (
-        <section className="py-16 lg:py-24">
+        <section data-cms-section="e0828c777aa98ef2" className="py-16 lg:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">
               Testimonials
@@ -440,7 +442,7 @@ export function InitiativePageLayout({
         </section>
       ) : null}
       {/* Bottom CTA */}
-      {!hideCtaSection && <section className="py-16 lg:py-24 bg-foreground text-background">
+      {!hideCtaSection && <section data-cms-section="38f3efa27126e2ba" className="py-16 lg:py-24 bg-foreground text-background">
         <div className="container mx-auto px-6 lg:px-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Get Involved with {title}
@@ -485,7 +487,7 @@ export function InitiativePageLayout({
         />
       )}
 
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </div>
   )), cmsCopy)
 }

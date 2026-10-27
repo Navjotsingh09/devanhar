@@ -30,6 +30,7 @@ export async function GET(request:Request){try{
  let query=db.from('site_images').select('id,url,storage_path,section,category,label,alt_text,description,archived_at,updated_at,created_at,uploaded_by,media_versions',{count:'exact'}).order('created_at',{ascending:false}).range((page-1)*30,page*30-1)
  query=params.get('archived')==='true'?query.not('archived_at','is',null):query.is('archived_at',null)
  if(q)query=query.ilike('label',`%${q}%`)
+ const kind=params.get('kind');if(kind==='image')query=query.or('url.ilike.%.jpg,url.ilike.%.jpeg,url.ilike.%.png,url.ilike.%.webp,url.ilike.%.gif,url.ilike.%.svg');else if(kind==='video')query=query.or('url.ilike.%.mp4,url.ilike.%.webm');else if(kind==='document')query=query.or('url.ilike.%.pdf,url.ilike.%.docx,url.ilike.%.txt')
  if(params.get('folder'))query=query.eq('category',params.get('folder')!.slice(0,80))
  const{data,error,count}=await query;if(error)throw new EntryError('The media library could not be loaded.',503)
  const ids=[...new Set((data??[]).map(asset=>asset.uploaded_by).filter(Boolean))],names=isAdmin&&ids.length?await db.from('admin_profiles').select('id,full_name').in('id',ids):{data:[]}

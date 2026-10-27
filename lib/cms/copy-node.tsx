@@ -1,17 +1,20 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import type {PageCopy} from './copy-schema'
+import {isPageCopyEnvelope,type PageCopy} from './copy-schema'
 const components=new WeakSet<object>()
 export function registerCopyComponent(component:object){components.add(component)}
 /** Replace approved copy in the React tree, preserving components, event handlers,
  * form values, classes, styles and element keys. There is no DOM mutation or HTML injection. */
 export function applyPageCopy<T>(node:T,copy:PageCopy):T {
  if(!Object.keys(copy).length)return node
+ const envelope=isPageCopyEnvelope(copy)?copy:null,replacements=envelope?envelope.replacements:copy as Record<string,string>,layout=envelope?.nativeSections??[],states=new Map(layout.map((s,i)=>[s.id,{...s,rank:i}]))
+ function arrange(values:unknown[]){const result=[...values];for(const group of new Set(layout.map(s=>s.group))){const positions=values.flatMap((v,i)=>React.isValidElement<Record<string,unknown>>(v)&&states.get(String(v.props['data-cms-section']))?.group===group?[i]:[]),sorted=positions.map(i=>values[i]).sort((a,b)=>states.get(String((a as React.ReactElement<Record<string,unknown>>).props['data-cms-section']))!.rank-states.get(String((b as React.ReactElement<Record<string,unknown>>).props['data-cms-section']))!.rank);positions.forEach((position,index)=>{result[position]=sorted[index]})}return result}
  function transform(value:unknown):unknown{
-  if(typeof value==='string')return copy[value.replace(/\s+/g,' ').trim()]??value
-  if(Array.isArray(value))return value.map(transform)
+  if(typeof value==='string')return replacements[value.replace(/\s+/g,' ').trim()]??value
+  if(Array.isArray(value))return arrange(value).map(transform)
   if(React.isValidElement<Record<string,unknown>>(value)){
+   const section=states.get(String(value.props['data-cms-section']));if(section?.hidden&&!section.locked)return null
    const props:Record<string,unknown>={}
    if('children' in value.props)props.children=transform(value.props.children)
    // Data props stay original until their owning component renders. This avoids

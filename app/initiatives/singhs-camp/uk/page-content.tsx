@@ -1,4 +1,5 @@
 "use client"
+import {NativePageSections} from '@/components/cms/native-page-sections'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
 import { usePageCopy } from '@/components/cms/page-copy-provider'
@@ -16,7 +17,7 @@ export default function SinghsCampUkPage() {
 
   return applyPageCopy(((
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-secondary/30">
+      <section data-cms-section="cf6bb36f1f2ab059" className="border-b border-border bg-secondary/30">
         <div className="container mx-auto px-6 lg:px-12 max-w-4xl py-16 md:py-24">
           <Link
             href="/initiatives/singhs-camp"
@@ -49,6 +50,6 @@ export default function SinghsCampUkPage() {
           onClose={() => setShowForm(false)}
         />
       ) : null}
-    </main>
+    <NativePageSections /></main>
   )), cmsCopy)
 }

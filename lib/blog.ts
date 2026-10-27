@@ -2,6 +2,7 @@ import type {ArticleMetadata} from './blog-metadata'
 export type Pillar = "Develop" | "Elevate" | "Empower" | "Connect"
 
 export interface BlogPost {
+  needsResave?:boolean
   metadataAvailable?:boolean
   metadata?: ArticleMetadata
   id?: string

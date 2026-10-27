@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -158,14 +160,14 @@ export default async function PrivacyPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen mt-20">
-        <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
+        <section data-cms-section="7d56164e7a656624" className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container mx-auto px-6 lg:px-12">
             <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-4">Legal</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">Privacy Policy</h1>
             <p className="text-sm text-muted-foreground">UK GDPR Compliant · Last updated 10 June 2026</p>
           </div>
         </section>
-        <section className="py-12 md:py-16">
+        <section data-cms-section="6f4223028eb1c9f1" className="py-12 md:py-16">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             {sections.map((s, i) => (
               <div key={i} className={i > 0 ? "mt-12 pt-12 border-t border-border" : ""}>
@@ -194,7 +196,7 @@ export default async function PrivacyPage({ cmsCopy: suppliedCopy }: {cmsCopy?:P
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }

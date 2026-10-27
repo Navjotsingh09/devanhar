@@ -1,3 +1,5 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
 
 import { applyPageCopy } from '@/lib/cms/copy-node'
@@ -131,7 +133,7 @@ export default async function CookiePolicyPage({ cmsCopy: suppliedCopy }: {cmsCo
       <ScrollAnimations />
       <main className="min-h-screen mt-20">
         {/* Hero */}
-        <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
+        <section data-cms-section="6b66dcadcbea7d7c" className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
             <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-4">Legal</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">Cookie Policy</h1>
@@ -140,7 +142,7 @@ export default async function CookiePolicyPage({ cmsCopy: suppliedCopy }: {cmsCo
         </section>
 
         {/* Content */}
-        <section className="py-12 md:py-16">
+        <section data-cms-section="17fa838518fb2da7" className="py-12 md:py-16">
           <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
             <div className="space-y-14">
               {sections.map((s, i) => (
@@ -225,7 +227,7 @@ export default async function CookiePolicyPage({ cmsCopy: suppliedCopy }: {cmsCo
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
   )), cmsCopy)
 }
