@@ -11,7 +11,7 @@ export async function signInToSpa(_state: { error: string }, form: FormData) {
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return { error: 'Email or password was not accepted' }
-  if (!await checkPadelStaffAccess()) {
+  if (!await checkPadelStaffAccess(supabase)) {
     await supabase.auth.signOut()
     return { error: 'Your account does not have SPA organiser access. Contact the SPA team.' }
   }
