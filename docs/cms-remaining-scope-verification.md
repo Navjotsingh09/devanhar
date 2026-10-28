@@ -1,3 +1,5 @@
+> Current status: the Insights migration is now installed and its rollback-only permission checks passed. See `cms-release-verification-20261028.md`. The migration-blocked statements below are historical. Authenticated browser acceptance remains outstanding.
+
 # Remaining CMS scope — implementation and verification
 
 This supersedes the earlier rough percentage estimates. Passing checks are not a full acceptance sign-off.

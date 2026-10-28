@@ -1,35 +1,32 @@
-import { getRequestStaff } from "@/lib/crm/request-staff"
-import { redirect } from "next/navigation"
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
-/**
- * Authenticated SPA staff access. Never use the public anon or service-role
- * client for an admin mutation. Roles are sourced from admin_profiles, not
- * from user-controlled metadata.
+/** The dedicated SPA workspace is limited to active SPA memberships.
+ * General Devanhaar staff and super-admin profiles do not grant SPA access.
+ * Never authorise from user-editable auth metadata or email alone.
  */
-export async function requirePadelStaff() {
-  const { client: supabase, user, authError: userError, profile: profileResult, grants } = await getRequestStaff()
-  if (userError || !user) redirect("/spa-admin/login")
-  if (grants.error || !Array.isArray(grants.data) || (grants.data.length && !['admin','super_admin'].includes(profileResult.data?.role || ''))) redirect('/dashboard/kaurs')
-  const { data: profile, error: profileError } = profileResult
+export async function checkPadelStaffAccess(existingClient?: Awaited<ReturnType<typeof createClient>>) {
+  // During sign-in the freshly issued session may not yet be available to
+  // a second SSR client reading request cookies. Use the authenticated client
+  // that performed signInWithPassword for the immediate membership check.
+  const supabase = existingClient ?? await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return null
 
-  if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
-    const { data: membership } = await supabase.from('spa_members')
-      .select('user_id').eq('user_id', user.id).eq('is_active', true).maybeSingle()
-    if (!membership) redirect('/spa-admin/login?error=access_denied')
-  }
+  const { data: membership, error } = await supabase
+    .from('spa_members')
+    .select('user_id, role')
+    .eq('user_id', user.id)
+    .eq('is_active', true)
+    .eq('role', 'super_admin')
+    .maybeSingle()
 
+  if (error || !membership) return null
   return supabase
 }
 
-export async function checkPadelStaffAccess() {
-  const { client: supabase, user, authError: userError, profile: profileResult, grants } = await getRequestStaff()
-  if (userError || !user || grants.error || !Array.isArray(grants.data) || (grants.data.length && !['admin','super_admin'].includes(profileResult.data?.role || ''))) return null
-  const { data: profile, error: profileError } = profileResult
-
-  if (profileError || !profile || !["staff", "admin", "super_admin"].includes(profile.role)) {
-    const { data: membership } = await supabase.from('spa_members')
-      .select('user_id').eq('user_id', user.id).eq('is_active', true).maybeSingle()
-    if (!membership) return null
-  }
+export async function requirePadelStaff() {
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) redirect('/spa-admin/login?error=access_denied')
   return supabase
 }

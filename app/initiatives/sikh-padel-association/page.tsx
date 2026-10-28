@@ -23,7 +23,7 @@ import {
   padelFaqs,
 } from "@/components/padel/padel-shared-data"
 import { getPublicPadelEvent } from "@/lib/padel-public-event"
-import { formatCountryFlag, getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
+import { getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
 
 const originalMetadata = {
   title: "Sikh Padel Association | Devanhaar",
@@ -65,7 +65,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
                   </h2>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6a6d77]">
                     Rankings update from finalised tournament results using points, titles,
-                    runner-up finishes, match wins, win percentage and group-points-won percentage.
+                    runner-up finishes and match wins.
                   </p>
                 </div>
                 <Link
@@ -113,7 +113,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
                         </span>
                       </div>
                       <p className="mt-3 text-sm font-semibold">
-                        {formatCountryFlag(player.country_code)} {player.first_name} {player.last_name}
+                        {player.first_name} {player.last_name}
                       </p>
                       <p className="mt-1 text-lg font-bold">
                         {player.total_points.toLocaleString()} pts
@@ -124,7 +124,7 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
                           (index === 0 ? "text-[#b9c8d1]" : "text-[#6a6d77]")
                         }
                       >
-                        {player.titles} titles · {Math.round(player.win_percentage)}% win
+                        {player.titles} {player.titles === 1 ? "title" : "titles"} · {player.match_wins} {player.match_wins === 1 ? "win" : "wins"}
                       </p>
                     </Link>
                   ))}

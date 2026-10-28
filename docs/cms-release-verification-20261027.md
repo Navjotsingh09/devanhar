@@ -1,3 +1,5 @@
+> Current status: the Insights migration is now installed and its rollback-only permission checks passed. See `cms-release-verification-20261028.md`. The migration-blocked statements below are historical. Authenticated browser acceptance remains outstanding.
+
 # Release verification — 27 October 2026
 
 Application changes and the 55-scenario full-admin acceptance pack are on PR 66. This record is not production sign-off.

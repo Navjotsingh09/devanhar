@@ -12,7 +12,7 @@ const startedAt=new Date().toISOString()
 const result=spawnSync(process.execPath,['--test','--test-reporter=tap',...files],{cwd:root,encoding:'utf8',maxBuffer:32*1024*1024,timeout:180000})
 const output=(result.stdout??'')+(result.stderr??'')
 const count=name=>Number(output.match(new RegExp('^# '+name+' (\\d+)\\s*$','m'))?.[1]??0)
-const report={startedAt,finishedAt:new Date().toISOString(),scope:'Offline code regressions, not authenticated browser or production acceptance',passed:result.status===0&&!result.error,exitCode:result.status,error:result.error?.message??null,tests:count('tests'),pass:count('pass'),fail:count('fail'),skipped:count('skipped'),files,excluded,remainingGates:['Approve and apply the reviewed production Insights delegation migration','Run rollback-only database delegation scenarios after migration','Complete authenticated Super Admin and Admin browser scenarios','Verify and publish the production release']}
+const report={startedAt,finishedAt:new Date().toISOString(),scope:'Offline code regressions, not authenticated browser or production acceptance',passed:result.status===0&&!result.error,exitCode:result.status,error:result.error?.message??null,tests:count('tests'),pass:count('pass'),fail:count('fail'),skipped:count('skipped'),files,excluded,notCoveredByThisRun:['Live database migration and permission verification; consult the latest release record','Authenticated Super Admin and Admin browser scenarios','Production deployment and post-release verification']}
 const destination=resolve(process.argv[2]??'/tmp/devanhaar-admin-acceptance.json')
 mkdirSync(dirname(destination),{recursive:true})
 writeFileSync(destination,JSON.stringify(report,null,2)+'\n')
