@@ -1,38 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-/**
- * SPA membership is an independent authorisation grant.
- * Organisers are not required to have a general admin_profiles record.
- * General staff access remains scoped by staff_programme_access.
+/** The dedicated SPA workspace is limited to active SPA memberships.
+ * General Devanhaar staff and super-admin profiles do not grant SPA access.
+ * Never authorise from user-editable auth metadata or email alone.
  */
 export async function checkPadelStaffAccess() {
   const supabase = await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return null
 
-  const { data: membership, error: memberError } = await supabase
+  const { data: membership, error } = await supabase
     .from('spa_members')
-    .select('user_id')
+    .select('user_id, role')
     .eq('user_id', user.id)
     .eq('is_active', true)
+    .eq('role', 'super_admin')
     .maybeSingle()
 
-  // Deny on query errors instead of treating an unavailable membership
-  // table as proof that someone lacks SPA permissions.
-  if (memberError) return null
-  if (membership) return supabase
-
-  const [{ data: profile, error: profileError }, { data: grants, error: grantsError }] = await Promise.all([
-    supabase.from('admin_profiles').select('role').eq('id', user.id).maybeSingle(),
-    supabase.from('staff_programme_access').select('programme').eq('user_id', user.id),
-  ])
-
-  if (profileError || grantsError || !Array.isArray(grants)) return null
-  if (!profile || !['staff', 'admin', 'super_admin'].includes(profile.role)) return null
-  // Scoped staff cannot access unrelated programmes. Global admins retain
-  // admin access; a regular staff user must have no programme restrictions.
-  if (grants.length > 0 && !['admin', 'super_admin'].includes(profile.role)) return null
+  if (error || !membership) return null
   return supabase
 }
 
