@@ -1,9 +1,17 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Terms of Service - Devanhaar",
   description: "Terms of Service for Devanhaar.",
 }
@@ -134,20 +142,22 @@ const sections: { h: string; blocks: Block[] }[] = [
   },
 ]
 
-export default function TermsPage() {
-  return (
+export default async function TermsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-terms')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen mt-20">
-        <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
+        <section data-cms-section="7498f77de61a1648" className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
           <div className="container mx-auto px-6 lg:px-12">
             <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-4">Legal</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">Terms of Service</h1>
             <p className="text-sm text-muted-foreground">Last updated 10 June 2026</p>
           </div>
         </section>
-        <section className="py-12 md:py-16">
+        <section data-cms-section="201b2add70d00f52" className="py-12 md:py-16">
           <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
             {sections.map((s, i) => (
               <div key={i} className={i > 0 ? "mt-12 pt-12 border-t border-border" : ""}>
@@ -176,7 +186,9 @@ export default function TermsPage() {
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-terms',originalMetadata)}

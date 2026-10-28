@@ -1,4 +1,7 @@
 "use client"
+import {createClient} from '@/lib/supabase/client'
+import {parseArticleMetadata} from '@/lib/blog-metadata'
+import {MediaField} from '@/components/cms/media-field'
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { BlogHistory, type ArticleRevision } from "./blog-history"
@@ -28,7 +31,7 @@ function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
 }
 
-export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedPost; history?: ArticleRevision[] }) {
+export function BlogEditor({ initialPost, history=[],metadataEnabled=false,permissions={edit:true,publish:true},projects=[],isGlobal=true }: { initialPost?: ManagedPost; history?: ArticleRevision[];metadataEnabled?:boolean;permissions?:{edit:boolean;publish:boolean};projects?:{id:string;slug:string;canCreate:boolean}[];isGlobal?:boolean }) {
   const router = useRouter()
   const contentRef = useRef<HTMLTextAreaElement>(null)
   const [preview, setPreview] = useState(false)
@@ -54,6 +57,7 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
     status: "draft",
     coverImage: "",
     coverAlt: "",
+    metadata:parseArticleMetadata({projectId:!isGlobal?projects.find(p=>p.canCreate)?.id??null:null}),
   })
 
   useEffect(()=>{
@@ -63,6 +67,8 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
     return()=>window.removeEventListener('beforeunload',warn)
   },[dirty])
 
+  const metadata=parseArticleMetadata(form.metadata)
+  const setMetadata=(patch:Partial<typeof metadata>)=>set('metadata',{...metadata,...patch})
   const tagsText = useMemo(() => (form.tags ?? []).join(", "), [form.tags])
   const effectiveSlug = form.slug || slugify(form.title)
   const currentCover = form.coverImage || (initialPost ? getBlogCoverImage(initialPost.slug) : "")
@@ -133,19 +139,14 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
 
     setUploading(true)
     try {
-      const fd = new FormData()
-      fd.append("file", file)
-      fd.append("section", "blog-drafts")
-      fd.append("category", effectiveSlug)
-      fd.append("label", `${form.title || "Blog post"} cover`)
-      fd.append("alt_text", form.coverAlt || form.title || "Blog cover image")
-
-      const res = await fetch("/api/images", { method: "POST", body: fd })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Upload failed")
-
-      set("coverImage", data.image.url)
-      if (!form.coverAlt) set("coverAlt", form.title || "Blog cover image")
+      const details={label:`${form.title||'Article'} cover`,alt_text:form.coverAlt||form.title||'Article cover',description:'',category:'insights'}
+      async function media(body:object){const response=await fetch('/api/cms/media',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),data=await response.json();if(!response.ok)throw new Error(data.error||'Upload failed');return data}
+      const upload=await media({action:'start',mime:file.type,size:file.size,...details})
+      const{error}=await createClient().storage.from('site-images').uploadToSignedUrl(upload.path,upload.token,file,{contentType:file.type})
+      if(error)throw new Error('The cover could not be uploaded. Please retry.')
+      const asset=await media({action:'finish',path:upload.path,...details})
+      set('coverImage',`/media/file/${asset.id}/${upload.path.split('/').pop()}`)
+      if(!form.coverAlt)set('coverAlt',form.title||'Article cover')
       toast.success("Cover image uploaded")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Image upload failed")
@@ -170,6 +171,7 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...next,
+          requestMetadata:metadataEnabled,
           originalSlug: initialPost?.slug,
           expectedDraft: initialPost?.draftId ?? null,
           expectedUpdated: initialPost?.updatedAt ?? null,
@@ -204,25 +206,30 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
           <Button variant="outline" disabled={dirty || !initialPost?.hasDraft || saving || uploading} onClick={() => { setPreview((v) => !v); setReviewed(false) }}>
             <Eye className="mr-2 h-4 w-4" />{preview ? "Back to editor" : "Preview"}
           </Button>
-          <Button variant="outline" onClick={() => void persist("draft")} disabled={saving || uploading}>{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save draft</Button>
-          <Button className="bg-amber-500 text-black hover:bg-amber-400" onClick={() => void persist("published")} disabled={saving || uploading || dirty || !reviewed || !initialPost?.hasDraft || !form.title.trim() || !form.content.trim()}>
+          <Button variant="outline" disabled={!permissions.edit||saving||uploading} onClick={() => void persist("draft")}>{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save draft</Button>
+          <Button className="bg-amber-500 text-black hover:bg-amber-400" onClick={() => void persist("published")} disabled={initialPost?.needsResave || !permissions.publish || saving || uploading || dirty || !reviewed || !initialPost?.hasDraft || !form.title.trim() || !form.content.trim()}>
             <Send className="mr-2 h-4 w-4" />Publish
           </Button>
         </div>
       </div>
 
-      {initialPost?.updatedAt&&<BlogHistory slug={initialPost.slug} revisions={history} expectedDraft={initialPost.draftId??null} expectedUpdated={initialPost.updatedAt} disabled={dirty||saving||uploading}/>}
+      {initialPost?.updatedAt&&<BlogHistory slug={initialPost.slug} revisions={history} expectedDraft={initialPost.draftId??null} expectedUpdated={initialPost.updatedAt} disabled={!permissions.edit||dirty||saving||uploading}/>}
+      {initialPost?.needsResave&&<p role="status" className="rounded-lg border p-4 text-sm">This article has new editable fields. Save and preview a fresh draft before publishing.</p>}
+      {!permissions.edit&&<p role="status" className="rounded-lg border p-4 text-sm">You have View access. An administrator can grant editing or publishing permissions.</p>}
       {saved && <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Draft saved. The live article has not changed.</div>}
 
       <p className="text-sm text-muted-foreground">{initialPost?.isLive ? 'A published version is live. Saving a draft keeps it unchanged.' : 'This article is not published.'} Save, then preview your draft to enable publishing.</p>
       {preview ? (
         <section className="overflow-hidden rounded-xl border bg-muted/30"><div className="flex flex-wrap gap-2 border-b bg-card p-4">{[['Desktop','100%'],['Tablet','768px'],['Mobile','390px']].map(([label,width]) => <Button key={label} size="sm" variant={viewport === width ? 'default' : 'outline'} onClick={() => setViewport(width)}>{label}</Button>)}</div><div className="overflow-auto p-3"><iframe title="Saved article preview" src={`/cms-preview/insights/${initialPost?.slug}`} onLoad={() => setReviewed(true)} className="mx-auto h-[75vh] border bg-white" style={{width:viewport,maxWidth:'none'}} /></div></section>
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <fieldset disabled={!permissions.edit} className="contents"><legend className="sr-only">Article fields</legend><div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
           <Card>
             <CardHeader><CardTitle>Article</CardTitle></CardHeader>
             <CardContent className="space-y-5">
               <label className="block"><span className="mb-2 block text-sm font-medium">Title</span><input value={form.title} onChange={(e)=>{set("title",e.target.value); if(!initialPost) set("slug",slugify(e.target.value))}} placeholder="Enter your blog post title" className="h-11 w-full rounded-lg border border-input bg-background px-3 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15" /></label>
+              <label className="block space-y-2 text-sm"><span>Subtitle</span><input className="w-full rounded-lg border bg-background p-3" maxLength={500} value={metadata.subtitle} onChange={e=>setMetadata({subtitle:e.target.value})}/></label>
+              <label className="block space-y-2 text-sm"><span>Category</span><input className="w-full rounded-lg border bg-background p-3" maxLength={160} value={metadata.category} placeholder={form.pillar} onChange={e=>setMetadata({category:e.target.value})}/></label>
+              <label className="block space-y-2 text-sm"><span>Related project</span><select className="w-full rounded-lg border bg-background p-3" disabled={!isGlobal&&!!initialPost} value={metadata.projectId||''} onChange={e=>setMetadata({projectId:e.target.value||null})}>{isGlobal&&<option value="">No project</option>}{projects.filter(p=>!!initialPost||isGlobal||p.canCreate).map(p=><option key={p.id} value={p.id}>{p.slug.replaceAll('-',' ')}</option>)}</select></label>
               <label className="block"><span className="mb-2 block text-sm font-medium">Excerpt</span><textarea value={form.description} onChange={(e)=>set("description",e.target.value)} rows={3} placeholder="Brief description shown on the blog listing" className="w-full rounded-lg border border-input bg-background px-3 py-3 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/15" /></label>
               <div className="block">
                 <span className="mb-2 block text-sm font-medium">Content</span>
@@ -251,9 +258,17 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
           </Card>
 
           <div className="space-y-6">
+            <Card><CardHeader><CardTitle>SEO & related content</CardTitle></CardHeader><CardContent className="space-y-4"><fieldset disabled={!metadataEnabled} className="space-y-4">{!metadataEnabled&&<p role="status" className="text-sm text-muted-foreground">Article metadata is awaiting its reviewed database update. Existing article editing and publishing remain available.</p>}
+              {(['seoTitle','seoDescription','socialTitle','socialDescription'] as const).map(key=><label className="block space-y-2 text-sm" key={key}><span>{{seoTitle:'SEO title',seoDescription:'SEO description',socialTitle:'Social title',socialDescription:'Social description'}[key]}</span><input className="w-full rounded-lg border bg-background p-3" maxLength={key.endsWith('Description')?320:160} value={metadata[key]} onChange={e=>setMetadata({[key]:e.target.value})}/></label>)}
+              <MediaField label="Social image" value={metadata.socialImage} onChange={socialImage=>setMetadata({socialImage})}/>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={metadata.noIndex} onChange={e=>setMetadata({noIndex:e.target.checked})}/>Hide from search engines after publishing</label>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={metadata.featured} onChange={e=>setMetadata({featured:e.target.checked})}/>Feature in related articles</label>
+              <h3 className="text-sm font-semibold">Related projects, events or pages</h3>{metadata.relatedLinks.map((item,index)=><fieldset className="space-y-2 rounded-lg border p-3" key={index}><legend className="text-xs">Related link {index+1}</legend><label className="block text-sm">Label<input className="w-full rounded-lg border p-2" value={item.label} maxLength={160} onChange={e=>setMetadata({relatedLinks:metadata.relatedLinks.map((v,i)=>i===index?{...v,label:e.target.value}:v)})}/></label><label className="block text-sm">Website path<input className="w-full rounded-lg border p-2" placeholder="/projects/project-name" value={item.href} onChange={e=>setMetadata({relatedLinks:metadata.relatedLinks.map((v,i)=>i===index?{...v,href:e.target.value}:v)})}/></label><Button size="sm" variant="outline" onClick={()=>setMetadata({relatedLinks:metadata.relatedLinks.filter((_,i)=>i!==index)})}>Remove link</Button></fieldset>)}<Button variant="outline" disabled={metadata.relatedLinks.length>=12} onClick={()=>setMetadata({relatedLinks:[...metadata.relatedLinks,{label:'Related programme',href:'/projects'}]})}>Add related link</Button></fieldset>
+            </CardContent></Card>
             <Card>
               <CardHeader><CardTitle>Featured Image</CardTitle></CardHeader>
               <CardContent className="space-y-4">
+                <MediaField label="Cover image" value={form.coverImage||''} onChange={value=>set("coverImage",value)}/>
                 {currentCover ? (
                   <div className="overflow-hidden rounded-xl border bg-muted">
                     <img src={currentCover} alt={form.coverAlt || form.title || "Blog cover"} className="aspect-[16/10] w-full object-cover" />
@@ -339,7 +354,7 @@ export function BlogEditor({ initialPost, history=[] }: { initialPost?: ManagedP
               </CardContent>
             </Card>
           </div>
-        </div>
+        </div></fieldset>
       )}
     </div>
   )

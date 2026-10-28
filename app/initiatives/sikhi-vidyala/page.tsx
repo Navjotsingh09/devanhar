@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Image from "next/image"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -7,7 +15,7 @@ import { ArrowRight, Clock, Calendar, Users, UserRound, BookOpen, Mic2, Globe, S
 import { isVidyalaApplicationsClosed } from "@/lib/vidyala-application-window"
 import { VidyalaGallery } from "@/components/vidyala-gallery"
 
-export const metadata = {
+const originalMetadata = {
   title: "Sikhi Vidyala | Devanhaar",
   description:
     "An educational institution providing knowledge on Sikh history, philosophy, and teachings to equip participants with parchaar skills.",
@@ -18,16 +26,18 @@ const GOLD = "#F5A623"
 
 export const dynamic = "force-dynamic"
 
-export default function SikhiVidyalaPage() {
+export default async function SikhiVidyalaPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sikhi-vidyala')
+
   const closed = isVidyalaApplicationsClosed()
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
       <main>
 
         {/* ── HERO ── */}
-        <section className="relative min-h-[520px] flex items-center justify-center overflow-hidden">
+        <section data-cms-section="9956a23397288f1b" className="relative min-h-[520px] flex items-center justify-center overflow-hidden">
           <Image
             src="/vidyala-classroom.png"
             alt="Sikhi Vidyala"
@@ -71,7 +81,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── QUICK INFO STRIP ── */}
-        <section className="py-8 border-b border-border" style={{ backgroundColor: "#f9f7f4" }}>
+        <section data-cms-section="136a1d63559f19f6" className="py-8 border-b border-border" style={{ backgroundColor: "#f9f7f4" }}>
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
               {[
@@ -92,7 +102,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── COURSE OVERVIEW ── */}
-        <section className="py-16 lg:py-24">
+        <section data-cms-section="6e1d1654c52eb177" className="py-16 lg:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid lg:grid-cols-2 gap-12 items-start">
 
@@ -179,7 +189,7 @@ export default function SikhiVidyalaPage() {
 
 
         {/* ── WHAT YOU WILL LEARN ── */}
-        <section className="py-16 lg:py-24" style={{ backgroundColor: "#f9f7f4" }}>
+        <section data-cms-section="e5948efcce2e6060" className="py-16 lg:py-24" style={{ backgroundColor: "#f9f7f4" }}>
           <div className="container mx-auto px-6 lg:px-12">
             <div className="text-center mb-12">
               <span
@@ -214,7 +224,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── MEET THE TEACHERS ── */}
-        <section className="py-16 lg:py-24">
+        <section data-cms-section="c9f31a3e558e6f6d" className="py-16 lg:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="mb-10">
               <span
@@ -259,7 +269,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── TESTIMONIALS ── */}
-        <section className="py-16 lg:py-24" style={{ backgroundColor: NAVY }}>
+        <section data-cms-section="a1df1d99f05f4ddf" className="py-16 lg:py-24" style={{ backgroundColor: NAVY }}>
           <div className="container mx-auto px-6 lg:px-12">
             <div className="text-center mb-12">
               <span
@@ -312,7 +322,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── GALLERY ── */}
-        <section className="py-16 lg:py-24">
+        <section data-cms-section="4a22c1acbd0753c6" className="py-16 lg:py-24">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="mb-10">
               <span
@@ -330,7 +340,7 @@ export default function SikhiVidyalaPage() {
         </section>
 
         {/* ── BOTTOM CTA ── */}
-        <section className="relative py-24 text-center overflow-hidden">
+        <section data-cms-section="441ee0404febca9c" className="relative py-24 text-center overflow-hidden">
           <Image
             src="/initiatives/vidyala-outro.png"
             alt="Sikhi Vidyala"
@@ -363,7 +373,9 @@ export default function SikhiVidyalaPage() {
         </section>
 
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sikhi-vidyala',originalMetadata)}

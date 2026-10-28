@@ -105,6 +105,9 @@ interface AppSidebarProps {
     role: string
     programmes?: StaffProgramme[]
     canEditSfi?: boolean
+    cmsProjects?:{slug:string;title:string}[]
+    cmsKinds?:string[]
+    canUseInsights?:boolean
   }
 }
 
@@ -189,7 +192,11 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
   const websiteItems: NavItem[] = [
     ...(websiteEnabled ? [{ title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
     { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
-    { title: 'Page drafts', url: '/dashboard/website/drafts', icon: Newspaper },
+    {title:'Media library',url:'/dashboard/website/media',icon:ImageIcon},
+    {title:'Navigation & branding',url:'/dashboard/website/pages/site-settings',icon:Settings},
+    {title:'SEO',url:'/dashboard/website/seo',icon:Search},
+    {title:'Integrations',url:'/dashboard/website/integrations',icon:Settings},
+    { title: 'Drafts', url: '/dashboard/website/drafts', icon: Newspaper },
     ...(['project','event','announcement','notification','faq'] as const).map(kind=>({title:kind==='faq'?'FAQs':kind[0].toUpperCase()+kind.slice(1)+'s',url:`/dashboard/website/content/${kind}`,icon:Newspaper})),
     { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper },
     { title: 'Content assignments', url: '/dashboard/website/assignments', icon: Users }] : []),
@@ -199,7 +206,8 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
     { title: 'Orders', url: '/dashboard/orders', icon: ClipboardList },
     { title: 'Activity log', url: '/dashboard/activity', icon: ClipboardList },
   ]
-  const isWebsite = websiteItems.some(item => pathname === item.url || pathname.startsWith(item.url + '/'))
+  const scopedWebsiteItems=user.role==='content_manager'?websiteItems.filter(item=>['/dashboard/website','/dashboard/website/pages','/dashboard/website/drafts','/dashboard/website/media','/dashboard/activity'].includes(item.url)||item.url==='/dashboard/website/sfi'&&user.canEditSfi||item.url==='/dashboard/blog'&&user.canUseInsights||user.cmsKinds?.some(kind=>item.url===`/dashboard/website/content/${kind}`)):websiteItems
+  const isWebsite = scopedWebsiteItems.some(item => pathname === item.url || pathname.startsWith(item.url + '/'))
 
   const operationItems = operationsNav
 
@@ -229,7 +237,7 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
         </Link>
       </SidebarHeader>
       <SidebarContent className="gap-3 px-3 pb-4">
-          <SidebarGroup>
+          {user.role!=='content_manager'&&<><SidebarGroup>
             <SidebarGroupLabel>Workspace</SidebarGroupLabel>
             <SidebarGroupContent><SimpleNav items={managementItems} pathname={pathname} /></SidebarGroupContent>
           </SidebarGroup>
@@ -250,10 +258,12 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
               ]} pathname={pathname} groupName={space.id} open={!!search || openGroup === space.id} onOpenChange={open => setGroup(space.id, open)} />)}
             </div>
           </SidebarGroup>
+          </>}
+          {user.role==='content_manager'&&<SidebarGroup><SidebarGroupLabel>Assigned projects</SidebarGroupLabel><SidebarGroupContent><SimpleNav items={(user.cmsProjects||[]).map(project=>({title:project.title,url:`/dashboard/website/content/project/${project.slug}`,icon:BookOpen}))} pathname={pathname}/>{!user.cmsProjects?.length&&<p className="px-2 py-3 text-xs text-muted-foreground">No projects assigned.</p>}</SidebarGroupContent></SidebarGroup>}
           <SidebarGroup className="workspace-tools">
-            <ProgrammeGroup label="Operations" icon={ReceiptText} items={operationItems.filter(item => !['/dashboard/images', '/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} groupName="operations" open={openGroup === 'operations'} onOpenChange={open => setGroup('operations', open)} />
-            <ProgrammeGroup label="Website & content" icon={BookOpen} items={websiteItems} pathname={pathname} groupName="website" open={openGroup === 'website'} onOpenChange={open => setGroup('website', open)} />
-            <ProgrammeGroup label="Administration" icon={Settings} items={operationItems.filter(item => ['/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} groupName="administration" open={openGroup === 'administration'} onOpenChange={open => setGroup('administration', open)} />
+            {user.role!=='content_manager'&&<ProgrammeGroup label="Operations" icon={ReceiptText} items={operationItems.filter(item => !['/dashboard/images', '/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} groupName="operations" open={openGroup === 'operations'} onOpenChange={open => setGroup('operations', open)} />}
+            <ProgrammeGroup label="Website & content" icon={BookOpen} items={scopedWebsiteItems} pathname={pathname} groupName="website" open={openGroup === 'website'} onOpenChange={open => setGroup('website', open)} />
+            {user.role!=='content_manager'&&<ProgrammeGroup label="Administration" icon={Settings} items={operationItems.filter(item => ['/dashboard/users', '/dashboard/settings'].includes(item.url))} pathname={pathname} groupName="administration" open={openGroup === 'administration'} onOpenChange={open => setGroup('administration', open)} />}
           </SidebarGroup>
       </SidebarContent>
 

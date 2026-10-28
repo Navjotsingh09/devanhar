@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -6,7 +14,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { Users, Bell, ArrowRight, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Team Coming Soon | Devanhaar",
   description:
     "The Devanhaar team page is coming soon. Stay tuned to learn more about the sevadaars serving camps, education, and community projects across the UK.",
@@ -19,13 +27,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://devanhaar.vercel.app/team" },
 }
 
-export default function TeamPage() {
-  return (
+export default async function TeamPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-team')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
       <main>
-        <section className="min-h-[80vh] flex items-center justify-center bg-background">
+        <section data-cms-section="a7f50d775a0e17af" className="min-h-[80vh] flex items-center justify-center bg-background">
           <div className="max-w-3xl mx-auto px-6 py-32 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-8">
               <Users className="w-3.5 h-3.5" />
@@ -60,7 +70,7 @@ export default function TeamPage() {
           </div>
         </section>
 
-        <section id="trustees" className="py-20 md:py-28 bg-muted/30 border-t border-border/50">
+        <section data-cms-section="a2af70844e15d25f" id="trustees" className="py-20 md:py-28 bg-muted/30 border-t border-border/50">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-14">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-6">
@@ -97,7 +107,9 @@ export default function TeamPage() {
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-team',originalMetadata)}

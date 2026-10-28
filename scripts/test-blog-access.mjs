@@ -12,15 +12,16 @@ const hooks = registerHooks({
   resolve(specifier, context, nextResolve) {
     const stubs = {
        'server-only': 'export {}',
-      '@/lib/blog-draft-content': 'export const blogInputSchema={safeParse:data=>({success:true,data})}; export const blogRevisionBody=data=>data;',
+      '@/lib/blog-draft-content': 'export const blogInputSchema={safeParse:data=>({success:true,data})}; export const blogRevisionBody=data=>data; export const hasArticleMetadata=()=>false; export const articleMetadataEnabled=async()=>false;',
       '@/lib/supabase/server': `export async function createClient() { return ${stubState}.client }`,
       '@supabase/supabase-js': `export function createClient() {
         const state = ${stubState}; state.privilegedClients++; return state.admin
       }`,
       'next/server': 'export const NextRequest = Request; export const NextResponse = { json: (body, init) => Response.json(body, init) }',
-      'next/cache': 'export function revalidatePath() {}',
+      'next/cache': 'export function revalidatePath() {} export function revalidateTag() {}',
     }
     if (specifier in stubs) return { url: moduleUrl(stubs[specifier]), shortCircuit: true }
+    if(specifier==='@/lib/crm/request-staff')return{url:new URL('lib/crm/request-staff.ts',root).href,shortCircuit:true}
     if (specifier === '@/lib/blog-staff-server') {
       return { url: new URL('lib/blog-staff-server.ts', root).href, shortCircuit: true }
     }
@@ -45,7 +46,7 @@ function fixture(options = {}) {
       data: { user: options.signedOut ? null : { id: 'staff-123' } },
       error: options.authError ? { message: 'Auth unavailable' } : null,
     }) },
-    rpc: async (name, payload) => { state.writes.push({table:'blog_posts', action:'rpc', name, payload}); return {data:'post-123',error:null} },
+    rpc: async (name, payload) => {if(name==='blog_permissions')return{data:options.permissions??{workspace:false,view:false,edit:false,publish:false,archive:false,create:false},error:null}; state.writes.push({table:'blog_posts', action:'rpc', name, payload}); return {data:'post-123',error:null} },
     from(table) {
       state.lookups.push(table)
       const result = table === 'admin_profiles'
@@ -53,7 +54,7 @@ function fixture(options = {}) {
         : { data: options.nullGrants ? null : (options.grants ?? []), error: options.grantsError ?? null }
       return {
         select() { return this }, eq() { return this },
-        maybeSingle: async () => result,
+        maybeSingle: async () => result,single:async()=>result,
         then(resolve, reject) { return Promise.resolve(result).then(resolve, reject) },
       }
     },
@@ -98,7 +99,8 @@ const denied = [
   ['programme lookup error', { grantsError: { message: 'Unavailable' } }, 403],
   ['missing programme result', { nullGrants: true }, 403],
   ['vacancies-only account', { role: 'vacancies_only' }, 403],
-  ['unknown role', { role: 'content_manager' }, 403],
+  ['unassigned Content Manager', { role: 'content_manager' }, 403],
+  ['unknown role',{role:'unknown'},403],
   ['programme staff', { grants: [{ programme: 'kaurs' }] }, 403],
 ]
 

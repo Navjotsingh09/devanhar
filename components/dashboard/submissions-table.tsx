@@ -1020,7 +1020,7 @@ export function SubmissionsTable({ submissions, recordOnly = false }: { submissi
                       {sub.source_table === 'camp_applications' ? (
                         <>
                           <SelectItem value="pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500" />Pending</span></SelectItem>
-                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
+                          <SelectItem value="in_progress"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Progress</span></SelectItem>
                           <SelectItem value="payment_pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-orange-500" />Awaiting Payment</span></SelectItem>
                           <SelectItem value="payment_authorized"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-indigo-500" />Payment Authorized</span></SelectItem>
                           <SelectItem value="payment_support_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-purple-500" />Payment Support</span></SelectItem>
@@ -1032,7 +1032,7 @@ export function SubmissionsTable({ submissions, recordOnly = false }: { submissi
                       ) : sub.source_table === 'vidyala_applications' ? (
                         <>
                           <SelectItem value="pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500" />Pending</span></SelectItem>
-                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
+                          <SelectItem value="in_progress"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Progress</span></SelectItem>
                           <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
                           <SelectItem value="declined"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Declined</span></SelectItem>
                           <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
@@ -1040,7 +1040,7 @@ export function SubmissionsTable({ submissions, recordOnly = false }: { submissi
                       ) : sub.source_table === 'spn_submissions' ? (
                         <>
                           <SelectItem value="pending"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500" />Pending</span></SelectItem>
-                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
+                          <SelectItem value="in_progress"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Progress</span></SelectItem>
                           <SelectItem value="approved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500" />Approved</span></SelectItem>
                           <SelectItem value="declined"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500" />Declined</span></SelectItem>
                           <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>
@@ -1054,7 +1054,7 @@ export function SubmissionsTable({ submissions, recordOnly = false }: { submissi
                       ) : (
                         <>
                           <SelectItem value="new"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-blue-500" />New</span></SelectItem>
-                          <SelectItem value="in_review"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Review</span></SelectItem>
+                          <SelectItem value="in_progress"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" />In Progress</span></SelectItem>
                           <SelectItem value="replied"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-500" />Replied</span></SelectItem>
                           <SelectItem value="resolved"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Resolved</span></SelectItem>
                           <SelectItem value="archived"><span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-gray-400" />Archived</span></SelectItem>

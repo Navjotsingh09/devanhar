@@ -18,18 +18,22 @@ function loadSource(source, modules) {
   return module.exports
 }
 const sfi = load('lib/cms/sfi-content.ts', { './sfi-default.json': JSON.parse(fs.readFileSync('lib/cms/sfi-default.json', 'utf8')) })
-const model = load('lib/cms/page-content.ts', { './home-default.json': JSON.parse(fs.readFileSync('lib/cms/home-default.json', 'utf8')), './sfi-content': sfi })
+const settings=load('lib/cms/site-settings.ts',{'./site-settings-default.json':JSON.parse(fs.readFileSync('lib/cms/site-settings-default.json','utf8')),'./sfi-content':sfi})
+const copySchema=load('lib/cms/copy-schema.ts',{'./site-settings':settings,'./sfi-content':sfi})
+const migrated=JSON.parse(fs.readFileSync('lib/cms/migrated-pages.json','utf8'))
+const model = load('lib/cms/page-content.ts', { './home-default.json': JSON.parse(fs.readFileSync('lib/cms/home-default.json', 'utf8')), './sfi-content': sfi,'./site-settings':settings,'./copy-schema':copySchema,'./migrated-pages.json':migrated })
+const migration=load('lib/cms/migrated-content.ts',{'./migrated-pages.json':migrated,'./page-content':model})
 const sample = () => JSON.parse(JSON.stringify(model.defaultHomeContent))
 const uuid = suffix => `00000000-0000-4000-8000-${String(suffix).padStart(12, '0')}`
 let fixture
 const server = load('lib/cms/page-server.ts', {
-  'server-only': {}, './sfi-content': sfi, './page-content': model,
+  'server-only': {}, './sfi-content': sfi, './page-content': model,'./site-settings':settings,'./migrated-content':migration,
   '@/lib/supabase/server': { createClient: async () => fixture.session },
   '@supabase/supabase-js': { createClient: () => { fixture.privileged++; return fixture.db } },
 })
 const routes = load('app/api/cms/pages/[slug]/route.ts', {
   'next/server': { NextResponse: { json: (body, init) => Response.json(body, init) } },
-  'next/cache': { revalidatePath: path => fixture.revalidated.push(path) },
+  'next/cache': { revalidatePath: path => fixture.revalidated.push(path),revalidateTag:()=>{} },
   '@/lib/cms/page-server': server, '@/lib/cms/sfi-content': sfi, '@/lib/cms/page-content': model,
 })
 
@@ -200,6 +204,9 @@ test('every reusable section template is valid', () => {
   for (const [type, data] of Object.entries(model.blockTemplates)) assert.equal(model.sectionSchema.safeParse({ id: type, type, hidden: false, data }).success, true, type)
 })
 const nativeModules = {
+  '@/lib/cms/copy-node':{applyPageCopy:node=>node,registerCopyComponent:()=>{}},
+  '@/components/cms/page-copy-provider':{usePageCopy:()=>({})},
+  './site-settings-provider':{SiteSettingsProvider:({children})=>children},
   './content-sections':{ManagedProjects:()=>null,ManagedEvents:()=>null},
   'next/link': { __esModule: true, default: ({children, ...props}) => React.createElement('a', props, children) },
   'next/image': { __esModule: true, default: ({src, alt}) => React.createElement('img', {src, alt}) },
@@ -257,4 +264,9 @@ test('homepage cannot be unpublished and view-only users cannot discard drafts',
   setup({role:'content_manager',assignment:{can_view:true,can_edit:false,can_publish:false}})
   await assert.rejects(server.changePageVisibility('home','discard',head()),failStatus(403))
   assert.equal(fixture.writes.length,0)
+})
+
+test('Admin cannot change critical branding while Super Admin can save it',async()=>{
+ setup({noPage:true,role:'admin'});const content=JSON.parse(JSON.stringify(settings.defaultSettingsPage));content.sections[0].data.brand.name='Updated organisation';await assert.rejects(server.changePageContent('site-settings','save',content,head()),/Only a Super Admin/);assert.equal(fixture.writes.length,0)
+ setup({noPage:true,role:'super_admin'});await server.changePageContent('site-settings','save',content,head());assert.equal(fixture.writes[0].action,'create')
 })

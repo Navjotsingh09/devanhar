@@ -1,9 +1,14 @@
 'use client'
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useEffect } from 'react'
 import { ArrowRight, MapPin } from 'lucide-react'
 
 export function RootsHero() {
+  const cmsCopy = usePageCopy()
+
   useEffect(() => {
     const scrollToSection = () => {
       const id = window.location.hash.slice(1)
@@ -19,8 +24,8 @@ export function RootsHero() {
       window.removeEventListener('hashchange', scrollToSection)
     }
   }, [])
-  return (
-    <section className="roots-hero">
+  return applyPageCopy(((
+    <section data-cms-section="7f295fdd24f9c757" className="roots-hero">
       <img src="/initiatives/roots-gallery-11.jpg" alt="Outdoor adventure in the woodland at Roots Residential" className="roots-hero-background" fetchPriority="high" />
       <div className="roots-hero-shade" />
       <div className="roots-hero-content">
@@ -34,5 +39,5 @@ export function RootsHero() {
       <div className="roots-hero-caption"><span>Step outside the everyday.</span><span>Come back with more.</span></div>
       <div className="roots-hero-facts"><div><strong>12–16</strong><span>Young people</span></div><div><strong>Three days</strong><span>Adventure &amp; connection</span></div><div><strong>Girls &amp; boys</strong><span>Separate residentials</span></div><div><strong>Coming soon</strong><span>Residential dates</span></div></div>
     </section>
-  )
+  )), cmsCopy)
 }

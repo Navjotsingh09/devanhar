@@ -1,0 +1,50 @@
+{
+  "startedAt": "2026-10-28T10:54:35.237Z",
+  "finishedAt": "2026-10-28T10:54:38.698Z",
+  "scope": "Offline code regressions, not authenticated browser or production acceptance",
+  "passed": true,
+  "exitCode": 0,
+  "error": null,
+  "tests": 659,
+  "pass": 659,
+  "fail": 0,
+  "skipped": 0,
+  "files": [
+    "scripts/test-admin-payment-access.mjs",
+    "scripts/test-blog-access.mjs",
+    "scripts/test-blog-drafts.mjs",
+    "scripts/test-blog-history.mjs",
+    "scripts/test-cms-completion.mjs",
+    "scripts/test-cms-entries.mjs",
+    "scripts/test-cms-finalization.mjs",
+    "scripts/test-cms-remaining-scope.mjs",
+    "scripts/test-content-assignment-access.mjs",
+    "scripts/test-crm-performance-access.mjs",
+    "scripts/test-dashboard-access.mjs",
+    "scripts/test-middleware-access.mjs",
+    "scripts/test-page-cms.mjs",
+    "scripts/test-public-insight-rendering.mjs",
+    "scripts/test-registration-windows.mjs",
+    "scripts/test-response-actions.mjs",
+    "scripts/test-roots-decisions.mjs",
+    "scripts/test-roots-tracker.mjs",
+    "scripts/test-roots-validation.mjs",
+    "scripts/test-sfi-cms.mjs",
+    "scripts/test-sidebar-access.mjs",
+    "scripts/test-spa-handoff.mjs",
+    "scripts/test-spa.mjs",
+    "scripts/test-submissions-pagination.mjs",
+    "scripts/test-wrestling-page.mjs"
+  ],
+  "excluded": [
+    {
+      "file": "scripts/test-spa-import.mjs",
+      "reason": "Requires the original SPA source workbook, which is not included in this checkout."
+    }
+  ],
+  "notCoveredByThisRun": [
+    "Live database migration and permission verification; consult the latest release record",
+    "Authenticated Super Admin and Admin browser scenarios",
+    "Production deployment and post-release verification"
+  ]
+}

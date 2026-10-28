@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
@@ -13,7 +21,7 @@ import {
   singhsGalleryImages,
 } from "@/components/camps/camp-shared-data"
 
-export const metadata = {
+const originalMetadata = {
   title: "Singhs Camps | Devanhaar",
   description:
     "Singhs Camps — UK and Europe residential retreats for Adult Sikh men. Apply for the UK camp or register your interest for Europe 2027.",
@@ -62,15 +70,17 @@ const faqs = [
   },
 ]
 
-export default function SinghsCampLandingPage() {
-  return (
+export default async function SinghsCampLandingPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-singhs-camp')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen">
         <SinghsCampHeroWithApply />
 
-        <section className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
+        <section data-cms-section="b3034e448c9471f1" className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
             History
           </h2>
@@ -89,7 +99,9 @@ export default function SinghsCampLandingPage() {
 
         <FAQSection items={faqs} />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-singhs-camp',originalMetadata)}

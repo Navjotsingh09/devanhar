@@ -1,1 +1,1 @@
-export { default, metadata } from "../initiatives/sikh-padel-association/page"
+export { default, generateMetadata } from "../initiatives/sikh-padel-association/page"

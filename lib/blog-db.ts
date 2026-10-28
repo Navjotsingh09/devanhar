@@ -1,3 +1,7 @@
+import {unstable_cache} from 'next/cache'
+import {cmsService} from './cms/service'
+import {getBlogStaff} from './blog-staff-server'
+import {parseArticleMetadata} from './blog-metadata'
 import { createClient } from "@/lib/supabase/server"
 import { type BlogPost, type Pillar } from "@/lib/blog"
 
@@ -13,9 +17,10 @@ const DELETED_LEGACY_SLUGS = new Set([
   "devanhaar-community-network-launches",
 ])
 
-const listingColumns = "id,slug,title,excerpt,pillar,status,author_name,cover_image_url,cover_image_alt,tags,read_time,source,published_at,created_at,updated_at,draft_revision_id,archived_at"
+const listingColumns = "id,slug,title,excerpt,pillar,status,author_name,cover_image_url,cover_image_alt,tags,read_time,source,published_at,created_at,updated_at,draft_revision_id,archived_at,cms_metadata"
 
 type BlogRow = {
+  cms_metadata?:unknown
   id: string
   slug: string
   title: string
@@ -38,6 +43,9 @@ type BlogRow = {
 
 function mapRow(row: BlogRow): BlogPost {
   return {
+    needsResave:!!row.draft_revision_id&&['projectId','subtitle','category'].some(key=>!row.cms_metadata||typeof row.cms_metadata!=='object'||!Object.hasOwn(row.cms_metadata,key)),
+    metadataAvailable:Object.hasOwn(row,"cms_metadata"),
+    metadata:parseArticleMetadata(row.cms_metadata),
     id: row.id,
     slug: row.slug,
     title: row.title,
@@ -57,18 +65,11 @@ function mapRow(row: BlogRow): BlogPost {
   }
 }
 
-export async function getPublishedBlogPosts(): Promise<BlogPost[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select(listingColumns)
-    .eq("status", "published")
-    .order("published_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-
-  if (error || !data) return []
-  return (data as BlogRow[]).map(mapRow).filter((post) => !DELETED_LEGACY_SLUGS.has(post.slug))
-}
+const publicColumns=listingColumns.replace(',draft_revision_id','')
+function publicPost(row:BlogRow):BlogPost{const post=mapRow(row);delete post.draftId;delete post.hasDraft;delete post.updatedAt;delete post.metadataAvailable;delete post.needsResave;return post}
+export const getPublishedBlogPosts=unstable_cache(async():Promise<BlogPost[]>=>{
+ try{const{data,error}=await cmsService().from('blog_posts').select(publicColumns).eq('status','published').is('archived_at',null).order('published_at',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false});if(error||!data)return[];return(data as unknown as BlogRow[]).map(publicPost).filter(post=>!DELETED_LEGACY_SLUGS.has(post.slug)).sort((a,b)=>Number(!!b.metadata?.featured)-Number(!!a.metadata?.featured))}catch{return[]}
+},['public-insights-list-v2'],{revalidate:60,tags:['cms-insights']})
 
 async function withDashboardDrafts(supabase: Awaited<ReturnType<typeof createClient>>, rows: BlogRow[]): Promise<BlogPost[]> {
   const ids = rows.flatMap(row => row.draft_revision_id ? [row.draft_revision_id] : [])
@@ -81,29 +82,24 @@ async function withDashboardDrafts(supabase: Awaited<ReturnType<typeof createCli
   })
 }
 export async function getDashboardBlogPosts(): Promise<BlogPost[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase.from('blog_posts').select(listingColumns).order('updated_at', { ascending: false })
+  const staff=await getBlogStaff();if(!staff.allowed)throw new Error('Insights are not assigned to your account.');const supabase=staff.client
+  let query=supabase.from('blog_posts').select(listingColumns).order('updated_at',{ascending:false})
+  if(!staff.isGlobal){const access=await supabase.rpc('blog_accessible_posts');if(access.error)throw new Error('Article assignments could not be verified.');if(!access.data?.length)return[];query=query.in('id',access.data)}
+  const {data,error}=await query
   if (error) throw new Error('Articles could not be loaded.')
   return (await withDashboardDrafts(supabase, (data ?? []) as unknown as BlogRow[])).map(post => ({...post,content:''}))
 }
 export async function getDashboardBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-  const supabase = await createClient()
+  const staff=await getBlogStaff(slug);if(!staff.allowed)return undefined;const supabase=staff.client
   const { data, error } = await supabase.from('blog_posts').select('*').eq('slug', slug).maybeSingle()
   if (error) throw new Error('Article could not be loaded.')
   return data ? (await withDashboardDrafts(supabase, [data]))[0] : undefined
 }
 
-export async function getPublishedBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle()
-
-  return data && !DELETED_LEGACY_SLUGS.has(slug) ? mapRow(data as BlogRow) : undefined
-}
+export const getPublishedBlogPostBySlug=unstable_cache(async(slug:string):Promise<BlogPost|undefined>=>{
+ if(DELETED_LEGACY_SLUGS.has(slug))return undefined
+ try{const{data,error}=await cmsService().from('blog_posts').select('*').eq('slug',slug).eq('status','published').is('archived_at',null).maybeSingle();return !error&&data?publicPost(data as BlogRow):undefined}catch{return undefined}
+},['public-insight-detail-v2'],{revalidate:60,tags:['cms-insights']})
 
 export async function getDashboardBlogHistory(postId:string) {
   const supabase=await createClient()

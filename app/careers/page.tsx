@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -6,7 +14,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { createClient } from "@/lib/supabase/server"
 import { Briefcase, MapPin, ArrowRight, Clock } from "lucide-react"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Careers | Devanhaar",
   description:
     "Open vacancies and volunteer opportunities at Devanhaar. Join the sevadaars building Sikh-rooted programmes across the UK.",
@@ -49,7 +57,9 @@ const typeLabel: Record<string, string> = {
   internship: "Internship",
 }
 
-export default async function CareersPage() {
+export default async function CareersPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-careers')
+
   const vacancies = await getVacancies()
 
   const grouped = {
@@ -58,13 +68,13 @@ export default async function CareersPage() {
     internship: vacancies.filter((v) => v.vacancy_type === "internship"),
   }
 
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
       <main className="pt-24 pb-20 bg-background">
         {/* Hero */}
-        <section className="py-20 md:py-28">
+        <section data-cms-section="1bbe981bfc4fdd6a" className="py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12 text-center max-w-3xl">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
               Careers
@@ -87,7 +97,7 @@ export default async function CareersPage() {
         </section>
 
         {/* Listings */}
-        <section className="container mx-auto px-6 lg:px-12 max-w-5xl">
+        <section data-cms-section="ac1ac45ef7dea32c" className="container mx-auto px-6 lg:px-12 max-w-5xl">
           {vacancies.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Briefcase className="w-10 h-10 text-muted-foreground/50 mx-auto mb-4" />
@@ -125,14 +135,16 @@ export default async function CareersPage() {
           )}
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
 
-function VacancyCard({ v }: { v: Vacancy }) {
+async function VacancyCard({cmsCopy: suppliedCopy,  v }: ({ v: Vacancy }) & {cmsCopy?:PageCopy}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-careers')
+
   const closes = v.closes_at ? new Date(v.closes_at) : null
-  return (
+  return withPageCopy(((
     <Link
       href={`/careers/${v.id}`}
       className="group block rounded-2xl border border-border bg-background p-6 hover:border-primary/40 hover:shadow-md transition-all"
@@ -169,5 +181,7 @@ function VacancyCard({ v }: { v: Vacancy }) {
         )}
       </div>
     </Link>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-careers',originalMetadata)}

@@ -90,7 +90,7 @@ export async function updateSession(request: NextRequest) {
     }
     const role = profileResult.data?.role
     const programmes = ['admin','super_admin','content_manager'].includes(role || '') ? [] : grants.map(row => row.programme) as StaffProgramme[]
-    if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/')) return finish(NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 }))
+    if (role === 'content_manager' && pathname.startsWith('/api/') && !pathname.startsWith('/api/cms/') && !(pathname==='/api/blog'||pathname.startsWith('/api/blog/')) && !['/api/contact','/api/newsletter','/api/newsletter/unsubscribe'].includes(pathname)) return finish(NextResponse.json({ error: 'This account can only use its assigned website editors.' }, { status: 403 }))
     if (role === 'content_manager' && pathname.startsWith('/dashboard') && !canVisitDashboard(pathname, [], role)) {
       if (!['GET','HEAD'].includes(request.method)) return finish(NextResponse.json({ error: 'Forbidden' }, { status: 403 }))
       const url = request.nextUrl.clone(); url.pathname = '/dashboard/website'; url.search = ''; return finish(NextResponse.redirect(url))
@@ -107,8 +107,10 @@ export async function updateSession(request: NextRequest) {
     if (programmes.length && isSpaPortal && isReadNavigation) {
       const url=request.nextUrl.clone();url.pathname='/auth/spa-access';url.search='';return finish(NextResponse.redirect(url))
     }
+    const newsletterApi=pathname==='/api/cms/subscribers'&&programmes.includes('newsletter')
+    const publicSubmissionApi=['/api/contact','/api/newsletter','/api/newsletter/unsubscribe'].includes(pathname)
     const rootsApi=programmes.includes('roots')&&(/^\/api\/roots-forms(?:\/|$)/.test(pathname)||(pathname==='/api/crm/submissions/export'&&request.nextUrl.searchParams.get('programme')==='roots'))
-    if (programmes.length && !rootsApi && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
+    if (programmes.length && !rootsApi && !newsletterApi && !publicSubmissionApi && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
       return finish(NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 }))
     }
   }

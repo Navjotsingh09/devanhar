@@ -12,11 +12,11 @@ const slugSchema=z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(160)
 
 export async function POST(request:Request,{params}:{params:Promise<{slug:string}>}){
  try{
-  const{user,allowed,client}=await getBlogStaff()
+  const{slug}=await params
+  const{user,allowed,client}=await getBlogStaff(slug,'edit')
   if(!user)return NextResponse.json({error:'Please sign in again.'},{status:401})
   if(!allowed)return NextResponse.json({error:'Blog access is no longer available.'},{status:403})
   if(request.headers.get('origin')!==new URL(request.url).origin)return NextResponse.json({error:'Use the article editor.'},{status:403})
-  const{slug}=await params
   if(!slugSchema.safeParse(slug).success)return NextResponse.json({error:'Article not found.'},{status:404})
   if(Number(request.headers.get('content-length'))>2000)return NextResponse.json({error:'Request is too large.'},{status:413})
   const raw=await request.text()

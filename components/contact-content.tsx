@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Check, Mail, MapPin, Clock, Instagram, Send } from "lucide-react"
@@ -34,6 +37,8 @@ const contactInfo = [
 ]
 
 export function ContactContent() {
+  const cmsCopy = usePageCopy()
+
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -81,10 +86,10 @@ export function ContactContent() {
     }
   }
 
-  return (
+  return applyPageCopy(((
     <main className="mt-20">
       {/* Hero */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
+      <section data-cms-section="319d9aaefba227d1" className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto px-6 lg:px-12 text-center">
           <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-4">Get in Touch</p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
@@ -97,7 +102,7 @@ export function ContactContent() {
       </section>
 
       {/* Contact Info Cards */}
-      <section className="py-12 md:py-16">
+      <section data-cms-section="d8f9425760810ad8" className="py-12 md:py-16">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactInfo.map((item) => {
@@ -126,7 +131,7 @@ export function ContactContent() {
       </section>
 
       {/* Form + Side Info */}
-      <section className="py-16 md:py-24">
+      <section data-cms-section="50ab7b14a17f7474" className="py-16 md:py-24">
         <div className="container mx-auto px-6 lg:px-12">
           <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-start max-w-6xl mx-auto">
             {/* Left */}
@@ -229,5 +234,5 @@ export function ContactContent() {
         </div>
       </section>
     </main>
-  )
+  )), cmsCopy)
 }

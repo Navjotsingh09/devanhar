@@ -1,9 +1,17 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { DonateContent } from "@/components/donate-content"
 import { ScrollAnimations } from "@/components/scroll-animations"
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Donate | Support Devanhaar Sikh Charity",
   description:
     "Support the future of Sikh education, camps, and community programmes. Make a secure donation to Devanhaar and help empower Sikh youth across the UK.",
@@ -26,13 +34,17 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://devanhaar.vercel.app/donate" },
 }
 
-export default function DonatePage() {
-  return (
+export default async function DonatePage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-donate')
+
+  return withPageCopy(((
     <>
       <ScrollAnimations />
       <Navbar />
       <DonateContent />
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-donate',originalMetadata)}

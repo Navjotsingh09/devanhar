@@ -1,17 +1,25 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { RegisterInterestForm } from "@/components/register-interest-form"
 
-export const metadata = {
+const originalMetadata = {
   title: "Singhs Camp EU 2027 — Register interest | Devanhaar",
   description:
     "Register your interest for Singhs Camp EU launching in 2027. Be the first to hear when applications open.",
 }
 
-export default function SinghsCampEuPage() {
-  return (
+export default async function SinghsCampEuPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-singhs-camp-eu')
+
+  return withPageCopy(((
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-secondary/30">
+      <section data-cms-section="9b8d0839383d1ab4" className="border-b border-border bg-secondary/30">
         <div className="container mx-auto px-6 lg:px-12 max-w-4xl py-16 md:py-24">
           <Link
             href="/initiatives/singhs-camp"
@@ -32,11 +40,13 @@ export default function SinghsCampEuPage() {
           </p>
         </div>
       </section>
-      <section className="py-16 md:py-24">
+      <section data-cms-section="59433396daed4bc0" className="py-16 md:py-24">
         <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
           <RegisterInterestForm camp="singhs-camp-eu" />
         </div>
       </section>
     </main>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-singhs-camp-eu',originalMetadata)}

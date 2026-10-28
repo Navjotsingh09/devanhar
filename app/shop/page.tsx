@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -6,7 +14,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { ShoppingBag, Bell, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Shop Coming Soon | Devanhaar",
   description:
     "The Devanhaar shop is coming soon. Official Sikh merchandise to support education, camps, and community programmes across the UK.",
@@ -19,13 +27,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://devanhaar.vercel.app/shop" },
 }
 
-export default function ShopPage() {
-  return (
+export default async function ShopPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-shop')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
       <main>
-        <section className="min-h-[80vh] flex items-center justify-center bg-background">
+        <section data-cms-section="65254d7dbf0f3e3d" className="min-h-[80vh] flex items-center justify-center bg-background">
           <div className="max-w-3xl mx-auto px-6 py-32 text-center">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-8">
               <ShoppingBag className="w-3.5 h-3.5" />
@@ -60,7 +70,9 @@ export default function ShopPage() {
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-shop',originalMetadata)}

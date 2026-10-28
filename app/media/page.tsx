@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
@@ -6,7 +14,7 @@ import { FAQSection } from "@/components/faq-section"
 import { CTABanner } from "@/components/cta-banner"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Media & Press | Devanhaar Sikh Charity",
   description:
     "News, press coverage, and stories from Devanhaar. Read about our Sikh camps, university talks, community events, and the impact of our charitable work across the UK.",
@@ -57,8 +65,10 @@ const mediaFAQs = [
   },
 ]
 
-export default function MediaPage() {
-  return (
+export default async function MediaPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-media')
+
+  return withPageCopy(((
     <div>
       <Navbar />
       <ScrollAnimations />
@@ -79,7 +89,9 @@ export default function MediaPage() {
           variant="light"
         />
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </div>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-media',originalMetadata)}

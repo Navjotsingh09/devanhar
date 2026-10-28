@@ -1,5 +1,8 @@
 "use client"
 
+import {applyPageCopy} from '@/lib/cms/copy-node'
+import {usePageCopy} from '@/components/cms/page-copy-provider'
+
 import { useState, useEffect } from "react"
 import { Heart, Shield, Building2, Users, BookOpen, Tent, GraduationCap, Check, ArrowRight, Sparkles, Gift, CreditCard, Lock, Loader2 } from "lucide-react"
 import Link from "next/link"
@@ -14,6 +17,8 @@ const impactItems = [
 ]
 
 export function DonateContent() {
+ const cmsCopy=usePageCopy()
+
   const [amount, setAmount] = useState<number | null>(50)
   const [customAmount, setCustomAmount] = useState("")
   const [frequency, setFrequency] = useState<"one-time" | "monthly" | "quarterly" | "yearly">("one-time")
@@ -95,10 +100,10 @@ export function DonateContent() {
 
 
 
-  return (
+  return applyPageCopy(((
     <main className="pt-24 pb-0">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#f8f8f8]">
+      <section data-cms-section="81563867a5212b88" className="relative overflow-hidden bg-[#f8f8f8]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-20">
           {/* Main Headline */}
           <div className="max-w-3xl mx-auto text-center mb-10 md:mb-14">
@@ -331,7 +336,7 @@ export function DonateContent() {
       </section>
 
       {/* Impact Section */}
-      <section className="bg-gradient-to-b from-[#0d1120] to-[#1a1f2e] text-white">
+      <section data-cms-section="a971e7ef0a76a73b" className="bg-gradient-to-b from-[#0d1120] to-[#1a1f2e] text-white">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-28">
           <div className="text-center mb-16" data-animate>
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-400 mb-4">Your Impact</p>
@@ -362,7 +367,7 @@ export function DonateContent() {
       </section>
 
       {/* Testimonial Section */}
-      <section id="donate-form" className="bg-background border-b border-border">
+      <section data-cms-section="33215bc78d0c377b" id="donate-form" className="bg-background border-b border-border">
         <div className="container mx-auto px-6 lg:px-12 py-20 md:py-28">
           <div className="max-w-4xl mx-auto text-center" data-animate>
             <div className="w-16 h-16 rounded-full bg-amber-400/10 flex items-center justify-center mx-auto mb-8">
@@ -380,7 +385,7 @@ export function DonateContent() {
       </section>
 
       {/* Trust Strip */}
-      <section className="bg-[#0d1120] text-white">
+      <section data-cms-section="7a2e37a3083818f6" className="bg-[#0d1120] text-white">
         <div className="container mx-auto px-6 lg:px-12 py-12">
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16" data-animate>
             <div className="flex items-center gap-3">
@@ -414,5 +419,5 @@ export function DonateContent() {
         </div>
       </section>
     </main>
-  )
+  )),cmsCopy)
 }

@@ -1,10 +1,16 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import Link from "next/link"
 import { CalendarDays, ArrowLeft, ArrowRight } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
 
-export function FamilyProjectPage({
+export async function FamilyProjectPage({cmsCopy = {},
   eyebrow,
   showNavbar = true,
   heroVariant = "photo",
@@ -14,7 +20,7 @@ export function FamilyProjectPage({
   body,
   ctaHref,
   ctaLabel,
-}: {
+}: ({
   eyebrow: string
   showNavbar?: boolean
   heroVariant?: "photo" | "wedding"
@@ -24,14 +30,16 @@ export function FamilyProjectPage({
   body: string[]
   ctaHref?: string
   ctaLabel?: string
-}) {
+}) & {cmsCopy?:PageCopy}) {
+
+
   const isWeddingHero = heroVariant === "wedding"
 
-  return (
+  return applyPageCopy(((
     <>
       {showNavbar ? <Navbar /> : null}
       <main className="min-h-screen">
-        <section className={`relative flex min-h-[620px] items-end overflow-hidden ${isWeddingHero ? "bg-[#f8f3eb] text-[#1b2635]" : "bg-[#101b2d] text-white"}`}>
+        <section data-cms-section="078a67bbdc62d7c3" className={`relative flex min-h-[620px] items-end overflow-hidden ${isWeddingHero ? "bg-[#f8f3eb] text-[#1b2635]" : "bg-[#101b2d] text-white"}`}>
           {isWeddingHero ? (
             <>
               <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(ellipse_at_88%_24%,rgba(202,157,91,0.18),transparent_48%),radial-gradient(ellipse_at_0%_100%,rgba(202,157,91,0.12),transparent_55%)]" />
@@ -64,7 +72,7 @@ export function FamilyProjectPage({
           </div>
         </section>
 
-        <section className="border-b border-border py-16 md:py-24">
+        <section data-cms-section="3e9ff67129512ba4" className="border-b border-border py-16 md:py-24">
           <div className="container mx-auto max-w-3xl px-6 lg:px-12">
             <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(43,100%,29%)]">About the project</p>
             <div className="space-y-5 text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -73,7 +81,7 @@ export function FamilyProjectPage({
           </div>
         </section>
 
-        <section className="bg-[hsl(43,100%,29%)] py-16">
+        <section data-cms-section="b5a902e6c8b32ce2" className="bg-[hsl(43,100%,29%)] py-16">
           <div className="container mx-auto max-w-3xl px-6 text-center text-white lg:px-12">
             <h2 className="text-3xl font-bold">Part of Sikh Family Initiative</h2>
             <p className="mx-auto mt-4 max-w-xl text-white/80">Explore the full family programme and see every upcoming project and date in one place.</p>
@@ -83,7 +91,9 @@ export function FamilyProjectPage({
           </div>
         </section>
       </main>
-      <FooterSection />
+      <><NativePageSections /><FooterSection /></>
     </>
-  )
+  )), cmsCopy)
 }
+
+registerCopyComponent(FamilyProjectPage)

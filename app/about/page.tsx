@@ -1,3 +1,11 @@
+
+import {NativePageSections} from '@/components/cms/native-page-sections'
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Heart, Users, Sparkles, ArrowRight, Lightbulb, Flame, TrendingUp, Handshake } from "lucide-react"
@@ -11,7 +19,7 @@ import { getSiteImage } from "@/lib/site-images-server"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "About Us - Devanhaar",
   description:
     "With Guru Sahib's Kirpa, since its inception, Devanhaar has grown to develop multiple projects UK wide.",
@@ -51,15 +59,17 @@ const values = [
   },
 ]
 
-export default async function AboutPage() {
+export default async function AboutPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-about')
+
   const heroImg = await getSiteImage("hero", "about", "/images/about-hero.webp")
 
-  return (
+  return withPageCopy(((
     <>
       <Navbar />
       <main className="pt-28">
         {/* Hero Section */}
-        <section className="py-20 md:py-28">
+        <section data-cms-section="f8fb1425f881ee82" className="py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
@@ -115,7 +125,7 @@ export default async function AboutPage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-16 bg-[#1a1f2e]">
+        <section data-cms-section="803d7221d8bac5ac" className="py-16 bg-[#1a1f2e]">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               {stats.map((stat) => (
@@ -136,7 +146,7 @@ export default async function AboutPage() {
         <OurStorySection />
 
         {/* Purpose Section - Image Left, Text Right */}
-        <section className="py-20 md:py-28 bg-[#f8f8f8]">
+        <section data-cms-section="1835de163174a68d" className="py-20 md:py-28 bg-[#f8f8f8]">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-muted via-primary/5 to-primary/15">
@@ -176,7 +186,7 @@ export default async function AboutPage() {
         </section>
 
         {/* Our People Section - Text Left, Image Right */}
-        <section className="py-20 md:py-28">
+        <section data-cms-section="498a9690ed7a7ac4" className="py-20 md:py-28">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
@@ -217,7 +227,7 @@ export default async function AboutPage() {
         </section>
 
         {/* Values Section */}
-        <section className="py-20 md:py-28 bg-[#f8f8f8]">
+        <section data-cms-section="4337a55e7441b656" className="py-20 md:py-28 bg-[#f8f8f8]">
           <div className="container mx-auto px-6 lg:px-12">
             <div className="text-center mb-16">
               <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">
@@ -249,7 +259,7 @@ export default async function AboutPage() {
         </section>
 
         {/* CTA Banner */}
-        <section className="py-20 md:py-28 bg-[#1a1f2e]">
+        <section data-cms-section="6afaa53020b0448f" className="py-20 md:py-28 bg-[#1a1f2e]">
           <div className="container mx-auto px-6 lg:px-12 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 text-balance">
               Be Part of the Journey
@@ -278,9 +288,11 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        <FooterSection />
+        <><NativePageSections /><FooterSection /></>
       <ScrollAnimations />
       </main>
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-about',originalMetadata)}

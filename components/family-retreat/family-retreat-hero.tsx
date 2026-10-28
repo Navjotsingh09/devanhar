@@ -1,9 +1,15 @@
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CalendarDays, ArrowLeft } from 'lucide-react'
 
-export function FamilyRetreatHero() {
-  return <section className="relative isolate overflow-hidden bg-[#101b2d] text-white">
+export async function FamilyRetreatHero({ cmsCopy = {} }: {cmsCopy?:PageCopy} = {}) {
+
+
+  return applyPageCopy((<section data-cms-section="5f07a5aa3230f198" className="relative isolate overflow-hidden bg-[#101b2d] text-white">
     <Image src="/initiatives/sikh-family-retreat-top.png" alt="Children enjoying an outdoor activity at a Sikh Family Retreat" fill priority sizes="100vw" className="object-cover object-center" />
     <div className="absolute inset-0 bg-gradient-to-r from-[#101b2d]/95 via-[#101b2d]/65 to-[#101b2d]/35" />
     <div className="absolute inset-0 bg-gradient-to-t from-[#101b2d]/80 via-transparent to-[#101b2d]/30" />
@@ -28,5 +34,7 @@ export function FamilyRetreatHero() {
         </div>
       </div>
     </div>
-  </section>
+  </section>), cmsCopy)
 }
+
+registerCopyComponent(FamilyRetreatHero)

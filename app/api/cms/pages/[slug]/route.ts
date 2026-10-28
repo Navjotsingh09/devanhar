@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath,revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { pageContentSchema, cmsSlugSchema, pagePath } from '@/lib/cms/page-content'
 import { sfiHeadSchema } from '@/lib/cms/sfi-content'
@@ -22,8 +22,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     const data = result.data
     if (data.action === 'restore') await restorePageRevision(slug, data.revisionId, data.expected)
     else if (data.action === 'discard' || data.action === 'unpublish') await changePageVisibility(slug, data.action, data.expected)
-    else await changePageContent(slug, data.action, data.content, data.expected)
-    if (data.action === 'publish' || data.action === 'unpublish') revalidatePath(pagePath(slug))
+    else if(data.action==='save'||data.action==='publish')await changePageContent(slug, data.action, data.content, data.expected)
+    if (data.action === 'publish' || data.action === 'unpublish') revalidateTag('cms-pages',{expire:0})
+    if (data.action === 'publish' || data.action === 'unpublish') revalidatePath(slug==='site-settings'?'/':pagePath(slug),slug==='site-settings'?'layout':'page')
     return NextResponse.json(await getPageEditorState(slug), { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error) {
     const status = error instanceof CmsError ? error.status : error instanceof SyntaxError ? 400 : 503

@@ -1,5 +1,8 @@
 "use client"
 
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import { usePageCopy } from '@/components/cms/page-copy-provider'
+
 import { useState } from "react"
 import { Users, Heart, Share2, ArrowRight, Copy, Check, ExternalLink, ChevronDown, Loader2, MapPin, Calendar, Trophy } from "lucide-react"
 import Link from "next/link"
@@ -41,6 +44,8 @@ const faqs = [
 ]
 
 function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
+  const cmsCopy = usePageCopy()
+
   const [step, setStep] = useState<"form" | "success">("form")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -104,7 +109,7 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
   }
 
   if (step === "success") {
-    return (
+    return applyPageCopy(((
       <div className="text-center space-y-6">
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
           <Check className="w-8 h-8 text-green-600" />
@@ -145,10 +150,10 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
           Close
         </button>
       </div>
-    )
+    )), cmsCopy)
   }
 
-  return (
+  return applyPageCopy(((
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-xl font-bold">Join Devanhaar in the Wolf Run</h3>
       <p className="text-sm text-muted-foreground">Sign up to get your unique fundraising link</p>
@@ -310,10 +315,12 @@ function FundraiserRegistrationForm({ onClose }: { onClose: () => void }) {
         )}
       </button>
     </form>
-  )
+  )), cmsCopy)
 }
 
 function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
+  const cmsCopy = usePageCopy()
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [form, setForm] = useState({
@@ -357,7 +364,7 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
     }
   }
 
-  return (
+  return applyPageCopy(((
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-xl font-bold">Applications Over</h3>
       <p className="text-sm text-muted-foreground">{applicationsClosedMessage}</p>
@@ -508,11 +515,13 @@ function WolfRunPaymentForm({ onClose }: { onClose: () => void }) {
         Registration payments are closed for this event.
       </p>
     </form>
-  )
+  )), cmsCopy)
 }
 
 function SupportFundraiserPopup({ onClose }: { onClose: () => void }) {
-  return (
+  const cmsCopy = usePageCopy()
+
+  return applyPageCopy(((
     <div className="text-center space-y-6 py-2">
       <h3 className="text-2xl font-bold">Support a Fundraiser</h3>
       <p className="text-muted-foreground">Choose how you&apos;d like to get involved</p>
@@ -538,19 +547,21 @@ function SupportFundraiserPopup({ onClose }: { onClose: () => void }) {
         Close
       </button>
     </div>
-  )
+  )), cmsCopy)
 }
 
 export function WolfRunContent() {
+  const cmsCopy = usePageCopy()
+
   const [showRegistration, setShowRegistration] = useState(false)
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   const [showSupportPopup, setShowSupportPopup] = useState(false)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
 
-  return (
+  return applyPageCopy(((
     <>
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <section data-cms-section="2172c21c5c159980" className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0">
           <img src="/images/events/wolfrun-hero.jpg" alt="" className="w-full h-full object-cover" />
         </div>
@@ -593,24 +604,24 @@ export function WolfRunContent() {
       </section>
 
       {/* What is Wolf Run */}
-      <section className="py-20 bg-background" data-animate>
+      <section data-cms-section="9f1211bea61b7357" className="py-20 bg-background" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">What is the Wolf Run?</h2>
             <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
               <p>
-                The Wolf Run is one of the UK&apos;s most iconic wild running events. Set in the 
-                Warwickshire countryside at Offchurch Bury near Leamington Spa, you&apos;ll take on 
+                The Wolf Run is one of the UK&apos;s most iconic wild running events. Set in the
+                Warwickshire countryside at Offchurch Bury near Leamington Spa, you&apos;ll take on
                 a 5K course packed with mud, woodland, freezing lakes, streams, and natural obstacles.
               </p>
               <p>
-                This isn&apos;t a race — there are no winners. It&apos;s about showing up together, 
-                getting absolutely filthy, and having the time of your life doing it. When someone 
-                struggles, the group pulls them through. When the mud swallows your shoe, 
+                This isn&apos;t a race — there are no winners. It&apos;s about showing up together,
+                getting absolutely filthy, and having the time of your life doing it. When someone
+                struggles, the group pulls them through. When the mud swallows your shoe,
                 someone&apos;s there laughing with you and dragging you out.
               </p>
               <p>
-                It doesn&apos;t matter if you&apos;re fast, fit, or have never run a day in your life. 
+                It doesn&apos;t matter if you&apos;re fast, fit, or have never run a day in your life.
                 What matters is that you turn up, give it everything, and cross that finish line together.
               </p>
               <p>
@@ -639,20 +650,20 @@ export function WolfRunContent() {
       </section>
 
       {/* Why Devanhaar */}
-      <section className="py-20 bg-muted/30" data-animate>
+      <section data-cms-section="91cd94068b82cebc" className="py-20 bg-muted/30" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Why We&apos;re Running for Devanhaar</h2>
             <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
               <p>
-                Devanhaar is a Sikh-led charity creating educational and community spaces for 
-                learning, growth, and service. From Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala, 
-                university outreach, and community programmes — every penny raised goes towards 
+                Devanhaar is a Sikh-led charity creating educational and community spaces for
+                learning, growth, and service. From Singhs Camp UK and Kaurs Camp UK to Sikhi Vidyala,
+                university outreach, and community programmes — every penny raised goes towards
                 empowering the next generation.
               </p>
               <p>
-                By taking on the Wolf Run together, we&apos;re not just challenging ourselves physically — 
-                we&apos;re showing the power of community and raising vital funds for programmes that 
+                By taking on the Wolf Run together, we&apos;re not just challenging ourselves physically —
+                we&apos;re showing the power of community and raising vital funds for programmes that
                 change lives.
               </p>
               <p>And along the way, you&apos;ll take something back for yourself too:</p>
@@ -669,7 +680,7 @@ export function WolfRunContent() {
       </section>
 
       {/* The Packs */}
-      <section className="py-20 bg-background" data-animate>
+      <section data-cms-section="ae449c7f611ec46f" className="py-20 bg-background" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Join the Pack</h2>
@@ -682,7 +693,7 @@ export function WolfRunContent() {
               </div>
               <h3 className="text-2xl font-bold text-amber-900 mb-2">Singhs Pack</h3>
               <p className="text-amber-700/80 mb-6">
-                Representing the Singhs Camp UK community. Run together, raise together, 
+                Representing the Singhs Camp UK community. Run together, raise together,
                 and show what brotherhood means.
               </p>
               <button
@@ -698,7 +709,7 @@ export function WolfRunContent() {
               </div>
               <h3 className="text-2xl font-bold text-purple-900 mb-2">Kaurs Pack</h3>
               <p className="text-purple-700/80 mb-6">
-                Representing the Kaurs Camp UK community. Stand strong, run wild, and 
+                Representing the Kaurs Camp UK community. Stand strong, run wild, and
                 make an impact for sisterhood.
               </p>
               <button
@@ -713,7 +724,7 @@ export function WolfRunContent() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-muted/30" data-animate>
+      <section data-cms-section="d8f49f8b28409d64" className="py-20 bg-muted/30" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How Fundraising Works</h2>
@@ -726,7 +737,7 @@ export function WolfRunContent() {
               </div>
               <h3 className="font-bold text-lg mb-2">Sign Up</h3>
               <p className="text-muted-foreground text-sm">
-                Register as a fundraiser and choose your pack — Singhs or Kaurs. 
+                Register as a fundraiser and choose your pack — Singhs or Kaurs.
                 You&apos;ll get your own unique fundraising page.
               </p>
             </div>
@@ -736,7 +747,7 @@ export function WolfRunContent() {
               </div>
               <h3 className="font-bold text-lg mb-2">Share Your Link</h3>
               <p className="text-muted-foreground text-sm">
-                Send your unique link to friends, family, and colleagues via WhatsApp, 
+                Send your unique link to friends, family, and colleagues via WhatsApp,
                 social media, or however you like.
               </p>
             </div>
@@ -746,7 +757,7 @@ export function WolfRunContent() {
               </div>
               <h3 className="font-bold text-lg mb-2">Collect Sponsorships</h3>
               <p className="text-muted-foreground text-sm">
-                People donate through your link. Every donation is tracked to you, 
+                People donate through your link. Every donation is tracked to you,
                 and all funds go to Devanhaar.
               </p>
             </div>
@@ -763,7 +774,7 @@ export function WolfRunContent() {
       </section>
 
       {/* Event Details */}
-      <section className="py-20 bg-background" data-animate>
+      <section data-cms-section="ab592ae28c40fbb7" className="py-20 bg-background" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8">Event Details</h2>
@@ -794,7 +805,7 @@ export function WolfRunContent() {
               </div>
               <div className="mt-6 pt-6 border-t border-border">
                 <p className="text-sm text-muted-foreground">
-                  Entry fees are paid directly to Wolf Run. Our fundraising is separate — sponsorship 
+                  Entry fees are paid directly to Wolf Run. Our fundraising is separate — sponsorship
                   donations go to Devanhaar.
                 </p>
                 <a
@@ -813,7 +824,7 @@ export function WolfRunContent() {
       </section>
 
       {/* FAQs */}
-      <section className="py-20 bg-muted/30" data-animate>
+      <section data-cms-section="fba7caf794a8ad1e" className="py-20 bg-muted/30" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
@@ -844,7 +855,7 @@ export function WolfRunContent() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900" data-animate>
+      <section data-cms-section="c9624b7c225ba032" className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-900" data-animate>
         <div className="container mx-auto px-6 lg:px-12">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Make a Difference?</h2>
@@ -929,5 +940,5 @@ export function WolfRunContent() {
         </div>
       )}
     </>
-  )
+  )), cmsCopy)
 }

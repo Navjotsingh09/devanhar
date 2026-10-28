@@ -11,7 +11,7 @@ export function programmeForPath(path: string): StaffProgramme | null {
 }
 export function canVisitDashboard(path: string, programmes: StaffProgramme[], role?: string) {
   if (role === 'super_admin' || role === 'admin') return true
-  if (role === 'content_manager') return path === '/dashboard/website' || path.startsWith('/dashboard/website/') || path === '/dashboard/activity'
+  if (role === 'content_manager') return path === '/dashboard/website' || path.startsWith('/dashboard/website/') || path === '/dashboard/activity' || path === '/dashboard/blog' || path.startsWith('/dashboard/blog/')
   const programme = programmeForPath(path)
   return programmes.length ? programme !== null && programmes.includes(programme) : programme === null
 }

@@ -1,3 +1,7 @@
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import type { CorePillar } from "./camp-shared-data"
 
 interface CorePillarsGridProps {
@@ -6,13 +10,15 @@ interface CorePillarsGridProps {
   subheading?: string
 }
 
-export function CorePillarsGrid({
+export async function CorePillarsGrid({cmsCopy = {},
   pillars,
   heading = "Our Core Pillars",
   subheading = "Every camp is built on 6 core pillars that are embedded into every part of the experience.",
-}: CorePillarsGridProps) {
-  return (
-    <section className="border-t border-border bg-secondary/30 py-20 md:py-28">
+}: (CorePillarsGridProps) & {cmsCopy?:PageCopy}) {
+
+
+  return applyPageCopy(((
+    <section data-cms-section="70c935e7a1a12553" className="border-t border-border bg-secondary/30 py-20 md:py-28">
       <div className="container mx-auto px-6 lg:px-12 max-w-6xl">
         <div className="max-w-3xl mb-12 md:mb-16">
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[hsl(43,100%,29%)] mb-4">
@@ -48,5 +54,7 @@ export function CorePillarsGrid({
         </div>
       </div>
     </section>
-  )
+  )), cmsCopy)
 }
+
+registerCopyComponent(CorePillarsGrid)
