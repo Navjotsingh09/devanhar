@@ -13,7 +13,6 @@ import { ArrowUpRight } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { blogAuthor, getBlogCoverImage } from "@/lib/blog-presentation"
-import { getUploadedBlogCovers } from "@/lib/blog-images"
 import { getPublishedBlogPosts } from "@/lib/blog-db"
 
 const originalMetadata: Metadata = {
@@ -33,8 +32,8 @@ function formatDate(date: string) {
 export default async function InsightsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
   const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-insights')
 
-  const [uploadedCovers, posts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
-  const coverFor = (post: (typeof posts)[number]) => post.coverImage || (!post.persisted ? uploadedCovers[post.slug] : undefined) || getBlogCoverImage(post.slug)
+  const posts = await getPublishedBlogPosts()
+  const coverFor = (post: (typeof posts)[number]) => post.coverImage || getBlogCoverImage(post.slug)
   const [heroPost, ...morePosts] = posts
 
   return withPageCopy(((

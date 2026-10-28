@@ -16,4 +16,8 @@ The automated suite and database assertions are separate from browser acceptance
 
 ## Combined validation
 
-656 automated assertions passed across 24 regression files after merging current main. Production build compiled successfully and generated 141 pages. The SPA fixtures now reflect active SPA membership rather than general CRM roles, including fresh-session reuse and denial after revocation. The optional source-workbook test remains explicitly excluded.
+659 automated assertions passed across 25 regression files after merging current main. Production build compiled successfully and generated 141 pages. The SPA fixtures now reflect active SPA membership rather than general CRM roles, including fresh-session reuse and denial after revocation. The optional source-workbook test remains explicitly excluded.
+
+## Public article runtime repair
+
+A real preview navigation exposed a static-to-dynamic 500 on article detail pages. Runtime logs identified a redundant legacy cover lookup that read session cookies after published article reads became cookie-free. The public listing/detail now use each published record’s cover and the existing placeholder fallback, avoiding the unused session lookup. Three new rendering regressions verify cookie-free detail/metadata/listing and continued not-found behaviour for unpublished articles. All 659 checks and the production build passed after the repair; the corrected deployment still needs browser confirmation before merge.

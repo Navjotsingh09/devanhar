@@ -3,7 +3,6 @@ import { InsightContent } from '@/components/cms/insight-content'
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getAllSlugs } from "@/lib/blog"
-import { getUploadedBlogCovers } from "@/lib/blog-images"
 import { getPublishedBlogPostBySlug, getPublishedBlogPosts } from "@/lib/blog-db"
 
 export function generateStaticParams() {
@@ -31,9 +30,9 @@ export default async function InsightPostPage({
   const post = await getPublishedBlogPostBySlug(slug)
   if (!post) notFound()
 
-  const [uploadedCovers, publishedPosts] = await Promise.all([getUploadedBlogCovers(), getPublishedBlogPosts()])
+  const publishedPosts = await getPublishedBlogPosts()
 
   const related = publishedPosts.filter((item) => item.slug !== post.slug).sort((a,b)=>Number(!!b.metadata?.featured)-Number(!!a.metadata?.featured)).slice(0, 2)
 
-  return <InsightContent post={post} related={related} uploadedCovers={uploadedCovers} />
+  return <InsightContent post={post} related={related} />
 }
