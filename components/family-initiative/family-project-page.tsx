@@ -1,10 +1,14 @@
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {registerCopyComponent} from '@/lib/cms/copy-node'
 import Link from "next/link"
 import { CalendarDays, ArrowLeft, ArrowRight } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
 
-export function FamilyProjectPage({
+export async function FamilyProjectPage({cmsCopy = {},
   eyebrow,
   showNavbar = true,
   heroVariant = "photo",
@@ -14,7 +18,7 @@ export function FamilyProjectPage({
   body,
   ctaHref,
   ctaLabel,
-}: {
+}: ({
   eyebrow: string
   showNavbar?: boolean
   heroVariant?: "photo" | "wedding"
@@ -24,10 +28,12 @@ export function FamilyProjectPage({
   body: string[]
   ctaHref?: string
   ctaLabel?: string
-}) {
+}) & {cmsCopy?:PageCopy}) {
+
+
   const isWeddingHero = heroVariant === "wedding"
 
-  return (
+  return applyPageCopy(((
     <>
       {showNavbar ? <Navbar /> : null}
       <main className="min-h-screen">
@@ -85,5 +91,7 @@ export function FamilyProjectPage({
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+registerCopyComponent(FamilyProjectPage)

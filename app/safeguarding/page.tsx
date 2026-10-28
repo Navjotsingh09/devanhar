@@ -1,9 +1,15 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { ScrollAnimations } from "@/components/scroll-animations"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Safeguarding & Security Statement - Devanhaar",
   description: "Devanhaar Safeguarding & Security Statement.",
 }
@@ -76,8 +82,10 @@ const sections: { h: string; blocks: Block[] }[] = [
   },
 ]
 
-export default function SafeguardingPage() {
-  return (
+export default async function SafeguardingPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-safeguarding')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -118,5 +126,7 @@ export default function SafeguardingPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-safeguarding',originalMetadata)}

@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Navbar } from "@/components/navbar"
@@ -6,7 +12,7 @@ import { ScrollAnimations } from "@/components/scroll-animations"
 import { Users, Bell, ArrowRight, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Team Coming Soon | Devanhaar",
   description:
     "The Devanhaar team page is coming soon. Stay tuned to learn more about the sevadaars serving camps, education, and community projects across the UK.",
@@ -19,8 +25,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://devanhaar.vercel.app/team" },
 }
 
-export default function TeamPage() {
-  return (
+export default async function TeamPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-team')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ScrollAnimations />
@@ -99,5 +107,7 @@ export default function TeamPage() {
       </main>
       <FooterSection />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-team',originalMetadata)}

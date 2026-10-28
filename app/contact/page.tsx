@@ -1,10 +1,16 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { ContactContent } from "@/components/contact-content"
 import { FooterSection } from "@/components/footer-section"
 import { FAQSection } from "@/components/faq-section"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Contact Us | Devanhaar Sikh Charity",
   description:
     "Get in touch with Devanhaar. Reach out about volunteering, partnerships, donations, camp registration, or general enquiries. We are here to help.",
@@ -47,8 +53,10 @@ const contactFAQs = [
   },
 ]
 
-export default function ContactPage() {
-  return (
+export default async function ContactPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-contact')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <ContactContent />
@@ -59,5 +67,7 @@ export default function ContactPage() {
       />
       <FooterSection hideContact />
     </>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-contact',originalMetadata)}

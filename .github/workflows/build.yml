@@ -31,5 +31,8 @@ jobs:
       - name: Test Roots application tracker
         run: node --test scripts/test-roots-tracker.mjs
 
+      - name: Test CMS completion and public-page preservation
+        run: node --test scripts/test-cms-completion.mjs scripts/test-cms-seo.mjs scripts/test-cms-theme.mjs scripts/test-cms-overview.mjs scripts/test-newsletter-workflows.mjs scripts/test-wrestling-page.mjs
+
       - name: Build application
         run: npm run build

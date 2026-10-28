@@ -1,13 +1,21 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { InitiativePageLayout } from "@/components/initiative-page-layout"
 
-export const metadata = {
+const originalMetadata = {
   title: "Sikh Professional Network | Devanhaar",
   description:
     "Connecting Sikh professionals across industries through mentorship, networking, and career development.",
 }
 
-export default function SikhProfessionalNetworkPage() {
-  return (
+export default async function SikhProfessionalNetworkPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sikh-professional-network')
+
+  return withPageCopy(((
     <InitiativePageLayout
       title="Sikh Professional Network"
       tagline="Connecting Sikh professionals through mentorship, opportunity, and shared growth."
@@ -49,5 +57,7 @@ export default function SikhProfessionalNetworkPage() {
         "/initiatives/spn-3.png",
       ]}
     />
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sikh-professional-network',originalMetadata)}

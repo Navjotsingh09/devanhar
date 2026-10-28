@@ -1,12 +1,20 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { FamilyProjectPage } from "@/components/family-initiative/family-project-page"
 
-export const metadata = {
+const originalMetadata = {
   title: "Sikh Family Extravaganza | Sikh Family Initiative | Devanhaar",
   description: "A large Sikh family celebration bringing generations together through activities, connection and community.",
 }
 
-export default function SikhFamilyExtravaganzaPage() {
-  return (
+export default async function SikhFamilyExtravaganzaPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-sikh-family-extravaganza')
+
+  return withPageCopy(((
     <FamilyProjectPage
       eyebrow="Sikh Family Initiative"
       title="Sikh Family Extravaganza"
@@ -20,5 +28,7 @@ export default function SikhFamilyExtravaganzaPage() {
       ctaHref="/initiatives/sikh-family-initiative"
       ctaLabel="See all upcoming dates"
     />
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-sikh-family-extravaganza',originalMetadata)}

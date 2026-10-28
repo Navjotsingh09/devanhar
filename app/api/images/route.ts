@@ -1,3 +1,4 @@
+import {getBlogStaff} from '@/lib/blog-staff-server'
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if(request.headers.get('origin')!==new URL(request.url).origin)return NextResponse.json({error:'Use the website image workspace.'},{status:403})
+  try{const{allowed}=await getBlogStaff();if(!allowed)return NextResponse.json({error:'Your account cannot replace shared image slots. Use the media library for assigned content.'},{status:403})}catch{return NextResponse.json({error:'Website editing access could not be verified.'},{status:403})}
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
@@ -94,37 +97,6 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ image: record })
 }
 
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const { id } = await request.json()
-  if (!id) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 })
-  }
-
-  const { data: image } = await supabase
-    .from("site_images")
-    .select("storage_path")
-    .eq("id", id)
-    .single()
-
-  if (image) {
-    await supabase.storage
-      .from("site-images")
-      .remove([image.storage_path])
-  }
-
-  const { error } = await supabase
-    .from("site_images")
-    .delete()
-    .eq("id", id)
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-  return NextResponse.json({ success: true })
+export async function DELETE() {
+ return NextResponse.json({error:'Use the media library to archive unused files. Existing website images remain available.'},{status:409})
 }

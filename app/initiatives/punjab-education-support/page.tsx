@@ -1,3 +1,9 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Link from "next/link"
 import type { Metadata } from "next"
 import {
@@ -15,7 +21,7 @@ import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
 import { PesGallery } from "@/components/pes-gallery"
 
-export const metadata: Metadata = {
+const originalMetadata: Metadata = {
   title: "Punjab Education Support Project | Devanhaar",
   description:
     "Building stronger schools through partnership, opportunity and shared learning between Punjab and the UK.",
@@ -57,8 +63,10 @@ const focusAreas = [
   },
 ]
 
-export default function PunjabEducationSupportPage() {
-  return (
+export default async function PunjabEducationSupportPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-punjab-education-support')
+
+  return withPageCopy(((
     <>
       <Navbar />
       <main className="min-h-screen bg-white">
@@ -309,7 +317,9 @@ export default function PunjabEducationSupportPage() {
       </main>
       <FooterSection hideContact />
     </>
-  )
+  )), cmsCopy)
 }
 
 
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-punjab-education-support',originalMetadata)}

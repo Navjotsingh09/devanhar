@@ -1,15 +1,23 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const metadata = {
+const originalMetadata = {
   title: "Kaurs Camp UK | Devanhaar",
   description:
     "Kaurs Camp UK applications are not currently open. Get in touch to be the first to hear when they do.",
 }
 
-export default function KaursCampUkPage() {
-  return (
+export default async function KaursCampUkPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-kaurs-camp-uk')
+
+  return withPageCopy(((
     <main className="min-h-screen bg-background">
       <section className="border-b border-border bg-secondary/30">
         <div className="container mx-auto px-6 lg:px-12 max-w-4xl py-16 md:py-24">
@@ -38,5 +46,7 @@ export default function KaursCampUkPage() {
         </div>
       </section>
     </main>
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-kaurs-camp-uk',originalMetadata)}

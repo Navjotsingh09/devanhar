@@ -1,5 +1,7 @@
 'use client'
 
+import {MediaField} from './media-field'
+import { SeoFields } from './seo-fields'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, Eye, Plus, Save, Send, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,6 +12,7 @@ import type { getSfiEditorState } from '@/lib/cms/sfi-server'
 type State = Awaited<ReturnType<typeof getSfiEditorState>>
 const labels = { events: 'Upcoming events', why: 'Why SFI', faq: 'Frequently asked questions', community: 'Community & seva' }
 function Field({ label, value, onChange, multiline = false }: { label: string; value: string; onChange: (value: string) => void; multiline?: boolean }) {
+  if(label==='Hero image path')return <MediaField label={label} value={value} onChange={onChange}/>
   return <label className="block space-y-2 text-sm font-medium"><span>{label}</span>{multiline
     ? <textarea value={value} onChange={event => onChange(event.target.value)} rows={4} className="w-full rounded-lg border border-input bg-background p-3 font-normal leading-6 focus:outline-none focus:ring-2 focus:ring-primary" />
     : <Input value={value} onChange={event => onChange(event.target.value)} className="font-normal" />}</label>
@@ -88,7 +91,7 @@ export function SfiEditor({ initial }: { initial: State }) {
         </div>}
         {tab === 'FAQs' && <div className="space-y-6">{content.faqs.map((faq, index) => <div key={index} className="space-y-4 rounded-xl border p-4"><Field label={`Question ${index + 1}`} value={faq.question} onChange={value => setContent({ ...content, faqs: content.faqs.map((item, i) => i === index ? { ...item, question: value } : item) })} /><Field label="Answer" multiline value={faq.answer} onChange={value => setContent({ ...content, faqs: content.faqs.map((item, i) => i === index ? { ...item, answer: value } : item) })} /><Button variant="outline" onClick={() => setContent({ ...content, faqs: content.faqs.filter((_, i) => i !== index) })}>Remove from draft</Button></div>)}<Button variant="outline" onClick={() => setContent({ ...content, faqs: [...content.faqs, { question: '', answer: '' }] })}>Add FAQ</Button></div>}
         {tab === 'Sections' && <div className="space-y-3"><p className="text-sm text-muted-foreground">The hero stays first. Reorder or hide the sections below; changes stay in the draft until published.</p>{content.sectionOrder.map((key, index) => <div key={key} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"><label className="flex items-center gap-3 text-sm font-medium"><input type="checkbox" checked={!content.hiddenSections.includes(key)} onChange={event => setContent({ ...content, hiddenSections: event.target.checked ? content.hiddenSections.filter(item => item !== key) : [...content.hiddenSections, key] })} />{labels[key]}</label><div className="flex gap-2"><Button size="icon" variant="outline" aria-label={`Move ${labels[key]} up`} disabled={index === 0} onClick={() => moveSection(index, -1)}><ArrowUp className="h-4 w-4" /></Button><Button size="icon" variant="outline" aria-label={`Move ${labels[key]} down`} disabled={index === 3} onClick={() => moveSection(index, 1)}><ArrowDown className="h-4 w-4" /></Button></div></div>)}</div>}
-        {tab === 'SEO' && <div className="space-y-5"><Field label="SEO title" value={content.seo.title} onChange={value => setContent({ ...content, seo: { ...content.seo, title: value } })} /><Field label="Meta description" multiline value={content.seo.description} onChange={value => setContent({ ...content, seo: { ...content.seo, description: value } })} /><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={content.seo.noIndex} onChange={event => setContent({ ...content, seo: { ...content.seo, noIndex: event.target.checked } })} />Ask search engines not to index this page</label><p className="text-sm text-muted-foreground">The page URL stays /sfi.</p></div>}
+        {tab === 'SEO' && <SeoFields value={content.seo} onChange={seo => setContent({ ...content, seo })} />}
         {tab === 'History' && <div className="space-y-3"><p className="text-sm text-muted-foreground">Saved revisions are retained separately from the published version.</p>{saved.history.length ? saved.history.map(revision => <div key={revision.id} className="rounded-lg border p-4 text-sm"><p className="font-semibold">Revision {revision.revision_number}{revision.id === saved.head.publishedId ? ' · Published' : revision.id === saved.head.draftId ? ' · Current draft' : ''}</p><p className="mt-1 text-muted-foreground">{new Date(revision.created_at).toLocaleString('en-GB', { timeZone: 'Europe/London' })}</p></div>) : <p className="text-sm">No CMS revisions yet.</p>}</div>}
       </fieldset>
     </div>}

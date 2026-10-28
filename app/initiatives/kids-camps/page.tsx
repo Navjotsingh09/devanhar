@@ -1,13 +1,21 @@
+import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
+
+import { applyPageCopy } from '@/lib/cms/copy-node'
+import type {PageCopy} from '@/lib/cms/copy-schema'
+import {getPublicPageCopy} from '@/lib/cms/copy-server'
+import {withPageCopy} from '@/components/cms/page-copy-server'
 import { InitiativePageLayout } from "@/components/initiative-page-layout"
 
-export const metadata = {
+const originalMetadata = {
   title: "Kids Camps | Devanhaar",
   description:
     "Inspiring the next generation to embrace Sikhi through interactive learning, practical workshops, and fun activities.",
 }
 
-export default function KidsCampsPage() {
-  return (
+export default async function KidsCampsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:PageCopy} = {}) {
+  const cmsCopy = suppliedCopy ?? await getPublicPageCopy('content-kids-camps')
+
+  return withPageCopy(((
     <InitiativePageLayout
       title="Kids Camps"
       tagline="Inspiring the next generation to embrace Sikhi through interactive learning, practical workshops, and fun activities."
@@ -32,5 +40,7 @@ export default function KidsCampsPage() {
         "/initiatives/kids-camps-3.jpg",
       ]}
     />
-  )
+  )), cmsCopy)
 }
+
+export async function generateMetadata(){return getMigratedPageMetadata('content-kids-camps',originalMetadata)}
