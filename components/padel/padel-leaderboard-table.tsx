@@ -24,12 +24,6 @@ export type LeaderboardRow = {
 
 const PAGE_SIZE = 12
 
-function countryFlag(countryCode: string) {
-  const normalized = countryCode.toUpperCase()
-  if (!/^[A-Z]{2}$/.test(normalized)) return '🏳️'
-  return String.fromCodePoint(...[...normalized].map((char) => 127397 + char.charCodeAt(0)))
-}
-
 function playerName(row: LeaderboardRow) {
   return [row.first_name, row.last_name].filter(Boolean).join(' ').trim()
 }
@@ -87,11 +81,11 @@ function TopPlayerCard({ row, leader }: { row: LeaderboardRow; leader?: boolean 
         <MovementBadge movement={row.movement} />
       </div>
       <p className="mt-4 text-[13px] font-semibold">
-        {countryFlag(row.country_code)} {playerName(row)}
+        {playerName(row)}
       </p>
       <p className="mt-2 text-xl font-bold">{row.total_points.toLocaleString()} pts</p>
       <p className={'mt-1 text-[10px] ' + (leader ? 'text-[#b9c8d1]' : 'text-[#6a6d77]')}>
-        {row.titles} {row.titles === 1 ? 'title' : 'titles'} · {Math.round(row.win_percentage)}% win
+        {row.titles} {row.titles === 1 ? 'title' : 'titles'} · {row.match_wins} {row.match_wins === 1 ? 'win' : 'wins'}
       </p>
     </Link>
   )
@@ -185,7 +179,7 @@ export function PadelLeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
             <option value="ALL">All nationalities</option>
             {countries.map((code) => (
               <option key={code} value={code}>
-                {countryFlag(code)} {code === 'GB' ? 'United Kingdom' : code === 'NO' ? 'Norway' : code}
+                {code === 'GB' ? 'United Kingdom' : code === 'NO' ? 'Norway' : code}
               </option>
             ))}
           </select>
@@ -211,10 +205,10 @@ export function PadelLeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px] font-semibold text-[#0f2940]">
-                {countryFlag(row.country_code)} {playerName(row)}
+                {playerName(row)}
               </span>
               <span className="mt-1 block text-[10px] text-[#6a6d77]">
-                {row.titles} titles · {row.match_wins} wins · {Math.round(row.win_percentage)}% win
+                {row.titles} {row.titles === 1 ? 'title' : 'titles'} · {row.match_wins} {row.match_wins === 1 ? 'win' : 'wins'}
               </span>
             </span>
             <span className="shrink-0 text-right text-sm font-bold text-[#0f2940]">
@@ -226,33 +220,29 @@ export function PadelLeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       </div>
 
       <div className="hidden overflow-hidden rounded-[14px] border border-[#dedfe3] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.06)] md:block">
-        <div className="grid grid-cols-[55px_minmax(240px,1fr)_95px_75px_95px_75px_90px_110px_78px] bg-[#f4f4f6] px-4 py-2.5 text-[9px] font-bold text-[#6a6d77]">
+        <div className="grid grid-cols-[55px_minmax(240px,1fr)_95px_75px_95px_75px_78px] bg-[#f4f4f6] px-4 py-2.5 text-[9px] font-bold text-[#6a6d77]">
           <span>RANK</span>
           <span>PLAYER</span>
           <span>POINTS</span>
           <span>TITLES</span>
           <span>RUNNER-UP</span>
           <span>WINS</span>
-          <span>WIN %</span>
-          <span>GROUP PTS %</span>
           <span>MOVE</span>
         </div>
         {pageRows.map((row) => (
           <Link
             key={row.id}
             href={'/spa/leaderboard/' + row.id}
-            className="grid grid-cols-[55px_minmax(240px,1fr)_95px_75px_95px_75px_90px_110px_78px] items-center border-t border-[#dedfe3] px-4 py-3 text-[11px] transition-colors hover:bg-[#fafafb]"
+            className="grid grid-cols-[55px_minmax(240px,1fr)_95px_75px_95px_75px_78px] items-center border-t border-[#dedfe3] px-4 py-3 text-[11px] transition-colors hover:bg-[#fafafb]"
           >
             <span className="font-semibold text-[#15171c]">{row.rank}</span>
             <span className="font-semibold text-[#0f2940]">
-              {countryFlag(row.country_code)} {playerName(row)}
+              {playerName(row)}
             </span>
             <span>{row.total_points.toLocaleString()}</span>
             <span>{row.titles}</span>
             <span>{row.runner_up_finishes}</span>
             <span>{row.match_wins}</span>
-            <span>{Math.round(row.win_percentage)}%</span>
-            <span>{Math.round(row.group_points_won_percentage)}%</span>
             <MovementBadge movement={row.movement} />
           </Link>
         ))}
