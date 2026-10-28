@@ -5,8 +5,11 @@ import { redirect } from 'next/navigation'
  * General Devanhaar staff and super-admin profiles do not grant SPA access.
  * Never authorise from user-editable auth metadata or email alone.
  */
-export async function checkPadelStaffAccess() {
-  const supabase = await createClient()
+export async function checkPadelStaffAccess(existingClient?: Awaited<ReturnType<typeof createClient>>) {
+  // During sign-in the freshly issued session may not yet be available to
+  // a second SSR client reading request cookies. Use the authenticated client
+  // that performed signInWithPassword for the immediate membership check.
+  const supabase = existingClient ?? await createClient()
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return null
 
