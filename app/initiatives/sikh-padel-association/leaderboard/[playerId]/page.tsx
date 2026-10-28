@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { getPublicSupabaseClient } from "@/lib/supabase/public"
-import { formatCountryFlag, getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
+import { getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
 import { getPositionLabel } from "@/lib/padel-ranking"
 
 export const dynamic = "force-dynamic"
@@ -115,11 +115,7 @@ export default async function PadelPlayerProfilePage({
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to leaderboard
               </Link>
 
-              <span className="mt-6 inline-flex rounded-full bg-[#e6a429] px-3 py-1.5 text-[10px] font-semibold text-[#0f2940]">
-                {formatCountryFlag(rankedPlayer.country_code)} {rankedPlayer.country_code === "NO" ? "NORWAY" : rankedPlayer.country_code === "GB" ? "UNITED KINGDOM" : rankedPlayer.country_code}
-              </span>
-
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-5xl">
+              <h1 className="mt-6 text-3xl font-bold tracking-tight text-white md:text-5xl">
                 {rankedPlayer.first_name} {rankedPlayer.last_name}
               </h1>
               <p className="mt-2 text-sm text-[#b9c8d1]">
@@ -164,14 +160,13 @@ export default async function PadelPlayerProfilePage({
         </section>
 
         <section className="mx-auto max-w-7xl space-y-6 px-6 py-8 lg:px-12 lg:py-10">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               [rankedPlayer.total_points.toLocaleString(), "Points"],
               [String(rankedPlayer.titles), "Titles"],
               [String(rankedPlayer.runner_up_finishes), "Runner-up"],
               [String(rankedPlayer.match_wins), "Match wins"],
-              [Math.round(rankedPlayer.win_percentage) + "%", "Win rate"],
-              [Math.round(rankedPlayer.group_points_won_percentage) + "%", "Group pts won"],
+
             ].map(([value, label]) => (
               <div
                 key={label}
