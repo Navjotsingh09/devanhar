@@ -30,3 +30,18 @@ test('Roots scope opens only Roots pages, Roots APIs and its scoped CSV export',
  for(const path of ['/api/cms/sfi','/api/admin/stripe-audit','/api/roots-forms-other','/api/crm/submissions/export?programme=padel','/api/crm/submissions/export'])assert.equal((await s.run(path,'POST')).status,403,path)
  assert.equal((await s.run('/dashboard/users')).body,'https://site.invalid/dashboard/roots')
 })
+
+
+test('blog scope preserves existing programmes and opens only blog routes and media API',async()=>{
+ const s=setup({programmes:['kaurs','vidyala','newsletter','blog']})
+ for(const path of ['/dashboard/kaurs','/dashboard/vidyala','/dashboard/newsletter','/dashboard/blog','/dashboard/blog/new','/dashboard/blog/example/edit'])assert.equal((await s.run(path)).status,200,path)
+ for(const path of ['/api/blog','/api/blog/example','/api/blog/example/history','/api/cms/media'])for(const method of ['GET','POST'])assert.equal((await s.run(path,method)).status,200,path)
+ for(const path of ['/api/blog-other','/api/cms/media-other','/api/cms/pages/home','/api/cms/entries/project/sample','/api/admin/stripe-audit','/spa-admin'])assert.equal((await s.run(path,'POST')).status,403,path)
+ for(const path of ['/dashboard/users','/dashboard/submissions','/dashboard/website/pages','/dashboard/roots'])assert.equal((await s.run(path,'POST')).status,403,path)
+})
+test('programme scope without blog stays blocked from the blog editor and APIs',async()=>{
+ const s=setup({programmes:['kaurs','vidyala','newsletter']})
+ assert.equal((await s.run('/dashboard/blog','POST')).status,403)
+ assert.equal((await s.run('/api/blog','POST')).status,403)
+ assert.equal((await s.run('/api/cms/media','POST')).status,403)
+})

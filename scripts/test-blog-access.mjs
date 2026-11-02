@@ -101,6 +101,8 @@ const denied = [
   ['vacancies-only account', { role: 'vacancies_only' }, 403],
   ['unassigned Content Manager', { role: 'content_manager' }, 403],
   ['unknown role',{role:'unknown'},403],
+  ['disabled with blog grant',{role:'disabled',grants:[{programme:'blog'}]},403],
+  ['vacancies with blog grant',{role:'vacancies_only',grants:[{programme:'blog'}]},403],
   ['programme staff', { grants: [{ programme: 'kaurs' }] }, 403],
 ]
 
@@ -118,7 +120,7 @@ try {
         }
       })
     }
-    for (const [role, grants] of [['staff',[]],['admin',[]],['super_admin',[]],['admin',[{programme:'family'}]],['super_admin',[{programme:'newsletter'}]]]) {
+    for (const [role, grants] of [['staff',[]],['staff',[{programme:'kaurs'},{programme:'vidyala'},{programme:'newsletter'},{programme:'blog'}]],['admin',[]],['super_admin',[]],['admin',[{programme:'family'}]],['super_admin',[{programme:'newsletter'}]]]) {
       test(`${route.name}: retains access for general ${role}/${grants.length}`, async () => {
         const state = fixture({ role, grants })
         const response = await invoke(route)
@@ -136,6 +138,9 @@ try {
       assert.equal(state.writes[0].action, 'rpc')
       assert.equal(state.writes[0].payload.p_publish, status === 'published')
     }
+  })
+  test('blog grant revocation denies the next write without removing programme grants',async()=>{
+    const grants=[{programme:'kaurs'},{programme:'blog'}];fixture({role:'staff',grants});assert.equal((await invoke(routes[0])).status,200);grants.pop();const state=fixture({role:'staff',grants});assert.equal((await invoke(routes[0])).status,403);assert.deepEqual(state.writes,[]);assert.equal(grants[0].programme,'kaurs')
   })
   test.after(() => { hooks.deregister(); delete globalThis[key] })
 } catch (error) {

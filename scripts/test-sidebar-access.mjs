@@ -42,3 +42,18 @@ test('Roots sidebar selects only the deepest matching destination',()=>{const pa
 for (const role of ['admin','super_admin']) test(`${role} has full programme access even with legacy assignments`,()=>{for(const programmes of [[],['family'],['kaurs']]) for(const path of paths.filter(p=>!p.includes('/website/sfi'))) assert.equal(access.canOpenDashboardSection(path,{role,programmes}),true)})
 
 test('Content Managers cannot navigate to CRM data or assignment administration',()=>{for(const path of ['/dashboard','/dashboard/submissions','/dashboard/roots','/dashboard/users','/dashboard/website/assignments'])assert.equal(access.canOpenDashboardSection(path,{role:'content_manager',canEditSfi:true}),false);assert.equal(access.canOpenDashboardSection('/dashboard/website/sfi',{role:'content_manager',canEditSfi:true}),true)})
+
+
+test('mixed programme/blog account gets a direct workspace blog link with no broader access',()=>{
+ const account={role:'programme_manager',programmes:['kaurs','vidyala','newsletter','blog'],email:'fixture@example.org',fullName:'Fixture'}
+ const html=renderToStaticMarkup(React.createElement(full.AppSidebar,{user:account,websiteEnabled:true}))
+ assert.equal((html.match(/href="\/dashboard\/blog"/g)||[]).length,1)
+ for(const path of ['/dashboard/blog','/dashboard/blog/new','/dashboard/blog/example/edit','/dashboard/kaurs','/dashboard/vidyala','/dashboard/newsletter'])assert.equal(access.canOpenDashboardSection(path,account),true,path)
+ for(const path of ['/dashboard/users','/dashboard/settings','/dashboard/submissions','/dashboard/website/pages','/dashboard/roots'])assert.equal(access.canOpenDashboardSection(path,account),false,path)
+})
+test('blog-only scope has a usable landing page and general staff retain legacy blog access',()=>{
+ assert.equal(programme.programmeHome(['blog']),'/dashboard/blog')
+ assert.equal(programme.programmeHome(['kaurs','blog']),'/dashboard/kaurs')
+ assert.equal(access.canOpenDashboardSection('/dashboard/blog',{role:'staff',programmes:[]}),true)
+ assert.equal(access.canOpenDashboardSection('/dashboard/blog',{role:'staff',programmes:['kaurs']}),false)
+})
