@@ -188,7 +188,7 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
   const visibleProjects = projectSpaces.filter(space => [space.title, ...(space.children || []).map(child => child.title), ...(space.tools || []).map(tool => tool.title)].some(title => title.toLowerCase().includes(search)))
   const programmes = user.programmes || []
   const home = user.role === 'content_manager' ? '/dashboard/website' : user.role === 'vacancies_only' ? '/dashboard/vacancies' : programmeHome(programmes)
-  const managementItems = managementNav
+  const managementItems = programmes.includes('blog') ? [...managementNav, { title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper }] : managementNav
   const websiteItems: NavItem[] = [
     ...(websiteEnabled ? [{ title: 'Content overview', url: '/dashboard/website', icon: LayoutDashboard },
     { title: 'Website pages', url: '/dashboard/website/pages', icon: BookOpen },
@@ -200,7 +200,7 @@ export function AppSidebar({ user, websiteEnabled = false, formBuilderEnabled = 
     ...(['project','event','announcement','notification','faq'] as const).map(kind=>({title:kind==='faq'?'FAQs':kind[0].toUpperCase()+kind.slice(1)+'s',url:`/dashboard/website/content/${kind}`,icon:Newspaper})),
     { title: 'SFI page editor', url: '/dashboard/website/sfi', icon: Newspaper },
     { title: 'Content assignments', url: '/dashboard/website/assignments', icon: Users }] : []),
-    { title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper },
+    ...(!programmes.includes('blog') ? [{ title: 'Blog & insights', url: '/dashboard/blog', icon: Newspaper }] : []),
     { title: 'Site images', url: '/dashboard/images', icon: ImageIcon },
     { title: 'Products', url: '/dashboard/products', icon: Package },
     { title: 'Orders', url: '/dashboard/orders', icon: ClipboardList },

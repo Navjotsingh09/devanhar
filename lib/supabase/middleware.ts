@@ -108,9 +108,12 @@ export async function updateSession(request: NextRequest) {
       const url=request.nextUrl.clone();url.pathname='/auth/spa-access';url.search='';return finish(NextResponse.redirect(url))
     }
     const newsletterApi=pathname==='/api/cms/subscribers'&&programmes.includes('newsletter')
+    // Blog access is an additional programme grant, not general CRM access.
+    // Each article/media handler still checks fresh staff permissions.
+    const blogApi=role==='staff'&&programmes.includes('blog')&&(pathname==='/api/blog'||pathname.startsWith('/api/blog/')||pathname==='/api/cms/media')
     const publicSubmissionApi=['/api/contact','/api/newsletter','/api/newsletter/unsubscribe'].includes(pathname)
     const rootsApi=programmes.includes('roots')&&(/^\/api\/roots-forms(?:\/|$)/.test(pathname)||(pathname==='/api/crm/submissions/export'&&request.nextUrl.searchParams.get('programme')==='roots'))
-    if (programmes.length && !rootsApi && !newsletterApi && !publicSubmissionApi && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
+    if (programmes.length && !rootsApi && !newsletterApi && !blogApi && !publicSubmissionApi && (isSpaPortal || (pathname.startsWith('/api/') && !['/api/camp-applications/view-id','/api/reply'].includes(pathname)))) {
       return finish(NextResponse.json({ error: 'Your account is limited to your assigned programmes.' }, { status: 403 }))
     }
   }
