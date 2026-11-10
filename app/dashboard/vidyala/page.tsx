@@ -7,13 +7,21 @@ export const dynamic = 'force-dynamic'
 
 async function getApplications(): Promise<VidyalaApplicationRow[]> {
   const supabase = await createClient()
-  const { data } = await supabase
-    .from('vidyala_applications')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(5000)
+  const applications: VidyalaApplicationRow[] = []
+  let cursor: number | undefined
 
-  return (data ?? []) as VidyalaApplicationRow[]
+  // The database API caps individual reads; fetch every row staff may access.
+  while (true) {
+    let query = supabase.from('vidyala_applications').select('*').order('id', { ascending: false }).limit(500)
+    if (cursor !== undefined) query = query.lt('id', cursor)
+    const { data, error } = await query
+    if (error) throw new Error('Could not load all Vidyala applications')
+    if (!data?.length) break
+    const batch = data as VidyalaApplicationRow[]
+    applications.push(...batch)
+    cursor = batch[batch.length - 1].id
+  }
+  return applications.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id)
 }
 
 export default async function VidyalaApplicationsPage() {

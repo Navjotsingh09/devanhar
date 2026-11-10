@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { VidyalaPrintSheet } from './vidyala-print-sheet'
@@ -59,6 +59,7 @@ interface VidyalaApplicationDetailDialogProps {
 
 export function VidyalaApplicationDetailDialog({ application, onOpenChange }: VidyalaApplicationDetailDialogProps) {
   const [printOpen, setPrintOpen] = useState(false)
+  const printApplications = useMemo(() => application ? [application] : [], [application])
   const open = application !== null
 
   return (
@@ -83,9 +84,12 @@ export function VidyalaApplicationDetailDialog({ application, onOpenChange }: Vi
               </Button>
             </div>
 
-            {printOpen && <VidyalaPrintSheet key={application.id} application={application} onClose={() => setPrintOpen(false)}>
-              <ApplicantFields application={application} printable />
-            </VidyalaPrintSheet>}
+            {printOpen && <VidyalaPrintSheet
+              key={application.id}
+              applications={printApplications}
+              onClose={() => setPrintOpen(false)}
+              renderApplication={(row) => <ApplicantFields application={row} printable />}
+            />}
             <ApplicantFields application={application} />
           </>
         )}
@@ -94,7 +98,7 @@ export function VidyalaApplicationDetailDialog({ application, onOpenChange }: Vi
   )
 }
 
-function ApplicantFields({ application, printable = false }: { application: VidyalaApplicationRow; printable?: boolean }) {
+export function ApplicantFields({ application, printable = false }: { application: VidyalaApplicationRow; printable?: boolean }) {
   return (
     <div className="space-y-5">
       <Section title="Personal details">
@@ -151,9 +155,9 @@ function ApplicantFields({ application, printable = false }: { application: Vidy
 
       <Section title="Documents">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <Field label="Photo ID" value={printable ? (application.id_document_url ? 'See ID attachment below' : 'Not uploaded') : <DocumentLink path={application.id_document_url} />} />
+          <Field label="Photo ID" value={printable ? (application.id_document_url ? 'See attachment pages' : 'Not uploaded') : <DocumentLink path={application.id_document_url} />} />
           <Field label="Has DBS check" value={yesNo(application.has_dbs_check)} />
-          <Field label="DBS certificate" value={printable ? (application.dbs_certificate_url ? 'Uploaded' : 'Not uploaded') : <DocumentLink path={application.dbs_certificate_url} />} />
+          <Field label="DBS certificate" value={printable ? (application.dbs_certificate_url ? 'See attachment pages' : 'Not uploaded') : <DocumentLink path={application.dbs_certificate_url} />} />
         </div>
       </Section>
 

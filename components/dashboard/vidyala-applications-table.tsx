@@ -10,9 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Download, Eye, Filter, Plus, Search, X } from 'lucide-react'
+import { Download, Eye, Filter, Plus, Printer, Search, X } from 'lucide-react'
 import { VidyalaRowActions } from '@/components/dashboard/vidyala-row-actions'
-import { VidyalaApplicationDetailDialog } from '@/components/dashboard/vidyala-application-detail-dialog'
+import { ApplicantFields, VidyalaApplicationDetailDialog } from '@/components/dashboard/vidyala-application-detail-dialog'
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { VidyalaPrintSheet } from './vidyala-print-sheet'
 
 export interface VidyalaApplicationRow {
   id: number
@@ -268,6 +271,7 @@ function FilterValueInput({
 
 export function VidyalaApplicationsTable({ applications }: { applications: VidyalaApplicationRow[] }) {
   const [viewing, setViewing] = useState<VidyalaApplicationRow | null>(null)
+  const [printAllOpen, setPrintAllOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<ActiveFilter[]>([])
@@ -356,7 +360,7 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
   return (
     <>
       <div className="mb-4 space-y-3">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+        <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -389,6 +393,27 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
               Clear all
             </Button>
           )}
+          <Dialog open={printAllOpen} onOpenChange={setPrintAllOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" variant="outline" disabled={!applications.length}>
+                <Printer className="mr-2 h-4 w-4" /> Print all applications ({applications.length})
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Print all Vidyala applications</DialogTitle>
+                <DialogDescription>
+                  Includes all {applications.length} applications regardless of search or filters, plus uploaded IDs and DBS certificates.
+                </DialogDescription>
+              </DialogHeader>
+              {printAllOpen && <VidyalaPrintSheet
+                applications={applications}
+                onClose={() => setPrintAllOpen(false)}
+                renderApplication={(row) => <ApplicantFields application={row} printable />}
+                autoPrint
+              />}
+            </DialogContent>
+          </Dialog>
           <Button type="button" variant="outline" onClick={() => void exportExcel(applications, 'all')}>
             <Download className="mr-2 h-4 w-4" /> Export all
           </Button>

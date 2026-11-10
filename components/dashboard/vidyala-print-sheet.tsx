@@ -1,11 +1,16 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import type { VidyalaApplicationRow } from './vidyala-applications-table'
 
-type Preview = { status: 'loading' | 'unavailable' | 'missing' } | { status: 'ready'; pages: string[] }
+type DocumentPages = { label: string; pages: string[] }
+type Packet = { row: VidyalaApplicationRow; documents: DocumentPages[] }
+
+function applicantName(row: VidyalaApplicationRow) {
+  return [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(' ')
+}
 
 async function preparePages(path: string, signal: AbortSignal, objectUrl: (blob: Blob) => string) {
   const response = await fetch('/api/camp-applications/view-id?source=vidyala&print=1&path=' + encodeURIComponent(path), {
@@ -56,58 +61,93 @@ async function preparePages(path: string, signal: AbortSignal, objectUrl: (blob:
   return [objectUrl(file)]
 }
 
-export function VidyalaPrintSheet({ application, onClose, children }: {
-  application: VidyalaApplicationRow
+export function VidyalaPrintSheet({ applications, onClose, renderApplication, autoPrint = false }: {
+  applications: readonly VidyalaApplicationRow[]
   onClose: () => void
-  children: ReactNode
+  renderApplication: (row: VidyalaApplicationRow) => ReactNode
+  autoPrint?: boolean
 }) {
-  const path = application.id_document_url
-  const [preview, setPreview] = useState<Preview>({ status: path ? 'loading' : 'missing' })
-  const name = [application.first_name, application.middle_name, application.last_name].filter(Boolean).join(' ')
+  const [packets, setPackets] = useState<Packet[] | null>(null)
+  const [finished, setFinished] = useState(0)
+  const didAutoPrint = useRef(false)
 
   useEffect(() => {
-    if (!path) return
     const controller = new AbortController()
     const urls: string[] = []
-    const objectUrl = (blob: Blob) => {
-      controller.signal.throwIfAborted()
-      const url = URL.createObjectURL(blob)
-      urls.push(url)
-      return url
+    async function prepare() {
+      const result: Packet[] = []
+      for (const row of applications) {
+        const documents: DocumentPages[] = []
+        for (const [label, path] of [['Applicant ID', row.id_document_url], ['DBS certificate', row.dbs_certificate_url]] as const) {
+          if (controller.signal.aborted) return
+          if (!path) continue
+          const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45_000)])
+          const fileUrls: string[] = []
+          let pages: string[] = []
+          try {
+            pages = await preparePages(path, signal, (blob) => {
+              signal.throwIfAborted()
+              const url = URL.createObjectURL(blob)
+              urls.push(url)
+              fileUrls.push(url)
+              return url
+            })
+            for (const src of pages) {
+              const image = new Image()
+              image.src = src
+              await image.decode()
+            }
+            signal.throwIfAborted()
+          } catch {
+            fileUrls.forEach((url) => URL.revokeObjectURL(url))
+            pages = []
+          }
+          if (controller.signal.aborted) return
+          documents.push({ label, pages })
+        }
+        result.push({ row, documents })
+        if (result.length % 5 === 0 || result.length === applications.length) setFinished(result.length)
+      }
+      if (!controller.signal.aborted) setPackets(result)
     }
-    const timeout = window.setTimeout(() => {
-      controller.abort()
-      setPreview({ status: 'unavailable' })
-    }, 45_000)
-    void preparePages(path, controller.signal, objectUrl).then(async (pages) => {
-      // Wait for every page to decode before enabling the print button.
-      await Promise.all(pages.map(async (src) => {
-        const image = new Image()
-        image.src = src
-        await image.decode()
-      }))
-      if (!controller.signal.aborted) setPreview({ status: 'ready', pages })
-    }).catch(() => {
-      if (!controller.signal.aborted) setPreview({ status: 'unavailable' })
-    }).finally(() => window.clearTimeout(timeout))
+    void prepare()
     return () => {
-      window.clearTimeout(timeout)
       controller.abort()
       urls.forEach((url) => URL.revokeObjectURL(url))
     }
-  }, [path])
+  }, [applications])
+
+  const failures = packets?.flatMap(({ row, documents }) =>
+    documents.filter(({ pages }) => !pages.length).map(({ label }) => ({ row, label }))
+  ) ?? []
+  const canAutoPrint = autoPrint && packets !== null && failures.length === 0
+  useEffect(() => {
+    if (!canAutoPrint || didAutoPrint.current) return
+    const frame = window.requestAnimationFrame(() => {
+      didAutoPrint.current = true
+      window.print()
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [canAutoPrint])
 
   return (
     <div className="space-y-2 rounded-lg border p-3">
       <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={() => window.print()} disabled={preview.status === 'loading'}>
-          {preview.status === 'loading' ? 'Preparing ID…' : preview.status === 'unavailable' ? 'Print without ID' : 'Print / Save as PDF'}
+        <Button type="button" onClick={() => window.print()} disabled={!packets}>
+          {!packets ? 'Preparing documents…' : failures.length ? 'Print with missing documents' : 'Print / Save as PDF'}
         </Button>
         <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
       </div>
-      {preview.status === 'unavailable' && <p role="alert" className="text-sm">The ID could not be included. Use “View document” in the Documents section to open or print it separately.</p>}
-      {preview.status === 'missing' && <p className="text-sm">No ID document was uploaded.</p>}
-      {preview.status !== 'loading' && createPortal(
+      {!packets && <p role="status" className="text-sm">Prepared {finished} of {applications.length} applications.</p>}
+      {!!failures.length && (
+        <div role="alert" className="text-sm">
+          <p>Some uploaded documents could not be included. Close and try again, or print with these documents missing:</p>
+          <ul className="mt-2 max-h-36 list-disc overflow-auto pl-5">
+            {failures.map(({ row, label }) => <li key={row.id + label}>{applicantName(row)} (#{row.id}): {label}</li>)}
+          </ul>
+        </div>
+      )}
+      {packets && createPortal(
         <article className="vidyala-print-sheet">
           <style>{`
             @page { size: A4; margin: 14mm; }
@@ -126,24 +166,28 @@ export function VidyalaPrintSheet({ application, onClose, children }: {
               .vidyala-print-sheet .rounded-md > span { font-weight: 600; break-after: avoid; }
               .vidyala-print-sheet .rounded-md > div { font-size: 10pt; line-height: 1.35; overflow-wrap: anywhere; }
               .vidyala-print-sheet * { color: #000 !important; }
+              .vidyala-print-application + .vidyala-print-application { break-before: page; }
               .vidyala-id-page { break-before: page; break-inside: avoid; }
               .vidyala-id-page img { display: block; width: auto; max-width: 100%; max-height: 238mm; margin: 8pt auto 0; object-fit: contain; }
             }
           `}</style>
-          <header>
-            <h1>{name}</h1>
-            <p>Sikhi Vidyala application #{application.id} · Confidential</p>
-          </header>
-          {children}
-          {preview.status === 'ready' && preview.pages.map((src, index) => (
-            <section className="vidyala-id-page" key={src}>
-              <h2>Applicant ID · {name} · #{application.id}</h2>
-              <p>Page {index + 1} of {preview.pages.length}</p>
-              {/* eslint-disable-next-line @next/next/no-img-element -- local, private print image */}
-              <img src={src} alt={`Applicant ID page ${index + 1}`} />
-            </section>
+          {packets.map(({ row, documents }) => (
+            <div className="vidyala-print-application" key={row.id}>
+              <header>
+                <h1>{applicantName(row)}</h1>
+                <p>Sikhi Vidyala application #{row.id} · Confidential</p>
+              </header>
+              {renderApplication(row)}
+              {documents.map(({ label, pages }) => pages.length ? pages.map((src, index) => (
+                <section className="vidyala-id-page" key={src}>
+                  <h2>{label} · {applicantName(row)} · #{row.id}</h2>
+                  <p>Page {index + 1} of {pages.length}</p>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local, private print image */}
+                  <img src={src} alt={`${label}, page ${index + 1}`} />
+                </section>
+              )) : <p key={label}>{label} could not be included in this printout.</p>)}
+            </div>
           ))}
-          {preview.status === 'unavailable' && <p>Applicant ID could not be included in this printout.</p>}
         </article>,
         document.body,
       )}
