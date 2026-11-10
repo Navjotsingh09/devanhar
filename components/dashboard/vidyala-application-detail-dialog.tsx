@@ -1,5 +1,9 @@
 'use client'
 
+import { useState } from 'react'
+import { Printer } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { VidyalaPrintSheet } from './vidyala-print-sheet'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import type { VidyalaApplicationRow } from '@/components/dashboard/vidyala-applications-table'
 
@@ -54,10 +58,14 @@ interface VidyalaApplicationDetailDialogProps {
 }
 
 export function VidyalaApplicationDetailDialog({ application, onOpenChange }: VidyalaApplicationDetailDialogProps) {
+  const [printOpen, setPrintOpen] = useState(false)
   const open = application !== null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(nextOpen) => {
+      if (!nextOpen) setPrintOpen(false)
+      onOpenChange(nextOpen)
+    }}>
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         {application && (
           <>
@@ -69,86 +77,100 @@ export function VidyalaApplicationDetailDialog({ application, onOpenChange }: Vi
                 Full Sikhi Vidyala application · Applied {new Date(application.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} · Status: <span className="capitalize">{application.status}</span>
               </DialogDescription>
             </DialogHeader>
-
-            <div className="space-y-5">
-              <Section title="Personal details">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="First name" value={application.first_name} />
-                  <Field label="Middle name" value={application.middle_name} />
-                  <Field label="Last name" value={application.last_name} />
-                  <Field label="Date of birth" value={new Date(application.date_of_birth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} />
-                  <Field label="Email" value={<a href={'mailto:' + application.email} className="text-blue-600 hover:underline">{application.email}</a>} />
-                  <Field label="Phone" value={<a href={'tel:' + application.phone} className="text-blue-600 hover:underline">{application.phone}</a>} />
-                  <div className="sm:col-span-2"><Field label="Address" value={application.address} /></div>
-                </div>
-              </Section>
-
-              <Section title="Emergency contacts">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <Field label="Contact 1 name" value={application.emergency_contact_1_name} />
-                  <Field label="Contact 1 relationship" value={application.emergency_contact_1_relationship} />
-                  <Field label="Contact 1 phone" value={application.emergency_contact_1_phone} />
-                  <Field label="Contact 2 name" value={application.emergency_contact_2_name} />
-                  <Field label="Contact 2 relationship" value={application.emergency_contact_2_relationship} />
-                  <Field label="Contact 2 phone" value={application.emergency_contact_2_phone} />
-                </div>
-              </Section>
-
-              <Section title="Sikhi journey">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Amritdhari" value={yesNo(application.is_amritdhari)} />
-                  <Field label="English ability" value={application.english_ability} />
-                  <Field label="Panjabi ability" value={application.panjabi_ability} />
-                  <div className="sm:col-span-2"><Field label="Sikhi journey" value={application.sikhi_journey} /></div>
-                </div>
-              </Section>
-
-              <Section title="Motivation, seva & learning">
-                <div className="grid grid-cols-1 gap-3">
-                  <Field label="Motivation" value={application.motivation} />
-                  <Field label="Current seva" value={application.current_seva} />
-                  <Field label="What they want to learn" value={application.what_to_learn} />
-                  <Field label="Continue parchaar" value={yesNo(application.continue_parchaar)} />
-                  <Field label="How they heard about Vidyala" value={application.how_heard} />
-                </div>
-              </Section>
-
-              <Section title="Commitment & practical details">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Can commit" value={yesNo(application.can_commit)} />
-                  <Field label="Funding option" value={application.funding_option} />
-                  <Field label="Accommodation option" value={application.accommodation_option} />
-                  <Field label="Requires visa" value={yesNo(application.requires_visa)} />
-                  <Field label="Requires visa support" value={yesNo(application.requires_visa_support)} />
-                </div>
-              </Section>
-
-              <Section title="Documents">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <Field label="Photo ID" value={<DocumentLink path={application.id_document_url} />} />
-                  <Field label="Has DBS check" value={yesNo(application.has_dbs_check)} />
-                  <Field label="DBS certificate" value={<DocumentLink path={application.dbs_certificate_url} />} />
-                </div>
-              </Section>
-
-              <Section title="Submission & tracking">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Field label="Status" value={<span className="capitalize">{application.status}</span>} />
-                  <Field label="Applied" value={new Date(application.created_at).toLocaleString('en-GB')} />
-                  <Field label="Updated" value={application.updated_at ? new Date(application.updated_at).toLocaleString('en-GB') : null} />
-                  <Field label="Source" value={application.source} />
-                  <Field label="Medium" value={application.medium} />
-                  <div className="sm:col-span-2"><Field label="Page URL" value={application.page_url} /></div>
-                </div>
-              </Section>
-
-              <Section title="Internal notes">
-                <Field label="Notes" value={application.internal_notes} />
-              </Section>
+            <div className="flex justify-start">
+              <Button type="button" variant="outline" onClick={() => setPrintOpen(true)}>
+                <Printer className="h-4 w-4" /> Print application
+              </Button>
             </div>
+
+            {printOpen && <VidyalaPrintSheet key={application.id} application={application} onClose={() => setPrintOpen(false)}>
+              <ApplicantFields application={application} printable />
+            </VidyalaPrintSheet>}
+            <ApplicantFields application={application} />
           </>
         )}
       </DialogContent>
     </Dialog>
+  )
+}
+
+function ApplicantFields({ application, printable = false }: { application: VidyalaApplicationRow; printable?: boolean }) {
+  return (
+    <div className="space-y-5">
+      <Section title="Personal details">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="First name" value={application.first_name} />
+          <Field label="Middle name" value={application.middle_name} />
+          <Field label="Last name" value={application.last_name} />
+          <Field label="Date of birth" value={new Date(application.date_of_birth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} />
+          <Field label="Email" value={<a href={'mailto:' + application.email} className="text-blue-600 hover:underline">{application.email}</a>} />
+          <Field label="Phone" value={<a href={'tel:' + application.phone} className="text-blue-600 hover:underline">{application.phone}</a>} />
+          <div className="sm:col-span-2"><Field label="Address" value={application.address} /></div>
+        </div>
+      </Section>
+
+      <Section title="Emergency contacts">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Field label="Contact 1 name" value={application.emergency_contact_1_name} />
+          <Field label="Contact 1 relationship" value={application.emergency_contact_1_relationship} />
+          <Field label="Contact 1 phone" value={application.emergency_contact_1_phone} />
+          <Field label="Contact 2 name" value={application.emergency_contact_2_name} />
+          <Field label="Contact 2 relationship" value={application.emergency_contact_2_relationship} />
+          <Field label="Contact 2 phone" value={application.emergency_contact_2_phone} />
+        </div>
+      </Section>
+
+      <Section title="Sikhi journey">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Amritdhari" value={yesNo(application.is_amritdhari)} />
+          <Field label="English ability" value={application.english_ability} />
+          <Field label="Panjabi ability" value={application.panjabi_ability} />
+          <div className="sm:col-span-2"><Field label="Sikhi journey" value={application.sikhi_journey} /></div>
+        </div>
+      </Section>
+
+      <Section title="Motivation, seva & learning">
+        <div className="grid grid-cols-1 gap-3">
+          <Field label="Motivation" value={application.motivation} />
+          <Field label="Current seva" value={application.current_seva} />
+          <Field label="What they want to learn" value={application.what_to_learn} />
+          <Field label="Continue parchaar" value={yesNo(application.continue_parchaar)} />
+          <Field label="How they heard about Vidyala" value={application.how_heard} />
+        </div>
+      </Section>
+
+      <Section title="Commitment & practical details">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Can commit" value={yesNo(application.can_commit)} />
+          <Field label="Funding option" value={application.funding_option} />
+          <Field label="Accommodation option" value={application.accommodation_option} />
+          <Field label="Requires visa" value={yesNo(application.requires_visa)} />
+          <Field label="Requires visa support" value={yesNo(application.requires_visa_support)} />
+        </div>
+      </Section>
+
+      <Section title="Documents">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Field label="Photo ID" value={printable ? (application.id_document_url ? 'See ID attachment below' : 'Not uploaded') : <DocumentLink path={application.id_document_url} />} />
+          <Field label="Has DBS check" value={yesNo(application.has_dbs_check)} />
+          <Field label="DBS certificate" value={printable ? (application.dbs_certificate_url ? 'Uploaded' : 'Not uploaded') : <DocumentLink path={application.dbs_certificate_url} />} />
+        </div>
+      </Section>
+
+      <Section title="Submission & tracking">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Status" value={<span className="capitalize">{application.status}</span>} />
+          <Field label="Applied" value={new Date(application.created_at).toLocaleString('en-GB')} />
+          <Field label="Updated" value={application.updated_at ? new Date(application.updated_at).toLocaleString('en-GB') : null} />
+          <Field label="Source" value={application.source} />
+          <Field label="Medium" value={application.medium} />
+          <div className="sm:col-span-2"><Field label="Page URL" value={application.page_url} /></div>
+        </div>
+      </Section>
+
+      <Section title="Internal notes">
+        <Field label="Notes" value={application.internal_notes} />
+      </Section>
+    </div>
   )
 }

@@ -67,6 +67,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to generate document URL' }, { status: 500 })
     }
 
+    // Stream printable Vidyala files through the same staff permission check.
+    // The renderer needs same-origin bytes; other document links still redirect.
+    if (source === 'vidyala' && request.nextUrl.searchParams.get('print') === '1') {
+      const document = await fetch(data.signedUrl, { cache: 'no-store', redirect: 'error', signal: request.signal })
+      if (!document.ok || !document.body) {
+        return NextResponse.json({ error: 'Could not load document' }, { status: 502 })
+      }
+      return new Response(document.body, {
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'Content-Disposition': 'attachment',
+          'Cache-Control': 'private, no-store',
+          'X-Content-Type-Options': 'nosniff',
+        },
+      })
+    }
+
     // Redirect to the signed URL
     return NextResponse.redirect(data.signedUrl)
   } catch (err) {
