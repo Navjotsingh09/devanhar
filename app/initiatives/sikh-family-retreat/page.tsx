@@ -1,3 +1,4 @@
+import { isRetreatBookingOpen, type RetreatBookingEvent } from '@/lib/family-retreat-booking-details'
 
 import {NativePageSections} from '@/components/cms/native-page-sections'
 import {getMigratedPageMetadata} from '@/lib/cms/page-seo-server'
@@ -19,9 +20,9 @@ const originalMetadata = {
 }
 
 const retreats = [
-  { title: 'New Year Reset', date: '31 December 2026 – 3 January 2027', href: '/sfr/register?event=new-year-reset', label: 'Next retreat', description: 'Begin the year with intention in saadh sangat, with time for Gurbani, reflection and practical ways to bring Sikhi into family life.' },
-  { title: 'Spring Retreat', date: '1–4 April 2027', href: '/sfr/register?event=spring', label: 'Spring 2027', description: 'Make room for family time, shared learning and outdoor skill building, with a focus on Gurbani relating to nature and wildlife.' },
-  { title: 'Summer Retreat', date: '22–25 July 2027', href: '/sfr/register?event=summer', label: 'Summer 2027', description: 'Spend a few days in sangat with shared family experiences, outdoor adventures and camping skills.' },
+  { event: 'new-year-reset' as RetreatBookingEvent, title: 'New Year Reset', date: '31 December 2026 – 3 January 2027', href: '/sfr/register?event=new-year-reset', label: 'Next retreat', description: 'Begin the year with intention in saadh sangat, with time for Gurbani, reflection and practical ways to bring Sikhi into family life.' },
+  { event: 'spring' as RetreatBookingEvent, title: 'Spring Retreat', date: '1–4 April 2027', href: '/sfr/register?event=spring', label: 'Spring 2027', description: 'Make room for family time, shared learning and outdoor skill building, with a focus on Gurbani relating to nature and wildlife.' },
+  { event: 'summer' as RetreatBookingEvent, title: 'Summer Retreat', date: '22–25 July 2027', href: '/sfr/register?event=summer', label: 'Summer 2027', description: 'Spend a few days in sangat with shared family experiences, outdoor adventures and camping skills.' },
 ]
 const experiences = [
   { icon: BookOpen, title: 'Explore Sikhi together', text: 'Time with Gurbani, reflective discussions and shared learning that families can bring into everyday life.' },
@@ -74,6 +75,11 @@ export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {
               <p className={`mt-4 flex items-start gap-2 text-sm font-semibold leading-relaxed ${index === 0 ? 'text-white/90' : 'text-foreground'}`}><CalendarDays aria-hidden="true" className={`mt-0.5 h-4 w-4 shrink-0 ${index === 0 ? 'text-amber-300' : 'text-[hsl(43,100%,29%)]'}`} />{retreat.date}</p>
               <p className={`mb-7 mt-4 flex-1 text-sm leading-relaxed ${index === 0 ? 'text-white/75' : 'text-muted-foreground'}`}>{retreat.description}</p>
               <Link href={retreat.href} aria-label={`Register interest for ${retreat.title}`} className={`flex min-h-12 items-center justify-between gap-3 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-500 ${index === 0 ? 'bg-amber-400 text-[#101b2d] hover:bg-amber-300' : 'bg-[#101b2d] text-white hover:bg-[#253651]'}`}>Register interest<ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
+              {isRetreatBookingOpen(retreat.event) && (
+                <Link href={`/sfr/book?event=${retreat.event}`} className="mt-3 rounded-full bg-amber-300 px-5 py-3 text-center text-sm font-semibold text-[#101b2d] hover:bg-amber-200">
+                  Request a booking
+                </Link>
+              )}
             </article>)}
           </div>
           <p className="mt-5 text-sm text-muted-foreground">Registering interest does not confirm a place or take payment.</p>

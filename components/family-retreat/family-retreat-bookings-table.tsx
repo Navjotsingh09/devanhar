@@ -1,5 +1,6 @@
 "use client"
 
+import { isRetreatBookingEvent, RETREAT_BOOKING_EVENTS, retreatAccommodationLabel, retreatChildAge, retreatReference, retreatSubmittedAt } from "@/lib/family-retreat-booking-details"
 import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
 import { format } from "date-fns"
@@ -45,6 +46,16 @@ type AdultPerson = {
 
 export type FamilyRetreatBooking = {
   id: string
+  booking_number?: number | string | null
+  booking_details?: {
+    event: string
+    title: string
+    age: number
+    address: string
+    guardian_of_all: boolean
+    parent_consent: boolean
+    transport_required: boolean
+  } | null
   booking_device?: string | null
   paid_at: string | null
   payment_reminder_sent_at?: string | null
@@ -257,7 +268,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
       if (statusFilter !== "all" && booking.status !== statusFilter) return false
 
       if (!term) return true
-      const haystack = [booking.first_name, booking.last_name, booking.email, booking.phone, booking.city, booking.postcode]
+      const haystack = [booking.first_name, booking.last_name, booking.email, booking.phone, booking.city, booking.postcode, retreatReference(booking.booking_number)]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
@@ -458,6 +469,9 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                   const childrenCount = Array.isArray(booking.children_attending) ? booking.children_attending.length : 0
                   const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
                   const rowMessage = messages[booking.id]
+                  const reference = retreatReference(booking.booking_number)
+                  const details = booking.booking_details
+                  const retreat = details && isRetreatBookingEvent(details.event) ? RETREAT_BOOKING_EVENTS[details.event] : null
 
                   return (
                     <Fragment key={booking.id}>
@@ -466,6 +480,25 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                           <div className="font-medium">{booking.first_name || ""} {booking.last_name || ""}</div>
                           <div className="text-xs text-muted-foreground">{booking.email || "-"}</div>
                           <div className="text-xs text-muted-foreground">{booking.phone || "-"}</div>
+                          {reference && <div className="mt-1 text-xs font-medium">{reference}{retreat ? ` · ${retreat.title}` : ''}</div>}
+                          {details && <details className="my-2 space-y-1 text-xs">
+                            <summary className="cursor-pointer font-medium">View booking details</summary>
+                            <p>{details.title ? `${details.title} · ` : ''}Adult age: {details.age}</p>
+                            <p>Address: {details.address}, {booking.city}, {booking.postcode}, {booking.country}</p>
+                            {normalizeChildren(booking.children_attending).map((child, i) => (
+                              <p key={i}>Child {i + 1}: {child.first_name} {child.last_name} · Age: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}</p>
+                            ))}
+                            <p>Parent or guardian of all children: {details.guardian_of_all ? 'Yes' : 'No'}</p>
+                            <p>Consent declaration: {details.parent_consent ? 'Confirmed' : 'Not recorded'}</p>
+                            {!details.guardian_of_all && <p className="font-semibold">Written permission required before confirmation.</p>}
+                            <p>Accommodation: {retreatAccommodationLabel(booking.accommodation_preference)}</p>
+                            <p>Dietary: {booking.dietary_requirements || 'None stated'}</p>
+                            <p>Medical and accessibility: {booking.medical_requirements || 'None stated'}</p>
+                            <p>Emergency contact: {booking.emergency_contact_name} ({booking.emergency_contact_relationship}) · {booking.emergency_contact_phone}</p>
+                            <p>Heard about: {booking.heard_about_retreat}</p>
+                            <p>Sikhi journey or seva: {booking.additional_notes || 'None stated'}</p>
+                            <p>Transport required: {details.transport_required ? 'Yes' : 'No'}</p>
+                          </details>}
                           <div className="text-xs text-muted-foreground mt-1">Adults: {adultsCount} | Children: {childrenCount}</div>
                         </TableCell>
                         <TableCell>
@@ -481,7 +514,7 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                           <div className="text-xs text-muted-foreground">Paid: {formatMoney(booking.amount_paid)}</div>
                         </TableCell>
                         <TableCell>{deviceLabel(booking.booking_device)}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{format(new Date(booking.created_at), "dd MMM yyyy, HH:mm")}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{retreatSubmittedAt(booking.created_at)}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
                             {booking.payment_status === "paid" ? (

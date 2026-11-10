@@ -1,3 +1,4 @@
+import { isRetreatBookingEvent, isRetreatBookingOpen, RETREAT_BOOKING_EVENTS, RETREAT_ACCOMMODATION, retreatAccommodationLabel, retreatChildAge, retreatReference, retreatSubmittedAt } from '@/lib/family-retreat-booking-details'
 import { detectBookingDevice } from '@/lib/booking-device'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
@@ -38,14 +39,34 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid booking request' }, { status: 400 })
+    }
+    if (!isRetreatBookingEvent(body.event) || !isRetreatBookingOpen(body.event)) {
+      return NextResponse.json({ error: 'Bookings are not open for this retreat.' }, { status: 400 })
+    }
+    const retreat = RETREAT_BOOKING_EVENTS[body.event]
+    const age = typeof body.age === 'string' && /^\d{1,3}$/.test(body.age) ? Number(body.age) : NaN
+    if (!Number.isInteger(age) || age < 18 || age > 120) {
+      return NextResponse.json({ error: 'Enter the lead adult’s age.' }, { status: 400 })
+    }
+    if (!['yes', 'no'].includes(body.guardian) || body.parent_consent !== true) {
+      return NextResponse.json({ error: 'Please answer the guardian question and confirm parent or guardian consent.' }, { status: 400 })
+    }
+    if (!['yes', 'no'].includes(body.transport_required)) {
+      return NextResponse.json({ error: 'Please tell us whether you require transport.' }, { status: 400 })
+    }
+    if (!RETREAT_ACCOMMODATION.some((option) => option.value === body.accommodation_preference)) {
+      return NextResponse.json({ error: 'Please choose an accommodation option.' }, { status: 400 })
+    }
 
     const requiredFields = [
       'first_name', 'last_name', 'email', 'phone',
-      'city', 'postcode', 'country',
+      'address', 'city', 'postcode', 'country',
       'emergency_contact_name', 'emergency_contact_relationship',
       'emergency_contact_phone', 'heard_about_retreat',
     ]
-    const missing = requiredFields.filter((f) => !body[f]?.toString().trim())
+    const missing = requiredFields.filter((f) => typeof body[f] !== 'string' || !body[f].trim())
     if (missing.length > 0) {
       return NextResponse.json(
         { error: `Missing required fields: ${missing.join(', ')}` },
@@ -57,15 +78,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
-    if (!Array.isArray(body.children) || body.children.length === 0) {
+    if (!Array.isArray(body.children) || body.children.length === 0 || body.children.length > 10) {
       return NextResponse.json(
-        { error: 'Please add at least one child attending' },
+        { error: 'Please add between 1 and 10 children attending' },
         { status: 400 }
       )
     }
 
     for (const child of body.children) {
-      if (!child.first_name?.trim() || !child.last_name?.trim() || !child.date_of_birth) {
+      if (!child || typeof child.first_name !== 'string' || !child.first_name.trim() ||
+        typeof child.last_name !== 'string' || !child.last_name.trim() ||
+        typeof child.date_of_birth !== 'string' || retreatChildAge(child.date_of_birth) === null) {
         return NextResponse.json(
           { error: 'Please complete all required fields for each child' },
           { status: 400 }
@@ -73,7 +96,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (!body.consent_privacy) {
+    if (body.consent_privacy !== true) {
       return NextResponse.json(
         { error: 'Please accept the privacy policy to continue' },
         { status: 400 }
@@ -90,7 +113,20 @@ export async function POST(request: NextRequest) {
       city: body.city.trim(),
       postcode: body.postcode.trim(),
       country: body.country.trim(),
-      children_attending: body.children,
+      children_attending: body.children.map((child: { first_name: string; last_name: string; date_of_birth: string }) => ({
+        first_name: child.first_name.trim(),
+        last_name: child.last_name.trim(),
+        date_of_birth: child.date_of_birth,
+      })),
+      booking_details: {
+        event: body.event,
+        title: typeof body.title === 'string' ? body.title.trim().slice(0, 30) : '',
+        age,
+        address: body.address.trim(),
+        guardian_of_all: body.guardian === 'yes',
+        parent_consent: true,
+        transport_required: body.transport_required === 'yes',
+      },
       accommodation_preference: body.accommodation_preference || null,
       dietary_requirements: body.dietary_requirements?.trim() || null,
       medical_requirements: body.medical_requirements?.trim() || null,
@@ -101,6 +137,7 @@ export async function POST(request: NextRequest) {
       additional_notes: body.additional_notes?.trim() || null,
       consent_email: body.consent_email === 'yes',
       consent_whatsapp: body.consent_whatsapp === 'yes',
+      consent_privacy: true,
       page_url: body.page_url?.slice(0, 2048) || null,
       source: body.source?.trim() || null,
       medium: body.medium?.trim() || null,
@@ -111,7 +148,7 @@ export async function POST(request: NextRequest) {
     const { data, error: dbError } = await supabase
       .from('family_retreat_bookings')
       .insert(payload)
-      .select('id')
+      .select('id, booking_number, created_at')
       .single()
 
     if (dbError) {
@@ -122,46 +159,56 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const reference = retreatReference(data.booking_number)
+    const submittedAt = retreatSubmittedAt(data.created_at)
+    const yesNo = (value: boolean) => value ? 'Yes' : 'No'
+
     if (process.env.RESEND_API_KEY) {
       try {
         const { Resend } = await import('resend')
         const resend = new Resend(process.env.RESEND_API_KEY)
-        const childrenLines = (body.children as Array<{ first_name: string; last_name: string; date_of_birth: string }>)
-          .map((c, i) => `  Child ${i + 1}: ${c.first_name} ${c.last_name} (DOB: ${c.date_of_birth})`)
-          .join('\n')
+        const childrenLines = payload.children_attending.map((child: { first_name: string; last_name: string; date_of_birth: string }, i: number) =>
+          `Child ${i + 1}: ${child.first_name} ${child.last_name} · Age: ${retreatChildAge(child.date_of_birth, new Date(data.created_at))} · Date of birth: ${child.date_of_birth}`
+        )
         const textBody = [
           'New Sikh Family Retreat booking request.',
-          '',
-          `Submission ID : ${data.id}`,
-          `Submitted at  : ${new Date().toISOString()}`,
+          `Retreat: ${retreat.title} · ${retreat.date}`,
+          `Booking reference: ${reference}`,
+          `Submitted at: ${submittedAt} (UK time)`,
           '',
           '-- Adult contact',
-          `Name     : ${payload.first_name} ${payload.last_name}`,
-          `Email    : ${payload.email}`,
-          `Phone    : ${payload.phone}`,
-          `Location : ${payload.city}, ${payload.postcode}, ${payload.country}`,
+          `Title: ${payload.booking_details.title || 'Not provided'}`,
+          `Name: ${payload.first_name} ${payload.last_name}`,
+          `Email: ${payload.email}`,
+          `Age: ${payload.booking_details.age}`,
+          `Phone: ${payload.phone}`,
+          `Address: ${payload.booking_details.address}, ${payload.city}, ${payload.postcode}, ${payload.country}`,
           '',
           '-- Children attending',
-          childrenLines,
+          ...childrenLines,
+          `Parent or guardian of all children: ${yesNo(payload.booking_details.guardian_of_all)}`,
+          'Parent or guardian consent declaration: Confirmed',
+          ...(payload.booking_details.guardian_of_all ? [] : ['Written permission required before confirming the booking.']),
           '',
-          '-- Accommodation & needs',
-          `Accommodation : ${payload.accommodation_preference || 'Not specified'}`,
-          `Dietary       : ${payload.dietary_requirements || 'None stated'}`,
-          `Medical       : ${payload.medical_requirements || 'None stated'}`,
+          '-- Accommodation and needs',
+          `Accommodation preference: ${retreatAccommodationLabel(payload.accommodation_preference)}`,
+          `Dietary needs: ${payload.dietary_requirements || 'None stated'}`,
+          `Medical and accessibility needs: ${payload.medical_requirements || 'None stated'}`,
           '',
           '-- Emergency contact',
-          `Name         : ${payload.emergency_contact_name}`,
-          `Relationship : ${payload.emergency_contact_relationship}`,
-          `Phone        : ${payload.emergency_contact_phone}`,
+          `Name: ${payload.emergency_contact_name}`,
+          `Relationship: ${payload.emergency_contact_relationship}`,
+          `Phone: ${payload.emergency_contact_phone}`,
           '',
           '-- Other',
-          `Heard about   : ${payload.heard_about_retreat}`,
-          `Notes         : ${payload.additional_notes || 'None'}`,
+          `Heard about: ${payload.heard_about_retreat}`,
+          `Sikhi journey or seva notes: ${payload.additional_notes || 'None stated'}`,
+          `Requires transport: ${yesNo(payload.booking_details.transport_required)}`,
         ].join('\n')
         await resend.emails.send({
           from: 'Devanhaar <noreply@devanhaar.com>',
           to: NOTIFICATION_EMAILS,
-          subject: `Family Retreat booking - ${payload.first_name} ${payload.last_name} (${body.children.length} child${body.children.length !== 1 ? 'ren' : ''})`,
+          subject: `${reference} · ${retreat.title} booking request`,
           text: textBody,
         })
       } catch (emailErr) {
@@ -185,11 +232,15 @@ export async function POST(request: NextRequest) {
             '',
             'Thank you for submitting your booking request for The Sikh Family Initiative: Sikh Family Retreat.',
             '',
+            `Retreat: ${retreat.title} · ${retreat.date}`,
+            `Booking reference: ${reference}`,
+            '',
             'We have received your family\'s details and a sevadaar from the team will now review your form. They will contact you directly to confirm availability, discuss the cost for your family, explain how to make payment and answer any questions you may have.',
             '',
             'Please remember that submitting the booking form does not automatically confirm your family\'s place. Your place will only be confirmed once The Sikh Family Initiative team has contacted you and the next steps have been agreed.',
             '',
-            'We are grateful for your interest and look forward to sharing more information with you soon.',
+            ...(payload.booking_details.guardian_of_all ? [] : ['If you are not the parent or guardian of all children listed, the team will need written permission before confirming your booking.', '']),
+            'Thank you for your application. We look forward to meeting you.',
             '',
             'Warm regards,',
             'The Sikh Family Initiative Team',
@@ -202,7 +253,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, id: data.id })
+    return NextResponse.json({ success: true, reference })
   } catch (err) {
     console.error('[family-retreat-bookings] Unexpected error:', err)
     return NextResponse.json(

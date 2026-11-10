@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { RETREAT_ACCOMMODATION, retreatChildAge, type RetreatBookingEvent } from "@/lib/family-retreat-booking-details"
 import { CheckCircle2, Loader2, Plus, Trash2 } from "lucide-react"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -25,13 +26,6 @@ interface ChildEntry {
 }
 
 const emptyChild = (): ChildEntry => ({ first_name: "", last_name: "", date_of_birth: "" })
-
-const ACCOMMODATION_OPTIONS = [
-  { value: "standard", label: "Standard accommodation" },
-  { value: "ensuite", label: "Ensuite accommodation (if available)" },
-  { value: "deluxe-pod", label: "Deluxe POD accommodation (if available)" },
-  { value: "no_preference", label: "No preference" },
-]
 
 const HEARD_OPTIONS = [
   "Word of mouth / friend or family",
@@ -63,9 +57,10 @@ function Checkbox({ checked, onToggle }: { checked: boolean; onToggle: () => voi
   )
 }
 
-export function FamilyRetreatBookingForm() {
+export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent }) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [reference, setReference] = useState<string | null>(null)
   const successRef = useRef<HTMLDivElement>(null)
   const errorRef = useRef<HTMLParagraphElement>(null)
   const [error, setError] = useState("")
@@ -73,6 +68,7 @@ export function FamilyRetreatBookingForm() {
   const [form, setForm] = useState({
     first_name: "", last_name: "", email: "", phone: "",
     city: "", postcode: "", country: "",
+    title: "", age: "", address: "", guardian: "", parent_consent: false, transport_required: "",
     accommodation_preference: "",
     dietary_requirements: "", medical_requirements: "",
     emergency_contact_name: "", emergency_contact_relationship: "", emergency_contact_phone: "",
@@ -111,7 +107,8 @@ export function FamilyRetreatBookingForm() {
 
   const resetForm = () => {
     setSubmitted(false)
-    setForm({ first_name:"",last_name:"",email:"",phone:"",city:"",postcode:"",country:"",accommodation_preference:"",dietary_requirements:"",medical_requirements:"",emergency_contact_name:"",emergency_contact_relationship:"",emergency_contact_phone:"",heard_about_retreat:"",additional_notes:"",consent_email:"no",consent_whatsapp:"no",consent_privacy:false,page_url:"",source:"",medium:"" })
+    setReference(null)
+    setForm({ first_name:"",last_name:"",email:"",phone:"",city:"",postcode:"",country:"",title:"",age:"",address:"",guardian:"",parent_consent:false,transport_required:"",accommodation_preference:"",dietary_requirements:"",medical_requirements:"",emergency_contact_name:"",emergency_contact_relationship:"",emergency_contact_phone:"",heard_about_retreat:"",additional_notes:"",consent_email:"no",consent_whatsapp:"no",consent_privacy:false,page_url:"",source:"",medium:"" })
     setChildren([emptyChild()])
     setError("")
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" })
@@ -125,12 +122,18 @@ export function FamilyRetreatBookingForm() {
     if (form.city.trim().length < 2) return "Please enter your city or town."
     if (form.postcode.trim().length < 2) return "Please enter your postcode."
     if (form.country.trim().length < 2) return "Please enter your country."
+    if (!form.address.trim()) return "Please enter your street address."
+    if (!/^\d{1,3}$/.test(form.age) || Number(form.age) < 18 || Number(form.age) > 120) return "Please enter the lead adult’s age."
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (!NAME_REGEX.test(child.first_name.trim())) return `Please enter a first name for child ${i + 1}.`
       if (!NAME_REGEX.test(child.last_name.trim())) return `Please enter a last name for child ${i + 1}.`
-      if (!child.date_of_birth) return `Please enter the date of birth for child ${i + 1}.`
+      if (retreatChildAge(child.date_of_birth) === null) return `Please enter the date of birth for child ${i + 1}.`
     }
+    if (!form.guardian) return "Please answer the parent or guardian question."
+    if (!form.parent_consent) return "Please confirm parent or guardian consent before submitting."
+    if (!form.accommodation_preference) return "Please choose an accommodation preference."
+    if (!form.transport_required) return "Please tell us whether you require transport."
     if (!NAME_REGEX.test(form.emergency_contact_name.trim())) return "Please enter the emergency contact's full name."
     if (form.emergency_contact_relationship.trim().length < 2) return "Please enter the emergency contact's relationship to you."
     if (!PHONE_REGEX.test(form.emergency_contact_phone.trim())) return "Please enter a valid emergency contact phone number."
@@ -154,10 +157,11 @@ export function FamilyRetreatBookingForm() {
       const res = await fetch("/api/family-retreat-bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, children }),
+        body: JSON.stringify({ ...form, children, event }),
       })
       const json = await res.json()
       if (!res.ok) { setError(json.error || "Something went wrong. Please try again."); return }
+      setReference(json.reference || null)
       setSubmitted(true)
     } catch {
       setError("Something went wrong. Please try again or contact the team directly.")
@@ -198,6 +202,7 @@ export function FamilyRetreatBookingForm() {
             <h3 id="booking-success-title" className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               Booking request received
             </h3>
+            {reference && <p className="mb-3 text-sm font-semibold">Booking reference: {reference}</p>}
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
               Thank you. Your family booking request has been submitted. A sevadaar will review your details and contact you directly to discuss availability, costs and next steps.
             </p>
@@ -213,7 +218,11 @@ export function FamilyRetreatBookingForm() {
       <div className="space-y-10">
       {/* About you */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">About you</h3>
+        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Adult contact</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div><Label htmlFor="title">Title (optional)</Label><Input id="title" value={form.title} maxLength={30} onChange={(e) => update("title", e.target.value)} /></div>
+          <div><Label htmlFor="age">Age *</Label><Input id="age" type="number" min={18} max={120} value={form.age} onChange={(e) => update("age", e.target.value)} /></div>
+        </div>
         <p className="text-sm text-muted-foreground">Please provide the details of the main adult contact for the booking. This person will receive all follow-up communication from the retreat team.</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div><Label htmlFor="first_name">First name *</Label><Input id="first_name" value={form.first_name} onChange={(e) => update("first_name", e.target.value)} /></div>
@@ -223,6 +232,7 @@ export function FamilyRetreatBookingForm() {
           <div><Label htmlFor="email">Email address *</Label><Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} /></div>
           <div><Label htmlFor="phone">Phone / WhatsApp *</Label><Input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} /></div>
         </div>
+        <div><Label htmlFor="address">Street address *</Label><Input id="address" autoComplete="street-address" value={form.address} onChange={(e) => update("address", e.target.value)} /></div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div><Label htmlFor="city">City / Town *</Label><Input id="city" value={form.city} onChange={(e) => update("city", e.target.value)} /></div>
           <div><Label htmlFor="postcode">Postcode *</Label><Input id="postcode" value={form.postcode} onChange={(e) => update("postcode", e.target.value)} /></div>
@@ -247,7 +257,7 @@ export function FamilyRetreatBookingForm() {
             <div className="grid gap-4 sm:grid-cols-3">
               <div><Label>First name *</Label><Input value={child.first_name} onChange={(e) => updateChild(i, "first_name", e.target.value)} /></div>
               <div><Label>Last name *</Label><Input value={child.last_name} onChange={(e) => updateChild(i, "last_name", e.target.value)} /></div>
-              <div><Label>Date of birth *</Label><Input type="date" value={child.date_of_birth} onChange={(e) => updateChild(i, "date_of_birth", e.target.value)} /></div>
+              <div><Label>Date of birth *</Label><Input type="date" aria-label={`Child ${i + 1} date of birth`} value={child.date_of_birth} onChange={(e) => updateChild(i, "date_of_birth", e.target.value)} /></div>
             </div>
           </div>
         ))}
@@ -256,17 +266,33 @@ export function FamilyRetreatBookingForm() {
             <Plus className="h-4 w-4" /> Add another child
           </Button>
         )}
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium">Are you the parent or guardian of all the children listed? *</legend>
+          <div className="flex gap-5">
+            {["yes", "no"].map((answer) => <label key={answer} className="flex items-center gap-2 text-sm">
+              <input type="radio" name="retreat-guardian" value={answer} checked={form.guardian === answer} onChange={() => { update("guardian", answer); update("parent_consent", false) }} />
+              {answer === "yes" ? "Yes" : "No"}
+            </label>)}
+          </div>
+          {form.guardian === "no" && <p className="text-sm text-muted-foreground">We will require written permission from each parent or guardian before confirming the booking.</p>}
+          <label className="flex items-start gap-3 text-sm">
+            <input type="checkbox" checked={form.parent_consent} onChange={(e) => update("parent_consent", e.target.checked)} className="mt-0.5 size-4 shrink-0" />
+            {form.guardian === "no"
+              ? "I confirm I have permission from the parent or guardian of each child to make this request and understand written permission is required. *"
+              : "I give my consent for the children listed to attend the Sikh Family Retreat. *"}
+          </label>
+        </fieldset>
       </div>
 
       {/* Accommodation */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Accommodation preference</h3>
-        <p className="text-sm text-muted-foreground">The organising team will allocate accommodation based on availability, family size and suitability. Specific accommodation cannot be guaranteed unless confirmed directly.</p>
+        <p className="text-sm text-muted-foreground">The price includes food, activities and accommodation. Your total depends on the accommodation you choose. Option 1, an onsite family room with shared facilities, is the most economical choice. Accommodation is subject to availability and confirmation by the team.</p>
         <div>
           <Label htmlFor="accommodation_preference">Accommodation preference</Label>
           <Select value={form.accommodation_preference} onValueChange={(v) => update("accommodation_preference", v)}>
             <SelectTrigger id="accommodation_preference"><SelectValue placeholder="Select preference" /></SelectTrigger>
-            <SelectContent>{ACCOMMODATION_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+            <SelectContent>{RETREAT_ACCOMMODATION.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
           </Select>
         </div>
       </div>
@@ -276,7 +302,7 @@ export function FamilyRetreatBookingForm() {
         <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Dietary and medical needs</h3>
         <p className="text-sm text-muted-foreground">Please include information for all members of your family. Leave blank if none apply.</p>
         <div><Label htmlFor="dietary_requirements">Dietary requirements (for your whole family)</Label><Textarea id="dietary_requirements" value={form.dietary_requirements} onChange={(e) => update("dietary_requirements", e.target.value)} rows={3} placeholder="e.g. one child has a nut allergy, vegan diet..." /></div>
-        <div><Label htmlFor="medical_requirements">Medical / health information</Label><Textarea id="medical_requirements" value={form.medical_requirements} onChange={(e) => update("medical_requirements", e.target.value)} rows={3} placeholder="Please include any health conditions, medications or needs the team should be aware of..." /></div>
+        <div><Label htmlFor="medical_requirements">Medical and accessibility needs</Label><Textarea id="medical_requirements" value={form.medical_requirements} onChange={(e) => update("medical_requirements", e.target.value)} rows={3} placeholder="Please include any health conditions, medications or accessibility needs in your group..." /></div>
       </div>
 
       {/* Emergency contact */}
@@ -300,8 +326,19 @@ export function FamilyRetreatBookingForm() {
             <SelectContent>{HEARD_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
           </Select>
         </div>
-        <div><Label htmlFor="additional_notes">Anything else that will help us support your family</Label><Textarea id="additional_notes" value={form.additional_notes} onChange={(e) => update("additional_notes", e.target.value)} rows={4} placeholder="Accessibility needs, specific questions, anything else the retreat team should know..." /></div>
+        <div><Label htmlFor="additional_notes">Anything you’d like to share about your Sikhi journey or ways you’d like to do seva? (optional)</Label><Textarea id="additional_notes" value={form.additional_notes} onChange={(e) => update("additional_notes", e.target.value)} rows={4} placeholder="This helps us support your family and plan relevant discussions." /></div>
       </div>
+
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Do you require transport? *</legend>
+        <p className="text-sm text-muted-foreground">Transport support is very limited and only available from a few set locations.</p>
+        <div className="flex gap-5">
+          {["yes", "no"].map((answer) => <label key={answer} className="flex items-center gap-2 text-sm">
+            <input type="radio" name="retreat-transport" value={answer} checked={form.transport_required === answer} onChange={() => update("transport_required", answer)} />
+            {answer === "yes" ? "Yes" : "No"}
+          </label>)}
+        </div>
+      </fieldset>
 
       {/* Consent */}
       <div className="space-y-4">
