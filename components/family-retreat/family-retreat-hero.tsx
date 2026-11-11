@@ -1,4 +1,5 @@
 
+import { isRetreatBookingOpen } from '@/lib/family-retreat-booking-details'
 import { applyPageCopy } from '@/lib/cms/copy-node'
 import type {PageCopy} from '@/lib/cms/copy-schema'
 import {registerCopyComponent} from '@/lib/cms/copy-node'
@@ -9,6 +10,7 @@ import { ArrowRight, CalendarDays, ArrowLeft } from 'lucide-react'
 export async function FamilyRetreatHero({ cmsCopy = {} }: {cmsCopy?:PageCopy} = {}) {
 
 
+  const bookingOpen = isRetreatBookingOpen('new-year-reset')
   return applyPageCopy((<section data-cms-section="5f07a5aa3230f198" className="relative isolate overflow-hidden bg-[#101b2d] text-white">
     <Image src="/initiatives/sikh-family-retreat-top.png" alt="Children enjoying an outdoor activity at a Sikh Family Retreat" fill priority sizes="100vw" className="object-cover object-center" />
     <div className="absolute inset-0 bg-gradient-to-r from-[#101b2d]/95 via-[#101b2d]/65 to-[#101b2d]/35" />
@@ -24,12 +26,12 @@ export async function FamilyRetreatHero({ cmsCopy = {} }: {cmsCopy?:PageCopy} = 
           <div className="mt-8 flex flex-wrap gap-2">{['All generations welcome', 'Sangat & shared learning', 'Time to reconnect'].map(text => <span key={text} className="rounded-full border border-white/20 bg-white/5 px-3 py-2 text-xs text-white/85 backdrop-blur-sm">{text}</span>)}</div>
         </div>
         <div className="rounded-3xl border border-white/20 bg-[#101b2d]/90 p-6 shadow-2xl backdrop-blur-xl md:p-8">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-300">Sikh Family Retreat · Register interest</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-300">Sikh Family Retreat · Next retreat</p>
           <h2 className="mt-4 text-3xl font-bold tracking-tight">New Year Reset</h2>
           <p className="mt-4 flex items-start gap-2 text-sm font-semibold leading-relaxed text-white"><CalendarDays aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />31 December 2026 – 3 January 2027</p>
           <p className="mt-5 text-sm leading-relaxed text-white/75">Begin the year with intention, in saadh sangat. Make space for reflection and reconnect with Guru Sahib as a family.</p>
-          <Link href="/sfr/register?event=new-year-reset" className="mt-6 flex min-h-12 items-center justify-between gap-3 rounded-full bg-amber-400 px-6 py-3 text-sm font-semibold text-[#101b2d] transition hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300">Register interest<ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
-          <p className="mt-3 text-xs leading-relaxed text-white/60">Interest only · No payment or confirmed booking</p>
+          {bookingOpen && <Link href="/sfr/book?event=new-year-reset" className="mt-6 flex min-h-12 items-center justify-between gap-3 rounded-full bg-amber-400 px-6 py-3 text-sm font-semibold text-[#101b2d] transition hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-300">BOOK NOW<ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>}
+          <p className="mt-3 text-xs leading-relaxed text-white/60">{bookingOpen ? "Request a booking · No payment required now" : "Bookings not yet open"}</p>
           <a href="#retreats" className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-white/80 underline underline-offset-4 hover:text-white">See Spring & Summer retreats<ArrowRight aria-hidden="true" className="h-3 w-3" /></a>
         </div>
       </div>

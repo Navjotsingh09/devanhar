@@ -74,7 +74,9 @@ export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {
               <h3 className="mt-4 text-2xl font-bold tracking-tight">{retreat.title}</h3>
               <p className={`mt-4 flex items-start gap-2 text-sm font-semibold leading-relaxed ${index === 0 ? 'text-white/90' : 'text-foreground'}`}><CalendarDays aria-hidden="true" className={`mt-0.5 h-4 w-4 shrink-0 ${index === 0 ? 'text-amber-300' : 'text-[hsl(43,100%,29%)]'}`} />{retreat.date}</p>
               <p className={`mb-7 mt-4 flex-1 text-sm leading-relaxed ${index === 0 ? 'text-white/75' : 'text-muted-foreground'}`}>{retreat.description}</p>
-              {isRetreatBookingOpen(retreat.event) ? (
+              {isRetreatBookingOpen(retreat.event) ? retreat.event === 'new-year-reset' ? (
+                <p className="text-sm font-medium text-white/85">Bookings open</p>
+              ) : (
                 <Link href={`/sfr/book?event=${retreat.event}`} aria-label={`Book now for ${retreat.title}`} className={`flex min-h-12 items-center justify-between gap-3 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-500 ${index === 0 ? 'bg-amber-400 text-[#101b2d] hover:bg-amber-300' : 'bg-[#101b2d] text-white hover:bg-[#253651]'}`}>
                   BOOK NOW<ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
