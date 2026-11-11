@@ -287,7 +287,7 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
       {/* Accommodation */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Accommodation preference</h3>
-        <p className="text-sm text-muted-foreground">The price includes food, activities and accommodation. Your total depends on the accommodation you choose. Option 1, an onsite family room with shared facilities, is the most economical choice. Accommodation is subject to availability and confirmation by the team.</p>
+        <p className="text-sm text-muted-foreground">Your retreat price includes all meals, activities and accommodation. The total cost depends on the accommodation you choose, with Option 1 (an onsite family room with shared facilities) being the most affordable choice. All accommodation is subject to availability and confirmation by the SFI team.</p>
         <div>
           <Label htmlFor="accommodation_preference">Accommodation preference</Label>
           <Select value={form.accommodation_preference} onValueChange={(v) => update("accommodation_preference", v)}>

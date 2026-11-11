@@ -16,13 +16,13 @@ import { FamilyRetreatHero } from '@/components/family-retreat/family-retreat-he
 
 const originalMetadata = {
   title: 'Sikh Family Retreat | Sikh Family Initiative | Devanhaar',
-  description: 'Explore the New Year Reset, Spring and Summer Sikh Family Retreats and register your family’s interest.',
+  description: 'Explore the New Year Reset, Spring and Summer Sikh Family Retreats and see which bookings are open.',
 }
 
 const retreats = [
-  { event: 'new-year-reset' as RetreatBookingEvent, title: 'New Year Reset', date: '31 December 2026 – 3 January 2027', href: '/sfr/register?event=new-year-reset', label: 'Next retreat', description: 'Begin the year with intention in saadh sangat, with time for Gurbani, reflection and practical ways to bring Sikhi into family life.' },
-  { event: 'spring' as RetreatBookingEvent, title: 'Spring Retreat', date: '1–4 April 2027', href: '/sfr/register?event=spring', label: 'Spring 2027', description: 'Make room for family time, shared learning and outdoor skill building, with a focus on Gurbani relating to nature and wildlife.' },
-  { event: 'summer' as RetreatBookingEvent, title: 'Summer Retreat', date: '22–25 July 2027', href: '/sfr/register?event=summer', label: 'Summer 2027', description: 'Spend a few days in sangat with shared family experiences, outdoor adventures and camping skills.' },
+  { event: 'new-year-reset' as RetreatBookingEvent, title: 'New Year Reset', date: '31 December 2026 – 3 January 2027', label: 'Next retreat', description: 'Begin the year with intention in saadh sangat, with time for Gurbani, reflection and practical ways to bring Sikhi into family life.' },
+  { event: 'spring' as RetreatBookingEvent, title: 'Spring Retreat', date: '1–4 April 2027', label: 'Spring 2027', description: 'Make room for family time, shared learning and outdoor skill building, with a focus on Gurbani relating to nature and wildlife.' },
+  { event: 'summer' as RetreatBookingEvent, title: 'Summer Retreat', date: '22–25 July 2027', label: 'Summer 2027', description: 'Spend a few days in sangat with shared family experiences, outdoor adventures and camping skills.' },
 ]
 const experiences = [
   { icon: BookOpen, title: 'Explore Sikhi together', text: 'Time with Gurbani, reflective discussions and shared learning that families can bring into everyday life.' },
@@ -67,28 +67,27 @@ export default async function SikhFamilyRetreatPage({ cmsCopy: suppliedCopy }: {
       </section>
       <section data-cms-section="f5df5d6bb4ca4500" id="interest-form" className="scroll-mt-24 border-t border-border bg-[#f7f5ef] py-14 md:py-20">
         <div id="retreats" className="container mx-auto max-w-6xl scroll-mt-28 px-6 lg:px-12">
-          <div className="mb-8 max-w-2xl"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(43,100%,29%)]">Something to look forward to, together</p><h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Choose your next family retreat</h2><p className="mt-4 text-base leading-relaxed text-muted-foreground">Select a retreat to register your family’s interest. We will keep you updated as booking information is released.</p></div>
+          <div className="mb-8 max-w-2xl"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[hsl(43,100%,29%)]">Something to look forward to, together</p><h2 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">Choose your next family retreat</h2><p className="mt-4 text-base leading-relaxed text-muted-foreground">Choose an open retreat to request a booking for your family.</p></div>
           <div className="grid gap-5 lg:grid-cols-3">
             {retreats.map((retreat, index) => <article key={retreat.title} className={`flex flex-col rounded-3xl border p-6 md:p-7 ${index === 0 ? 'border-[#101b2d] bg-[#101b2d] text-white shadow-lg' : 'border-border bg-white text-foreground'}`}>
               <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${index === 0 ? 'text-amber-300' : 'text-[hsl(43,100%,29%)]'}`}>{retreat.label}</p>
               <h3 className="mt-4 text-2xl font-bold tracking-tight">{retreat.title}</h3>
               <p className={`mt-4 flex items-start gap-2 text-sm font-semibold leading-relaxed ${index === 0 ? 'text-white/90' : 'text-foreground'}`}><CalendarDays aria-hidden="true" className={`mt-0.5 h-4 w-4 shrink-0 ${index === 0 ? 'text-amber-300' : 'text-[hsl(43,100%,29%)]'}`} />{retreat.date}</p>
               <p className={`mb-7 mt-4 flex-1 text-sm leading-relaxed ${index === 0 ? 'text-white/75' : 'text-muted-foreground'}`}>{retreat.description}</p>
-              <Link href={retreat.href} aria-label={`Register interest for ${retreat.title}`} className={`flex min-h-12 items-center justify-between gap-3 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-500 ${index === 0 ? 'bg-amber-400 text-[#101b2d] hover:bg-amber-300' : 'bg-[#101b2d] text-white hover:bg-[#253651]'}`}>Register interest<ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
-              {isRetreatBookingOpen(retreat.event) && (
-                <Link href={`/sfr/book?event=${retreat.event}`} className="mt-3 rounded-full bg-amber-300 px-5 py-3 text-center text-sm font-semibold text-[#101b2d] hover:bg-amber-200">
-                  Request a booking
+              {isRetreatBookingOpen(retreat.event) ? (
+                <Link href={`/sfr/book?event=${retreat.event}`} aria-label={`Book now for ${retreat.title}`} className={`flex min-h-12 items-center justify-between gap-3 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-500 ${index === 0 ? 'bg-amber-400 text-[#101b2d] hover:bg-amber-300' : 'bg-[#101b2d] text-white hover:bg-[#253651]'}`}>
+                  BOOK NOW<ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
-              )}
+              ) : <p className="text-sm font-medium">Bookings not yet open</p>}
             </article>)}
           </div>
-          <p className="mt-5 text-sm text-muted-foreground">Registering interest does not confirm a place or take payment.</p>
+          <p className="mt-5 text-sm text-muted-foreground">Submitting a booking request does not confirm a place or take payment.</p>
         </div>
       </section>
       <FamilyRetreatFAQ />
       <section data-cms-section="d541c0ecfe5d3062" id="retreat-contact" className="scroll-mt-24 bg-[#101b2d] py-14 text-white md:py-16">
         <div className="container mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:gap-16 lg:px-12">
-          <div><Mail aria-hidden="true" className="h-6 w-6 text-amber-300" /><h2 className="mt-4 text-2xl font-bold md:text-3xl">Let’s help you feel at home.</h2><p className="mt-4 max-w-lg text-sm leading-relaxed text-white/75">Questions about accommodation, accessibility or what your family needs to feel comfortable? Speak to the Sikh Family Initiative team before registering interest.</p><a href="mailto:TheSikhFI@devanhaar.com" className="mt-6 inline-flex min-h-11 items-center gap-2 break-all text-sm font-semibold text-amber-300 underline underline-offset-4 hover:text-amber-200">TheSikhFI@devanhaar.com<ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" /></a></div>
+          <div><Mail aria-hidden="true" className="h-6 w-6 text-amber-300" /><h2 className="mt-4 text-2xl font-bold md:text-3xl">Let’s help you feel at home.</h2><p className="mt-4 max-w-lg text-sm leading-relaxed text-white/75">Questions about accommodation, accessibility or what your family needs to feel comfortable? Speak to the Sikh Family Initiative team before requesting a booking.</p><a href="mailto:TheSikhFI@devanhaar.com" className="mt-6 inline-flex min-h-11 items-center gap-2 break-all text-sm font-semibold text-amber-300 underline underline-offset-4 hover:text-amber-200">TheSikhFI@devanhaar.com<ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" /></a></div>
           <div className="border-t border-white/15 pt-8 md:border-l md:border-t-0 md:pl-10 md:pt-0"><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-300">Part of something bigger</p><h2 className="mt-4 text-2xl font-bold md:text-3xl">Sikh Family Initiative</h2><p className="mt-4 text-sm leading-relaxed text-white/75">Retreats, Sikh Family Extravaganza and Wedding Fair bring families together throughout the year.</p><Link href="/sfi" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold transition hover:bg-white/10">View all family projects<ArrowRight aria-hidden="true" className="h-4 w-4" /></Link></div>
         </div>
       </section>

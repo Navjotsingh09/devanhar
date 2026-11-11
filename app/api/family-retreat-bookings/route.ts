@@ -1,3 +1,4 @@
+import { familyRetreatSignatureLines } from '@/lib/family-retreat-email-signature'
 import { isRetreatBookingEvent, isRetreatBookingOpen, RETREAT_BOOKING_EVENTS, RETREAT_ACCOMMODATION, retreatAccommodationLabel, retreatChildAge, retreatReference, retreatSubmittedAt } from '@/lib/family-retreat-booking-details'
 import { detectBookingDevice } from '@/lib/booking-device'
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,19 +10,6 @@ const NOTIFICATION_EMAILS = [
   process.env.FAMILY_RETREAT_NOTIFICATION_EMAIL || 'TheSikhFI@devanhaar.com',
   'SikhFI@devanhaar.com',
 ]
-
-const TEAM_SIGNATURE = [
-  'Best wishes,',
-  '',
-  'Daljit Kaur',
-  'Specialist Lead',
-  'Mob: 07780 334 940',
-  'Email: Daljit.Kaur@devanhaar.com',
-  'LinkedIn: daljitkaurstem',
-  '',
-  'Follow The Sikh Family Initiative on Instagram:',
-  'https://www.instagram.com/thesikhfamilyinitiative',
-].join('\n')
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -242,10 +230,7 @@ export async function POST(request: NextRequest) {
             ...(payload.booking_details.guardian_of_all ? [] : ['If you are not the parent or guardian of all children listed, the team will need written permission before confirming your booking.', '']),
             'Thank you for your application. We look forward to meeting you.',
             '',
-            'Warm regards,',
-            'The Sikh Family Initiative Team',
-            '',
-            TEAM_SIGNATURE,
+            ...familyRetreatSignatureLines,
           ].join('\n'),
         })
       } catch (confirmEmailErr) {

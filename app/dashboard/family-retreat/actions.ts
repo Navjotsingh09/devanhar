@@ -1,5 +1,6 @@
 "use server"
 
+import { familyRetreatSignatureHtml, familyRetreatSignatureLines } from "@/lib/family-retreat-email-signature"
 import { requireProgramme } from '@/lib/staff-programme-server'
 import { revalidatePath } from "next/cache"
 
@@ -10,6 +11,7 @@ type Booking = {
   first_name: string | null
   last_name: string | null
   email: string | null
+  booking_details?: object | null
   payment_status: string | null
   amount_due: number | null
   amount_paid: number | null
@@ -55,23 +57,6 @@ const NOWDONATE_ADDITIONAL_CHECKOUT_ID =
   extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_ADDITIONAL_CHECKOUT_ID) ||
   extractNowDonateCheckoutId(process.env.FAMILY_RETREAT_NOWDONATE_ADDITIONAL_CHECKOUT_URL) ||
   NOWDONATE_CONFIRM_CHECKOUT_ID
-
-const SIGNATURE_LINES = [
-  "Best wishes,",
-  "",
-  "Daljit Kaur",
-  "Specialist Lead",
-  "Mob: 07780 334 940",
-  "Email: Daljit.Kaur@devanhaar.com",
-  "LinkedIn: daljitkaurstem",
-  "",
-  "Follow The Sikh Family Initiative on Instagram:",
-  "https://www.instagram.com/thesikhfamilyinitiative",
-]
-
-const SIGNATURE_HTML =
-  '<p style="margin-top:24px">Best wishes,<br><br><strong>Daljit Kaur</strong><br>Specialist Lead<br>Mob: 07780 334 940<br>Email: <a href="mailto:Daljit.Kaur@devanhaar.com">Daljit.Kaur@devanhaar.com</a><br>LinkedIn: daljitkaurstem</p>' +
-  '<p>Follow The Sikh Family Initiative on Instagram:<br><a href="https://www.instagram.com/thesikhfamilyinitiative">https://www.instagram.com/thesikhfamilyinitiative</a></p>'
 
 async function getSupabaseAdmin() {
   return await requireProgramme('family')
@@ -119,7 +104,7 @@ async function getBooking(id: string): Promise<Booking> {
   const supabase = (await getSupabaseAdmin())
   const { data, error } = await supabase
     .from("family_retreat_bookings")
-    .select("id, first_name, last_name, email, payment_status, amount_due, amount_paid, nowdonate_payment_url, stripe_payment_link_id, adults_attending")
+    .select("id, first_name, last_name, email, payment_status, amount_due, amount_paid, booking_details, nowdonate_payment_url, stripe_payment_link_id, adults_attending")
     .eq("id", id)
     .single()
 
@@ -232,7 +217,7 @@ async function sendConfirmationEmail(
     "",
     "Once payment is completed, we will send a final confirmation.",
     "",
-    ...SIGNATURE_LINES,
+    ...familyRetreatSignatureLines,
   ].join("\n")
 
   const html = [
@@ -244,7 +229,7 @@ async function sendConfirmationEmail(
     `<p>Adults noted for your booking: <strong>${adultsCount}</strong><br>Amount due: <strong>${escapeHtml(formatGbp(amount))}</strong></p>`,
     `<p style="text-align:center;margin:24px 0"><a href="${escapeHtml(paymentLink)}" style="display:inline-block;background:#166534;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600">Pay now</a></p>`,
     "<p>Once payment is completed, we will send a final confirmation.</p>",
-    SIGNATURE_HTML,
+    familyRetreatSignatureHtml,
     "</div>",
   ].join("")
 
@@ -264,7 +249,7 @@ async function sendDeclineEmail(email: string, firstName: string) {
     "",
     "Please keep in touch for future opportunities.",
     "",
-    ...SIGNATURE_LINES,
+    ...familyRetreatSignatureLines,
   ].join("\n")
 
   const html = [
@@ -274,7 +259,7 @@ async function sendDeclineEmail(email: string, firstName: string) {
     "<p>Thank you for your booking application for The Sikh Family Initiative: Sikh Family Retreat.</p>",
     "<p>After careful review, we are unable to offer a place at this time.</p>",
     "<p>Please keep in touch for future opportunities.</p>",
-    SIGNATURE_HTML,
+    familyRetreatSignatureHtml,
     "</div>",
   ].join("")
 
@@ -306,7 +291,7 @@ async function sendAdditionalChargeEmail(args: {
     "Please use this payment link for the additional amount:",
     args.paymentLink,
     "",
-    ...SIGNATURE_LINES,
+    ...familyRetreatSignatureLines,
   ].join("\n")
 
   const html = [
@@ -318,7 +303,7 @@ async function sendAdditionalChargeEmail(args: {
     `<p><strong>Reference note:</strong> ${escapeHtml(args.referenceNote)}</p>`,
     `<p><strong>Already paid:</strong> ${escapeHtml(formatGbp(args.alreadyPaid))}<br><strong>Additional amount due now:</strong> ${escapeHtml(formatGbp(args.amountNow))}</p>`,
     `<p style="text-align:center;margin:24px 0"><a href="${escapeHtml(args.paymentLink)}" style="display:inline-block;background:#166534;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600">Pay additional amount</a></p>`,
-    SIGNATURE_HTML,
+    familyRetreatSignatureHtml,
     "</div>",
   ].join("")
 
@@ -344,6 +329,8 @@ export async function updateFamilyRetreatStatus(
   }
 
   if (status === "confirmed" && details?.amount && details.amount > 0 && booking.email) {
+    if (booking.booking_details && !booking.nowdonate_payment_url && !booking.stripe_payment_link_id)
+      throw new Error('Send the payment link separately and log it in the booking tracker.')
     const { url, id: linkId, provider } = await createExactAmountPaymentLink(
       Math.round(details.amount * 100),
       id,
@@ -479,6 +466,9 @@ export async function sendFamilyRetreatAdditionalCharge(
   }
 
   const booking = await getBooking(id)
+  if (booking.booking_details && !booking.nowdonate_payment_url && !booking.stripe_payment_link_id)
+    throw new Error('Send the payment link separately and log it in the booking tracker.')
+
   if (!booking.email) {
     throw new Error("Booking email is missing")
   }

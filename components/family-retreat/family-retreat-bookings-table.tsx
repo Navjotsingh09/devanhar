@@ -1,6 +1,8 @@
 "use client"
 
 import { isRetreatBookingEvent, RETREAT_BOOKING_EVENTS, retreatAccommodationLabel, retreatChildAge, retreatReference, retreatSubmittedAt } from "@/lib/family-retreat-booking-details"
+import { retreatMoney, retreatProgress, type RetreatTrackerEvent } from "@/lib/family-retreat-tracker"
+import { RetreatBookingTracker } from './family-retreat-tracker'
 import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
 import { format } from "date-fns"
@@ -82,6 +84,7 @@ export type FamilyRetreatBooking = {
   amount_due: number | null
   amount_paid: number | null
   payment_status: string | null
+  nowdonate_payment_url?: string | null
   stripe_payment_link: string | null
   stripe_payment_link_id: string | null
 }
@@ -116,10 +119,7 @@ function csvCell(value: unknown): string {
   return raw
 }
 
-function formatMoney(value: number | null | undefined) {
-  if (value == null || Number.isNaN(Number(value))) return "-"
-  return `£${Number(value).toFixed(2)}`
-}
+
 
 function statusPill(status: string) {
   switch (status) {
@@ -241,7 +241,21 @@ function downloadCsv(bookings: FamilyRetreatBooking[]) {
   URL.revokeObjectURL(url)
 }
 
-export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetreatBooking[] }) {
+export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer = false }: {
+  bookings: FamilyRetreatBooking[]; tracker?: RetreatTrackerEvent[] | null; reviewer?: boolean
+}) {
+  const [trackingRow, setTrackingRow] = useState<string | null>(null)
+  const [refundQueue, setRefundQueue] = useState(false)
+  const activity = useMemo(() => {
+    const grouped = new Map<string, RetreatTrackerEvent[]>()
+    for (const event of tracker ?? []) {
+      const rows = grouped.get(event.booking_id) ?? []
+      rows.push(event)
+      grouped.set(event.booking_id, rows)
+    }
+    return grouped
+  }, [tracker])
+  const refundsToReview = bookings.filter(booking => retreatProgress(activity.get(booking.id) ?? [], booking).pendingRefund).length
   const [isPending, startTransition] = useTransition()
 
   const [search, setSearch] = useState("")
@@ -263,8 +277,11 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase()
     const list = bookings.filter((booking) => {
-      if (paymentFilter === "paid" && booking.payment_status !== "paid") return false
-      if (paymentFilter === "unpaid" && booking.payment_status === "paid") return false
+      const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
+      if (refundQueue) return progress.pendingRefund
+      const paid = progress.paid
+      if (paymentFilter === "paid" && !paid) return false
+      if (paymentFilter === "unpaid" && paid) return false
       if (statusFilter !== "all" && booking.status !== statusFilter) return false
 
       if (!term) return true
@@ -275,30 +292,34 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
       return haystack.includes(term)
     })
 
+    const progressFor = (booking: FamilyRetreatBooking) => retreatProgress(activity.get(booking.id) ?? [], booking)
     return list.sort((a, b) => {
       switch (sortMode) {
         case "oldest":
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         case "paid_first":
-          return Number(b.payment_status === "paid") - Number(a.payment_status === "paid")
+          return Number(progressFor(b).paid) - Number(progressFor(a).paid)
         case "unpaid_first":
-          return Number(a.payment_status === "paid") - Number(b.payment_status === "paid")
+          return Number(progressFor(a).paid) - Number(progressFor(b).paid)
         case "name_az":
           return `${a.first_name || ""} ${a.last_name || ""}`.localeCompare(`${b.first_name || ""} ${b.last_name || ""}`)
         case "name_za":
           return `${b.first_name || ""} ${b.last_name || ""}`.localeCompare(`${a.first_name || ""} ${a.last_name || ""}`)
         case "amount_high":
-          return Number(b.amount_due || 0) - Number(a.amount_due || 0)
+          return progressFor(b).due - progressFor(a).due
         case "amount_low":
-          return Number(a.amount_due || 0) - Number(b.amount_due || 0)
+          return progressFor(a).due - progressFor(b).due
         case "newest":
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       }
     })
-  }, [bookings, paymentFilter, statusFilter, search, sortMode])
+  }, [bookings, paymentFilter, statusFilter, search, sortMode, activity, refundQueue])
 
-  const paidCount = bookings.filter((booking) => booking.payment_status === "paid").length
+  const paidCount = bookings.filter((booking) => {
+    const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
+    return progress.paid
+  }).length
   const unpaidCount = bookings.length - paidCount
 
   function setRowMessage(id: string, message: Message) {
@@ -401,9 +422,13 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
 
   return (
     <div className="space-y-5">
+      {!tracker && <p className="rounded-md border p-3 text-sm text-muted-foreground">The contact, payment and refund tracker is unavailable until its database setup is ready.</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           <button onClick={() => setStatusFilter("all")} className={statusFilterClass()}>All ({bookings.length})</button>
+          {tracker && <Button type="button" size="sm" variant={refundQueue ? "default" : "outline"} aria-pressed={refundQueue} onClick={() => setRefundQueue(value => !value)}>
+            {refundQueue ? 'Show all bookings' : `Refunds to review or complete (${refundsToReview})`}
+          </Button>}
           <button onClick={() => setStatusFilter("confirmed")} className={statusFilterClass("confirmed")}>Confirmed ({bookings.filter((booking) => booking.status === "confirmed").length})</button>
           <button onClick={() => setStatusFilter("pending")} className={statusFilterClass("pending")}>Pending ({bookings.filter((booking) => booking.status === "pending").length})</button>
           <button onClick={() => setStatusFilter("declined")} className={statusFilterClass("attention")}>Declined ({bookings.filter((booking) => booking.status === "declined").length})</button>
@@ -462,12 +487,18 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-12">No applications found for current filters.</TableCell>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-12">{refundQueue ? 'No refunds awaiting review or completion.' : 'No applications found for current filters.'}</TableCell>
                 </TableRow>
               ) : (
                 filtered.map((booking) => {
                   const childrenCount = Array.isArray(booking.children_attending) ? booking.children_attending.length : 0
                   const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
+                  const events = activity.get(booking.id) ?? []
+                  const progress = retreatProgress(events, booking)
+                  const legacyCheckout = !!(booking.nowdonate_payment_url || booking.stripe_payment_link_id || booking.amount_paid || booking.payment_status === "paid")
+                  const manualFlow = !!(booking.booking_details || progress.link) && !legacyCheckout
+                  const paid = progress.paid
+                  const paymentLabel = progress.refunded && !progress.refundable ? 'Refunded' : progress.refunded ? 'Partially refunded' : paid ? 'Paid' : progress.received ? 'Part paid' : progress.link ? 'Awaiting payment' : booking.payment_status || 'Unpaid'
                   const rowMessage = messages[booking.id]
                   const reference = retreatReference(booking.booking_number)
                   const details = booking.booking_details
@@ -509,19 +540,31 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                           <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusPill(booking.status)}`}>{booking.status}</span>
                         </TableCell>
                         <TableCell>
-                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${paymentPill(booking.payment_status)}`}>{booking.payment_status || "unpaid"}</span>
-                          <div className="text-xs text-muted-foreground mt-1">Due: {formatMoney(booking.amount_due)}</div>
-                          <div className="text-xs text-muted-foreground">Paid: {formatMoney(booking.amount_paid)}</div>
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${paymentPill(paid ? 'paid' : 'unpaid')}`}>{paymentLabel}</span>
+                          <div className="mt-1 text-xs">{progress.contacted ? `Spoken to · ${retreatSubmittedAt(progress.contacted.created_at)}` : 'Not yet marked spoken to'}</div>
+                          {progress.link && <div className="text-xs">Link sent · {retreatMoney(progress.due)} · {retreatSubmittedAt(progress.link.created_at)}</div>}
+                          <div className="text-xs">Received: {retreatMoney(progress.received)}{progress.due > 0 && ` · Outstanding: ${retreatMoney(progress.outstanding)}`}</div>
+                          {!!progress.refunded && <div className="text-xs">Returned: {retreatMoney(progress.refunded)}</div>}
+                          {progress.pendingRefund && <div className="text-xs font-semibold text-amber-800">{progress.refundState === 'refund_approved' ? 'Refund approved' : 'Refund to review'}</div>}
                         </TableCell>
                         <TableCell>{deviceLabel(booking.booking_device)}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{retreatSubmittedAt(booking.created_at)}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
-                            {booking.payment_status === "paid" ? (
+                            {tracker && <Button type="button" size="sm" variant="outline" aria-expanded={trackingRow === booking.id} onClick={() => setTrackingRow(current => current === booking.id ? null : booking.id)}>
+                              {trackingRow === booking.id ? 'Hide tracker' : 'Contact, payment & refunds'}
+                            </Button>}
+                            {manualFlow && paid && booking.status !== 'confirmed' && booking.status !== 'archived' && booking.status !== 'declined' && (
+                              <Button type="button" size="sm" variant="outline" disabled={isPending}
+                                onClick={() => run(booking.id, () => updateFamilyRetreatStatus(booking.id, 'confirmed'), 'Booking confirmed.')}>
+                                Confirm booking
+                              </Button>
+                            )}
+                            {paid ? (
                               <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-medium">Paid</span>
                             ) : (
                               <>
-                                <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>
+                                <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || manualFlow || booking.status === "declined" || booking.status === "archived"}>
                                   <CheckCircle className="h-3.5 w-3.5 mr-1" />Confirm
                                 </Button>
                                 <Button size="sm" variant="outline" onClick={() => handleWaitlist(booking)} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>Waitlist</Button>
@@ -530,15 +573,20 @@ export function FamilyRetreatBookingsTable({ bookings }: { bookings: FamilyRetre
                                 </Button>
                               </>
                             )}
-                            <Button size="sm" variant="outline" title="Log a reminder you have already sent outside the dashboard" disabled={isPending || booking.payment_status === 'paid'} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged. No email was sent.')}>Log reminder sent</Button>
+                            <Button size="sm" variant="outline" title="Log a reminder you have already sent outside the dashboard" disabled={isPending || paid || !!progress.refunded} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged. No email was sent.')}>Log reminder sent</Button>
                             <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check payment</Button>
-                            <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>
+                            <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending || manualFlow}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>
                             <Button size="sm" variant="outline" onClick={() => handleArchive(booking)} disabled={isPending}><Archive className="h-3.5 w-3.5 mr-1" />Archive</Button>
-                            <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDelete(booking)} disabled={isPending}><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
+                            <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDelete(booking)} disabled={isPending || events.length > 0}><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
                           </div>
                         </TableCell>
                       </TableRow>
 
+                      {tracker && trackingRow === booking.id && (
+                        <TableRow><TableCell colSpan={7} className="whitespace-normal">
+                          <RetreatBookingTracker booking={booking} events={events} reviewer={reviewer} legacyCheckout={legacyCheckout} />
+                        </TableCell></TableRow>
+                      )}
                       {activeConfirmRow === booking.id && (
                         <TableRow>
                           <TableCell colSpan={6} className="bg-emerald-50/60">

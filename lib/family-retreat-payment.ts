@@ -1,22 +1,6 @@
 import Stripe from "stripe"
+import { familyRetreatSignatureHtml, familyRetreatSignatureLines } from "@/lib/family-retreat-email-signature"
 import { createClient } from "@supabase/supabase-js"
-
-const SIGNATURE_LINES = [
-  "Best wishes,",
-  "",
-  "Daljit Kaur",
-  "Specialist Lead",
-  "Mob: 07780 334 940",
-  "Email: Daljit.Kaur@devanhaar.com",
-  "LinkedIn: daljitkaurstem",
-  "",
-  "Follow The Sikh Family Initiative on Instagram:",
-  "https://www.instagram.com/thesikhfamilyinitiative",
-]
-
-const SIGNATURE_HTML =
-  '<p style="margin-top:24px">Best wishes,<br><br><strong>Daljit Kaur</strong><br>Specialist Lead<br>Mob: 07780 334 940<br>Email: <a href="mailto:Daljit.Kaur@devanhaar.com">Daljit.Kaur@devanhaar.com</a><br>LinkedIn: daljitkaurstem</p>' +
-  '<p>Follow The Sikh Family Initiative on Instagram:<br><a href="https://www.instagram.com/thesikhfamilyinitiative">https://www.instagram.com/thesikhfamilyinitiative</a></p>'
 
 async function sendPaymentReceivedEmail(email: string, firstName: string, amountPaid: number) {
   if (!process.env.RESEND_API_KEY) return
@@ -37,12 +21,7 @@ async function sendPaymentReceivedEmail(email: string, firstName: string, amount
       "",
       "We are really looking forward to welcoming your family.",
       "",
-      "Warm regards,",
-      "The Sikh Family Initiative Team",
-      "",
-      "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.",
-      "",
-      ...SIGNATURE_LINES,
+      ...familyRetreatSignatureLines,
     ].join("\n"),
     html: [
       '<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1f2937;line-height:1.6">',
@@ -51,9 +30,7 @@ async function sendPaymentReceivedEmail(email: string, firstName: string, amount
       `<p>Thank you &mdash; we are pleased to confirm that we have received your payment of <strong>\u00a3${amountPaid.toFixed(2)}</strong> for the Sikh Family Retreat. Your family&rsquo;s place is now fully secured.</p>`,
       "<p>We will be in touch closer to the event with further information, including arrival times, what to bring, accommodation guidance and the retreat programme.</p>",
       "<p>We are really looking forward to welcoming your family.</p>",
-      "<p>Warm regards,<br>The Sikh Family Initiative Team</p>",
-      "<p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>",
-      SIGNATURE_HTML,
+      familyRetreatSignatureHtml,
       "</div>",
     ].join(""),
   })

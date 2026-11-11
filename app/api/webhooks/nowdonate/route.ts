@@ -1,3 +1,4 @@
+import { familyRetreatSignatureHtml, familyRetreatSignatureLines } from '@/lib/family-retreat-email-signature'
 import { createClient } from "@supabase/supabase-js"
 import crypto from "crypto"
 
@@ -177,7 +178,7 @@ export async function POST(request: Request) {
         supabase.from("family_retreat_bookings").select("*").eq("id", bookingId).maybeSingle(),
       ])
       rootsBooking = rb.data
-      familyBooking = fb.data
+      familyBooking = fb.data?.nowdonate_payment_url ? fb.data : null
     } else {
       // No booking ID — payment made via direct appeal link; match by donor email
       const donorEmail = getDonorEmail(payload)
@@ -199,6 +200,7 @@ export async function POST(request: Request) {
             .from("family_retreat_bookings")
             .select("*")
             .eq("email", donorEmail)
+            .not("nowdonate_payment_url", "is", null)
             .neq("payment_status", "paid")
             .order("created_at", { ascending: false })
             .limit(1)
@@ -285,7 +287,7 @@ We cannot wait to welcome ${camperName} to Roots.${SIG_TEXT}`
 
         if (familyBooking?.email) {
           const fullName = `${familyBooking.first_name || ""} ${familyBooking.last_name || ""}`.trim()
-          const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Sikh Family Retreat</h2><p>Dear ${fullName || "there"},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for your Sikh Family Retreat booking.</p><p>Your booking is now marked as paid. We will follow up with any next steps if needed.</p><p style="margin-top:24px;">Best wishes,<br/><strong>Sikh Family Retreat Team</strong><br/>Devanhaar</p></div>`
+          const html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:600px;margin:0 auto;"><h2 style="margin:0 0 16px;">Payment received — Sikh Family Retreat</h2><p>Dear ${fullName || "there"},</p><p>We have received your payment of <strong>&pound;${amountPounds}</strong> for your Sikh Family Retreat booking.</p><p>Your booking is now marked as paid. We will follow up with any next steps if needed.</p>${familyRetreatSignatureHtml}</div>`
           const text = `Payment received — Sikh Family Retreat
 
 Dear ${fullName || "there"},
@@ -294,8 +296,7 @@ We have received your payment of £${amountPounds} for your Sikh Family Retreat 
 
 Your booking is now marked as paid. We will follow up with any next steps if needed.
 
-Best wishes,
-Sikh Family Retreat Team`
+${familyRetreatSignatureLines.join("\n")}`
 
           await resend.emails.send({
             from: "Sikh Family Retreat <noreply@devanhaar.com>",
