@@ -1,5 +1,5 @@
 import { familyRetreatSignatureLines } from '@/lib/family-retreat-email-signature'
-import { isRetreatBookingEvent, isRetreatBookingOpen, RETREAT_BOOKING_EVENTS, RETREAT_ACCOMMODATION, retreatAccommodationLabel, retreatChildAge, retreatReference, retreatSubmittedAt } from '@/lib/family-retreat-booking-details'
+import { isRetreatBookingEvent, isRetreatBookingOpen, RETREAT_BOOKING_EVENTS, RETREAT_ACCOMMODATION, retreatAccommodationLabel, retreatChildAge, retreatChildCounts, retreatReference, retreatSubmittedAt } from '@/lib/family-retreat-booking-details'
 import { detectBookingDevice } from '@/lib/booking-device'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
@@ -38,9 +38,6 @@ export async function POST(request: NextRequest) {
     if (!Number.isInteger(age) || age < 18 || age > 120) {
       return NextResponse.json({ error: 'Enter the lead adult’s age.' }, { status: 400 })
     }
-    if (!['yes', 'no'].includes(body.guardian) || body.parent_consent !== true) {
-      return NextResponse.json({ error: 'Please answer the guardian question and confirm parent or guardian consent.' }, { status: 400 })
-    }
     if (!['yes', 'no'].includes(body.transport_required)) {
       return NextResponse.json({ error: 'Please tell us whether you require transport.' }, { status: 400 })
     }
@@ -66,22 +63,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
-    if (!Array.isArray(body.children) || body.children.length === 0 || body.children.length > 10) {
+    if (body.additional_adults !== undefined && !Array.isArray(body.additional_adults)) {
+      return NextResponse.json({ error: 'Please provide the details of additional adults.' }, { status: 400 })
+    }
+    for (const adult of body.additional_adults ?? []) {
+      const adultAge = typeof adult?.age === 'string' && /^\d{1,3}$/.test(adult.age) ? Number(adult.age) : NaN
+      if (typeof adult?.first_name !== 'string' || !adult.first_name.trim() ||
+        typeof adult?.last_name !== 'string' || !adult.last_name.trim() ||
+        !Number.isInteger(adultAge) || adultAge < 18 || adultAge > 120) {
+        return NextResponse.json({ error: 'Please provide the name and age of every additional adult.' }, { status: 400 })
+      }
+    }
+
+    if (!Array.isArray(body.children) || body.children.length > 10) {
       return NextResponse.json(
-        { error: 'Please add between 1 and 10 children attending' },
+        { error: 'Please add no more than 10 children or infants.' },
         { status: 400 }
       )
     }
 
     for (const child of body.children) {
+      const childAge = typeof child?.date_of_birth === 'string' ? retreatChildAge(child.date_of_birth) : null
       if (!child || typeof child.first_name !== 'string' || !child.first_name.trim() ||
         typeof child.last_name !== 'string' || !child.last_name.trim() ||
-        typeof child.date_of_birth !== 'string' || retreatChildAge(child.date_of_birth) === null) {
+        childAge === null || childAge >= 18) {
         return NextResponse.json(
-          { error: 'Please complete all required fields for each child' },
+          { error: 'Please provide the name and valid date of birth of each child or infant under 18.' },
           { status: 400 }
         )
       }
+    }
+
+    if (body.children.length > 0 && (!['yes', 'no'].includes(body.guardian) || body.parent_consent !== true)) {
+      return NextResponse.json({ error: 'Please answer the guardian question and confirm parent or guardian consent.' }, { status: 400 })
     }
 
     if (body.consent_privacy !== true) {
@@ -106,13 +120,21 @@ export async function POST(request: NextRequest) {
         last_name: child.last_name.trim(),
         date_of_birth: child.date_of_birth,
       })),
+      ...(body.additional_adults === undefined ? {} : {
+        adults_attending: [
+          { first_name: body.first_name.trim(), last_name: body.last_name.trim(), age },
+          ...body.additional_adults.map((adult: { first_name: string; last_name: string; age: string }) => ({
+            first_name: adult.first_name.trim(), last_name: adult.last_name.trim(), age: Number(adult.age),
+          })),
+        ],
+      }),
       booking_details: {
         event: body.event,
         title: typeof body.title === 'string' ? body.title.trim().slice(0, 30) : '',
         age,
         address: body.address.trim(),
-        guardian_of_all: body.guardian === 'yes',
-        parent_consent: true,
+        guardian_of_all: body.children.length ? body.guardian === 'yes' : null,
+        parent_consent: body.children.length ? true : null,
         transport_required: body.transport_required === 'yes',
       },
       accommodation_preference: body.accommodation_preference || null,
@@ -156,8 +178,12 @@ export async function POST(request: NextRequest) {
         const { Resend } = await import('resend')
         const resend = new Resend(process.env.RESEND_API_KEY)
         const childrenLines = payload.children_attending.map((child: { first_name: string; last_name: string; date_of_birth: string }, i: number) =>
-          `Child ${i + 1}: ${child.first_name} ${child.last_name} · Age: ${retreatChildAge(child.date_of_birth, new Date(data.created_at))} · Date of birth: ${child.date_of_birth}`
+          `Child or infant ${i + 1}: ${child.first_name} ${child.last_name} · Age at booking: ${retreatChildAge(child.date_of_birth, new Date(data.created_at))} · Date of birth: ${child.date_of_birth}`
         )
+        const counts = retreatChildCounts(payload.children_attending, new Date(data.created_at))
+        const adultLines = payload.adults_attending?.slice(1).map((adult: { first_name: string; last_name: string; age: number }, i: number) =>
+          `Additional adult ${i + 1}: ${adult.first_name} ${adult.last_name} · Age: ${adult.age}`
+        ) ?? []
         const textBody = [
           'New Sikh Family Retreat booking request.',
           `Retreat: ${retreat.title} · ${retreat.date}`,
@@ -171,12 +197,16 @@ export async function POST(request: NextRequest) {
           `Age: ${payload.booking_details.age}`,
           `Phone: ${payload.phone}`,
           `Address: ${payload.booking_details.address}, ${payload.city}, ${payload.postcode}, ${payload.country}`,
+          `Adults: ${payload.adults_attending?.length ?? 'At least 1; additional adults not recorded'}`,
+          ...adultLines,
           '',
-          '-- Children attending',
+          `-- Children aged 2–17: ${counts.children}; infants under 2: ${counts.infants} (at booking)`,
           ...childrenLines,
-          `Parent or guardian of all children: ${yesNo(payload.booking_details.guardian_of_all)}`,
-          'Parent or guardian consent declaration: Confirmed',
-          ...(payload.booking_details.guardian_of_all ? [] : ['Written permission required before confirming the booking.']),
+          ...(payload.children_attending.length ? [
+            `Parent or guardian of all children: ${yesNo(payload.booking_details.guardian_of_all === true)}`,
+            'Parent or guardian consent declaration: Confirmed',
+            ...(payload.booking_details.guardian_of_all ? [] : ['Written permission required before confirming the booking.']),
+          ] : []),
           '',
           '-- Accommodation and needs',
           `Accommodation preference: ${retreatAccommodationLabel(payload.accommodation_preference)}`,
@@ -227,7 +257,7 @@ export async function POST(request: NextRequest) {
             '',
             'Please remember that submitting the booking form does not automatically confirm your family\'s place. Your place will only be confirmed once The Sikh Family Initiative team has contacted you and the next steps have been agreed.',
             '',
-            ...(payload.booking_details.guardian_of_all ? [] : ['If you are not the parent or guardian of all children listed, the team will need written permission before confirming your booking.', '']),
+            ...(payload.children_attending.length && !payload.booking_details.guardian_of_all ? ['If you are not the parent or guardian of all children listed, the team will need written permission before confirming your booking.', ''] : []),
             'Thank you for your application. We look forward to meeting you.',
             '',
             ...familyRetreatSignatureLines,

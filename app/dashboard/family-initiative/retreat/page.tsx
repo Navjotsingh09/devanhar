@@ -53,10 +53,14 @@ export default async function RetreatDashboardPage() {
   }
   const reportingBookings = bookings.map(booking => {
     const events = activity.get(booking.id)
-    if (!events?.length) return booking
+    const namedAdults = booking.booking_details && !booking.adults_attending?.length
+      ? [{ first_name: booking.first_name ?? undefined, last_name: booking.last_name ?? undefined }]
+      : booking.adults_attending
+    if (!events?.length) return { ...booking, adults_attending: namedAdults }
     const progress = retreatProgress(events, booking)
     return {
       ...booking,
+      adults_attending: namedAdults,
       payment_status: progress.paid ? 'paid' : 'unpaid',
       amount_due: progress.due / 100,
       amount_paid: progress.refundable / 100,

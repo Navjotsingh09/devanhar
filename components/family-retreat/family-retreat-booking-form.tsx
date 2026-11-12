@@ -25,7 +25,14 @@ interface ChildEntry {
   date_of_birth: string
 }
 
+interface AdultEntry {
+  first_name: string
+  last_name: string
+  age: string
+}
+
 const emptyChild = (): ChildEntry => ({ first_name: "", last_name: "", date_of_birth: "" })
+const emptyAdult = (): AdultEntry => ({ first_name: "", last_name: "", age: "" })
 
 const HEARD_OPTIONS = [
   "Word of mouth / friend or family",
@@ -64,7 +71,9 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
   const successRef = useRef<HTMLDivElement>(null)
   const errorRef = useRef<HTMLParagraphElement>(null)
   const [error, setError] = useState("")
-  const [children, setChildren] = useState<ChildEntry[]>([emptyChild()])
+  const [adults, setAdults] = useState<AdultEntry[]>([])
+  const [children, setChildren] = useState<ChildEntry[]>([])
+  const [hasChildren, setHasChildren] = useState("")
   const [form, setForm] = useState({
     first_name: "", last_name: "", email: "", phone: "",
     city: "", postcode: "", country: "",
@@ -102,6 +111,9 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
   const updateChild = (index: number, field: keyof ChildEntry, value: string) =>
     setChildren((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)))
 
+  const updateAdult = (index: number, field: keyof AdultEntry, value: string) =>
+    setAdults((prev) => prev.map((adult, i) => (i === index ? { ...adult, [field]: value } : adult)))
+
   const addChild = () => { if (children.length < 10) setChildren((prev) => [...prev, emptyChild()]) }
   const removeChild = (index: number) => { if (children.length > 1) setChildren((prev) => prev.filter((_, i) => i !== index)) }
 
@@ -109,7 +121,9 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
     setSubmitted(false)
     setReference(null)
     setForm({ first_name:"",last_name:"",email:"",phone:"",city:"",postcode:"",country:"",title:"",age:"",address:"",guardian:"",parent_consent:false,transport_required:"",accommodation_preference:"",dietary_requirements:"",medical_requirements:"",emergency_contact_name:"",emergency_contact_relationship:"",emergency_contact_phone:"",heard_about_retreat:"",additional_notes:"",consent_email:"no",consent_whatsapp:"no",consent_privacy:false,page_url:"",source:"",medium:"" })
-    setChildren([emptyChild()])
+    setAdults([])
+    setChildren([])
+    setHasChildren("")
     setError("")
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" })
   }
@@ -124,14 +138,22 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
     if (form.country.trim().length < 2) return "Please enter your country."
     if (!form.address.trim()) return "Please enter your street address."
     if (!/^\d{1,3}$/.test(form.age) || Number(form.age) < 18 || Number(form.age) > 120) return "Please enter the lead adult’s age."
+    for (let i = 0; i < adults.length; i++) {
+      const adult = adults[i]
+      if (!NAME_REGEX.test(adult.first_name.trim())) return `Please enter a first name for additional adult ${i + 1}.`
+      if (!NAME_REGEX.test(adult.last_name.trim())) return `Please enter a last name for additional adult ${i + 1}.`
+      if (!/^\d{1,3}$/.test(adult.age) || Number(adult.age) < 18 || Number(adult.age) > 120) return `Please enter a valid age for additional adult ${i + 1}.`
+    }
+    if (!hasChildren) return "Please tell us whether children or infants are attending."
     for (let i = 0; i < children.length; i++) {
       const child = children[i]
       if (!NAME_REGEX.test(child.first_name.trim())) return `Please enter a first name for child ${i + 1}.`
       if (!NAME_REGEX.test(child.last_name.trim())) return `Please enter a last name for child ${i + 1}.`
-      if (retreatChildAge(child.date_of_birth) === null) return `Please enter the date of birth for child ${i + 1}.`
+      const age = retreatChildAge(child.date_of_birth)
+      if (age === null || age >= 18) return `Please enter a valid date of birth for child or infant ${i + 1} (under 18).`
     }
-    if (!form.guardian) return "Please answer the parent or guardian question."
-    if (!form.parent_consent) return "Please confirm parent or guardian consent before submitting."
+    if (children.length && !form.guardian) return "Please answer the parent or guardian question."
+    if (children.length && !form.parent_consent) return "Please confirm parent or guardian consent before submitting."
     if (!form.accommodation_preference) return "Please choose an accommodation preference."
     if (!form.transport_required) return "Please tell us whether you require transport."
     if (!NAME_REGEX.test(form.emergency_contact_name.trim())) return "Please enter the emergency contact's full name."
@@ -157,7 +179,7 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
       const res = await fetch("/api/family-retreat-bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, children, event }),
+        body: JSON.stringify({ ...form, additional_adults: adults, children, event }),
       })
       const json = await res.json()
       if (!res.ok) { setError(json.error || "Something went wrong. Please try again."); return }
@@ -240,14 +262,42 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
         </div>
       </div>
 
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Additional adults attending</h3>
+        <p className="text-sm text-muted-foreground">The adult contact above is included. Add every other adult aged 18 or over.</p>
+        {adults.map((adult, i) => (
+          <div key={i} className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold">Additional adult {i + 1}</p>
+              <button type="button" onClick={() => setAdults((prev) => prev.filter((_, index) => index !== i))} className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"><Trash2 className="h-3.5 w-3.5" /> Remove</button>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div><Label htmlFor={`adult-${i}-first`}>First name *</Label><Input id={`adult-${i}-first`} value={adult.first_name} onChange={(e) => updateAdult(i, "first_name", e.target.value)} /></div>
+              <div><Label htmlFor={`adult-${i}-last`}>Last name *</Label><Input id={`adult-${i}-last`} value={adult.last_name} onChange={(e) => updateAdult(i, "last_name", e.target.value)} /></div>
+              <div><Label htmlFor={`adult-${i}-age`}>Age *</Label><Input id={`adult-${i}-age`} type="number" min={18} max={120} value={adult.age} onChange={(e) => updateAdult(i, "age", e.target.value)} /></div>
+            </div>
+          </div>
+        ))}
+        <Button type="button" variant="outline" onClick={() => setAdults((prev) => [...prev, emptyAdult()])} className="rounded-full px-5 text-sm gap-2"><Plus className="h-4 w-4" /> Add an adult</Button>
+      </div>
+
       {/* Children attending */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Children attending</h3>
-        <p className="text-sm text-muted-foreground">Please add the details of all children attending with your family. This helps the team plan age-appropriate activities and support.</p>
+        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Children and infants attending</h3>
+        <p className="text-sm text-muted-foreground">Add every attendee under 18, including infants under 2. Infants are counted separately based on their age when you submit.</p>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">Are any children or infants attending? *</legend>
+          <div className="flex gap-5">
+            {["yes", "no"].map((answer) => <label key={answer} className="flex items-center gap-2 text-sm">
+              <input type="radio" name="retreat-has-children" value={answer} checked={hasChildren === answer} onChange={() => { setHasChildren(answer); setChildren(answer === "yes" ? [emptyChild()] : []); update("guardian", ""); update("parent_consent", false) }} />
+              {answer === "yes" ? "Yes" : "No"}
+            </label>)}
+          </div>
+        </fieldset>
         {children.map((child, i) => (
           <div key={i} className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">Child {i + 1}</p>
+              <p className="text-sm font-semibold text-foreground">Child or infant {i + 1}</p>
               {children.length > 1 && (
                 <button type="button" onClick={() => removeChild(i)} className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1">
                   <Trash2 className="h-3.5 w-3.5" /> Remove
@@ -255,18 +305,18 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
               )}
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <div><Label>First name *</Label><Input value={child.first_name} onChange={(e) => updateChild(i, "first_name", e.target.value)} /></div>
-              <div><Label>Last name *</Label><Input value={child.last_name} onChange={(e) => updateChild(i, "last_name", e.target.value)} /></div>
-              <div><Label>Date of birth *</Label><Input type="date" aria-label={`Child ${i + 1} date of birth`} value={child.date_of_birth} onChange={(e) => updateChild(i, "date_of_birth", e.target.value)} /></div>
+              <div><Label htmlFor={`child-${i}-first`}>First name *</Label><Input id={`child-${i}-first`} value={child.first_name} onChange={(e) => updateChild(i, "first_name", e.target.value)} /></div>
+              <div><Label htmlFor={`child-${i}-last`}>Last name *</Label><Input id={`child-${i}-last`} value={child.last_name} onChange={(e) => updateChild(i, "last_name", e.target.value)} /></div>
+              <div><Label htmlFor={`child-${i}-dob`}>Date of birth *</Label><Input id={`child-${i}-dob`} type="date" value={child.date_of_birth} onChange={(e) => updateChild(i, "date_of_birth", e.target.value)} /></div>
             </div>
           </div>
         ))}
-        {children.length < 10 && (
+        {hasChildren === "yes" && children.length < 10 && (
           <Button type="button" variant="outline" onClick={addChild} className="rounded-full px-5 text-sm gap-2">
-            <Plus className="h-4 w-4" /> Add another child
+            <Plus className="h-4 w-4" /> Add another child or infant
           </Button>
         )}
-        <fieldset className="space-y-3">
+        {children.length > 0 && <fieldset className="space-y-3">
           <legend className="text-sm font-medium">Are you the parent or guardian of all the children listed? *</legend>
           <div className="flex gap-5">
             {["yes", "no"].map((answer) => <label key={answer} className="flex items-center gap-2 text-sm">
@@ -281,7 +331,7 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
               ? "I confirm I have permission from the parent or guardian of each child to make this request and understand written permission is required. *"
               : "I give my consent for the children listed to attend the Sikh Family Retreat. *"}
           </label>
-        </fieldset>
+        </fieldset>}
       </div>
 
       {/* Accommodation */}

@@ -1,6 +1,6 @@
 "use client"
 
-import { isRetreatBookingEvent, RETREAT_BOOKING_EVENTS, retreatAccommodationLabel, retreatChildAge, retreatReference, retreatSubmittedAt } from "@/lib/family-retreat-booking-details"
+import { isRetreatBookingEvent, RETREAT_BOOKING_EVENTS, retreatAccommodationLabel, retreatChildAge, retreatChildCounts, retreatReference, retreatSubmittedAt } from "@/lib/family-retreat-booking-details"
 import { retreatMoney, retreatProgress, type RetreatTrackerEvent } from "@/lib/family-retreat-tracker"
 import { RetreatBookingTracker } from './family-retreat-tracker'
 import { deviceLabel } from "@/lib/booking-device"
@@ -44,6 +44,7 @@ type ChildPerson = {
 type AdultPerson = {
   first_name?: string
   last_name?: string
+  age?: number
 }
 
 export type FamilyRetreatBooking = {
@@ -54,8 +55,8 @@ export type FamilyRetreatBooking = {
     title: string
     age: number
     address: string
-    guardian_of_all: boolean
-    parent_consent: boolean
+    guardian_of_all: boolean | null
+    parent_consent: boolean | null
     transport_required: boolean
   } | null
   booking_device?: string | null
@@ -170,12 +171,16 @@ function toCsv(bookings: FamilyRetreatBooking[], activity: Map<string, RetreatTr
     const count = normalizeChildren(booking.children_attending).length
     return Math.max(maximum, count)
   }, 0)
+  const maxAdults = bookings.reduce((maximum, booking) => Math.max(maximum, Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0), 0)
 
   const headers = [
     "id", "created_at", "status", "payment_status", "first_name", "last_name", "email", "phone", "city", "postcode", "country",
-    "adults_count", "children_count", "agreed_total_attending", "children_age_years", "children_age_bands", "amount_due", "amount_paid", "paid_at", "internal_notes",
+    "adults_count", "children_count", "children_2_to_17_count_at_booking", "infants_under_2_count_at_booking", "children_with_unknown_age_count", "agreed_total_attending", "children_age_years", "children_age_bands", "amount_due", "amount_paid", "paid_at", "internal_notes",
   ]
 
+  for (let index = 1; index <= maxAdults; index += 1) {
+    headers.push(`adult_${index}_first_name`, `adult_${index}_last_name`, `adult_${index}_age`)
+  }
   for (let index = 1; index <= maxChildren; index += 1) {
     headers.push(
       `child_${index}_first_name`,
@@ -187,9 +192,10 @@ function toCsv(bookings: FamilyRetreatBooking[], activity: Map<string, RetreatTr
 
   const rows = bookings.map((booking) => {
     const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
-    const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
+    const adults = Array.isArray(booking.adults_attending) ? booking.adults_attending : []
+    const adultsCount = adults.length || (booking.booking_details ? "" : 0)
     const children = normalizeChildren(booking.children_attending)
-    const childrenCount = children.length
+    const childCounts = retreatChildCounts(children, new Date(booking.created_at))
     const ages = children
       .map((child) => (child?.date_of_birth ? calculateAge(child.date_of_birth) : null))
       .filter((age): age is number => typeof age === "number")
@@ -207,7 +213,10 @@ function toCsv(bookings: FamilyRetreatBooking[], activity: Map<string, RetreatTr
       booking.postcode || "",
       booking.country || "",
       adultsCount,
-      childrenCount,
+      children.length,
+      childCounts.children,
+      childCounts.infants,
+      childCounts.unknown,
       progress.headcount ?? "",
       ages.join(";"),
       ages.map((age) => ageBand(age)).join(";"),
@@ -216,6 +225,11 @@ function toCsv(bookings: FamilyRetreatBooking[], activity: Map<string, RetreatTr
       booking.paid_at || "",
       booking.internal_notes || "",
     ]
+
+    for (let index = 0; index < maxAdults; index += 1) {
+      const adult = adults[index]
+      row.push(adult?.first_name || "", adult?.last_name || "", adult?.age ?? "")
+    }
 
     for (let index = 0; index < maxChildren; index += 1) {
       const child = children[index]
@@ -500,8 +514,10 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                 </TableRow>
               ) : (
                 filtered.map((booking) => {
-                  const childrenCount = Array.isArray(booking.children_attending) ? booking.children_attending.length : 0
-                  const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
+                  const children = normalizeChildren(booking.children_attending)
+                  const childCounts = retreatChildCounts(children, new Date(booking.created_at))
+                  const adults = Array.isArray(booking.adults_attending) ? booking.adults_attending : []
+                  const adultsCount = adults.length || (booking.booking_details ? null : 0)
                   const events = activity.get(booking.id) ?? []
                   const progress = retreatProgress(events, booking)
                   const legacyCheckout = !!(booking.nowdonate_payment_url || booking.stripe_payment_link_id || booking.amount_paid || booking.payment_status === "paid")
@@ -525,12 +541,17 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                             <summary className="cursor-pointer font-medium">View booking details</summary>
                             <p>{details.title ? `${details.title} · ` : ''}Adult age: {details.age}</p>
                             <p>Address: {details.address}, {booking.city}, {booking.postcode}, {booking.country}</p>
-                            {normalizeChildren(booking.children_attending).map((child, i) => (
-                              <p key={i}>Child {i + 1}: {child.first_name} {child.last_name} · Age: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}</p>
+                            {adults.map((adult, i) => (
+                              <p key={i}>Adult {i + 1}: {adult.first_name} {adult.last_name} · Age: {adult.age ?? 'Not recorded'}</p>
                             ))}
-                            <p>Parent or guardian of all children: {details.guardian_of_all ? 'Yes' : 'No'}</p>
-                            <p>Consent declaration: {details.parent_consent ? 'Confirmed' : 'Not recorded'}</p>
-                            {!details.guardian_of_all && <p className="font-semibold">Written permission required before confirmation.</p>}
+                            {children.map((child, i) => (
+                              <p key={i}>Child or infant {i + 1}: {child.first_name} {child.last_name} · Age at booking: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}</p>
+                            ))}
+                            {children.length > 0 && <>
+                              <p>Parent or guardian of all children: {details.guardian_of_all ? 'Yes' : 'No'}</p>
+                              <p>Consent declaration: {details.parent_consent ? 'Confirmed' : 'Not recorded'}</p>
+                              {details.guardian_of_all === false && <p className="font-semibold">Written permission required before confirmation.</p>}
+                            </>}
                             <p>Accommodation: {retreatAccommodationLabel(booking.accommodation_preference)}</p>
                             <p>Dietary: {booking.dietary_requirements || 'None stated'}</p>
                             <p>Medical and accessibility: {booking.medical_requirements || 'None stated'}</p>
@@ -539,7 +560,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                             <p>Sikhi journey or seva: {booking.additional_notes || 'None stated'}</p>
                             <p>Transport required: {details.transport_required ? 'Yes' : 'No'}</p>
                           </details>}
-                          <div className="text-xs text-muted-foreground mt-1">Adults: {adultsCount} | Children: {childrenCount}</div>
+                          <div className="text-xs text-muted-foreground mt-1">Adults: {adultsCount ?? 'At least 1 (additional adults not recorded)'} | Children 2–17: {childCounts.children} | Infants under 2: {childCounts.infants}{childCounts.unknown > 0 && ` | Child age unknown: ${childCounts.unknown}`} | Total: {adultsCount === null ? 'Not recorded' : adultsCount + children.length} <span>(ages at booking)</span></div>
                         </TableCell>
                         <TableCell>
                           <div>{booking.city || "-"}</div>
