@@ -12,6 +12,7 @@ import {
 import { Navbar } from "@/components/navbar"
 import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
+import { SfrBookingTicker } from "./sfr-booking-ticker"
 
 import type { SfiContent } from "@/lib/cms/sfi-content"
 import { isRetreatBookingOpen } from "@/lib/family-retreat-booking-details"
@@ -19,6 +20,7 @@ import type { SfiOpenBooking } from "@/lib/sfi-open-bookings"
 
 export function SfiPageContent({ content, openBookings = [] }: { content: SfiContent; openBookings?: SfiOpenBooking[] }) {
   const icons = { HeartHandshake, UsersRound, Leaf, Sparkles }
+  const showSfrTicker = isRetreatBookingOpen('new-year-reset')
   const sections: Record<string, React.ReactNode> = {
     events: (<section id="upcoming" className="border-b border-border py-16 md:py-24">
           <div className="container mx-auto max-w-6xl px-6 lg:px-12">
@@ -196,7 +198,8 @@ export function SfiPageContent({ content, openBookings = [] }: { content: SfiCon
   }
   return (
     <>
-      <Navbar donationHref="https://www.nowdonate.com/checkout/nyb88cq73k85q0l9q3z6" />
+      {showSfrTicker && <SfrBookingTicker />}
+      <Navbar showSfrTicker={showSfrTicker} donationHref="https://www.nowdonate.com/checkout/nyb88cq73k85q0l9q3z6" />
       <main className="min-h-screen bg-white">
         <section className="relative overflow-hidden bg-[#101b2d] text-white">
           <img

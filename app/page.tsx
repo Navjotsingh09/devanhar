@@ -4,7 +4,6 @@ import { getOpenRegistrationOpportunities } from '@/lib/open-registration-opport
 import { CmsPageRenderer } from '@/components/cms/page-renderer'
 import { getPublishedPageContent } from '@/lib/cms/page-server'
 import { defaultHomeContent } from '@/lib/cms/page-content'
-import { isRetreatBookingOpen } from '@/lib/family-retreat-booking-details'
 export const dynamic = 'force-dynamic'
 const publishedHome = cache(async () => await getPublishedPageContent('home') ?? defaultHomeContent)
 export async function generateMetadata() {
@@ -13,5 +12,5 @@ export async function generateMetadata() {
 }
 export default async function Page() {
   const [content, opportunities, posts] = await Promise.all([publishedHome(), getOpenRegistrationOpportunities().catch(() => []), getPublishedBlogPosts()])
-  return <CmsPageRenderer content={content} opportunities={opportunities} posts={posts} showSfrTicker={isRetreatBookingOpen('new-year-reset')} />
+  return <CmsPageRenderer content={content} opportunities={opportunities} posts={posts} />
 }

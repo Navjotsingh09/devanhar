@@ -38,10 +38,11 @@ test('only open SFI bookings appear, with duplicate retreat links removed', () =
 
 const renderer = load('components/cms/sfi-page-content.tsx', {
   'next/link': { __esModule: true, default: ({ children, ...props }) => React.createElement('a', props, children) },
-  '@/components/navbar': { Navbar: () => null },
+  '@/components/navbar': { Navbar: ({ showSfrTicker }) => React.createElement('nav', { 'data-ticker-offset': String(showSfrTicker) }) },
   '@/components/footer-section': { FooterSection: () => null },
   '@/components/ui/button': { Button: ({ children }) => children },
   '@/lib/family-retreat-booking-details': retreats,
+  './sfr-booking-ticker': { SfrBookingTicker: () => React.createElement('aside', null, 'Retreat booking ticker') },
 }).SfiPageContent
 const content = JSON.parse(fs.readFileSync('lib/cms/sfi-default.json', 'utf8'))
 
@@ -55,4 +56,6 @@ test('featured button adapts to zero, one or multiple open bookings', () => {
   assert.match(html, /href="#open-bookings">Book now/)
   assert.match(html, /Bookings open now/)
   assert.match(html, /href="\/fair\/book"[^>]*>Book now/)
+  assert.match(html, /Retreat booking ticker/)
+  assert.match(html, /data-ticker-offset="true"/)
 })

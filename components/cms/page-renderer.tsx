@@ -10,7 +10,6 @@ import { PlatformSection } from '@/components/platform-section'
 import { ProjectsSection } from '@/components/projects-section'
 import { MediaSection } from '@/components/media-section'
 import { FAQSection } from '@/components/faq-section'
-import { SfrBookingTicker } from './sfr-booking-ticker'
 import type { BlogPost } from '@/lib/blog'
 import type { PageContent, PageSection } from '@/lib/cms/page-content'
 import type { OpenOpportunity } from '@/lib/registration-window-status'
@@ -42,12 +41,12 @@ function Section({ section, opportunities, posts }: { section: PageSection; oppo
     case 'buttons': return <section className="container mx-auto px-6 py-16"><h2 className="text-3xl font-bold">{section.data.heading}</h2><Buttons items={section.data.buttons} /></section>
   }
 }
-export function CmsPageRenderer({ content, opportunities = [], posts = [], showSfrTicker = false }: { content: PageContent; opportunities?: OpenOpportunity[]; posts?: BlogPost[]; showSfrTicker?: boolean }) {
+export function CmsPageRenderer({ content, opportunities = [], posts = [] }: { content: PageContent; opportunities?: OpenOpportunity[]; posts?: BlogPost[] }) {
   const settings=content.sections.find(s=>s.type==='siteSettings')
   if(settings?.type==='siteSettings')return <SiteSettingsProvider settings={settings.data}><Navbar/><section className="container mx-auto px-6 pb-16 pt-36"><p className="text-sm text-muted-foreground">Shared website settings preview</p><h1 className="mt-4 text-4xl font-bold">{settings.data.brand.name}</h1><p className="mt-4">Review the header navigation, project menu, logo, accent colour, contact details and footer below.</p><a href="#contact" className="mt-6 inline-block rounded-full bg-primary px-6 py-3 text-primary-foreground">Example button</a></section><FooterSection/></SiteSettingsProvider>
   const visible = content.sections.filter(s => !s.hidden)
   const startsWithHero = ['hero', 'homeHero'].includes(visible[0]?.type)
-  return <main className={`min-h-screen bg-background text-foreground ${startsWithHero ? '' : 'pt-28'}`}><ScrollAnimations />{showSfrTicker && <SfrBookingTicker />}<Navbar showSfrTicker={showSfrTicker} />{visible.map(section => <Section key={section.id} section={section} opportunities={opportunities} posts={posts} />)}<FooterSection /></main>
+  return <main className={`min-h-screen bg-background text-foreground ${startsWithHero ? '' : 'pt-28'}`}><ScrollAnimations /><Navbar />{visible.map(section => <Section key={section.id} section={section} opportunities={opportunities} posts={posts} />)}<FooterSection /></main>
 }
 
 export function CmsContentSections({sections,posts=[]}:{sections:PageSection[];posts?:BlogPost[]}){return <>{sections.filter(s=>!s.hidden).map(section=><Section key={section.id} section={section} opportunities={[]} posts={posts}/>)}</>}
