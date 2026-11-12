@@ -15,6 +15,17 @@ function setup({role='staff',programmes=[],failure,authError,profileMissing=fals
  return {calls,run:async(path,method='GET')=>{const url=new URL('https://site.invalid'+path);url.clone=()=>new URL(url);return module.exports.updateSession({headers:new Headers(),cookies:{getAll:()=>[],set(){}},nextUrl:url,method})}}
 }
 test('public pages do not make auth or permission requests',async()=>{const s=setup();assert.equal((await s.run('/about')).status,200);assert.deepEqual(s.calls,[])})
+for(const account of [{user:false},{role:'staff',programmes:['family']},{role:'staff',programmes:['roots']},{role:'content_manager'}])test(`public retreat booking POST works for ${JSON.stringify(account)}`,async()=>{
+ const s=setup(account)
+ assert.equal((await s.run('/api/family-retreat-bookings','POST')).status,200)
+ assert.deepEqual(s.calls,[])
+})
+test('public retreat booking exception does not expose private APIs or other methods',async()=>{
+ const s=setup({role:'staff',programmes:['family']})
+ assert.equal((await s.run('/api/family-retreat-bookings','DELETE')).status,403)
+ assert.equal((await s.run('/api/family-retreat-bookings/private','POST')).status,403)
+ assert.equal((await s.run('/api/admin/stripe-audit','POST')).status,403)
+})
 for(const role of ['admin','super_admin']) for(const programmes of [[],['family']]) test(`${role} opens all programmes with ${programmes}`,async()=>{for(const path of ['/dashboard/kaurs','/dashboard/vidyala','/dashboard/newsletter','/dashboard/roots']){const s=setup({role,programmes});assert.equal((await s.run(path)).status,200);assert.equal(s.calls[0],'getUser')}})
 test('staff metadata cannot override fresh database role',async()=>{const s=setup({role:'staff',programmes:['family']});assert.equal((await s.run('/dashboard/roots','POST')).status,403);assert.equal((await s.run('/dashboard/roots')).body,'https://site.invalid/dashboard/family-initiative')})
 for(const failure of ['profile','grants'])test(`lookup ${failure} failure denies private route`,async()=>{const s=setup({failure});assert.equal((await s.run('/api/cms/sfi','POST')).status,503)})

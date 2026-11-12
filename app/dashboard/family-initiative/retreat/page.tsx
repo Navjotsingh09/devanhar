@@ -67,18 +67,18 @@ export default async function RetreatDashboardPage() {
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Sikh Family Initiative</p>
         <h1 className="mt-2 text-2xl font-bold">Sikh Family Retreat</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage New Year Reset, Spring and Summer interest registrations plus existing retreat bookings.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage retreat bookings and interest registrations for New Year Reset, Spring and Summer.</p>
       </div>
-      <FamilyBookingInsights bookings={reportingBookings} interests={interests} />
+      <section className="space-y-3">
+        <div><h2 className="text-lg font-semibold">Retreat bookings ({bookings.length})</h2><p className="text-sm text-muted-foreground">Track conversations, payment requests, receipts and refunds.</p></div>
+        <FamilyRetreatBookingsTable bookings={bookings} tracker={tracker} reviewer={reviewer} />
+        <RecoveredPaymentSection title="Recovered Family Retreat Bookings" records={recoveredPayments} />
+      </section>
       <section className="space-y-3">
         <div><h2 className="text-lg font-semibold">Interest registrations ({interests.length})</h2><p className="text-sm text-muted-foreground">Includes New Year Reset and future retreat interest captured from the website.</p></div>
         <FamilyInterestTable submissions={interests} emptyLabel="No Sikh Family Retreat interest registrations yet." />
       </section>
-      <section className="space-y-3">
-        <div><h2 className="text-lg font-semibold">Retreat bookings ({bookings.length})</h2><p className="text-sm text-muted-foreground">Track conversations, payment requests, receipts and refunds.</p></div>
-        <FamilyRetreatBookingsTable bookings={bookings} tracker={tracker} reviewer={reviewer} />
-      </section>
-      <RecoveredPaymentSection title="Recovered Family Retreat Bookings" records={recoveredPayments} />
+      <FamilyBookingInsights bookings={reportingBookings} interests={interests} />
     </div>
   )
 }

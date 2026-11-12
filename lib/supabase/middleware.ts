@@ -56,9 +56,9 @@ export async function updateSession(request: NextRequest) {
   )
 
   const pathname = request.nextUrl.pathname
-  // Public availability is identical for visitors and signed-in programme staff.
-  // Only this read-only route skips account restrictions; private APIs stay guarded.
+  // Public availability and booking submission must work for visitors and signed-in staff alike.
   if (pathname === '/api/open-registrations' && ['GET', 'HEAD'].includes(request.method)) return supabaseResponse
+  if (pathname === '/api/family-retreat-bookings' && request.method === 'POST') return supabaseResponse
   const isSpaAuth = ['/spa-admin/login','/spa-admin/forgot-password','/spa-admin/update-password'].includes(pathname)
   const isSpaPortal = pathname.startsWith('/spa-admin') && !isSpaAuth
   const isReadNavigation = ['GET','HEAD'].includes(request.method)
