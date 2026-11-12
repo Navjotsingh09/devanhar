@@ -15,6 +15,7 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      { source: "/sfr/register", has: [{ type: "query", key: "event", value: "new-year-reset" }], destination: (process.env.FAMILY_RETREAT_BOOKING_EVENTS || "").split(",").some(value => value.trim() === "new-year-reset") ? "/sfr/book" : "/sfr", permanent: false },
       { source: "/projects/self-defence-academy", destination: "/wrestling", permanent: true },
       { source: "/spa/admin", destination: "/spa-admin", permanent: false },
       { source: "/spa/admin/:path*", destination: "/spa-admin/:path*", permanent: false },
