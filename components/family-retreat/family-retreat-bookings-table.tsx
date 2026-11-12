@@ -165,7 +165,7 @@ function ageBand(age: number | null): string {
   return "16+"
 }
 
-function toCsv(bookings: FamilyRetreatBooking[]): string {
+function toCsv(bookings: FamilyRetreatBooking[], activity: Map<string, RetreatTrackerEvent[]>): string {
   const maxChildren = bookings.reduce((maximum, booking) => {
     const count = normalizeChildren(booking.children_attending).length
     return Math.max(maximum, count)
@@ -173,7 +173,7 @@ function toCsv(bookings: FamilyRetreatBooking[]): string {
 
   const headers = [
     "id", "created_at", "status", "payment_status", "first_name", "last_name", "email", "phone", "city", "postcode", "country",
-    "adults_count", "children_count", "children_age_years", "children_age_bands", "amount_due", "amount_paid", "paid_at", "internal_notes",
+    "adults_count", "children_count", "agreed_total_attending", "children_age_years", "children_age_bands", "amount_due", "amount_paid", "paid_at", "internal_notes",
   ]
 
   for (let index = 1; index <= maxChildren; index += 1) {
@@ -186,6 +186,7 @@ function toCsv(bookings: FamilyRetreatBooking[]): string {
   }
 
   const rows = bookings.map((booking) => {
+    const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
     const adultsCount = Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0
     const children = normalizeChildren(booking.children_attending)
     const childrenCount = children.length
@@ -197,7 +198,7 @@ function toCsv(bookings: FamilyRetreatBooking[]): string {
       booking.id,
       booking.created_at,
       booking.status,
-      booking.payment_status || "",
+      progress.refunded && !progress.refundable ? "refunded" : progress.refunded ? "partially_refunded" : progress.paid ? "paid" : progress.received ? "part_paid" : progress.link ? "awaiting_payment" : booking.payment_status || "",
       booking.first_name || "",
       booking.last_name || "",
       booking.email || "",
@@ -207,10 +208,11 @@ function toCsv(bookings: FamilyRetreatBooking[]): string {
       booking.country || "",
       adultsCount,
       childrenCount,
+      progress.headcount ?? "",
       ages.join(";"),
       ages.map((age) => ageBand(age)).join(";"),
-      booking.amount_due ?? "",
-      booking.amount_paid ?? "",
+      progress.link ? (progress.due / 100).toFixed(2) : booking.amount_due ?? "",
+      progress.received ? (progress.received / 100).toFixed(2) : booking.amount_paid ?? "",
       booking.paid_at || "",
       booking.internal_notes || "",
     ]
@@ -231,8 +233,8 @@ function toCsv(bookings: FamilyRetreatBooking[]): string {
   return "\uFEFF" + [headers.join(","), ...rows].join("\n")
 }
 
-function downloadCsv(bookings: FamilyRetreatBooking[]) {
-  const blob = new Blob([toCsv(bookings)], { type: "text/csv;charset=utf-8;" })
+function downloadCsv(bookings: FamilyRetreatBooking[], activity: Map<string, RetreatTrackerEvent[]>) {
+  const blob = new Blob([toCsv(bookings, activity)], { type: "text/csv;charset=utf-8;" })
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = url
@@ -245,6 +247,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   bookings: FamilyRetreatBooking[]; tracker?: RetreatTrackerEvent[] | null; reviewer?: boolean
 }) {
   const [trackingRow, setTrackingRow] = useState<string | null>(null)
+  const [refundShortcut, setRefundShortcut] = useState(0)
   const [refundQueue, setRefundQueue] = useState(false)
   const activity = useMemo(() => {
     const grouped = new Map<string, RetreatTrackerEvent[]>()
@@ -326,11 +329,14 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     setMessages((current) => ({ ...current, [id]: message }))
   }
 
-  function run(id: string, action: () => Promise<void>, successText: string) {
+  function run(id: string, action: () => Promise<void | { emailStatus: "sent" | "failed" | "not_requested" }>, successText: string) {
     startTransition(async () => {
       try {
-        await action()
-        setRowMessage(id, { type: "success", text: successText })
+        const result = await action()
+        setRowMessage(id, result?.emailStatus === "failed"
+          ? { type: "error", text: "Change saved, but the email was not sent. Check before following up with the family." }
+          : { type: "success", text: successText })
+
       } catch (error) {
         setRowMessage(id, {
           type: "error",
@@ -352,11 +358,12 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     run(
       booking.id,
       async () => {
-        await updateFamilyRetreatStatus(booking.id, "confirmed", {
+        const result = await updateFamilyRetreatStatus(booking.id, "confirmed", {
           amount: amountValue,
           adults: Number.isFinite(adultsValue) && adultsValue > 0 ? adultsValue : undefined,
         })
         setActiveConfirmRow(null)
+        return result
       },
       "Application confirmed. Payment link and email sent.",
     )
@@ -367,7 +374,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   }
 
   function handleDecline(booking: FamilyRetreatBooking) {
-    if (!window.confirm(`Hard decline ${booking.first_name || "this applicant"}?`)) return
+    if (!window.confirm(`Decline ${booking.first_name || "this applicant"}? This will attempt to email the booking contact.`)) return
     run(booking.id, () => updateFamilyRetreatStatus(booking.id, "declined"), "Application declined and applicant notified.")
   }
 
@@ -379,7 +386,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
           booking.id,
           result.paid
             ? { type: "success", text: "Payment synced successfully." }
-            : { type: "error", text: "No paid payment found yet." },
+            : { type: "error", text: "No completed payment was found on this Stripe link." },
         )
       } catch (error) {
         setRowMessage(booking.id, { type: "error", text: error instanceof Error ? error.message : "Payment sync failed." })
@@ -403,8 +410,9 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     run(
       booking.id,
       async () => {
-        await sendFamilyRetreatAdditionalCharge(booking.id, { amount: amountValue, referenceNote: noteValue })
+        const result = await sendFamilyRetreatAdditionalCharge(booking.id, { amount: amountValue, referenceNote: noteValue })
         setActiveAdditionalRow(null)
+        return result
       },
       "Additional payment link and reference email sent.",
     )
@@ -425,7 +433,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
       {!tracker && <p className="rounded-md border p-3 text-sm text-muted-foreground">The contact, payment and refund tracker is unavailable until its database setup is ready.</p>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setStatusFilter("all")} className={statusFilterClass()}>All ({bookings.length})</button>
+          <button onClick={() => { setRefundQueue(false); setStatusFilter("all") }} className={statusFilterClass()}>All ({bookings.length})</button>
           {tracker && <Button type="button" size="sm" variant={refundQueue ? "default" : "outline"} aria-pressed={refundQueue} onClick={() => setRefundQueue(value => !value)}>
             {refundQueue ? 'Show all bookings' : `Refunds to review or complete (${refundsToReview})`}
           </Button>}
@@ -433,10 +441,11 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
           <button onClick={() => setStatusFilter("pending")} className={statusFilterClass("pending")}>Pending ({bookings.filter((booking) => booking.status === "pending").length})</button>
           <button onClick={() => setStatusFilter("declined")} className={statusFilterClass("attention")}>Declined ({bookings.filter((booking) => booking.status === "declined").length})</button>
           <button onClick={() => setStatusFilter("waitlisted")} className={statusFilterClass()}>Waitlisted ({bookings.filter((booking) => booking.status === "waitlisted").length})</button>
+          <button onClick={() => { setRefundQueue(false); setStatusFilter("archived") }} className={statusFilterClass()}>Archived ({bookings.filter(booking => booking.status === "archived").length})</button>
         </div>
-        <Button size="sm" variant="outline" onClick={() => downloadCsv(filtered)}>
+        <Button size="sm" variant="outline" onClick={() => downloadCsv(filtered.filter(booking => statusFilter === "archived" || booking.status !== "archived"), activity)}>
           <Download className="h-4 w-4 mr-2" />
-          Export CSV
+          {statusFilter === "archived" ? "Export archived CSV" : "Export active CSV"}
         </Button>
       </div>
 
@@ -544,6 +553,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                           <div className="mt-1 text-xs">{progress.contacted ? `Spoken to · ${retreatSubmittedAt(progress.contacted.created_at)}` : 'Not yet marked spoken to'}</div>
                           {progress.link && <div className="text-xs">Link sent · {retreatMoney(progress.due)} · {retreatSubmittedAt(progress.link.created_at)}</div>}
                           <div className="text-xs">Received: {retreatMoney(progress.received)}{progress.due > 0 && ` · Outstanding: ${retreatMoney(progress.outstanding)}`}</div>
+                          {progress.headcount != null && <div className="text-xs">Agreed headcount: {progress.headcount}</div>}
                           {!!progress.refunded && <div className="text-xs">Returned: {retreatMoney(progress.refunded)}</div>}
                           {progress.pendingRefund && <div className="text-xs font-semibold text-amber-800">{progress.refundState === 'refund_approved' ? 'Refund approved' : 'Refund to review'}</div>}
                         </TableCell>
@@ -551,9 +561,12 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                         <TableCell className="text-xs text-muted-foreground">{retreatSubmittedAt(booking.created_at)}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
-                            {tracker && <Button type="button" size="sm" variant="outline" aria-expanded={trackingRow === booking.id} onClick={() => setTrackingRow(current => current === booking.id ? null : booking.id)}>
+                            {tracker && <Button type="button" size="sm" variant="outline" aria-expanded={trackingRow === booking.id} onClick={() => { setRefundShortcut(0); setTrackingRow(current => current === booking.id ? null : booking.id) }}>
                               {trackingRow === booking.id ? 'Hide tracker' : 'Contact, payment & refunds'}
                             </Button>}
+                            {tracker && progress.refundable > 0 && !progress.pendingRefund && (
+                              <Button type="button" size="sm" variant="outline" onClick={() => { setRefundShortcut(current => current + 1); setTrackingRow(booking.id) }}>Flag refund</Button>
+                            )}
                             {manualFlow && paid && booking.status !== 'confirmed' && booking.status !== 'archived' && booking.status !== 'declined' && (
                               <Button type="button" size="sm" variant="outline" disabled={isPending}
                                 onClick={() => run(booking.id, () => updateFamilyRetreatStatus(booking.id, 'confirmed'), 'Booking confirmed.')}>
@@ -564,9 +577,9 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-medium">Paid</span>
                             ) : (
                               <>
-                                <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || manualFlow || booking.status === "declined" || booking.status === "archived"}>
+                                {!manualFlow && <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || manualFlow || booking.status === "declined" || booking.status === "archived"}>
                                   <CheckCircle className="h-3.5 w-3.5 mr-1" />Confirm
-                                </Button>
+                                </Button>}
                                 <Button size="sm" variant="outline" onClick={() => handleWaitlist(booking)} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>Waitlist</Button>
                                 <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDecline(booking)} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>
                                   <XCircle className="h-3.5 w-3.5 mr-1" />Decline
@@ -574,8 +587,8 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               </>
                             )}
                             <Button size="sm" variant="outline" title="Log a reminder you have already sent outside the dashboard" disabled={isPending || paid || !!progress.refunded} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged. No email was sent.')}>Log reminder sent</Button>
-                            <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check payment</Button>
-                            <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending || manualFlow}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>
+                            {booking.stripe_payment_link_id && <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check Stripe payment</Button>}
+                            {!manualFlow && <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending || manualFlow}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>}
                             <Button size="sm" variant="outline" onClick={() => handleArchive(booking)} disabled={isPending}><Archive className="h-3.5 w-3.5 mr-1" />Archive</Button>
                             <Button size="sm" variant="outline" className="text-red-700 border-red-200 hover:bg-red-50" onClick={() => handleDelete(booking)} disabled={isPending || events.length > 0}><Trash2 className="h-3.5 w-3.5 mr-1" />Delete</Button>
                           </div>
@@ -584,7 +597,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
 
                       {tracker && trackingRow === booking.id && (
                         <TableRow><TableCell colSpan={7} className="whitespace-normal">
-                          <RetreatBookingTracker booking={booking} events={events} reviewer={reviewer} legacyCheckout={legacyCheckout} />
+                          <RetreatBookingTracker key={refundShortcut} initialAction={refundShortcut ? "refund_requested" : null} booking={booking} events={events} reviewer={reviewer} legacyCheckout={legacyCheckout} />
                         </TableCell></TableRow>
                       )}
                       {activeConfirmRow === booking.id && (

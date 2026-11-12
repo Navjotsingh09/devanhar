@@ -88,16 +88,17 @@ function buildNowDonateCheckoutUrl(checkoutId: string, params: Record<string, st
 }
 
 async function sendEmail(params: { to: string; subject: string; text: string; html: string }) {
-  if (!process.env.RESEND_API_KEY) return
+  if (!process.env.RESEND_API_KEY) throw new Error("Email service is unavailable")
   const { Resend } = await import("resend")
   const resend = new Resend(process.env.RESEND_API_KEY)
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: "Sikh Family Retreat <noreply@devanhaar.com>",
     to: params.to,
     subject: params.subject,
     text: params.text,
     html: params.html,
   })
+  if (result.error || !result.data?.id) throw new Error("Email was not accepted by the provider")
 }
 
 async function getBooking(id: string): Promise<Booking> {
@@ -323,12 +324,25 @@ export async function updateFamilyRetreatStatus(
   const supabase = (await getSupabaseAdmin())
   const booking = await getBooking(id)
 
+  let notify: (() => Promise<void>) | undefined
+  let emailStatus: "sent" | "failed" | "not_requested" = "not_requested"
+  if (status === 'confirmed' && !details?.amount && booking.booking_details && !booking.nowdonate_payment_url && !booking.stripe_payment_link_id) {
+    const [{ data: request, error: requestError }, { data: receipts, error: receiptsError }] = await Promise.all([
+      supabase.from('family_retreat_tracker').select('amount_pence').eq('booking_id', id).eq('action', 'link_sent').order('id', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('family_retreat_tracker').select('amount_pence, action').eq('booking_id', id).in('action', ['payment', 'refund_recorded']),
+    ])
+    const received = (receipts ?? []).reduce((total, row) => total + (row.action === 'payment' ? Number(row.amount_pence) : 0), 0)
+    const refunded = (receipts ?? []).reduce((total, row) => total + (row.action === 'refund_recorded' ? Number(row.amount_pence) : 0), 0)
+    if (requestError || receiptsError || !request?.amount_pence || received < Number(request.amount_pence) || received <= refunded)
+      throw new Error('Verify full payment before confirming this booking.')
+  }
   const updatePayload: Record<string, unknown> = {
     status,
     reviewed_at: new Date().toISOString(),
   }
 
-  if (status === "confirmed" && details?.amount && details.amount > 0 && booking.email) {
+  if (status === "confirmed" && details?.amount && details.amount > 0) {
+    if (!booking.email) throw new Error("Booking email is missing")
     if (booking.booking_details && !booking.nowdonate_payment_url && !booking.stripe_payment_link_id)
       throw new Error('Send the payment link separately and log it in the booking tracker.')
     const { url, id: linkId, provider } = await createExactAmountPaymentLink(
@@ -350,25 +364,18 @@ export async function updateFamilyRetreatStatus(
     }
     updatePayload.paid_at = null
 
-    try {
-      await sendConfirmationEmail(
-        booking.email,
-        booking.first_name || "there",
-        details.amount,
-        url,
-        details.adults ?? (Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0),
-      )
-    } catch (error) {
-      console.error("[family-retreat] confirmation email failed", error)
-    }
+    notify = () => sendConfirmationEmail(
+      booking.email!,
+      booking.first_name || "there",
+      details.amount!,
+      url,
+      details.adults ?? (Array.isArray(booking.adults_attending) ? booking.adults_attending.length : 0),
+    )
   }
 
-  if (status === "declined" && booking.email) {
-    try {
-      await sendDeclineEmail(booking.email, booking.first_name || "there")
-    } catch (error) {
-      console.error("[family-retreat] decline email failed", error)
-    }
+  if (status === "declined") {
+    if (booking.email) notify = () => sendDeclineEmail(booking.email!, booking.first_name || "there")
+    else emailStatus = "failed"
   }
 
   const { error } = await supabase
@@ -380,18 +387,29 @@ export async function updateFamilyRetreatStatus(
     throw new Error(error.message)
   }
 
+  if (notify) {
+    try {
+      await notify()
+      emailStatus = "sent"
+    } catch {
+      emailStatus = "failed"
+    }
+  }
+
   await supabase.from("activity_log").insert({
     admin_id: (await supabase.auth.getUser()).data.user?.id,
     action: `family_retreat_${status}`,
     entity_type: "family_retreat_booking",
     entity_id: id,
     metadata: {
+      email_status: emailStatus,
       adults: details?.adults ?? null,
       amount: details?.amount ?? null,
     },
   })
 
   revalidatePath("/dashboard/family-initiative/retreat")
+  return { emailStatus }
 }
 
 export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: boolean }> {
@@ -448,7 +466,7 @@ export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: bool
     return { paid: true }
   } catch (error) {
     console.error("[family-retreat] sync payment failed", error)
-    return { paid: false }
+    throw new Error("Stripe payment could not be checked. Try again.")
   }
 }
 
@@ -497,6 +515,7 @@ export async function sendFamilyRetreatAdditionalCharge(
     throw new Error(error.message)
   }
 
+  let emailStatus: "sent" | "failed" = "sent"
   try {
     await sendAdditionalChargeEmail({
       email: booking.email,
@@ -507,17 +526,19 @@ export async function sendFamilyRetreatAdditionalCharge(
       paymentLink: url,
     })
   } catch (emailError) {
+    emailStatus = "failed"
     console.error("[family-retreat] additional charge email failed", emailError)
   }
 
   await supabase.from("activity_log").insert({
-      admin_id: (await supabase.auth.getUser()).data.user?.id,    action: "family_retreat_additional_charge_sent",
+      admin_id: (await supabase.auth.getUser()).data.user?.id,    action: "family_retreat_additional_charge_created",
     entity_type: "family_retreat_booking",
     entity_id: id,
-    metadata: { amount, reference_note: referenceNote, payment_link_id: linkId },
+    metadata: { amount, reference_note: referenceNote, payment_link_id: linkId, email_status: emailStatus },
   })
 
   revalidatePath("/dashboard/family-initiative/retreat")
+  return { emailStatus }
 }
 
 export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "delete") {

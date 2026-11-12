@@ -3,7 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { getRequestStaff } from '@/lib/crm/request-staff'
-import { parseRetreatPounds, retreatTrackerActions } from '@/lib/family-retreat-tracker'
+import { encodeRetreatQuote, parseRetreatPounds, retreatTrackerActions } from '@/lib/family-retreat-tracker'
 
 export async function recordRetreatEvent(bookingId: string, form: FormData) {
   const { user, authError, profile, grants } = await getRequestStaff()
@@ -18,6 +18,14 @@ export async function recordRetreatEvent(bookingId: string, form: FormData) {
   const amount = parseRetreatPounds(String(form.get('amount') ?? ''))
   if (['link_sent', 'payment', 'refund_requested'].includes(action) && amount === null)
     throw new Error('Enter a valid amount in pounds.')
+  let note = String(form.get('note') ?? '').trim()
+  if (action === 'link_sent') {
+    const headcount = Number(form.get('headcount'))
+    if (!Number.isSafeInteger(headcount) || headcount < 1 || headcount > 1000)
+      throw new Error('Enter the total number of people attending, including children.')
+    note = encodeRetreatQuote(headcount, note)
+    if (note.length > 1000) throw new Error('Please shorten the payment request note.')
+  }
   const requestId = Number(form.get('requestId'))
   if (['refund_approved', 'refund_declined', 'refund_recorded'].includes(action) && (!Number.isSafeInteger(requestId) || requestId < 1))
     throw new Error('Reload the booking and select the refund again.')
@@ -34,7 +42,7 @@ export async function recordRetreatEvent(bookingId: string, form: FormData) {
   const db = createClient(url, key, { auth: { persistSession: false } })
   const { error } = await db.rpc('record_family_retreat_tracker', {
     p_booking_id: bookingId, p_action: action, p_actor: user.id,
-    p_amount: amount, p_note: String(form.get('note') ?? '').trim(),
+    p_amount: amount, p_note: note,
     p_reference: reference || null, p_occurred_on: date || null, p_request_id: requestId || null,
   })
   if (error) {
