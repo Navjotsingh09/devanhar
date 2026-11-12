@@ -22,6 +22,7 @@ and verified work; it is not an acceptance sign-off.
 - Content Managers cannot load operational CRM routes or operational APIs.
 - Page inventory and starting screen show assigned content to Content Managers.
 - Paginated activity log; non-administrators see only their own recorded actions.
+- The SFI hero features open retreat bookings from the retreat booking configuration and published CMS events assigned to SFI, Sikh Family Retreat, Sikh Family Extravaganza or Wedding Fair. For a CMS event to appear, publish it with registration open, a booking URL and Coming Soon disabled. When multiple bookings are open the button shows a list; with none it links to upcoming events.
 
 ## Verification
 

@@ -15,8 +15,9 @@ import { Button } from "@/components/ui/button"
 
 import type { SfiContent } from "@/lib/cms/sfi-content"
 import { isRetreatBookingOpen } from "@/lib/family-retreat-booking-details"
+import type { SfiOpenBooking } from "@/lib/sfi-open-bookings"
 
-export function SfiPageContent({ content }: { content: SfiContent }) {
+export function SfiPageContent({ content, openBookings = [] }: { content: SfiContent; openBookings?: SfiOpenBooking[] }) {
   const icons = { HeartHandshake, UsersRound, Leaf, Sparkles }
   const sections: Record<string, React.ReactNode> = {
     events: (<section id="upcoming" className="border-b border-border py-16 md:py-24">
@@ -222,7 +223,7 @@ export function SfiPageContent({ content }: { content: SfiContent }) {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild className="rounded-full bg-amber-400 px-7 text-slate-950 hover:bg-amber-300">
-                <Link href="/sfr">Explore the Sikh Family Retreat <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href={openBookings.length === 1 ? openBookings[0].href : openBookings.length > 1 ? "#open-bookings" : "#upcoming"}>{openBookings.length ? "Book now" : "Explore upcoming events"} <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full border-white/30 bg-white/5 px-7 text-white hover:bg-white/10 hover:text-white">
                 <Link href="#why-sfi">Why SFI?</Link>
@@ -230,6 +231,20 @@ export function SfiPageContent({ content }: { content: SfiContent }) {
             </div>
           </div>
         </section>
+
+        {openBookings.length > 1 && <section id="open-bookings" className="scroll-mt-24 border-b border-border bg-[#f8f8f5] py-12 md:py-16">
+          <div className="container mx-auto max-w-6xl px-6 lg:px-12">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(43,100%,29%)]">Sikh Family Initiative</p>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight">Bookings open now</h2>
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {openBookings.map(booking => <article key={booking.href} className="rounded-3xl border border-border bg-white p-6">
+                <h3 className="text-xl font-semibold">{booking.title}</h3>
+                {booking.date && <p className="mt-2 text-sm text-muted-foreground">{booking.date}</p>}
+                <Link href={booking.href} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[hsl(43,100%,29%)] px-6 py-3 text-sm font-semibold text-white hover:bg-[hsl(43,100%,25%)]">Book now <span className="sr-only">for {booking.title}</span><ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
+              </article>)}
+            </div>
+          </div>
+        </section>}
 
         {content.sectionOrder.filter(key => !content.hiddenSections.includes(key)).map(key => <div key={key}>{sections[key]}</div>)}
       </main>

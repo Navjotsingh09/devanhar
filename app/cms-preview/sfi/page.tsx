@@ -1,6 +1,8 @@
 import { SfiPageContent } from '@/components/cms/sfi-page-content'
 import { getSfiEditorState, CmsError } from '@/lib/cms/sfi-server'
 import { redirect, notFound } from 'next/navigation'
+import { getPublishedEntries } from '@/lib/cms/entries/server'
+import { getSfiOpenBookings } from '@/lib/sfi-open-bookings'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'SFI draft preview', robots: { index: false, follow: false } }
@@ -11,5 +13,7 @@ export default async function SfiPreviewPage() {
     if (error instanceof CmsError && error.status === 401) redirect('/auth/login')
     notFound()
   }
-  return <SfiPageContent content={state.content} />
+  const [projects, events] = await Promise.all([getPublishedEntries('project'), getPublishedEntries('event')])
+  if (!projects || !events) console.error('[sfi] Could not load published project bookings')
+  return <SfiPageContent content={state.content} openBookings={getSfiOpenBookings(projects ?? [], events ?? [])} />
 }
