@@ -109,7 +109,7 @@ const navLinks: NavLink[] = [
   { label: "Blog", href: "/insights" },
 ]
 
-export function Navbar({ donationHref = "/donate" }: { donationHref?: string } = {}) {
+export function Navbar({ donationHref = "/donate", showSfrTicker = false }: { donationHref?: string; showSfrTicker?: boolean } = {}) {
   const settings=useSiteSettings()
   const navLinks:NavLink[]=settings.navigation.links
   const MEGA_MENU_PROJECTS=settings.navigation.projects
@@ -162,7 +162,8 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${bgClass}`}
+        className={`fixed left-0 right-0 z-50 transition-all duration-300 ${bgClass}`}
+        style={{ top: showSfrTicker ? "2.25rem" : 0 }}
       >
         <div className="container mx-auto px-6 lg:px-12">
           <div className="flex items-center justify-between h-16 md:h-20">
@@ -430,7 +431,7 @@ export function Navbar({ donationHref = "/donate" }: { donationHref?: string } =
       </nav>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-white pt-20 md:hidden overflow-y-auto">
+        <div className={`fixed inset-0 z-40 bg-white md:hidden overflow-y-auto ${showSfrTicker ? "pt-28" : "pt-20"}`}>
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => {

@@ -1,6 +1,7 @@
 import 'server-only'
 import { isVidyalaApplicationsClosed } from '@/lib/vidyala-application-window'
 import { createClient } from '@/lib/supabase/server'
+import { isRetreatBookingOpen } from '@/lib/family-retreat-booking-details'
 import { isRegistrationWindowOpen, type OpenOpportunity, type RegistrationWindow } from '@/lib/registration-window-status'
 
 export async function getOpenRegistrationOpportunities(): Promise<OpenOpportunity[]> {
@@ -12,13 +13,19 @@ export async function getOpenRegistrationOpportunities(): Promise<OpenOpportunit
     supabase.from('padel_tournaments').select('id,name,event_date,event_time,venue,address,registration_open')
       .eq('is_public', true).gte('event_date', today).order('event_date'),
   ])
-  const opportunities: OpenOpportunity[] = [{ id: 'roots-camp-registration', title: 'Roots Residential · Camp registration', kind: 'application', href: '/rr#booking-form' }]
+  const opportunities: OpenOpportunity[] = [
+    { id: 'roots-camp-registration', title: 'Roots Residential · Camp registration', kind: 'application', href: '/rr#booking-form' },
+  ]
+  if (isRetreatBookingOpen('new-year-reset')) {
+    opportunities.push({ id: 'sfr-booking', title: 'SFR – New Year Reset', kind: 'application', href: '/sfr/book?event=new-year-reset' })
+  }
   // The public SPA page currently accepts registrations for its earliest public event.
   const tournament = tournaments.error ? null : tournaments.data?.[0]
   if (tournament?.registration_open === true && tournament.event_time?.trim() && tournament.venue?.trim() && tournament.address?.trim()) {
     opportunities.push({ id: `spa-${tournament.id}`, title: tournament.name, kind: 'application', href: '/spa' })
   }
   for (const window of (windows.error ? [] : windows.data || []) as RegistrationWindow[]) {
+    if (window.id === 'family-new-year-reset' || window.href === '/sfr/register?event=new-year-reset') continue
     if (window.id === 'family-spring-2027' || window.id === 'family-summer-2027') continue
     if (window.id === 'vidyala-2026-2027' && isVidyalaApplicationsClosed(now)) continue
     if (isRegistrationWindowOpen(window, now)) opportunities.push({ id: window.id, title: window.title, kind: window.kind, href: window.href })

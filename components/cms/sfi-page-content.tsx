@@ -14,6 +14,7 @@ import { FooterSection } from "@/components/footer-section"
 import { Button } from "@/components/ui/button"
 
 import type { SfiContent } from "@/lib/cms/sfi-content"
+import { isRetreatBookingOpen } from "@/lib/family-retreat-booking-details"
 
 export function SfiPageContent({ content }: { content: SfiContent }) {
   const icons = { HeartHandshake, UsersRound, Leaf, Sparkles }
@@ -37,6 +38,8 @@ export function SfiPageContent({ content }: { content: SfiContent }) {
             <div className="mt-12 space-y-6">
               {content.events.map((event, index) => {
                 const Icon = icons[event.icon]
+                const isNewYearReset = event.eyebrow === "Sikh Family Retreat" && event.title === "New Year Reset"
+                const isOpenSfrBooking = isNewYearReset && isRetreatBookingOpen('new-year-reset')
                 return (
                   <article
                     key={event.title}
@@ -68,7 +71,7 @@ export function SfiPageContent({ content }: { content: SfiContent }) {
                           ))}
                         </div>
                         <Button asChild className="mt-7 rounded-full bg-[hsl(43,100%,29%)] px-6 text-white hover:bg-[hsl(43,100%,25%)]">
-                          <Link href={event.href}>{event.cta}<ArrowRight className="ml-2 h-4 w-4" /></Link>
+                          <Link href={isNewYearReset ? (isOpenSfrBooking ? "/sfr/book?event=new-year-reset" : "/sfr") : event.href}>{isNewYearReset ? (isOpenSfrBooking ? "Book now" : "Explore the retreat") : event.cta}<ArrowRight className="ml-2 h-4 w-4" /></Link>
                         </Button>
                       </div>
                     </div>
@@ -219,7 +222,7 @@ export function SfiPageContent({ content }: { content: SfiContent }) {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild className="rounded-full bg-amber-400 px-7 text-slate-950 hover:bg-amber-300">
-                <Link href="#upcoming">Explore upcoming events <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/sfr">Explore the Sikh Family Retreat <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full border-white/30 bg-white/5 px-7 text-white hover:bg-white/10 hover:text-white">
                 <Link href="#why-sfi">Why SFI?</Link>
