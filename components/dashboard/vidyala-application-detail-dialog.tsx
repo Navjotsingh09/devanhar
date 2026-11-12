@@ -1,8 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { updateSubmissionNotes } from '@/app/dashboard/submissions/actions'
 import { VidyalaPrintSheet } from './vidyala-print-sheet'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import type { VidyalaApplicationRow } from '@/components/dashboard/vidyala-applications-table'
@@ -55,9 +57,10 @@ function Section({
 interface VidyalaApplicationDetailDialogProps {
   application: VidyalaApplicationRow | null
   onOpenChange: (open: boolean) => void
+  onNotesSaved: (id: number, notes: string | null, updatedAt: string | null) => void
 }
 
-export function VidyalaApplicationDetailDialog({ application, onOpenChange }: VidyalaApplicationDetailDialogProps) {
+export function VidyalaApplicationDetailDialog({ application, onOpenChange, onNotesSaved }: VidyalaApplicationDetailDialogProps) {
   const [printOpen, setPrintOpen] = useState(false)
   const printApplications = useMemo(() => application ? [application] : [], [application])
   const open = application !== null
@@ -90,7 +93,8 @@ export function VidyalaApplicationDetailDialog({ application, onOpenChange }: Vi
               onClose={() => setPrintOpen(false)}
               renderApplication={(row) => <ApplicantFields application={row} printable />}
             />}
-            <ApplicantFields application={application} />
+            <ApplicantFields application={application} showNotes={false} />
+            <VidyalaNotesEditor key={application.id} application={application} onNotesSaved={onNotesSaved} />
           </>
         )}
       </DialogContent>
@@ -98,7 +102,36 @@ export function VidyalaApplicationDetailDialog({ application, onOpenChange }: Vi
   )
 }
 
-export function ApplicantFields({ application, printable = false }: { application: VidyalaApplicationRow; printable?: boolean }) {
+function VidyalaNotesEditor({ application, onNotesSaved }: {
+  application: VidyalaApplicationRow
+  onNotesSaved: VidyalaApplicationDetailDialogProps['onNotesSaved']
+}) {
+  const [notes, setNotes] = useState(application.internal_notes ?? '')
+  const [pending, startTransition] = useTransition()
+  const [message, setMessage] = useState<{ error: boolean; text: string } | null>(null)
+
+  function save() {
+    setMessage(null)
+    startTransition(async () => {
+      try {
+        const saved = await updateSubmissionNotes(String(application.id), notes, 'vidyala_applications')
+        onNotesSaved(application.id, notes, saved.updatedAt)
+        setMessage({ error: false, text: 'Notes saved.' })
+      } catch (error) {
+        setMessage({ error: true, text: error instanceof Error ? error.message : 'Notes could not be saved.' })
+      }
+    })
+  }
+
+  return <Section title="Internal notes">
+    <label htmlFor={`vidyala-notes-${application.id}`} className="text-sm">Notes for the Sikhi Vidyala team</label>
+    <Textarea id={`vidyala-notes-${application.id}`} className="mt-2" rows={5} maxLength={10000} disabled={pending} value={notes} onChange={(event) => setNotes(event.target.value)} />
+    <Button type="button" className="mt-3" onClick={save} disabled={pending}>{pending ? 'Saving…' : 'Save notes'}</Button>
+    {message && <p role={message.error ? 'alert' : 'status'} className={`mt-2 text-sm ${message.error ? 'text-red-700' : 'text-green-700'}`}>{message.text}</p>}
+  </Section>
+}
+
+export function ApplicantFields({ application, printable = false, showNotes = true }: { application: VidyalaApplicationRow; printable?: boolean; showNotes?: boolean }) {
   return (
     <div className="space-y-5">
       <Section title="Personal details">
@@ -172,9 +205,9 @@ export function ApplicantFields({ application, printable = false }: { applicatio
         </div>
       </Section>
 
-      <Section title="Internal notes">
+      {showNotes && <Section title="Internal notes">
         <Field label="Notes" value={application.internal_notes} />
-      </Section>
+      </Section>}
     </div>
   )
 }

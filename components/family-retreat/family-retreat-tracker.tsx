@@ -38,8 +38,13 @@ export function RetreatBookingTracker({ booking, events, reviewer, legacyCheckou
     setBusy(true)
     setMessage(null)
     try {
-      await recordRetreatEvent(booking.id, form)
+      const result = await recordRetreatEvent(booking.id, form)
+      if (!result.success) {
+        setMessage({ error: true, text: result.error })
+        return
+      }
       setMessage({ error: false, text: retreatTrackerLabels[action] + ' saved.' })
+      if (result.refreshWarning) setMessage({ error: false, text: result.refreshWarning })
       setAction(null)
     } catch (error) {
       setMessage({ error: true, text: error instanceof Error ? error.message : 'Could not save the update.' })

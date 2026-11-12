@@ -120,16 +120,21 @@ export async function updateSubmissionStatus(id: string, status: string, sourceT
 }
 
 export async function updateSubmissionNotes(id: string, notes: string, sourceTable: SourceTable = 'form_submissions') {
+  if (sourceTable === 'vidyala_applications' && (typeof notes !== 'string' || notes.length > 10000))
+    throw new Error('Notes must be 10,000 characters or fewer.')
   if (sourceTable === 'padel_registrations' && !await checkPadelStaffAccess()) throw new Error('Unauthorised')
   const { supabase, user } = await requireSubmissionAccess(sourceTable, id)
 
+  const updatedAt = new Date().toISOString()
   const { error } = await supabase
     .from(sourceTable)
-    .update({ internal_notes: notes, updated_at: new Date().toISOString() })
+    .update({ internal_notes: notes, updated_at: updatedAt })
     .eq('id', id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/dashboard/submissions')
+  if (sourceTable === 'vidyala_applications') revalidatePath('/dashboard/vidyala')
+  return { updatedAt }
 }
 
 export async function assignSubmission(id: string, adminId: string | null, sourceTable: SourceTable = 'form_submissions') {

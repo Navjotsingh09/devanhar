@@ -571,7 +571,11 @@ export function VidyalaApplicationsTable({ applications }: { applications: Vidya
         </div>
       )}
 
-      <VidyalaApplicationDetailDialog application={viewing} onOpenChange={(open) => { if (!open) setViewing(null) }} />
+      <VidyalaApplicationDetailDialog
+        application={viewing}
+        onOpenChange={(open) => { if (!open) setViewing(null) }}
+        onNotesSaved={(id, notes, updatedAt) => setViewing((current) => current?.id === id ? { ...current, internal_notes: notes, updated_at: updatedAt } : current)}
+      />
     </>
   )
 }
