@@ -138,14 +138,17 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
           </div>
         </section>
 
-        <section aria-label="Sikh Padel Association" className="w-full bg-[#0d2b1a] px-6 py-10 md:py-12">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 text-center">
-            <div aria-hidden="true" className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#e6b84b] bg-[#123c27] shadow-[0_0_0_6px_rgba(230,184,75,0.08)] md:h-28 md:w-28">
-              <span className="text-3xl font-black tracking-[-0.08em] text-[#f5d279] md:text-4xl">SPA</span>
-            </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#e6b84b]">
-              Sikh Padel Association
-            </p>
+        <section aria-label="Sikh Padel Association" className="w-full bg-[#0c291c] px-6 py-6 md:py-8">
+          <div className="mx-auto flex max-w-6xl items-center justify-center">
+            {/* The official SPA crest includes its own brand name. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/spa-logo.svg"
+              alt="Sikh Padel Association official crest"
+              width={640}
+              height={640}
+              className="h-52 w-52 object-contain md:h-64 md:w-64"
+            />
           </div>
         </section>
 
