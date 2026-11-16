@@ -138,17 +138,16 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
           </div>
         </section>
 
-        <div className="w-full bg-[#0d2b1a] py-10 md:py-14 flex flex-col items-center gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/spa-logo.png"
-            alt="Sikh Padel Association crest"
-            className="h-32 w-32 md:h-40 md:w-40 object-contain drop-shadow-xl"
-          />
-          <p className="text-[11px] font-semibold tracking-[0.25em] uppercase text-amber-300/80">
-            Sikh Padel Association
-          </p>
-        </div>
+        <section aria-label="Sikh Padel Association" className="w-full bg-[#0d2b1a] px-6 py-10 md:py-12">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 text-center">
+            <div aria-hidden="true" className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#e6b84b] bg-[#123c27] shadow-[0_0_0_6px_rgba(230,184,75,0.08)] md:h-28 md:w-28">
+              <span className="text-3xl font-black tracking-[-0.08em] text-[#f5d279] md:text-4xl">SPA</span>
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#e6b84b]">
+              Sikh Padel Association
+            </p>
+          </div>
+        </section>
 
         <section data-cms-section="8f2647c4074d609c" className="container mx-auto px-6 lg:px-12 py-16 md:py-24 max-w-3xl">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
