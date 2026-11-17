@@ -13,6 +13,7 @@ export interface LandingCta {
   onClick?: () => void
   ctaLabel: string
   primary?: boolean
+  disabled?: boolean
 }
 
 interface CampLandingHeroProps {
@@ -69,6 +70,7 @@ export function CampLandingHero({
                 variant={cta.primary ? "secondary" : "default"}
                 className="rounded-full px-6"
                 onClick={cta.onClick}
+                disabled={cta.disabled}
               >
                 {cta.ctaLabel}
                 <ArrowRight className="ml-2 h-4 w-4" />
