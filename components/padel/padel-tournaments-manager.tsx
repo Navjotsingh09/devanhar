@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { isPadelRegistrationOpen } from '@/lib/padel-registration-state'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -16,7 +17,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { FINISHING_POSITIONS } from '@/lib/padel-ranking'
-import { createTournament, updateTournament, deleteTournament } from '@/app/dashboard/padel/tournaments/actions'
+import { createTournament, updateTournament, deleteTournament, setTournamentRegistrationState } from '@/app/dashboard/padel/tournaments/actions'
 
 export type PadelTournamentRow = {
   id: string
@@ -34,6 +35,7 @@ export type PadelTournamentRow = {
   public_description: string | null
   is_public: boolean
   registration_open: boolean
+  updated_at?: string | null
 }
 
 type FormState = {
@@ -96,7 +98,7 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
       fee_per_person: String(tournament.fee_per_person ?? 50),
       public_description: tournament.public_description || '',
       is_public: Boolean(tournament.is_public),
-      registration_open: tournament.registration_open !== false,
+      registration_open: isPadelRegistrationOpen(tournament),
     })
     setDialogOpen(true)
   }
@@ -138,6 +140,20 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
     })
   }
 
+  const changeRegistrationState = (tournament: PadelTournamentRow, state: 'pause' | 'close' | 'resume') => {
+    const verb = state === 'resume' ? 'resume' : state === 'pause' ? 'pause' : 'close'
+    if (!confirm(`Are you sure you want to ${verb} applications for "${tournament.name}"? ${state === 'resume' ? 'The public registration form will reopen.' : 'New submissions will stop immediately, while existing applications remain saved.'}`)) return
+    startTransition(async () => {
+      const result = await setTournamentRegistrationState(tournament.id, state)
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
+      toast.success(state === 'resume' ? 'Applications resumed' : state === 'pause' ? 'Applications paused' : 'Applications closed')
+      router.refresh()
+    })
+  }
+
   const handleDelete = (tournament: PadelTournamentRow) => {
     if (!confirm(`Delete "${tournament.name}"? This removes its results too.`)) return
     startTransition(async () => {
@@ -164,6 +180,7 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
               <TableHead>Name</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Website</TableHead>
+              <TableHead>Applications</TableHead>
               <TableHead>Venue</TableHead>
               <TableHead>Stages</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -186,6 +203,21 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
                     <span className="text-xs text-muted-foreground">Hidden</span>
                   )}
                 </TableCell>
+                <TableCell>
+                  <span className={isPadelRegistrationOpen(tournament) ? 'text-xs font-semibold text-emerald-700' : 'text-xs font-semibold text-amber-700'}>
+                    {isPadelRegistrationOpen(tournament) ? 'Open' : 'Closed'}
+                  </span>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {isPadelRegistrationOpen(tournament) ? (
+                      <>
+                        <Button size="sm" variant="outline" disabled={isPending} onClick={() => changeRegistrationState(tournament, 'pause')}>Pause</Button>
+                        <Button size="sm" variant="outline" disabled={isPending} onClick={() => changeRegistrationState(tournament, 'close')}>Close</Button>
+                      </>
+                    ) : (
+                      <Button size="sm" variant="outline" disabled={isPending} onClick={() => changeRegistrationState(tournament, 'resume')}>Resume</Button>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell className="text-muted-foreground">{tournament.venue || '—'}</TableCell>
                 <TableCell className="text-muted-foreground">{tournament.applicable_stages.length} stages</TableCell>
                 <TableCell className="text-right space-x-1">
@@ -198,7 +230,7 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
               </TableRow>
             ))}
             {tournaments.length === 0 && (
-              <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No tournaments yet. Add your first tournament to get started.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No tournaments yet. Add your first tournament to get started.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
@@ -250,7 +282,7 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
               </label>
               <label className="flex items-start gap-3 rounded-lg border p-3">
                 <Checkbox checked={form.registration_open} onCheckedChange={(v)=>setForm(p=>({...p,registration_open:v===true}))} />
-                <span><span className="block text-sm font-medium">Registration open</span><span className="block text-xs text-muted-foreground">Controls whether visitors can open the registration form.</span></span>
+                <span><span className="block text-sm font-medium">Registration open</span><span className="block text-xs text-muted-foreground">Controls whether visitors can open the registration form. Use the Pause / Close / Resume buttons in the tournament table for immediate changes.</span></span>
               </label>
             </div>
 
