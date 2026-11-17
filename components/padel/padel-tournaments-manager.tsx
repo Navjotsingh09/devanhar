@@ -1,18 +1,15 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { isPadelRegistrationOpen } from '@/lib/padel-registration-state'
+import { isPadelRegistrationOpen, isAmsterdamPadelTournament } from '@/lib/padel-registration-state'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Pencil, Trash2, Plus, ClipboardList, Globe2 } from 'lucide-react'
+import { Pencil, Trash2, Plus, ClipboardList, Globe2, CalendarDays, MapPin, UsersRound, PauseCircle, PlayCircle, LockKeyhole, EyeOff, CircleCheck, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
@@ -76,6 +73,14 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
+  const [pendingStateChange, setPendingStateChange] = useState<{ tournament: PadelTournamentRow; action: 'pause' | 'close' | 'resume' } | null>(null)
+  const [pendingDeletion, setPendingDeletion] = useState<PadelTournamentRow | null>(null)
+  const [filter, setFilter] = useState<'all' | 'public' | 'accepting'>('all')
+  const today = new Date().toISOString().slice(0, 10)
+  const acceptingCount = tournaments.filter(t => t.event_date >= today && isPadelRegistrationOpen(t)).length
+  const publishedCount = tournaments.filter(t => t.is_public).length
+  const shown = tournaments.filter(t => filter === 'all' || (filter === 'public' ? t.is_public : t.event_date >= today && isPadelRegistrationOpen(t)))
+  const readableDate = (date: string) => new Date(date + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
   const openCreate = () => {
     setEditingId(null)
@@ -140,101 +145,141 @@ export function PadelTournamentsManager({ tournaments, basePath = "/dashboard/pa
     })
   }
 
-  const changeRegistrationState = (tournament: PadelTournamentRow, state: 'pause' | 'close' | 'resume') => {
-    const verb = state === 'resume' ? 'resume' : state === 'pause' ? 'pause' : 'close'
-    if (!confirm(`Are you sure you want to ${verb} applications for "${tournament.name}"? ${state === 'resume' ? 'The public registration form will reopen.' : 'New submissions will stop immediately, while existing applications remain saved.'}`)) return
+  const confirmRegistrationState = () => {
+    if (!pendingStateChange) return
+    const { tournament, action } = pendingStateChange
     startTransition(async () => {
-      const result = await setTournamentRegistrationState(tournament.id, state)
-      if ('error' in result) {
-        toast.error(result.error)
-        return
-      }
-      toast.success(state === 'resume' ? 'Applications resumed' : state === 'pause' ? 'Applications paused' : 'Applications closed')
+      const result = await setTournamentRegistrationState(tournament.id, action)
+      if ('error' in result) { toast.error(result.error); return }
+      toast.success(action === 'resume' ? 'Applications reopened — the form is available again.' : action === 'pause' ? 'New applications stopped. Existing entries are safe.' : 'Applications closed. Existing entries are safe.')
+      setPendingStateChange(null)
       router.refresh()
     })
   }
 
-  const handleDelete = (tournament: PadelTournamentRow) => {
-    if (!confirm(`Delete "${tournament.name}"? This removes its results too.`)) return
+  const confirmDelete = () => {
+    if (!pendingDeletion) return
     startTransition(async () => {
-      const result = await deleteTournament(tournament.id)
-      if ('error' in result) {
-        toast.error(result.error)
-        return
-      }
+      const result = await deleteTournament(pendingDeletion.id)
+      if ('error' in result) { toast.error(result.error); return }
       toast.success('Tournament deleted')
+      setPendingDeletion(null)
       router.refresh()
     })
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1" />Add tournament</Button>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          { label: 'Total tournaments', number: tournaments.length, detail: 'Historic and upcoming', icon: CalendarDays },
+          { label: 'On the website', number: publishedCount, detail: 'Publicly visible tournament', icon: Globe2 },
+          { label: 'Accepting applications', number: acceptingCount, detail: 'Upcoming registrations open', icon: UsersRound },
+        ].map(item => <div key={item.label} className="rounded-2xl border border-[#dedfe4] bg-white p-4 shadow-[0_3px_12px_rgba(15,41,64,0.035)]">
+          <div className="flex items-center justify-between gap-3"><span className="text-xs font-medium text-[#697587]">{item.label}</span><item.icon className="h-4 w-4 text-[#9a7919]" /></div>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-[#102940]">{item.number}</p>
+          <p className="mt-1 text-xs text-[#697587]">{item.detail}</p>
+        </div>)}
       </div>
 
-      <div className="rounded-lg border border-border overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Website</TableHead>
-              <TableHead>Applications</TableHead>
-              <TableHead>Venue</TableHead>
-              <TableHead>Stages</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tournaments.map((tournament) => (
-              <TableRow key={tournament.id}>
-                <TableCell className="font-medium">
-                  <div>{tournament.name}</div>
-                  <div className="text-xs text-muted-foreground">{tournament.category || 'No category'}</div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{tournament.event_date}</TableCell>
-                <TableCell>
-                  {tournament.is_public ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-                      <Globe2 className="h-3 w-3" /> Live
-                    </span>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Hidden</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <span className={isPadelRegistrationOpen(tournament) ? 'text-xs font-semibold text-emerald-700' : 'text-xs font-semibold text-amber-700'}>
-                    {isPadelRegistrationOpen(tournament) ? 'Open' : 'Closed'}
-                  </span>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {isPadelRegistrationOpen(tournament) ? (
-                      <>
-                        <Button size="sm" variant="outline" disabled={isPending} onClick={() => changeRegistrationState(tournament, 'pause')}>Pause</Button>
-                        <Button size="sm" variant="outline" disabled={isPending} onClick={() => changeRegistrationState(tournament, 'close')}>Close</Button>
-                      </>
-                    ) : (
-                      <Button size="sm" variant="outline" disabled={isPending} onClick={() => changeRegistrationState(tournament, 'resume')}>Resume</Button>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{tournament.venue || '—'}</TableCell>
-                <TableCell className="text-muted-foreground">{tournament.applicable_stages.length} stages</TableCell>
-                <TableCell className="text-right space-x-1">
-                  <Link href={`${basePath}/tournaments/${tournament.id}/results`}>
-                    <Button variant="ghost" size="icon" title="Enter results"><ClipboardList className="h-4 w-4" /></Button>
-                  </Link>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(tournament)} disabled={isPending}><Pencil className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(tournament)} disabled={isPending}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {tournaments.length === 0 && (
-              <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No tournaments yet. Add your first tournament to get started.</TableCell></TableRow>
-            )}
-          </TableBody>
-        </Table>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter tournaments">
+          {([
+            ['all', 'All tournaments'],
+            ['public', 'On website'],
+            ['accepting', 'Applications open'],
+          ] as const).map(([value, label]) =>
+            <Button key={value} type="button" size="sm" variant={filter === value ? 'default' : 'outline'} className="rounded-full" aria-pressed={filter === value} onClick={() => setFilter(value)}>{label}</Button>
+          )}
+        </div>
+        <Button onClick={openCreate} className="rounded-full bg-[#eab328] text-[#122638] hover:bg-[#d9a51c]"><Plus className="mr-1.5 h-4 w-4" /> Add tournament</Button>
       </div>
+
+      <div className="space-y-3">
+        {shown.map(tournament => {
+          const accepting = isPadelRegistrationOpen(tournament)
+          const expired = tournament.event_date < today
+          const amsterdam = isAmsterdamPadelTournament(tournament)
+          const statusLabel = expired ? 'Event finished' : accepting ? 'Applications open' : amsterdam ? 'Applications closed' : 'Not accepting applications'
+          const statusClass = accepting && !expired ? 'bg-[#eaf7ee] text-[#17683d]' : expired ? 'bg-[#f0f1f3] text-[#657284]' : 'bg-[#fff2df] text-[#95590e]'
+          return <article key={tournament.id} className="overflow-hidden rounded-2xl border border-[#dfe2e7] bg-white shadow-[0_5px_20px_rgba(15,41,64,0.04)]">
+            <div className="flex flex-wrap items-start justify-between gap-4 p-5 md:p-6">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-bold tracking-tight text-[#102940]">{tournament.name}</h3>
+                  {tournament.is_public ? <span className="inline-flex items-center gap-1 rounded-full bg-[#e9f4ee] px-2.5 py-1 text-[11px] font-semibold text-[#236444]"><Globe2 className="h-3 w-3" /> Published</span>
+                    : <span className="inline-flex items-center gap-1 rounded-full bg-[#f2f3f5] px-2.5 py-1 text-[11px] font-medium text-[#677386]"><EyeOff className="h-3 w-3" /> Not published</span>}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#637185]">
+                  <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{readableDate(tournament.event_date)}</span>
+                  <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{tournament.venue || 'Venue not set'}</span>
+                  <span className="inline-flex items-center gap-1.5"><CircleCheck className="h-4 w-4" />{tournament.applicable_stages.length} scoring stages</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button variant="outline" size="sm" className="rounded-full" asChild><Link href={`${basePath}/tournaments/${tournament.id}/results`}><ClipboardList className="mr-1.5 h-4 w-4" />Results</Link></Button>
+                <Button variant="outline" size="sm" className="rounded-full" onClick={() => openEdit(tournament)} disabled={isPending}><Pencil className="mr-1.5 h-4 w-4" />Edit</Button>
+                <Button variant="ghost" size="icon" aria-label={`Delete ${tournament.name}`} title="Delete tournament" onClick={() => setPendingDeletion(tournament)} disabled={isPending} className="text-[#a74444] hover:bg-red-50 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-4 border-t border-[#e7e9ed] bg-[#fafbfc] px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+              <div className="min-w-0 space-y-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusClass}`}>{statusLabel}</span>
+                  {!tournament.is_public && <span className="text-xs text-[#687587]">This event is not advertised on the public SPA page.</span>}
+                </div>
+                <p className="max-w-lg text-xs leading-relaxed text-[#667487]">
+                  {expired ? 'The event date has passed. New online applications should stay closed.' : accepting ? 'Visitors can submit new applications. Existing applications remain in the organiser dashboard.' : 'New applications are blocked. Previously received applications and payment records are retained.'}
+                </p>
+              </div>
+              {!expired && <div className="flex shrink-0 flex-wrap gap-2">
+                {accepting ? <>
+                  <Button size="sm" variant="outline" className="rounded-full" disabled={isPending} onClick={() => setPendingStateChange({ tournament, action: 'pause' })}><PauseCircle className="mr-1.5 h-4 w-4" />Pause intake</Button>
+                  <Button size="sm" variant="outline" className="rounded-full border-[#d9a99b] text-[#a3452c] hover:bg-[#fff0eb]" disabled={isPending} onClick={() => setPendingStateChange({ tournament, action: 'close' })}><LockKeyhole className="mr-1.5 h-4 w-4" />Close applications</Button>
+                </> : <Button size="sm" className="rounded-full bg-[#102940] text-white hover:bg-[#204664]" disabled={isPending} onClick={() => setPendingStateChange({ tournament, action: 'resume' })}><PlayCircle className="mr-1.5 h-4 w-4" />Reopen applications</Button>}
+              </div>}
+            </div>
+          </article>
+        })}
+        {!shown.length && <div className="rounded-2xl border border-dashed border-[#cdd3dc] p-10 text-center">
+          <CalendarDays className="mx-auto mb-3 h-7 w-7 text-[#8c97a7]" />
+          <p className="font-semibold text-[#102940]">No matching tournaments</p>
+          <p className="mt-1 text-sm text-[#687587]">{filter === 'all' ? 'Create a tournament to get started.' : 'Try another filter to view your tournaments.'}</p>
+        </div>}
+      </div>
+
+      <div className="flex items-start gap-2 rounded-xl border border-[#dce4e9] bg-[#f4f8fa] p-4 text-xs leading-relaxed text-[#516477]">
+        <Info className="mt-0.5 h-4 w-4 shrink-0" />
+        <p><strong className="text-[#102940]">About application controls:</strong> Pause and Close both stop new registrations immediately; the current database stores these as the same off state. Reopen explicitly resumes intake. None of these actions removes existing applications. Publishing a tournament is a separate setting.</p>
+      </div>
+
+      <Dialog open={Boolean(pendingStateChange)} onOpenChange={open => { if (!open && !isPending) setPendingStateChange(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>{pendingStateChange?.action === 'resume' ? 'Reopen applications?' : pendingStateChange?.action === 'pause' ? 'Pause new applications?' : 'Close applications?'}</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm text-[#627083]">
+            <p className="font-semibold text-[#102940]">{pendingStateChange?.tournament.name}</p>
+            <p>{pendingStateChange?.action === 'resume'
+              ? 'This will allow new submissions through the public registration form and API again. Make sure the event is ready to accept applications.'
+              : 'New applications will stop immediately, including direct API submissions. Existing applications and payment records will not be deleted.'}</p>
+            {pendingStateChange?.action === 'pause' && <p className="rounded-lg bg-[#fff5e3] p-3 text-xs text-[#7b541b]">Pause and Close currently have the same saved state. The difference is your operational intention; use Reopen to accept applications again.</p>}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" disabled={isPending} onClick={() => setPendingStateChange(null)}>Cancel</Button>
+            <Button disabled={isPending} onClick={confirmRegistrationState}>{isPending ? 'Saving…' : pendingStateChange?.action === 'resume' ? 'Yes, reopen' : pendingStateChange?.action === 'pause' ? 'Pause applications' : 'Close applications'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(pendingDeletion)} onOpenChange={open => { if (!open && !isPending) setPendingDeletion(null) }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle>Delete tournament?</DialogTitle></DialogHeader>
+          <div className="space-y-2 text-sm text-[#647186]"><p className="font-semibold text-[#102940]">{pendingDeletion?.name}</p><p>Deleting a tournament is permanent. Tournaments with recorded results cannot be deleted because they affect official rankings.</p></div>
+          <DialogFooter>
+            <Button variant="outline" disabled={isPending} onClick={() => setPendingDeletion(null)}>Keep tournament</Button>
+            <Button variant="destructive" disabled={isPending} onClick={confirmDelete}>{isPending ? 'Deleting…' : 'Delete tournament'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
