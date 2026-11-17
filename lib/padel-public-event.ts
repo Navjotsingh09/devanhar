@@ -1,3 +1,4 @@
+import { isPadelRegistrationOpen } from "@/lib/padel-registration-state"
 import { PADEL_EVENT } from "@/components/padel/padel-event"
 import { createClient } from "@/lib/supabase/server"
 
@@ -32,7 +33,7 @@ export async function getPublicPadelEvent(): Promise<PublicPadelEvent> {
     const today = new Date().toISOString().slice(0, 10)
     const { data, error } = await supabase
       .from("padel_tournaments")
-      .select("id, name, event_date, event_time, venue, address, map_url, fee_per_person, public_description, registration_open")
+      .select("id, name, event_date, event_time, venue, address, map_url, fee_per_person, public_description, registration_open, updated_at")
       .eq("is_public", true)
       .gte("event_date", today)
       .order("event_date", { ascending: true })
@@ -57,7 +58,7 @@ export async function getPublicPadelEvent(): Promise<PublicPadelEvent> {
         feePerPerson: fee,
         teamFee: fee * 2,
         description: data.public_description || undefined,
-        registrationOpen: data.registration_open !== false && hasCompletePublicDetails,
+        registrationOpen: isPadelRegistrationOpen(data) && hasCompletePublicDetails,
         detailsComplete: hasCompletePublicDetails,
       }
     }
