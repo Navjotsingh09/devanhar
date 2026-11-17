@@ -28,6 +28,7 @@ export function PadelHeroWithRegister({ event }: { event: PublicPadelEvent }) {
             description: event.dataUnavailable ? "Tournament details and registration are temporarily unavailable. Please check back shortly." : !event.registrationOpen ? "Applications are closed now for this tournament. Thank you for your interest." : event.description || `Our upcoming team tournament takes place ${eventLine}. Register your pair now to secure your place.`,
             ctaLabel: event.dataUnavailable ? "Registration unavailable" : event.registrationOpen ? "Register your team" : "Applications closed now",
             primary: true,
+            disabled: !event.registrationOpen,
             onClick: event.registrationOpen ? () => {
               setShowForm(true)
               if (typeof window !== "undefined") {
