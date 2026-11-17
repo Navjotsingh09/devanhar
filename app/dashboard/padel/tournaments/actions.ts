@@ -199,10 +199,13 @@ export async function setTournamentRegistrationState(
 
   const { data: tournament, error: readError } = await supabase
     .from('padel_tournaments')
-    .select('id, name, venue, address, updated_at, registration_open')
+    .select('id, name, event_date, venue, address, updated_at, registration_open')
     .eq('id', tournamentId)
     .single()
   if (readError || !tournament) return { error: 'Tournament not found' }
+  if (state === 'resume' && tournament.event_date < new Date().toISOString().slice(0, 10)) {
+    return { error: 'This tournament date has passed. You cannot reopen applications for a finished event.' }
+  }
 
   // Pausing and closing both block new applications without deleting any records.
   // Resuming is an explicit choice and advances updated_at past the Amsterdam
