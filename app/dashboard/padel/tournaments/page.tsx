@@ -9,7 +9,7 @@ async function getTournaments(): Promise<PadelTournamentRow[]> {
 
   const full = await supabase
     .from('padel_tournaments')
-    .select('id, name, event_date, category, applicable_stages, status, event_time, venue, address, map_url, fee_per_person, public_description, is_public, registration_open, payment_url')
+    .select('id, name, event_date, category, applicable_stages, status, event_time, venue, address, map_url, fee_per_person, public_description, is_public, registration_open, updated_at, payment_url')
     .order('event_date', { ascending: false })
 
   if (!full.error) return full.data || []
@@ -31,7 +31,8 @@ async function getTournaments(): Promise<PadelTournamentRow[]> {
     fee_per_person: 50,
     public_description: null,
     is_public: false,
-    registration_open: true,
+    registration_open: false,
+    updated_at: null,
   }))
 }
 
