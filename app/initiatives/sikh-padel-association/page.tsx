@@ -22,6 +22,7 @@ import {
   padelGalleryImages,
   padelFaqs,
 } from "@/components/padel/padel-shared-data"
+import { isAmsterdamPadelTournament } from "@/lib/padel-registration-state"
 import { getPublicPadelEvent } from "@/lib/padel-public-event"
 import { getPublicPadelLeaderboard } from "@/lib/padel-leaderboard"
 
@@ -50,6 +51,11 @@ export default async function SikhPadelAssociationPage({ cmsCopy: suppliedCopy }
       <Navbar />
       <ScrollAnimations />
       <main className="min-h-screen">
+        {!event.dataUnavailable && !event.registrationOpen && isAmsterdamPadelTournament(event) ? (
+          <div role="status" className="bg-[#123423] px-6 py-4 text-center text-sm font-semibold text-[#f5d59a]">
+            SPA Amsterdam — applications are closed now. Thank you to everyone who registered.
+          </div>
+        ) : null}
         <PadelHeroWithRegister event={event} />
 
         <section data-cms-section="488d85df5048eccd" className="bg-[#fafafb] py-10 md:py-14">
