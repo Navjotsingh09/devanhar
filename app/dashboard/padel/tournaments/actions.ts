@@ -135,10 +135,24 @@ export async function updateTournament(tournamentId: string, input: TournamentIn
     if (unpublishError) return { error: unpublishError.message }
   }
 
+  // Treat a closed Amsterdam tournament as closed during ordinary edits.
+  // Reopening must use the dedicated Resume action; editing details must not
+  // silently bypass the initial closure safeguard.
+  const { data: currentRegistrationState, error: currentStateError } = await supabase
+    .from('padel_tournaments')
+    .select('name, venue, address, updated_at, registration_open')
+    .eq('id', tournamentId)
+    .single()
+  if (currentStateError || !currentRegistrationState) return { error: 'Unable to verify current registration state' }
+  const safeInput = {
+    ...input,
+    registration_open: isPadelRegistrationOpen(currentRegistrationState) && input.registration_open !== false,
+  }
+
   const { error } = await supabase
     .from('padel_tournaments')
     .update({
-      ...clean(input, stagesResult.stages),
+      ...clean(safeInput, stagesResult.stages),
       updated_at: new Date().toISOString(),
     })
     .eq('id', tournamentId)
