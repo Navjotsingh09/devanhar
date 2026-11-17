@@ -45,7 +45,7 @@ export default async function PadelTournamentsPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Padel Tournaments</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Create tournaments, manage scoring stages, and choose which event is published on the live Sikh Padel Association page.
+          Manage events, control when applications are accepted, and update what visitors see on the SPA website. Existing submissions stay safe when applications are stopped.
         </p>
       </div>
       <PadelTournamentsManager tournaments={tournaments} basePath={basePath} />
