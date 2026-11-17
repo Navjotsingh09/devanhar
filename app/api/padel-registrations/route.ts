@@ -1,3 +1,4 @@
+import { isPadelRegistrationOpen } from '@/lib/padel-registration-state'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendPadelRegistrationOwnerNotification } from '@/lib/padel-registration-emails'
@@ -78,8 +79,8 @@ export async function POST(request: NextRequest) {
     const { data: tournament, error: tournamentError } = await tournamentQuery
       .order('event_date').limit(1).maybeSingle()
     if (tournamentError) throw new Error('Unable to load tournament')
-    if (!tournament || tournament.registration_open === false) {
-      return NextResponse.json({ error: 'Registration for this tournament is unavailable.' }, { status: 409 })
+    if (!tournament || !isPadelRegistrationOpen(tournament)) {
+      return NextResponse.json({ error: 'Applications are now closed for this tournament.' }, { status: 409 })
     }
     eventName = tournament.name
     feePerPersonGbp = Number(tournament.fee_per_person ?? DEFAULT_PADEL_FEE_PER_PERSON_GBP)
