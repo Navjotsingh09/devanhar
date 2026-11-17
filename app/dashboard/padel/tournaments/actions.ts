@@ -1,5 +1,6 @@
 'use server'
 
+import { isPadelRegistrationOpen } from '@/lib/padel-registration-state'
 import { checkPadelStaffAccess } from '@/lib/padel-admin'
 import { revalidatePath } from 'next/cache'
 import { validatePadelPaymentUrl } from '@/lib/padel-payment'
@@ -56,6 +57,7 @@ async function refreshTournamentPages() {
   revalidatePath('/spa-admin', 'layout')
   revalidatePath('/dashboard/padel')
   revalidatePath('/initiatives/sikh-padel-association')
+  revalidatePath('/spa')
 }
 
 export async function createTournament(input: TournamentInput): Promise<ActionResult> {
@@ -169,5 +171,39 @@ export async function deleteTournament(tournamentId: string): Promise<ActionResu
 
   await refreshTournamentPages()
   revalidatePath('/initiatives/sikh-padel-association/leaderboard')
+  return { success: true }
+}
+
+/** Explicit organiser-only controls; changes affect the public page and the submission API. */
+export async function setTournamentRegistrationState(
+  tournamentId: string,
+  state: 'pause' | 'close' | 'resume',
+): Promise<ActionResult> {
+  const supabase = await checkPadelStaffAccess()
+  if (!supabase) return { error: 'Only authorised SPA organisers may manage applications' }
+  if (!['pause', 'close', 'resume'].includes(state)) return { error: 'Invalid registration action' }
+
+  const { data: tournament, error: readError } = await supabase
+    .from('padel_tournaments')
+    .select('id, name, venue, address, updated_at, registration_open')
+    .eq('id', tournamentId)
+    .single()
+  if (readError || !tournament) return { error: 'Tournament not found' }
+
+  // Pausing and closing both block new applications without deleting any records.
+  // Resuming is an explicit choice and advances updated_at past the Amsterdam
+  // safety cutoff. The website and registration endpoint apply the same check.
+  const open = state === 'resume'
+  const { data: saved, error } = await supabase
+    .from('padel_tournaments')
+    .update({ registration_open: open, updated_at: new Date().toISOString() })
+    .eq('id', tournamentId)
+    .select('id, registration_open, updated_at, name, venue, address')
+    .single()
+  if (error || !saved) return { error: error?.message || 'Could not update applications' }
+  if (isPadelRegistrationOpen(saved) !== open) {
+    return { error: 'The registration state was saved but could not be verified. Please review the event.' }
+  }
+  await refreshTournamentPages()
   return { success: true }
 }
