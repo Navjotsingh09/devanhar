@@ -617,7 +617,7 @@ export async function sendFamilyRetreatPaymentRequest(
   if (lookupError || !booking) return { emailStatus: "failed" as const, detail: "Booking not found. Refresh and try again." }
   if (booking.status === "archived") return { emailStatus: "failed" as const, detail: "Archived bookings cannot receive payment requests." }
   if (booking.status === "declined" && options.restoreDeclined !== true) {
-    throw new Error("This booking is declined. Use 'Restore booking & send request' if the decline was a mistake.")
+    return { emailStatus: "failed" as const, detail: "This booking is declined. Check the status before restoring and sending a payment request." }
   }
   if (!booking.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(booking.email.trim())) {
     return { emailStatus: "failed" as const, detail: "A valid booking email is required." }
@@ -667,11 +667,11 @@ export async function sendFamilyRetreatPaymentRequest(
     "", ...familyRetreatSignatureLines,
   ].join("\n")
   const html = [
-    '<div style="font:15px/1.6 Arial,Helvetica,sans-serif;color:#182c28">',
+    '<div style="font:15px/1.6 Arial,Helvetica,sans-serif;color:#152d46">',
     `<p>Dear ${escapeHtml(name)},</p><p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
     "<p>The Sikh Family Retreat team has prepared a payment request for your booking.</p>",
     `<p><strong>Booking reference:</strong> ${escapeHtml(reference)}<br><strong>Amount outstanding:</strong> ${escapeHtml(money)}</p>`,
-    `<p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#123c2d;color:#fff;padding:12px 22px;text-decoration:none;border-radius:8px;font-weight:bold">Pay securely · ${escapeHtml(money)}</a></p>`,
+    `<p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#152d46;color:#fff;padding:12px 22px;text-decoration:none;border-radius:8px;font-weight:bold">Pay securely · ${escapeHtml(money)}</a></p>`,
     `<p>${escapeHtml(instructions)}</p>`,
     "<p>Once payment is verified, the team will update your booking status.</p>",
     familyRetreatSignatureHtml, "</div>",
