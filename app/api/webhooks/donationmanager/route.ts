@@ -130,6 +130,103 @@ async function recalcFundraiserTotalRaised(supabase: ReturnType<typeof getSupaba
   }
 }
 
+
+function getFamilyRetreatReference(payload: unknown): string | null {
+  // The applicant may write their SFR reference in the donation message
+  // rather than in the provider's top-level reference field.
+  const fields = collectPayloadValues(payload, [
+    'reference', 'custom', 'message', 'donation_message', 'donormessage',
+    'donor_message', 'notes', 'comment', 'description', 'payment_reference',
+  ])
+  const matches = [...new Set(fields.flatMap(text => text.match(/\\bSFR[-\\s#]*0*[0-9]{1,10}\\b/gi) || []).map(text => text.replace(/[^0-9]/g, '')).filter(Boolean))]
+  return matches.length === 1 ? 'SFR-' + matches[0].padStart(4, '0') : null
+}
+
+function getVerifiedFamilyAmountPence(payload: any): number | null {
+  const item = payload?.donation ?? payload?.data?.donation ?? payload?.data ?? payload
+  const currency = normalize(item?.currency ?? payload?.currency ?? 'gbp')
+  if (currency !== 'gbp') return null
+  const pennies = item?.amount_pence ?? item?.amount_in_pence ?? item?.amount_in_cents
+  const pounds = item?.amount ?? item?.donation_amount
+  const result = pennies !== undefined && pennies !== null
+    ? Number(pennies)
+    : pounds !== undefined && pounds !== null
+      ? Math.round(Number(pounds) * 100)
+      : NaN
+  return Number.isSafeInteger(result) && result > 0 && result <= 10000000 ? result : null
+}
+
+async function reconcileSfrDonation(
+  supabase: ReturnType<typeof getSupabaseAdmin>, payload: any,
+): Promise<{ handled: boolean; error?: string }> {
+  const reference = getFamilyRetreatReference(payload)
+  if (!reference) return { handled: false }
+
+  // A donation message is untrusted and must never establish that payment succeeded.
+  // Only authenticated provider completion callbacks can be reconciled.
+  if (!WEBHOOK_SECRET) return { handled: true, error: 'Webhook secret is not configured' }
+  const eventType = getDonationEventType(payload)
+  const explicitStatus = collectPayloadValues(payload, ['payment_status', 'status', 'state']).map(normalize)
+  if (isCancelledDonation(payload)) return { handled: true }
+  if (!['donation.completed', 'donation.received'].includes(eventType) &&
+      !explicitStatus.some(status => ['paid', 'completed', 'succeeded', 'success'].includes(status))) {
+    return { handled: true }
+  }
+  const amountPence = getVerifiedFamilyAmountPence(payload)
+  if (amountPence === null) return { handled: true, error: 'Missing confirmed GBP payment amount' }
+
+  const transactionId = String(payload?.donation?.id ?? payload?.data?.donation?.id ??
+    payload?.donation_id ?? payload?.data?.donation_id ?? payload?.transaction_id ?? payload?.id ?? '').trim()
+  if (!transactionId || transactionId.length > 150) return { handled: true, error: 'Missing provider transaction ID' }
+  const number = Number(reference.slice(4))
+  const { data: rows, error: findError } = await supabase.from('family_retreat_bookings')
+    .select('id,booking_number,status,amount_due,amount_paid,payment_status')
+    .eq('booking_number', number).limit(2)
+  if (findError) return { handled: true, error: findError.message }
+  if (!rows || rows.length !== 1 || rows[0].status === 'archived' || rows[0].status === 'declined') {
+    return { handled: true, error: 'No single active SFR booking matches the reference' }
+  }
+  const booking = rows[0]
+  const { data: existing, error: previousError } = await supabase.from('recovery_payment_ledger')
+    .select('id').eq('source', 'donation_manager').eq('source_record_id', transactionId).maybeSingle()
+  if (previousError) return { handled: true, error: previousError.message }
+  if (existing) return { handled: true }
+
+  const { error: insertError } = await supabase.from('recovery_payment_ledger').insert({
+    source: 'donation_manager', source_record_id: transactionId,
+    occurred_at: new Date().toISOString(), amount: amountPence / 100,
+    currency: 'GBP', payment_status: 'paid',
+    description: 'Sikh Family Retreat – authenticated donation',
+    customer_email: getDonorEmail(payload) || null,
+    payment_reference: reference, linked_record_type: 'family_retreat_booking',
+    linked_record_id: booking.id, metadata: { webhook_event: eventType },
+  })
+  if (insertError) {
+    if (insertError.code === '23505') return { handled: true }
+    return { handled: true, error: insertError.message }
+  }
+  const { data: receipts, error: receiptsError } = await supabase.from('recovery_payment_ledger')
+    .select('amount').eq('source', 'donation_manager')
+    .eq('linked_record_type', 'family_retreat_booking').eq('linked_record_id', booking.id)
+    .eq('payment_status', 'paid')
+  if (receiptsError) return { handled: true, error: receiptsError.message }
+  const total = (receipts || []).reduce((sum, row) => sum + Math.round(Number(row.amount || 0) * 100), 0)
+  const due = Math.round(Number(booking.amount_due || 0) * 100)
+  const { error: updateError } = await supabase.from('family_retreat_bookings')
+    .update({
+      amount_paid: total / 100,
+      payment_status: due > 0 && total >= due ? 'paid' : 'unpaid',
+      ...(due > 0 && total >= due ? { paid_at: new Date().toISOString() } : {}),
+    }).eq('id', booking.id)
+  if (updateError) return { handled: true, error: updateError.message }
+  await supabase.from('activity_log').insert({
+    action: 'family_retreat_donation_manager_payment_reconciled',
+    entity_type: 'family_retreat_booking', entity_id: booking.id,
+    metadata: { reference, provider_transaction_id: transactionId, amount_pence: amountPence },
+  })
+  return { handled: true }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const signature = request.headers.get('x-webhook-signature') || request.headers.get('x-dm-signature')
@@ -141,6 +238,21 @@ export async function POST(request: NextRequest) {
     const eventType = payload.event || payload.type
     const supabase = getSupabaseAdmin()
     const reference = getReference(payload)
+
+    // SFR donations can identify the booking from the donor's message.
+    // Never trust an unsigned SFR callback, even if other legacy integrations
+    // have historically accepted unsigned notifications.
+    if (getFamilyRetreatReference(payload) && !WEBHOOK_SECRET) {
+      return NextResponse.json({ error: 'Donation Manager verification is not configured' }, { status: 503 })
+    }
+    const familyResult = await reconcileSfrDonation(supabase, payload)
+    if (familyResult.handled) {
+      if (familyResult.error) {
+        console.error('[DonationManager Webhook] SFR reconciliation failed:', familyResult.error)
+        return NextResponse.json({ error: 'Could not reconcile retreat payment' }, { status: 422 })
+      }
+      return NextResponse.json({ received: true, matched: 'sfr' })
+    }
 
     // Payment-first: create runner row only after DonationManager confirms payment
     const wolfrunEntryRef = extractIdFromReference(reference, 'wolfrun_entry:')
