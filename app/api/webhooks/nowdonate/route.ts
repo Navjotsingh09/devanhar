@@ -146,7 +146,7 @@ export async function POST(request: Request) {
       payload?.data?.donation?.message, payload?.data?.donation?.reference,
     ].filter((value): value is string => typeof value === 'string')
     const sfrNumbers = [...new Set(fields.flatMap(value =>
-      (value.match(/\\bSFR[-\\s#]*0*[0-9]{1,10}\\b/gi) || []).map(match => Number(match.replace(/[^0-9]/g, '')))
+      (value.match(/\bSFR[-\s#]*0*[0-9]{1,10}\b/gi) || []).map(match => Number(match.replace(/[^0-9]/g, '')))
     ))].filter(number => Number.isSafeInteger(number) && number > 0)
     if (sfrNumbers.length === 1) {
       if (!webhookSecret) return json({ error: "SFR payment verification is not configured" }, 503)
