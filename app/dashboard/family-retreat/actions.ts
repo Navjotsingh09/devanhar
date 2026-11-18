@@ -614,15 +614,15 @@ export async function sendFamilyRetreatPaymentRequest(
   const { data: booking, error: lookupError } = await supabase.from("family_retreat_bookings")
     .select("id, booking_number, status, first_name, email, amount_due, payment_status, nowdonate_payment_url")
     .eq("id", id).single()
-  if (lookupError || !booking) throw new Error("Booking not found. Refresh and try again.")
-  if (booking.status === "archived") throw new Error("Archived bookings cannot receive payment requests.")
+  if (lookupError || !booking) return { emailStatus: "failed" as const, detail: "Booking not found. Refresh and try again." }
+  if (booking.status === "archived") return { emailStatus: "failed" as const, detail: "Archived bookings cannot receive payment requests." }
   if (booking.status === "declined" && options.restoreDeclined !== true) {
     throw new Error("This booking is declined. Use 'Restore booking & send request' if the decline was a mistake.")
   }
-  if (!booking.email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(booking.email)) {
-    throw new Error("A valid booking email is required.")
+  if (!booking.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(booking.email.trim())) {
+    return { emailStatus: "failed" as const, detail: "A valid booking email is required." }
   }
-  if (booking.payment_status === "paid") throw new Error("This booking is marked paid. Check the payment tracker before requesting more money.")
+  if (booking.payment_status === "paid") return { emailStatus: "failed" as const, detail: "This booking is marked paid. Check the payment tracker before requesting more money." }
 
   // The latest manually agreed quote is the source of truth; do not trust a
   // browser-supplied amount, and account for payments/refunds already recorded.
@@ -632,20 +632,20 @@ export async function sendFamilyRetreatPaymentRequest(
     supabase.from("family_retreat_tracker").select("action, amount_pence")
       .eq("booking_id", id).in("action", ["payment", "refund_recorded"]),
   ])
-  if (quotesError || ledgerError) throw new Error("Unable to verify the agreed amount and payment history.")
+  if (quotesError || ledgerError) return { emailStatus: "failed" as const, detail: "Unable to verify the agreed amount and payment history." }
   const agreedPence = Number(quotes?.[0]?.amount_pence ?? Math.round(Number(booking.amount_due || 0) * 100))
   const receivedPence = (ledger || []).reduce((sum, row) => sum + (row.action === "payment" ? Number(row.amount_pence || 0) : -Number(row.amount_pence || 0)), 0)
   const outstandingPence = agreedPence - receivedPence
   if (!Number.isSafeInteger(outstandingPence) || outstandingPence <= 0 || outstandingPence > 10000000) {
-    throw new Error("No valid outstanding payment amount was found. Review the booking tracker first.")
+    return { emailStatus: "failed" as const, detail: "No valid outstanding payment amount was found. Review the booking tracker first." }
   }
   if (!NOWDONATE_CONFIRM_CHECKOUT_ID) {
-    throw new Error("The Donation Manager checkout is not configured. Set the retreat NowDonate checkout ID before sending.")
+    return { emailStatus: "failed" as const, detail: "The Donation Manager checkout is not configured. Set the retreat NowDonate checkout ID before sending." }
   }
-  if (!process.env.RESEND_API_KEY) throw new Error("Email sending is not configured. Check RESEND_API_KEY.")
+  if (!process.env.RESEND_API_KEY) return { emailStatus: "failed" as const, detail: "Email sending is not configured. Check RESEND_API_KEY." }
 
   const reference = retreatReference(booking.booking_number)
-  if (!reference) throw new Error("The booking has no SFR reference. Refresh the booking details first.")
+  if (!reference) return { emailStatus: "failed" as const, detail: "The booking has no SFR reference. Refresh the booking details first." }
   const paymentUrl = buildNowDonateCheckoutUrl(NOWDONATE_CONFIRM_CHECKOUT_ID, {
     amount: (outstandingPence / 100).toFixed(2),
     reference,
@@ -665,7 +665,7 @@ export async function sendFamilyRetreatPaymentRequest(
     "Pay securely using the link below:", paymentUrl, "", instructions, "",
     "Once the payment is verified, the team will update your booking status.",
     "", ...familyRetreatSignatureLines,
-  ].join("\\n")
+  ].join("\n")
   const html = [
     '<div style="font:15px/1.6 Arial,Helvetica,sans-serif;color:#182c28">',
     `<p>Dear ${escapeHtml(name)},</p><p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
@@ -682,7 +682,7 @@ export async function sendFamilyRetreatPaymentRequest(
   if (booking.status === "declined" && options.restoreDeclined) {
     const { error: restoreError } = await supabase.from("family_retreat_bookings")
       .update({ status: "pending" }).eq("id", id).eq("status", "declined")
-    if (restoreError) throw new Error("Could not restore the booking. No email was sent.")
+    if (restoreError) return { emailStatus: "failed" as const, detail: "Could not restore the booking. No email was sent." }
   }
 
   try {
