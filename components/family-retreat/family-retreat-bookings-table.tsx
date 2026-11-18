@@ -631,7 +631,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                             {tracker && progress.refundable > 0 && !progress.pendingRefund && (
                               <Button type="button" size="sm" variant="outline" onClick={() => { setRefundShortcut(current => current + 1); setTrackingRow(booking.id) }}>Flag refund</Button>
                             )}
-                            {manualFlow && paid && booking.status !== 'confirmed' && booking.status !== 'archived' && booking.status !== 'declined' && (
+                            {paid && booking.status !== 'confirmed' && booking.status !== 'archived' && booking.status !== 'declined' && (
                               <Button type="button" size="sm" variant="outline" disabled={isPending}
                                 onClick={() => run(booking.id, () => updateFamilyRetreatStatus(booking.id, 'confirmed'), 'Booking confirmed.')}>
                                 Confirm booking
