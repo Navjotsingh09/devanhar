@@ -337,7 +337,7 @@ export async function updateFamilyRetreatStatus(
     const verifiedReceipts = await verifiedFamilyDonationReceipts(supabase, id, reference)
     const verifiedPence = verifiedReceipts.reduce(
       (total, receipt) => total + Math.round(Number(receipt.amount || 0) * 100), 0)
-    const duePence = Math.round(Number(booking.amount_due || 0) * 100)
+    const duePence = await familyRetreatExpectedAmountPence(supabase, id, booking.amount_due)
     if (duePence <= 0 || verifiedPence < duePence) {
       throw new Error("Payment not verified in Devanhaar. Confirm the Donation Manager receipt is recorded and covers the agreed amount before confirming this booking.")
     }
@@ -800,6 +800,21 @@ type DonationEvidence = {
   occurred_at: string | null
 }
 
+async function familyRetreatExpectedAmountPence(
+  supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>,
+  id: string,
+  fallbackAmount: number | null,
+): Promise<number> {
+  const { data: latest, error } = await supabase
+    .from("family_retreat_tracker")
+    .select("amount_pence").eq("booking_id", id).eq("action", "link_sent")
+    .order("id", { ascending: false }).limit(1).maybeSingle()
+  if (error) throw new Error("Unable to read the agreed retreat payment amount.")
+  const requested = Number(latest?.amount_pence)
+  if (latest && Number.isSafeInteger(requested) && requested > 0) return requested
+  return Math.round(Number(fallbackAmount || 0) * 100)
+}
+
 async function verifiedFamilyDonationReceipts(
   supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>,
   id: string,
@@ -850,7 +865,7 @@ export async function checkFamilyRetreatProviderPayment(id: string): Promise<{
   if (!reference) throw new Error("The booking reference is missing.")
   const receipts = await verifiedFamilyDonationReceipts(supabase, id, reference)
   const paidPence = receipts.reduce((sum, r) => sum + Math.round(Number(r.amount) * 100), 0)
-  const duePence = Math.round(Number(booking.amount_due || 0) * 100)
+  const duePence = await familyRetreatExpectedAmountPence(supabase, id, booking.amount_due)
   const outstandingPence = Math.max(0, duePence - paidPence)
   const verified = receipts.length > 0 && duePence > 0 && outstandingPence === 0
 
