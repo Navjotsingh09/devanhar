@@ -337,6 +337,30 @@ export async function updateFamilyRetreatStatus(
     if (requestError || receiptsError || !request?.amount_pence || received < Number(request.amount_pence) || received <= refunded)
       throw new Error('Verify full payment before confirming this booking.')
   }
+  // Online SFR bookings must have a provider-verified receipt before staff can
+  // confirm a place. A note saying "link sent" is not payment evidence.
+  if (status === "confirmed" && booking.booking_details) {
+    const { data: verifiedReceipts, error: receiptError } = await supabase
+      .from("recovery_payment_ledger")
+      .select("amount, currency, payment_status")
+      .eq("source", "donation_manager")
+      .eq("linked_record_type", "family_retreat_booking")
+      .eq("linked_record_id", id)
+    if (receiptError) throw new Error("Unable to check Donation Manager receipts before confirmation.")
+    const verifiedPence = (verifiedReceipts || [])
+      .filter(receipt => receipt.currency?.toUpperCase() === "GBP" &&
+        ["paid", "completed", "received", "succeeded"].includes(String(receipt.payment_status).toLowerCase()))
+      .reduce((total, receipt) => total + Math.round(Number(receipt.amount || 0) * 100), 0)
+    const duePence = Math.round(Number(booking.amount_due || 0) * 100)
+    if (duePence <= 0 || verifiedPence < duePence) {
+      throw new Error("Payment not verified in Devanhaar. Confirm the Donation Manager receipt is recorded and covers the agreed amount before confirming this booking.")
+    }
+    // Do not generate a second payment request for an already-paid booking.
+    if (details?.amount && details.amount > 0) {
+      throw new Error("Payment is already verified. Use Confirm booking instead of generating another payment link.")
+    }
+  }
+
   const updatePayload: Record<string, unknown> = {
     status,
     reviewed_at: new Date().toISOString(),
