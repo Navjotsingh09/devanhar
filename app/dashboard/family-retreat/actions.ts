@@ -695,6 +695,10 @@ export async function sendFamilyRetreatPaymentRequest(
   const name = booking.first_name || "there"
   const money = formatGbp(outstandingPence / 100)
   const instructions = `Important: On the donation page, find “Would you like to add a Message?” and click “Yes”. A message box will appear. Type your booking reference exactly as shown: ${reference}. Then complete your payment and keep your receipt. This helps the Sikh Family Retreat team match your payment to your booking.`
+  const instructionsHtml = escapeHtml(instructions).replace(
+    escapeHtml(`Type your booking reference exactly as shown: ${reference}.`),
+    `<strong>Type your booking reference exactly as shown: ${escapeHtml(reference)}.</strong>`,
+  )
   const subject = `Payment request – Sikh Family Retreat (${reference})`
   const text = [
     `Dear ${name},`, "", "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.", "",
@@ -710,7 +714,7 @@ export async function sendFamilyRetreatPaymentRequest(
     "<p>The Sikh Family Retreat team has prepared a payment request for your booking.</p>",
     `<p><strong>Booking reference:</strong> ${escapeHtml(reference)}<br><strong>Amount outstanding:</strong> ${escapeHtml(money)}</p>`,
     `<p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#152d46;color:#fff;padding:12px 22px;text-decoration:none;border-radius:8px;font-weight:bold">Pay securely · ${escapeHtml(money)}</a></p>`,
-    `<p>${escapeHtml(instructions)}</p>`,
+    `<p>${instructionsHtml}</p>`,
     "<p>Once payment is verified, the team will update your booking status.</p>",
     familyRetreatSignatureHtml, "</div>",
   ].join("")
