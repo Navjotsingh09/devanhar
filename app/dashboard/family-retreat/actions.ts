@@ -694,7 +694,7 @@ export async function sendFamilyRetreatPaymentRequest(
   }
   const name = booking.first_name || "there"
   const money = formatGbp(outstandingPence / 100)
-  const instructions = `Please include your booking reference ${reference} in the donation/payment message so the team can match your payment. Keep your receipt.`
+  const instructions = `Important: On the donation page, find “Would you like to add a Message?” and click “Yes”. A message box will appear. Type your booking reference exactly as shown: ${reference}. Then complete your payment and keep your receipt. This helps the Sikh Family Retreat team match your payment to your booking.`
   const subject = `Payment request – Sikh Family Retreat (${reference})`
   const text = [
     `Dear ${name},`, "", "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.", "",
