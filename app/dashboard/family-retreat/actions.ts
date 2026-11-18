@@ -645,10 +645,31 @@ async function createFamilyRetreatProviderCheckout(input: {
     { cache: "no-store", signal: AbortSignal.timeout(12000) },
   )
   if (!response.ok) throw new Error("Donation Manager could not create the payment checkout.")
-  const result = await response.json() as { status?: string; url?: string }
-  if (result.status !== "success" || !result.url)
-    throw new Error("Donation Manager did not return a usable checkout link.")
-  const url = new URL(result.url)
+  const raw = await response.text()
+  let result: unknown
+  try { result = JSON.parse(raw) } catch {
+    console.error("[family-retreat] Provider checkout returned non-JSON", {
+      status: response.status, contentType: response.headers.get("content-type"),
+    })
+    throw new Error("Donation Manager checkout returned an unexpected response. No email was sent.")
+  }
+  const record = result && typeof result === "object" ? result as Record<string, unknown> : {}
+  // Checkout API responses vary between JSON objects and nested result/data wrappers.
+  // Only use a verified HTTPS link on the checkout provider's domains.
+  const nested = record.data && typeof record.data === "object"
+    ? record.data as Record<string, unknown> : {}
+  const link = [record.url, record.checkout_url, record.checkoutUrl, record.link,
+    nested.url, nested.checkout_url, nested.checkoutUrl, nested.link]
+    .find((value): value is string => typeof value === "string" && value.startsWith("https://"))
+  if (!link) {
+    console.error("[family-retreat] Provider checkout link absent", {
+      status: response.status,
+      providerStatus: typeof record.status === "string" ? record.status : null,
+      responseKeys: Object.keys(record).slice(0, 12),
+    })
+    throw new Error("Donation Manager did not return a usable checkout link. No email was sent.")
+  }
+  const url = new URL(link)
   if (url.protocol !== "https:" ||
     !(url.hostname === "nowdonate.com" || url.hostname.endsWith(".nowdonate.com") ||
       url.hostname === "donationmanager.co.uk" || url.hostname.endsWith(".donationmanager.co.uk"))) {
