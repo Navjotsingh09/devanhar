@@ -68,7 +68,9 @@ function isWolfRunDonation(payload: any): boolean {
 }
 
 function getDonationEventType(payload: any): string {
-  return normalize(payload?.event || payload?.type)
+  const value = normalize(payload?.event || payload?.type)
+  const object = normalize(payload?.object)
+  return object === 'donation' && !value.includes('.') ? 'donation.' + value : value
 }
 
 function getDonationObject(payload: any): string {
@@ -165,7 +167,6 @@ async function reconcileSfrDonation(
   // Only authenticated provider completion callbacks can be reconciled.
   if (!(WEBHOOK_SECRET || WEBHOOK_TOKEN)) return { handled: true, error: 'Webhook authentication not configured' }
   const eventType = getDonationEventType(payload)
-  const explicitStatus = collectPayloadValues(payload, ['payment_status', 'status', 'state']).map(normalize)
   if (isCancelledDonation(payload)) return { handled: true }
   if (!isCompletedDonation(payload)) {
     return { handled: true }
@@ -209,7 +210,11 @@ async function reconcileSfrDonation(
     .eq('payment_status', 'paid')
   if (receiptsError) return { handled: true, error: receiptsError.message }
   const total = (receipts || []).reduce((sum, row) => sum + Math.round(Number(row.amount || 0) * 100), 0)
-  const due = Math.round(Number(booking.amount_due || 0) * 100)
+  const { data: latestRequest, error: requestError } = await supabase.from('family_retreat_tracker')
+    .select('amount_pence').eq('booking_id', booking.id).eq('action', 'link_sent')
+    .order('id', { ascending: false }).limit(1).maybeSingle()
+  if (requestError) return { handled: true, error: requestError.message }
+  const due = Number(latestRequest?.amount_pence) || Math.round(Number(booking.amount_due || 0) * 100)
   const { error: updateError } = await supabase.from('family_retreat_bookings')
     .update({
       amount_paid: total / 100,
