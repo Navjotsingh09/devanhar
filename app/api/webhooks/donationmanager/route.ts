@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createHash, timingSafeEqual } from 'crypto'
 import { canAutoConfirmPadelRegistration } from '@/lib/padel-payment'
 import { sendPadelRegistrationApprovedEmail } from '@/lib/padel-registration-emails'
 
 const WEBHOOK_SECRET = process.env.DONATIONMANAGER_WEBHOOK_SECRET
+const WEBHOOK_TOKEN = process.env.DONATIONMANAGER_WEBHOOK_TOKEN
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -81,23 +83,20 @@ function isCancelledDonation(payload: any): boolean {
 }
 
 function isCompletedDonation(payload: any): boolean {
+  if (isCancelledDonation(payload)) return false
   const eventType = getDonationEventType(payload)
   const statusValues = collectPayloadValues(payload, ['status', 'payment_status', 'state']).map(normalize)
-  if (
-    eventType === 'donation.completed' ||
-    eventType === 'donation.received' ||
-    eventType === 'donation.recurring' ||
-    /(?:completed|received|paid|success|succeeded)/.test(eventType) ||
-    statusValues.some((status) => ['completed', 'received', 'paid', 'success', 'succeeded'].includes(status))
-  ) {
-    return true
-  }
+  if (statusValues.some(status => ['pending', 'awaiting reconciliation', 'awaiting_reconciliation', 'unreconciled', 'processing', 'created', 'failed'].includes(status))) return false
+  return ['donation.completed', 'donation.received', 'donation.settled'].includes(eventType)
+    || statusValues.some(status => ['completed', 'received', 'paid', 'success', 'succeeded', 'settled', 'reconciled'].includes(status))
+}
 
-  if (getDonationObject(payload) === 'donation') {
-    return !isCancelledDonation(payload)
-  }
-
-  return false
+function credentialMatches(supplied: string | null, expected: string | undefined): boolean {
+  if (!supplied || !expected) return false
+  return timingSafeEqual(
+    createHash('sha256').update(supplied).digest(),
+    createHash('sha256').update(expected).digest(),
+  )
 }
 
 function extractIdFromReference(reference: string, prefix: string): string | null {
@@ -164,12 +163,11 @@ async function reconcileSfrDonation(
 
   // A donation message is untrusted and must never establish that payment succeeded.
   // Only authenticated provider completion callbacks can be reconciled.
-  if (!WEBHOOK_SECRET) return { handled: true, error: 'Webhook secret is not configured' }
+  if (!(WEBHOOK_SECRET || WEBHOOK_TOKEN)) return { handled: true, error: 'Webhook authentication not configured' }
   const eventType = getDonationEventType(payload)
   const explicitStatus = collectPayloadValues(payload, ['payment_status', 'status', 'state']).map(normalize)
   if (isCancelledDonation(payload)) return { handled: true }
-  if (!['donation.completed', 'donation.received'].includes(eventType) &&
-      !explicitStatus.some(status => ['paid', 'completed', 'succeeded', 'success'].includes(status))) {
+  if (!isCompletedDonation(payload)) {
     return { handled: true }
   }
   const amountPence = getVerifiedFamilyAmountPence(payload)
@@ -230,19 +228,28 @@ async function reconcileSfrDonation(
 export async function POST(request: NextRequest) {
   try {
     const signature = request.headers.get('x-webhook-signature') || request.headers.get('x-dm-signature')
-    if (WEBHOOK_SECRET && signature !== WEBHOOK_SECRET) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    const urlToken = request.nextUrl.searchParams.get('token')
+    const authenticated = credentialMatches(signature, WEBHOOK_SECRET)
+      || credentialMatches(urlToken, WEBHOOK_TOKEN)
+    if ((WEBHOOK_TOKEN || WEBHOOK_SECRET) && !authenticated) {
+      return NextResponse.json({ error: 'Webhook authentication failed' }, { status: 401 })
     }
-
     const payload = await request.json()
     const eventType = payload.event || payload.type
+    if (getDonationObject(payload) && getDonationObject(payload) !== 'donation') {
+      return NextResponse.json({ received: true, ignored: 'non_donation' })
+    }
+    if (getDonationEventType(payload) === 'donation.created' && !isCompletedDonation(payload)) {
+      console.info('[DonationManager Webhook] Donation created but not yet settled')
+      return NextResponse.json({ received: true, payment_state: 'pending' })
+    }
     const supabase = getSupabaseAdmin()
     const reference = getReference(payload)
 
     // SFR donations can identify the booking from the donor's message.
     // Never trust an unsigned SFR callback, even if other legacy integrations
     // have historically accepted unsigned notifications.
-    if (getFamilyRetreatReference(payload) && !WEBHOOK_SECRET) {
+    if (getFamilyRetreatReference(payload) && !authenticated) {
       return NextResponse.json({ error: 'Donation Manager verification is not configured' }, { status: 503 })
     }
     const familyResult = await reconcileSfrDonation(supabase, payload)
@@ -314,7 +321,7 @@ export async function POST(request: NextRequest) {
     // a staff decline/archive, or be inferred from visiting the payment page.
     const padelRegistrationId = extractIdFromReference(reference, 'padel_registration:')
     if (padelRegistrationId && isCompletedDonation(payload)) {
-      if (!WEBHOOK_SECRET) return NextResponse.json({ error: 'Payment verification is not configured' }, { status: 503 })
+      if (!authenticated) return NextResponse.json({ error: 'Payment verification is not configured' }, { status: 503 })
       const { data: reg, error: fetchError } = await supabase.from('padel_registrations')
         .select('*').eq('id', padelRegistrationId).maybeSingle()
       if (fetchError) throw fetchError
