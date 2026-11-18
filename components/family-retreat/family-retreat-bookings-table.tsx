@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import {
   removeFamilyRetreatBooking,
   logFamilyRetreatReminder,
+  checkFamilyRetreatProviderPayment,
   sendFamilyRetreatPaymentRequest,
   sendFamilyRetreatAdditionalCharge,
   syncFamilyRetreatPayment,
@@ -417,6 +418,23 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     run(booking.id, () => updateFamilyRetreatStatus(booking.id, "declined"), "Application declined and applicant notified.")
   }
 
+  function checkProviderReceipt(booking: FamilyRetreatBooking) {
+    startTransition(async () => {
+      try {
+        const result = await checkFamilyRetreatProviderPayment(booking.id)
+        setRowMessage(booking.id, {
+          type: result.verified ? "success" : "error",
+          text: result.detail,
+        })
+      } catch (error) {
+        setRowMessage(booking.id, {
+          type: "error",
+          text: error instanceof Error ? error.message : "Unable to check verified provider receipts.",
+        })
+      }
+    })
+  }
+
   function handleSyncPayment(booking: FamilyRetreatBooking) {
     startTransition(async () => {
       try {
@@ -638,6 +656,11 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                                 <Mail className="mr-1.5 h-4 w-4" />{booking.status === "declined" ? "Restore & send payment email" : "Send / resend payment email"}
                               </Button>
                             )}
+                            <Button type="button" size="sm" variant="outline" disabled={isPending}
+                              title="Check verified Donation Manager transactions received by Devanhaar"
+                              onClick={() => checkProviderReceipt(booking)}>
+                              <RefreshCw className="mr-1.5 h-4 w-4" />Check Donation Manager receipt
+                            </Button>
                             <Button size="sm" variant="outline" title="Only log a reminder already sent by phone, WhatsApp or email outside the dashboard" disabled={isPending || paid || !!progress.refunded} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged only. No email sent.')}>Log external reminder</Button>
                             {booking.stripe_payment_link_id && <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check Stripe payment</Button>}
                             {!manualFlow && <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending || manualFlow}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>}
