@@ -29,6 +29,27 @@ html { font-size: calc(100% * var(--a11y-text-scale, 1)); }
   margin: 0 !important;
 }
 
+
+/*
+ * Public cookie consent remains available on the website.
+ * Suppress the third-party cookie manager and floating launcher only
+ * inside Devanhaar back-office routes. GTM consent defaults are unchanged.
+ */
+html[data-devanhaar-backend="true"] #custom-cookie-manager,
+html[data-devanhaar-backend="true"] #ccm-widget,
+html[data-devanhaar-backend="true"] #ccm-revisit-widget,
+html[data-devanhaar-backend="true"] .ccm-revisit-widget,
+html[data-devanhaar-backend="true"] .ccm-floating-button,
+html[data-devanhaar-backend="true"] .ccm-reopen-button,
+html[data-devanhaar-backend="true"] [id="cookie-consent-widget"],
+html[data-devanhaar-backend="true"] [id="cookie-preferences-widget"],
+html[data-devanhaar-backend="true"] [data-cookie-consent-widget],
+html[data-devanhaar-backend="true"] [data-ccm-widget] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
