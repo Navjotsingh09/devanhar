@@ -633,7 +633,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               </>
                             )}
                             {!paid && booking.status !== "archived" && (
-                              <Button size="sm" className="bg-[#123b2a] text-white hover:bg-[#1e5840]" disabled={isPending || !booking.email || !!progress.refunded}
+                              <Button size="sm" className="bg-[#efb82b] text-[#10283f] hover:bg-[#dfa91e] font-semibold border border-[#d8a318] shadow-sm" disabled={isPending || !booking.email || !!progress.refunded}
                                 onClick={() => handleSendPaymentRequest(booking)}>
                                 <Mail className="mr-1.5 h-4 w-4" />{booking.status === "declined" ? "Restore & send payment email" : "Send / resend payment email"}
                               </Button>
@@ -697,7 +697,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                       {rowMessage && (
                         <TableRow>
                           <TableCell colSpan={6} className="py-2">
-                            <p className={`text-xs font-medium ${rowMessage.type === "success" ? "text-emerald-700" : "text-red-700"}`}>{rowMessage.text}</p>
+                            <p className={`rounded-lg border px-3 py-2 text-xs font-medium leading-relaxed ${rowMessage.type === "success" ? "border-[#d5e5d9] bg-[#f3f8f5] text-[#285f3c]" : "border-red-200 bg-red-50 text-red-700"}`}>{rowMessage.text}</p>
                           </TableCell>
                         </TableRow>
                       )}
