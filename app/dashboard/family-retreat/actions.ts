@@ -616,6 +616,47 @@ export async function logFamilyRetreatReminder(id: string) {
  * email sent after the provider accepts it. The reference visible to the family
  * matches the SFR number printed in the dashboard.
  */
+/**
+ * Create a booking-specific NowDonate checkout using Devanhaar's existing
+ * Donation Manager checkout API, as used by Wolf Run.
+ * Never send an unverified or generic link when the API fails.
+ */
+async function createFamilyRetreatProviderCheckout(input: {
+  id: string; reference: string; email: string; amountPence: number
+}): Promise<string> {
+  const key = (process.env.NOWDONATE_API_KEY || "").trim()
+  if (!key || !NOWDONATE_CONFIRM_CHECKOUT_ID)
+    throw new Error("Donation Manager checkout configuration is incomplete.")
+  const params = new URLSearchParams({
+    key,
+    checkout: NOWDONATE_CONFIRM_CHECKOUT_ID,
+    currency: "GBP",
+    amount: (input.amountPence / 100).toFixed(2),
+    repeat: "o",
+    reference: input.reference,
+    custom: input.id,
+    prefilled_email: input.email,
+    comment: "Sikh Family Retreat payment – " + input.reference,
+    success_url: SITE_URL + "/sfr?paid=1",
+    cancel_url: SITE_URL + "/sfr",
+  })
+  const response = await fetch(
+    "https://www.donationmanager.co.uk/services/api/checkout/?" + params.toString(),
+    { cache: "no-store", signal: AbortSignal.timeout(12000) },
+  )
+  if (!response.ok) throw new Error("Donation Manager could not create the payment checkout.")
+  const result = await response.json() as { status?: string; url?: string }
+  if (result.status !== "success" || !result.url)
+    throw new Error("Donation Manager did not return a usable checkout link.")
+  const url = new URL(result.url)
+  if (url.protocol !== "https:" ||
+    !(url.hostname === "nowdonate.com" || url.hostname.endsWith(".nowdonate.com") ||
+      url.hostname === "donationmanager.co.uk" || url.hostname.endsWith(".donationmanager.co.uk"))) {
+    throw new Error("Donation Manager returned an unexpected checkout destination.")
+  }
+  return url.toString()
+}
+
 export async function sendFamilyRetreatPaymentRequest(
   id: string,
   options: { restoreDeclined?: boolean } = {},
@@ -656,14 +697,18 @@ export async function sendFamilyRetreatPaymentRequest(
 
   const reference = retreatReference(booking.booking_number)
   if (!reference) return { emailStatus: "failed" as const, detail: "The booking has no SFR reference. Refresh the booking details first." }
-  const paymentUrl = buildNowDonateCheckoutUrl(NOWDONATE_CONFIRM_CHECKOUT_ID, {
-    amount: (outstandingPence / 100).toFixed(2),
-    reference,
-    custom: id,
-    prefilled_email: booking.email,
-    success_url: `${SITE_URL}/sfr?paid=1`,
-    cancel_url: `${SITE_URL}/sfr`,
-  })
+  let paymentUrl: string
+  try {
+    paymentUrl = await createFamilyRetreatProviderCheckout({
+      id, reference, email: booking.email, amountPence: outstandingPence,
+    })
+  } catch (error) {
+    return {
+      emailStatus: "failed",
+      detail: error instanceof Error ? error.message : "Could not create a verified payment checkout. No email was sent.",
+      reference,
+    }
+  }
   const name = booking.first_name || "there"
   const money = formatGbp(outstandingPence / 100)
   const instructions = `Please include your booking reference ${reference} in the donation/payment message so the team can match your payment. Keep your receipt.`
