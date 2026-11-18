@@ -634,7 +634,7 @@ async function createFamilyRetreatProviderCheckout(input: {
     amount: (input.amountPence / 100).toFixed(2),
     repeat: "o",
     reference: input.reference,
-    custom: input.id,
+    custom: input.reference,
     prefilled_email: input.email,
     comment: "Sikh Family Retreat payment – " + input.reference,
     success_url: SITE_URL + "/sfr?paid=1",
