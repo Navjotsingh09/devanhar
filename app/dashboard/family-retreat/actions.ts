@@ -1,5 +1,6 @@
 "use server"
 
+import { retreatReference } from "@/lib/family-retreat-booking-details"
 import { familyRetreatSignatureHtml, familyRetreatSignatureLines } from "@/lib/family-retreat-email-signature"
 import { requireProgramme } from '@/lib/staff-programme-server'
 import { revalidatePath } from "next/cache"
@@ -597,4 +598,134 @@ export async function logFamilyRetreatReminder(id: string) {
  const {error}=await supabase.from('family_retreat_bookings').update({payment_reminder_sent_at:new Date().toISOString()}).eq('id',id)
  if(error) throw new Error('Unable to log the reminder')
  revalidatePath('/dashboard/family-initiative/retreat')
+}
+
+/**
+ * Sends a genuine payment request from the organiser dashboard.
+ * Unlike the tracker "link_sent" event, this invokes Resend and only marks the
+ * email sent after the provider accepts it. The reference visible to the family
+ * matches the SFR number printed in the dashboard.
+ */
+export async function sendFamilyRetreatPaymentRequest(
+  id: string,
+  options: { restoreDeclined?: boolean } = {},
+): Promise<{ emailStatus: "sent" | "failed"; detail: string; reference?: string }> {
+  const supabase = await getSupabaseAdmin()
+  const { data: booking, error: lookupError } = await supabase.from("family_retreat_bookings")
+    .select("id, booking_number, status, first_name, email, amount_due, payment_status, nowdonate_payment_url")
+    .eq("id", id).single()
+  if (lookupError || !booking) throw new Error("Booking not found. Refresh and try again.")
+  if (booking.status === "archived") throw new Error("Archived bookings cannot receive payment requests.")
+  if (booking.status === "declined" && options.restoreDeclined !== true) {
+    throw new Error("This booking is declined. Use 'Restore booking & send request' if the decline was a mistake.")
+  }
+  if (!booking.email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(booking.email)) {
+    throw new Error("A valid booking email is required.")
+  }
+  if (booking.payment_status === "paid") throw new Error("This booking is marked paid. Check the payment tracker before requesting more money.")
+
+  // The latest manually agreed quote is the source of truth; do not trust a
+  // browser-supplied amount, and account for payments/refunds already recorded.
+  const [{ data: quotes, error: quotesError }, { data: ledger, error: ledgerError }] = await Promise.all([
+    supabase.from("family_retreat_tracker").select("amount_pence")
+      .eq("booking_id", id).eq("action", "link_sent").order("id", { ascending: false }).limit(1),
+    supabase.from("family_retreat_tracker").select("action, amount_pence")
+      .eq("booking_id", id).in("action", ["payment", "refund_recorded"]),
+  ])
+  if (quotesError || ledgerError) throw new Error("Unable to verify the agreed amount and payment history.")
+  const agreedPence = Number(quotes?.[0]?.amount_pence ?? Math.round(Number(booking.amount_due || 0) * 100))
+  const receivedPence = (ledger || []).reduce((sum, row) => sum + (row.action === "payment" ? Number(row.amount_pence || 0) : -Number(row.amount_pence || 0)), 0)
+  const outstandingPence = agreedPence - receivedPence
+  if (!Number.isSafeInteger(outstandingPence) || outstandingPence <= 0 || outstandingPence > 10000000) {
+    throw new Error("No valid outstanding payment amount was found. Review the booking tracker first.")
+  }
+  if (!NOWDONATE_CONFIRM_CHECKOUT_ID) {
+    throw new Error("The Donation Manager checkout is not configured. Set the retreat NowDonate checkout ID before sending.")
+  }
+  if (!process.env.RESEND_API_KEY) throw new Error("Email sending is not configured. Check RESEND_API_KEY.")
+
+  const reference = retreatReference(booking.booking_number)
+  if (!reference) throw new Error("The booking has no SFR reference. Refresh the booking details first.")
+  const paymentUrl = buildNowDonateCheckoutUrl(NOWDONATE_CONFIRM_CHECKOUT_ID, {
+    amount: (outstandingPence / 100).toFixed(2),
+    reference,
+    custom: id,
+    prefilled_email: booking.email,
+    success_url: `${SITE_URL}/sfr?paid=1`,
+    cancel_url: `${SITE_URL}/sfr`,
+  })
+  const name = booking.first_name || "there"
+  const money = formatGbp(outstandingPence / 100)
+  const instructions = `Please include your booking reference ${reference} in the donation/payment message so the team can match your payment. Keep your receipt.`
+  const subject = `Payment request – Sikh Family Retreat (${reference})`
+  const text = [
+    `Dear ${name},`, "", "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.", "",
+    "The Sikh Family Retreat team has prepared a payment request for your booking.",
+    `Booking reference: ${reference}`, `Amount outstanding: ${money}`, "",
+    "Pay securely using the link below:", paymentUrl, "", instructions, "",
+    "Once the payment is verified, the team will update your booking status.",
+    "", ...familyRetreatSignatureLines,
+  ].join("\\n")
+  const html = [
+    '<div style="font:15px/1.6 Arial,Helvetica,sans-serif;color:#182c28">',
+    `<p>Dear ${escapeHtml(name)},</p><p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
+    "<p>The Sikh Family Retreat team has prepared a payment request for your booking.</p>",
+    `<p><strong>Booking reference:</strong> ${escapeHtml(reference)}<br><strong>Amount outstanding:</strong> ${escapeHtml(money)}</p>`,
+    `<p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#123c2d;color:#fff;padding:12px 22px;text-decoration:none;border-radius:8px;font-weight:bold">Pay securely · ${escapeHtml(money)}</a></p>`,
+    `<p>${escapeHtml(instructions)}</p>`,
+    "<p>Once payment is verified, the team will update your booking status.</p>",
+    familyRetreatSignatureHtml, "</div>",
+  ].join("")
+
+  // Deliberate recovery for a previously declined booking. The button requires
+  // a separate explicit confirmation; other declined bookings remain protected.
+  if (booking.status === "declined" && options.restoreDeclined) {
+    const { error: restoreError } = await supabase.from("family_retreat_bookings")
+      .update({ status: "pending" }).eq("id", id).eq("status", "declined")
+    if (restoreError) throw new Error("Could not restore the booking. No email was sent.")
+  }
+
+  try {
+    const { Resend } = await import("resend")
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const result = await resend.emails.send({
+      from: "Sikh Family Retreat <noreply@devanhaar.com>",
+      to: booking.email,
+      subject, text, html,
+    })
+    if (result.error || !result.data?.id) {
+      throw new Error(result.error?.message || "Email was not accepted by the provider")
+    }
+    const { error: saveError } = await supabase.from("family_retreat_bookings").update({
+      nowdonate_payment_url: paymentUrl,
+      payment_reminder_sent_at: new Date().toISOString(),
+      amount_due: agreedPence / 100,
+    }).eq("id", id)
+    await supabase.from("activity_log").insert({
+      action: "family_retreat_payment_request_email_accepted",
+      entity_type: "family_retreat_booking", entity_id: id,
+      metadata: { reference, amount_pence: outstandingPence, provider: "nowdonate", email_id: result.data.id, tracking_saved: !saveError },
+    })
+    revalidatePath("/dashboard/family-initiative/retreat")
+    return {
+      emailStatus: "sent",
+      detail: saveError
+        ? `Email accepted by the mail provider for ${booking.email} (ID ${result.data.id}), but the dashboard tracking update failed. Please check the booking before resending.`
+        : `Payment email accepted for ${booking.email}. Reference ${reference}, amount ${money}. Mail ID: ${result.data.id}. Inbox delivery is not yet confirmed.`,
+      reference,
+    }
+  } catch (error) {
+    console.error("[family-retreat] payment request email failed", { bookingId: id, error })
+    await supabase.from("activity_log").insert({
+      action: "family_retreat_payment_request_email_failed",
+      entity_type: "family_retreat_booking", entity_id: id,
+      metadata: { reference, amount_pence: outstandingPence, reason: error instanceof Error ? error.message.slice(0, 180) : "unknown" },
+    })
+    revalidatePath("/dashboard/family-initiative/retreat")
+    return {
+      emailStatus: "failed",
+      detail: `Email failed: ${error instanceof Error ? error.message : "Unknown mail error"}. ${booking.status === "declined" ? "The booking was restored to pending, but no payment email was accepted." : "No successful email has been recorded."}`,
+      reference,
+    }
+  }
 }
