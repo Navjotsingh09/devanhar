@@ -6,7 +6,7 @@ import { RetreatBookingTracker } from './family-retreat-tracker'
 import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
 import { format } from "date-fns"
-import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle, Mail } from "lucide-react"
+import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle, Mail, AlertTriangle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +14,7 @@ import { statusFilterClass } from "@/components/dashboard/status-filter-pills"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   removeFamilyRetreatBooking,
   logFamilyRetreatReminder,
@@ -291,6 +292,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   const [extraReason, setExtraReason] = useState<Record<string, string>>({})
 
   const [messages, setMessages] = useState<Record<string, Message>>({})
+  const [paymentRequestBooking, setPaymentRequestBooking] = useState<FamilyRetreatBooking | null>(null)
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase()
@@ -385,16 +387,14 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   }
 
   function handleSendPaymentRequest(booking: FamilyRetreatBooking) {
+    setPaymentRequestBooking(booking)
+  }
+
+  function confirmPaymentRequest() {
+    const booking = paymentRequestBooking
+    if (!booking || isPending) return
     const restoring = booking.status === "declined"
-    const reference = retreatReference(booking.booking_number) || "this booking"
-    const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
-    const outstanding = Math.max(0, progress.due - progress.received + progress.refunded)
-    if (restoring && !window.confirm(
-      `IMPORTANT: ${booking.first_name || "This applicant"} is currently DECLINED. Restore ${reference} to Pending and send an actual payment request to ${booking.email || "the applicant"}? This reverses the decline status and may need a personal follow-up.`
-    )) return
-    if (!restoring && !window.confirm(
-      `Send a payment request to ${booking.email || "the applicant"} for ${reference}? The system will use the verified outstanding amount and email the secure payment link. This is a real email, not a tracker note.`
-    )) return
+    setPaymentRequestBooking(null)
     startTransition(async () => {
       setRowMessage(booking.id, { type: "success", text: "Sending payment request… Please do not click again." })
       try {
@@ -709,6 +709,52 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
           </Table>
         </div>
       </div>
+      <Dialog open={paymentRequestBooking !== null} onOpenChange={(open) => { if (!open && !isPending) setPaymentRequestBooking(null) }}>
+        <DialogContent className="max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[#dde2e8] bg-white p-0 shadow-[0_24px_80px_rgba(14,35,55,0.20)] sm:max-w-[480px]">
+          <div className="h-1.5 w-full bg-[#e9b42b]" />
+          <div className="space-y-5 px-6 pb-6 pt-5 sm:px-7">
+            <DialogHeader className="space-y-2 text-left">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff3d6] text-[#17334b]">
+                <Mail className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <DialogTitle className="text-xl font-bold tracking-tight text-[#142e45]">
+                {paymentRequestBooking?.status === "declined" ? "Restore booking & send payment request?" : "Send payment request?"}
+              </DialogTitle>
+              <DialogDescription className="text-sm leading-relaxed text-[#647184]">
+                The payment link and booking reference will be emailed to the applicant. This sends a real email rather than simply adding a tracker note.
+              </DialogDescription>
+            </DialogHeader>
+            {paymentRequestBooking && (() => {
+              const booking = paymentRequestBooking
+              const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
+              const outstanding = Math.max(0, progress.due - progress.received + progress.refunded)
+              return <div className="rounded-xl border border-[#e1e5e9] bg-[#f8f9fa] p-4">
+                <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-x-3 gap-y-2.5 text-sm">
+                  <dt className="text-[#718092]">Applicant</dt><dd className="text-right font-semibold text-[#142e45]">{[booking.first_name, booking.last_name].filter(Boolean).join(" ") || "Applicant"}</dd>
+                  <dt className="text-[#718092]">Email recipient</dt><dd className="break-all text-right font-medium text-[#142e45]">{booking.email || "No email available"}</dd>
+                  <dt className="text-[#718092]">Booking reference</dt><dd className="text-right font-semibold text-[#142e45]">{retreatReference(booking.booking_number) || "Not available"}</dd>
+                  <dt className="text-[#718092]">Amount outstanding</dt><dd className="text-right text-base font-bold text-[#142e45]">{retreatMoney(outstanding)}</dd>
+                </dl>
+              </div>
+            })()}
+            {paymentRequestBooking?.status === "declined" && (
+              <div role="note" className="flex items-start gap-2.5 rounded-xl border border-[#efd5a6] bg-[#fff8e8] p-3.5 text-sm leading-relaxed text-[#805a16]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <p>This application was declined. Sending a payment request will first restore its status to Pending. Only proceed if the decline was a mistake and the family is eligible.</p>
+              </div>
+            )}
+            <p className="text-xs leading-relaxed text-[#667587]">The dashboard will show whether the email provider accepted this message. Inbox delivery is not guaranteed at this stage.</p>
+            <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" disabled={isPending} onClick={() => setPaymentRequestBooking(null)} className="h-10 rounded-full border-[#d6dde4] px-5 text-[#142e45]">Cancel</Button>
+              <Button type="button" disabled={isPending || !paymentRequestBooking?.email} onClick={confirmPaymentRequest} className="h-10 rounded-full border border-[#d4a21a] bg-[#efb82b] px-5 font-semibold text-[#10283f] shadow-sm hover:bg-[#dfa91e]">
+                <Mail className="mr-2 h-4 w-4" aria-hidden="true" />
+                {paymentRequestBooking?.status === "declined" ? "Restore & send email" : "Send payment email"}
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }
