@@ -6,7 +6,7 @@ import { RetreatBookingTracker } from './family-retreat-tracker'
 import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
 import { format } from "date-fns"
-import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle } from "lucide-react"
+import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle, Mail } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   removeFamilyRetreatBooking,
   logFamilyRetreatReminder,
+  sendFamilyRetreatPaymentRequest,
   sendFamilyRetreatAdditionalCharge,
   syncFamilyRetreatPayment,
   updateFamilyRetreatStatus,
@@ -383,6 +384,30 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     )
   }
 
+  function handleSendPaymentRequest(booking: FamilyRetreatBooking) {
+    const restoring = booking.status === "declined"
+    const reference = retreatReference(booking.booking_number) || "this booking"
+    const progress = retreatProgress(activity.get(booking.id) ?? [], booking)
+    const outstanding = Math.max(0, progress.due - progress.received + progress.refunded)
+    if (restoring && !window.confirm(
+      `IMPORTANT: ${booking.first_name || "This applicant"} is currently DECLINED. Restore ${reference} to Pending and send an actual payment request to ${booking.email || "the applicant"}? This reverses the decline status and may need a personal follow-up.`
+    )) return
+    if (!restoring && !window.confirm(
+      `Send a payment request to ${booking.email || "the applicant"} for ${reference}? The system will use the verified outstanding amount and email the secure payment link. This is a real email, not a tracker note.`
+    )) return
+    startTransition(async () => {
+      setRowMessage(booking.id, { type: "success", text: "Sending payment request… Please do not click again." })
+      try {
+        const result = await sendFamilyRetreatPaymentRequest(booking.id, { restoreDeclined: restoring })
+        setRowMessage(booking.id, { type: result.emailStatus === "sent" ? "success" : "error", text: result.detail })
+      } catch (error) {
+        setRowMessage(booking.id, {
+          type: "error", text: error instanceof Error ? error.message : "Payment email could not be sent.",
+        })
+      }
+    })
+  }
+
   function handleWaitlist(booking: FamilyRetreatBooking) {
     run(booking.id, () => updateFamilyRetreatStatus(booking.id, "waitlisted"), "Application waitlisted.")
   }
@@ -607,7 +632,13 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                                 </Button>
                               </>
                             )}
-                            <Button size="sm" variant="outline" title="Log a reminder you have already sent outside the dashboard" disabled={isPending || paid || !!progress.refunded} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged. No email was sent.')}>Log reminder sent</Button>
+                            {!paid && booking.status !== "archived" && (
+                              <Button size="sm" className="bg-[#123b2a] text-white hover:bg-[#1e5840]" disabled={isPending || !booking.email || !!progress.refunded}
+                                onClick={() => handleSendPaymentRequest(booking)}>
+                                <Mail className="mr-1.5 h-4 w-4" />{booking.status === "declined" ? "Restore & send payment email" : "Send / resend payment email"}
+                              </Button>
+                            )}
+                            <Button size="sm" variant="outline" title="Only log a reminder already sent by phone, WhatsApp or email outside the dashboard" disabled={isPending || paid || !!progress.refunded} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged only. No email sent.')}>Log external reminder</Button>
                             {booking.stripe_payment_link_id && <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check Stripe payment</Button>}
                             {!manualFlow && <Button size="sm" variant="outline" onClick={() => { setActiveAdditionalRow(booking.id); setActiveConfirmRow(null) }} disabled={isPending || manualFlow}><Wallet className="h-3.5 w-3.5 mr-1" />Additional charge</Button>}
                             <Button size="sm" variant="outline" onClick={() => handleArchive(booking)} disabled={isPending}><Archive className="h-3.5 w-3.5 mr-1" />Archive</Button>
