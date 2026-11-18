@@ -624,58 +624,20 @@ export async function logFamilyRetreatReminder(id: string) {
 async function createFamilyRetreatProviderCheckout(input: {
   id: string; reference: string; email: string; amountPence: number
 }): Promise<string> {
-  const key = (process.env.NOWDONATE_API_KEY || "").trim()
-  if (!key || !NOWDONATE_CONFIRM_CHECKOUT_ID)
-    throw new Error("Donation Manager checkout configuration is incomplete.")
-  const params = new URLSearchParams({
-    key,
-    checkout: NOWDONATE_CONFIRM_CHECKOUT_ID,
-    currency: "GBP",
+  if (!NOWDONATE_CONFIRM_CHECKOUT_ID) {
+    throw new Error("The retreat checkout ID is not configured.")
+  }
+  // Restore the existing working NowDonate checkout URL used before the
+  // Checkout API refactor. Checkout API creation is NOT needed to send email.
+  // Use only a configured provider checkout ID and server-calculated amount.
+  return buildNowDonateCheckoutUrl(NOWDONATE_CONFIRM_CHECKOUT_ID, {
     amount: (input.amountPence / 100).toFixed(2),
-    repeat: "o",
     reference: input.reference,
     custom: input.reference,
     prefilled_email: input.email,
-    comment: "Sikh Family Retreat payment – " + input.reference,
     success_url: SITE_URL + "/sfr?paid=1",
     cancel_url: SITE_URL + "/sfr",
   })
-  const response = await fetch(
-    "https://www.donationmanager.co.uk/services/api/checkout/?" + params.toString(),
-    { cache: "no-store", signal: AbortSignal.timeout(12000) },
-  )
-  if (!response.ok) throw new Error("Donation Manager could not create the payment checkout.")
-  const raw = await response.text()
-  let result: unknown
-  try { result = JSON.parse(raw) } catch {
-    console.error("[family-retreat] Provider checkout returned non-JSON", {
-      status: response.status, contentType: response.headers.get("content-type"),
-    })
-    throw new Error("Donation Manager checkout returned an unexpected response. No email was sent.")
-  }
-  const record = result && typeof result === "object" ? result as Record<string, unknown> : {}
-  // Checkout API responses vary between JSON objects and nested result/data wrappers.
-  // Only use a verified HTTPS link on the checkout provider's domains.
-  const nested = record.data && typeof record.data === "object"
-    ? record.data as Record<string, unknown> : {}
-  const link = [record.url, record.checkout_url, record.checkoutUrl, record.link,
-    nested.url, nested.checkout_url, nested.checkoutUrl, nested.link]
-    .find((value): value is string => typeof value === "string" && value.startsWith("https://"))
-  if (!link) {
-    console.error("[family-retreat] Provider checkout link absent", {
-      status: response.status,
-      providerStatus: typeof record.status === "string" ? record.status : null,
-      responseKeys: Object.keys(record).slice(0, 12),
-    })
-    throw new Error("Donation Manager did not return a usable checkout link. No email was sent.")
-  }
-  const url = new URL(link)
-  if (url.protocol !== "https:" ||
-    !(url.hostname === "nowdonate.com" || url.hostname.endsWith(".nowdonate.com") ||
-      url.hostname === "donationmanager.co.uk" || url.hostname.endsWith(".donationmanager.co.uk"))) {
-    throw new Error("Donation Manager returned an unexpected checkout destination.")
-  }
-  return url.toString()
 }
 
 export async function sendFamilyRetreatPaymentRequest(
