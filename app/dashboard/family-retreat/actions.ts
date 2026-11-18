@@ -327,30 +327,16 @@ export async function updateFamilyRetreatStatus(
 
   let notify: (() => Promise<void>) | undefined
   let emailStatus: "sent" | "failed" | "not_requested" = "not_requested"
-  if (status === 'confirmed' && !details?.amount && booking.booking_details && !booking.nowdonate_payment_url && !booking.stripe_payment_link_id) {
-    const [{ data: request, error: requestError }, { data: receipts, error: receiptsError }] = await Promise.all([
-      supabase.from('family_retreat_tracker').select('amount_pence').eq('booking_id', id).eq('action', 'link_sent').order('id', { ascending: false }).limit(1).maybeSingle(),
-      supabase.from('family_retreat_tracker').select('amount_pence, action').eq('booking_id', id).in('action', ['payment', 'refund_recorded']),
-    ])
-    const received = (receipts ?? []).reduce((total, row) => total + (row.action === 'payment' ? Number(row.amount_pence) : 0), 0)
-    const refunded = (receipts ?? []).reduce((total, row) => total + (row.action === 'refund_recorded' ? Number(row.amount_pence) : 0), 0)
-    if (requestError || receiptsError || !request?.amount_pence || received < Number(request.amount_pence) || received <= refunded)
-      throw new Error('Verify full payment before confirming this booking.')
-  }
   // Online SFR bookings must have a provider-verified receipt before staff can
   // confirm a place. A note saying "link sent" is not payment evidence.
   if (status === "confirmed" && booking.booking_details) {
-    const { data: verifiedReceipts, error: receiptError } = await supabase
-      .from("recovery_payment_ledger")
-      .select("amount, currency, payment_status")
-      .eq("source", "donation_manager")
-      .eq("linked_record_type", "family_retreat_booking")
-      .eq("linked_record_id", id)
-    if (receiptError) throw new Error("Unable to check Donation Manager receipts before confirmation.")
-    const verifiedPence = (verifiedReceipts || [])
-      .filter(receipt => receipt.currency?.toUpperCase() === "GBP" &&
-        ["paid", "completed", "received", "succeeded"].includes(String(receipt.payment_status).toLowerCase()))
-      .reduce((total, receipt) => total + Math.round(Number(receipt.amount || 0) * 100), 0)
+    const bookingRecord = await supabase.from("family_retreat_bookings")
+      .select("booking_number").eq("id", id).single()
+    const reference = retreatReference(bookingRecord.data?.booking_number)
+    if (!reference) throw new Error("Booking reference unavailable; cannot verify payment.")
+    const verifiedReceipts = await verifiedFamilyDonationReceipts(supabase, id, reference)
+    const verifiedPence = verifiedReceipts.reduce(
+      (total, receipt) => total + Math.round(Number(receipt.amount || 0) * 100), 0)
     const duePence = Math.round(Number(booking.amount_due || 0) * 100)
     if (duePence <= 0 || verifiedPence < duePence) {
       throw new Error("Payment not verified in Devanhaar. Confirm the Donation Manager receipt is recorded and covers the agreed amount before confirming this booking.")
@@ -758,6 +744,54 @@ export async function sendFamilyRetreatPaymentRequest(
  * Finds verified Donation Manager receipts already ingested via the signed
  * webhook or a verified import. This does not query provider servers.
  */
+
+type DonationEvidence = {
+  source_record_id: string
+  amount: number | null
+  currency: string | null
+  payment_status: string | null
+  linked_record_id: string | null
+  payment_reference: string | null
+  occurred_at: string | null
+}
+
+async function verifiedFamilyDonationReceipts(
+  supabase: Awaited<ReturnType<typeof getSupabaseAdmin>>,
+  id: string,
+  reference: string,
+): Promise<DonationEvidence[]> {
+  // Check both provider receipts linked to this booking AND receipts that only
+  // carry the human-readable SFR number. Do not count the same transaction twice.
+  const select = "source_record_id, amount, currency, payment_status, linked_record_id, payment_reference, occurred_at"
+  const [linked, referenced] = await Promise.all([
+    supabase.from("recovery_payment_ledger").select(select)
+      .eq("source", "donation_manager").eq("linked_record_type", "family_retreat_booking")
+      .eq("linked_record_id", id),
+    supabase.from("recovery_payment_ledger").select(select)
+      .eq("source", "donation_manager").ilike("payment_reference", reference),
+  ])
+  if (linked.error || referenced.error)
+    throw new Error("Could not read Donation Manager receipts from Devanhaar.")
+  const unique = new Map<string, DonationEvidence>()
+  for (const raw of [...(linked.data || []), ...(referenced.data || [])]) {
+    const receipt = raw as DonationEvidence
+    const providerId = String(receipt.source_record_id || "").trim()
+    if (!providerId) continue
+    const belongsHere = receipt.linked_record_id === id
+      || (!receipt.linked_record_id && receipt.payment_reference?.toUpperCase() === reference.toUpperCase())
+    if (!belongsHere) continue
+    if (String(receipt.currency || "").toUpperCase() !== "GBP") continue
+    if (!["paid", "completed", "received", "succeeded"].includes(String(receipt.payment_status || "").toLowerCase())) continue
+    if (!(Number(receipt.amount) > 0)) continue
+    unique.set(providerId, receipt)
+  }
+  return Array.from(unique.values())
+}
+
+/**
+ * Read-only lookup against provider records that have actually reached the
+ * Devanhaar database. It is NOT a live Donation Manager transaction API call.
+ */
 export async function checkFamilyRetreatProviderPayment(id: string): Promise<{
   verified: boolean; amountPaid: number; outstanding: number; detail: string
 }> {
@@ -766,34 +800,34 @@ export async function checkFamilyRetreatProviderPayment(id: string): Promise<{
     .from("family_retreat_bookings")
     .select("id, booking_number, amount_due, amount_paid, payment_status")
     .eq("id", id).single()
-  if (lookupError || !booking) throw new Error("Booking not found")
+  if (lookupError || !booking) throw new Error("Booking not found.")
   const reference = retreatReference(booking.booking_number)
-  if (!reference) throw new Error("The booking reference is missing")
-  const { data: receipts, error } = await supabase
-    .from("recovery_payment_ledger")
-    .select("source_record_id, amount, currency, payment_status, linked_record_id, payment_reference")
-    .eq("source", "donation_manager")
-    .eq("linked_record_type", "family_retreat_booking")
-    .eq("linked_record_id", id)
-  if (error) throw new Error("Could not check verified payment records: " + error.message)
-  const valid = (receipts || []).filter(row =>
-    row.currency?.toUpperCase() === "GBP" &&
-    ["paid", "completed", "received", "succeeded"].includes(String(row.payment_status).toLowerCase()) &&
-    (row.payment_reference === reference || row.linked_record_id === id) &&
-    typeof row.source_record_id === "string" && row.source_record_id.length > 0
-  )
-  const amountPaidPence = valid.reduce((sum, row) => sum + Math.round(Number(row.amount || 0) * 100), 0)
+  if (!reference) throw new Error("The booking reference is missing.")
+  const receipts = await verifiedFamilyDonationReceipts(supabase, id, reference)
+  const paidPence = receipts.reduce((sum, r) => sum + Math.round(Number(r.amount) * 100), 0)
   const duePence = Math.round(Number(booking.amount_due || 0) * 100)
-  const outstandingPence = Math.max(0, duePence - amountPaidPence)
-  const verified = valid.length > 0 && duePence > 0 && outstandingPence === 0
+  const outstandingPence = Math.max(0, duePence - paidPence)
+  const verified = receipts.length > 0 && duePence > 0 && outstandingPence === 0
+
+  if (receipts.length > 0 && (Math.round(Number(booking.amount_paid || 0) * 100) !== paidPence
+    || booking.payment_status !== (verified ? "paid" : "unpaid"))) {
+    const { error: updateError } = await supabase.from("family_retreat_bookings")
+      .update({
+        amount_paid: paidPence / 100,
+        payment_status: verified ? "paid" : "unpaid",
+        ...(verified ? { paid_at: receipts
+          .map(r => r.occurred_at).filter((v): v is string => Boolean(v)).sort().at(-1) || new Date().toISOString() } : {}),
+      }).eq("id", id)
+    if (updateError) throw new Error("Payment record matched, but booking status could not be updated.")
+    revalidatePath("/dashboard/family-initiative/retreat")
+  }
+
   return {
-    verified,
-    amountPaid: amountPaidPence / 100,
-    outstanding: outstandingPence / 100,
-    detail: !valid.length
-      ? `No verified Donation Manager receipt has reached Devanhaar for ${reference}. The applicant may have paid, but this dashboard cannot yet prove it. Check the webhook/integration rather than marking paid.`
+    verified, amountPaid: paidPence / 100, outstanding: outstandingPence / 100,
+    detail: receipts.length === 0
+      ? `No completed provider transaction is currently recorded in Devanhaar for ${reference}. The payment has not been disproved; this check cannot query Donation Manager directly. Provider notification or historical receipt import is required.`
       : verified
-        ? `Verified ${valid.length} Donation Manager receipt(s) against ${reference}; paid ${formatGbp(amountPaidPence / 100)}. The booking can now be reviewed for confirmation.`
-        : `A verified Donation Manager receipt was found for ${reference}, but only ${formatGbp(amountPaidPence / 100)} of ${formatGbp(duePence / 100)} has been matched.`,
+        ? `Matched ${receipts.length} Donation Manager transaction(s) for ${reference}. ${formatGbp(paidPence / 100)} received; no balance outstanding. You can now review and confirm the booking.`
+        : `Found ${receipts.length} completed provider transaction(s) for ${reference}: ${formatGbp(paidPence / 100)} received, ${formatGbp(outstandingPence / 100)} still outstanding.`,
   }
 }
