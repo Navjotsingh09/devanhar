@@ -611,6 +611,11 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                         </TableCell>
                         <TableCell>
                           <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusPill(booking.status)}`}>{booking.status}</span>
+                          {booking.status === "confirmed" && !paid && (
+                            <div className="mt-1 max-w-[180px] text-xs font-semibold text-amber-800" role="status">
+                              Payment outstanding — place confirmed, payment not verified
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${paymentPill(paid ? 'paid' : 'unpaid')}`}>{paymentLabel}</span>
