@@ -136,6 +136,54 @@ export async function POST(request: Request) {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
+    // Current SFR checkout emails include the visible SFR reference. Match
+    // the provider's completed donation to the booking number, including when
+    // the family typed their reference into the donation message.
+    const fields = [
+      payload?.reference, payload?.custom, payload?.message, payload?.donation_message,
+      payload?.donation?.message, payload?.donation?.reference,
+      payload?.data?.message, payload?.data?.reference,
+      payload?.data?.donation?.message, payload?.data?.donation?.reference,
+    ].filter((value): value is string => typeof value === 'string')
+    const sfrNumbers = [...new Set(fields.flatMap(value =>
+      (value.match(/\\bSFR[-\\s#]*0*[0-9]{1,10}\\b/gi) || []).map(match => Number(match.replace(/[^0-9]/g, '')))
+    ))].filter(number => Number.isSafeInteger(number) && number > 0)
+    if (sfrNumbers.length === 1) {
+      if (!webhookSecret) return json({ error: "SFR payment verification is not configured" }, 503)
+      const transactionId = getReferenceId(payload)
+      const amountPounds = getAmountPounds(payload)
+      if (!transactionId || !(amountPounds > 0)) return json({ error: "Missing verified transaction ID or amount" }, 422)
+      const { data: booking, error: lookupError } = await supabase
+        .from('family_retreat_bookings')
+        .select('id, status, booking_number, amount_due')
+        .eq('booking_number', sfrNumbers[0]).maybeSingle()
+      if (lookupError || !booking || ['declined', 'archived'].includes(booking.status)) {
+        return json({ error: "Active SFR booking not found" }, 422)
+      }
+      const { error: ledgerError } = await supabase.from('recovery_payment_ledger')
+        .upsert({
+          source: 'donation_manager', source_record_id: String(transactionId),
+          occurred_at: new Date().toISOString(), amount: amountPounds, currency: 'GBP',
+          payment_status: 'paid', payment_reference: 'SFR-' + String(sfrNumbers[0]).padStart(4, '0'),
+          description: 'Sikh Family Retreat – authenticated NowDonate receipt',
+          linked_record_type: 'family_retreat_booking', linked_record_id: booking.id,
+        }, { onConflict: 'source,source_record_id', ignoreDuplicates: true })
+      if (ledgerError) return json({ error: "Could not record verified transaction" }, 500)
+      const { data: receipts, error: receiptsError } = await supabase.from('recovery_payment_ledger')
+        .select('amount').eq('source', 'donation_manager')
+        .eq('linked_record_type', 'family_retreat_booking').eq('linked_record_id', booking.id)
+        .eq('payment_status', 'paid')
+      if (receiptsError) return json({ error: "Could not read verified transactions" }, 500)
+      const total = (receipts || []).reduce((sum, row) => sum + Number(row.amount || 0), 0)
+      const due = Number(booking.amount_due || 0)
+      const { error: updateError } = await supabase.from('family_retreat_bookings')
+        .update({ amount_paid: total, payment_status: due > 0 && total >= due ? 'paid' : 'unpaid',
+          ...(due > 0 && total >= due ? { paid_at: new Date().toISOString() } : {}) })
+        .eq('id', booking.id)
+      if (updateError) return json({ error: "Could not update booking payment" }, 500)
+      return json({ status: "reconciled", reference: 'SFR-' + String(sfrNumbers[0]).padStart(4, '0') })
+    }
+
     // Extract booking ID from custom field; fall back to email lookup for direct appeal payments
     const bookingId = getBookingId(payload)
 
