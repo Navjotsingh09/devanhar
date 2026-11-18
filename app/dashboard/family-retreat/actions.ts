@@ -729,3 +729,47 @@ export async function sendFamilyRetreatPaymentRequest(
     }
   }
 }
+
+/**
+ * Finds verified Donation Manager receipts already ingested via the signed
+ * webhook or a verified import. This does not query provider servers.
+ */
+export async function checkFamilyRetreatProviderPayment(id: string): Promise<{
+  verified: boolean; amountPaid: number; outstanding: number; detail: string
+}> {
+  const supabase = await getSupabaseAdmin()
+  const { data: booking, error: lookupError } = await supabase
+    .from("family_retreat_bookings")
+    .select("id, booking_number, amount_due, amount_paid, payment_status")
+    .eq("id", id).single()
+  if (lookupError || !booking) throw new Error("Booking not found")
+  const reference = retreatReference(booking.booking_number)
+  if (!reference) throw new Error("The booking reference is missing")
+  const { data: receipts, error } = await supabase
+    .from("recovery_payment_ledger")
+    .select("source_record_id, amount, currency, payment_status, linked_record_id, payment_reference")
+    .eq("source", "donation_manager")
+    .eq("linked_record_type", "family_retreat_booking")
+    .eq("linked_record_id", id)
+  if (error) throw new Error("Could not check verified payment records: " + error.message)
+  const valid = (receipts || []).filter(row =>
+    row.currency?.toUpperCase() === "GBP" &&
+    ["paid", "completed", "received", "succeeded"].includes(String(row.payment_status).toLowerCase()) &&
+    (row.payment_reference === reference || row.linked_record_id === id) &&
+    typeof row.source_record_id === "string" && row.source_record_id.length > 0
+  )
+  const amountPaidPence = valid.reduce((sum, row) => sum + Math.round(Number(row.amount || 0) * 100), 0)
+  const duePence = Math.round(Number(booking.amount_due || 0) * 100)
+  const outstandingPence = Math.max(0, duePence - amountPaidPence)
+  const verified = valid.length > 0 && duePence > 0 && outstandingPence === 0
+  return {
+    verified,
+    amountPaid: amountPaidPence / 100,
+    outstanding: outstandingPence / 100,
+    detail: !valid.length
+      ? `No verified Donation Manager receipt has reached Devanhaar for ${reference}. The applicant may have paid, but this dashboard cannot yet prove it. Check the webhook/integration rather than marking paid.`
+      : verified
+        ? `Verified ${valid.length} Donation Manager receipt(s) against ${reference}; paid ${formatGbp(amountPaidPence / 100)}. The booking can now be reviewed for confirmation.`
+        : `A verified Donation Manager receipt was found for ${reference}, but only ${formatGbp(amountPaidPence / 100)} of ${formatGbp(duePence / 100)} has been matched.`,
+  }
+}
