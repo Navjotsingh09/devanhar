@@ -138,7 +138,7 @@ function getFamilyRetreatReference(payload: unknown): string | null {
     'reference', 'custom', 'message', 'donation_message', 'donormessage',
     'donor_message', 'notes', 'comment', 'description', 'payment_reference',
   ])
-  const matches = [...new Set(fields.flatMap(text => text.match(/\\bSFR[-\\s#]*0*[0-9]{1,10}\\b/gi) || []).map(text => text.replace(/[^0-9]/g, '')).filter(Boolean))]
+  const matches = [...new Set(fields.flatMap(text => text.match(/\bSFR[-\s#]*0*[0-9]{1,10}\b/gi) || []).map(text => text.replace(/[^0-9]/g, '')).filter(Boolean))]
   return matches.length === 1 ? 'SFR-' + matches[0].padStart(4, '0') : null
 }
 
