@@ -657,9 +657,9 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               </Button>
                             )}
                             <Button type="button" size="sm" variant="outline" disabled={isPending}
-                              title="Check verified Donation Manager transactions received by Devanhaar"
+                              title="Check payment receipts received by Devanhaar"
                               onClick={() => checkProviderReceipt(booking)}>
-                              <RefreshCw className="mr-1.5 h-4 w-4" />Check Donation Manager receipt
+                              <RefreshCw className="mr-1.5 h-4 w-4" />Check payment status
                             </Button>
                             <Button size="sm" variant="outline" title="Only log a reminder already sent by phone, WhatsApp or email outside the dashboard" disabled={isPending || paid || !!progress.refunded} onClick={() => run(booking.id, () => logFamilyRetreatReminder(booking.id), 'Reminder logged only. No email sent.')}>Log external reminder</Button>
                             {booking.stripe_payment_link_id && <Button size="sm" variant="outline" onClick={() => handleSyncPayment(booking)} disabled={isPending}><RefreshCw className="h-3.5 w-3.5 mr-1" />Check Stripe payment</Button>}
