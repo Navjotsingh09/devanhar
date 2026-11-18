@@ -641,7 +641,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               <span className="inline-flex items-center rounded-full bg-emerald-100 text-emerald-800 px-2.5 py-1 text-xs font-medium">Paid</span>
                             ) : (
                               <>
-                                {!manualFlow && <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || manualFlow || booking.status === "declined" || booking.status === "archived"}>
+                                {!manualFlow && !booking.booking_details && <Button size="sm" variant="outline" onClick={() => { setActiveConfirmRow(booking.id); setActiveAdditionalRow(null) }} disabled={isPending || manualFlow || booking.status === "declined" || booking.status === "archived"}>
                                   <CheckCircle className="h-3.5 w-3.5 mr-1" />Confirm
                                 </Button>}
                                 <Button size="sm" variant="outline" onClick={() => handleWaitlist(booking)} disabled={isPending || booking.status === "declined" || booking.status === "archived"}>Waitlist</Button>
