@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
     event = resend.webhooks.verify({
       payload: await request.text(),
       headers: {
-        id: request.headers.get("svix-id") || "",
-        timestamp: request.headers.get("svix-timestamp") || "",
-        signature: request.headers.get("svix-signature") || "",
+        "svix-id": request.headers.get("svix-id") || "",
+        "svix-timestamp": request.headers.get("svix-timestamp") || "",
+        "svix-signature": request.headers.get("svix-signature") || "",
       },
-      webhookSecret: secret,
+      secret,
     }) as typeof event
   } catch {
     return new NextResponse("Invalid signature", { status: 400 })
