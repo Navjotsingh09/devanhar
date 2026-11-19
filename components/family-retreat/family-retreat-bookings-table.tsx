@@ -815,8 +815,8 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               </div>
                               {!emailLoading && (emailHistory[booking.id] || []).length > 0 && <div className="flex flex-wrap gap-3 text-sm">
                                 <span><strong>{(emailHistory[booking.id] || []).length}</strong> attempts</span>
-                                <span><strong>{(emailHistory[booking.id] || []).filter(item => ["sent", "accepted", "delivered", "delayed"].includes(item.status)).length}</strong> accepted/sent</span>
-                                <span><strong>{(emailHistory[booking.id] || []).filter(item => ["failed", "bounced", "complained"].includes(item.status)).length}</strong> failed/bounced</span>
+                                <span><strong>{(emailHistory[booking.id] || []).filter(item => ["sent", "accepted", "delivered", "delayed", "clicked", "opened"].includes(item.status)).length}</strong> accepted/sent</span>
+                                <span><strong>{(emailHistory[booking.id] || []).filter(item => ["failed", "bounced", "complained", "suppressed", "canceled"].includes(item.status)).length}</strong> failed/bounced</span>
                                 <span><strong>{(emailHistory[booking.id] || []).reduce((sum,item) => sum + item.click_count, 0)}</strong> payment-link visits</span>
                               </div>}
                               {emailLoading ? <p className="text-sm">Loading history…</p> : (emailHistory[booking.id] || []).length === 0
