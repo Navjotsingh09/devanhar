@@ -19,6 +19,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import {
   removeFamilyRetreatBooking,
   addFamilyRetreatCamper,
+  getFamilyRetreatNotes,
+  addFamilyRetreatHistoryNote,
+  type FamilyRetreatHistoryNote,
   logFamilyRetreatReminder,
   checkFamilyRetreatProviderPayment,
   sendFamilyRetreatPaymentRequest,
@@ -294,6 +297,11 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   const [activeConfirmRow, setActiveConfirmRow] = useState<string | null>(null)
   const [activeAdditionalRow, setActiveAdditionalRow] = useState<string | null>(null)
   const [activeCamperRow, setActiveCamperRow] = useState<string | null>(null)
+  const [activeNotesRow, setActiveNotesRow] = useState<string | null>(null)
+  const [notesHistory, setNotesHistory] = useState<Record<string, FamilyRetreatHistoryNote[]>>({})
+  const [noteKind, setNoteKind] = useState<"staff" | "client">("staff")
+  const [newNote, setNewNote] = useState("")
+  const [noteLoading, setNoteLoading] = useState(false)
   const [camperType, setCamperType] = useState<"adult" | "child">("adult")
   const [camperFirstName, setCamperFirstName] = useState("")
   const [camperLastName, setCamperLastName] = useState("")
@@ -492,6 +500,37 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     )
   }
 
+  async function openNotesHistory(id: string) {
+    if (activeNotesRow === id) { setActiveNotesRow(null); return }
+    setActiveNotesRow(id)
+    setNoteKind("staff")
+    setNewNote("")
+    setNoteLoading(true)
+    try {
+      const history = await getFamilyRetreatNotes(id)
+      setNotesHistory(current => ({ ...current, [id]: history }))
+    } catch (error) {
+      setRowMessage(id, { type: "error", text: error instanceof Error ? error.message : "Could not load notes history." })
+    } finally {
+      setNoteLoading(false)
+    }
+  }
+
+  function saveHistoryNote(id: string) {
+    if (isPending || !newNote.trim()) return
+    startTransition(async () => {
+      try {
+        await addFamilyRetreatHistoryNote(id, noteKind, newNote)
+        const history = await getFamilyRetreatNotes(id)
+        setNotesHistory(current => ({ ...current, [id]: history }))
+        setNewNote("")
+        setRowMessage(id, { type: "success", text: "Note saved to permanent booking history. No payment or booking details changed." })
+      } catch (error) {
+        setRowMessage(id, { type: "error", text: error instanceof Error ? error.message : "Could not save note." })
+      }
+    })
+  }
+
   function openCamperForm(id: string) {
     setActiveCamperRow(current => current === id ? null : id)
     setActiveAdditionalRow(null)
@@ -683,6 +722,11 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                         <TableCell className="text-xs text-muted-foreground">{retreatSubmittedAt(booking.created_at)}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
+                            <Button type="button" size="sm" variant="outline"
+                              aria-expanded={activeNotesRow === booking.id} disabled={isPending}
+                              onClick={() => openNotesHistory(booking.id)}>
+                              {activeNotesRow === booking.id ? "Hide notes history" : "Staff & client notes"}
+                            </Button>
                             {booking.booking_details && !['archived', 'declined'].includes(booking.status) && (
                               <Button type="button" size="sm" variant="outline"
                                 aria-expanded={activeCamperRow === booking.id}
@@ -735,6 +779,61 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                           </div>
                         </TableCell>
                       </TableRow>
+
+                      {activeNotesRow === booking.id && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="bg-slate-50/60">
+                            <section className="max-w-4xl space-y-4 rounded-xl border bg-white p-4" aria-label="Booking notes history">
+                              <div>
+                                <h3 className="font-semibold text-[#142e45]">Staff & client notes history · {reference}</h3>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Permanent, timestamped staff records. Client conversation notes are recorded by staff, not written by the applicant.
+                                </p>
+                              </div>
+                              <div className="space-y-3 rounded-lg border p-3">
+                                <label className="block text-sm font-medium">Note category
+                                  <select className="mt-1 w-full max-w-xs rounded-md border bg-white px-3 py-2 text-sm"
+                                    value={noteKind} onChange={event => setNoteKind(event.target.value as "staff" | "client")}>
+                                    <option value="staff">Staff note (internal)</option>
+                                    <option value="client">Client conversation note (staff-recorded)</option>
+                                  </select>
+                                </label>
+                                <label className="block text-sm font-medium">
+                                  {noteKind === "staff" ? "Staff note" : "What the client communicated"}
+                                  <Textarea className="mt-1" rows={3} maxLength={3000} value={newNote}
+                                    onChange={event => setNewNote(event.target.value)}
+                                    placeholder={noteKind === "staff" ? "Record internal planning, arrangements or follow-ups…" : "Record what the client said, requested or confirmed…"} />
+                                </label>
+                                <Button type="button" size="sm" disabled={isPending || !newNote.trim()}
+                                  onClick={() => saveHistoryNote(booking.id)}> {isPending ? "Saving…" : "Save note to history"} </Button>
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-semibold">Notes history</h4>
+                                {noteLoading ? <p className="mt-2 text-sm text-muted-foreground">Loading notes…</p> : (
+                                  <ol className="mt-2 space-y-2">
+                                    {(notesHistory[booking.id] || []).map(entry => (
+                                      <li key={entry.id} className="rounded-lg border px-3 py-2 text-sm">
+                                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                                          <span className={entry.category === "staff"
+                                            ? "rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-800"
+                                            : "rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-800"}>
+                                            {entry.category === "staff" ? "Staff note · internal" : "Client conversation · staff-recorded"}
+                                          </span>
+                                          <span className="text-muted-foreground">{entry.author} · {retreatSubmittedAt(entry.created_at)}</span>
+                                        </div>
+                                        <p className="mt-1 whitespace-pre-wrap break-words">{entry.note}</p>
+                                      </li>
+                                    ))}
+                                    {(notesHistory[booking.id] || []).length === 0 && (
+                                      <li className="text-sm text-muted-foreground">No separate notes saved yet. Previous conversations remain in the tracker activity history.</li>
+                                    )}
+                                  </ol>
+                                )}
+                              </div>
+                            </section>
+                          </TableCell>
+                        </TableRow>
+                      )}
 
                       {activeCamperRow === booking.id && (
                         <TableRow>
