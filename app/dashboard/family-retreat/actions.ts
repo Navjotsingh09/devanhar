@@ -876,7 +876,12 @@ export async function sendFamilyRetreatPaymentRequest(
   const attemptId = randomUUID()
   const clickToken = randomUUID() + randomUUID().replace(/-/g, "")
   const trackedPaymentUrl = (SITE_URL.endsWith("/") ? SITE_URL.slice(0, -1) : SITE_URL) + "/api/sfr/payment-click/" + clickToken
+  const { data: { user: auditUser }, error: auditAuthError } = await supabase.auth.getUser()
+  if (auditAuthError || !auditUser) {
+    return { emailStatus: "failed", detail: "Your staff session could not be verified. Please sign in again; no email was sent.", reference }
+  }
   const { error: attemptError } = await supabase.from("activity_log").insert({
+    admin_id: auditUser.id,
     action: "family_retreat_payment_email_attempt",
     entity_type: "family_retreat_booking", entity_id: id,
     metadata: {
@@ -928,11 +933,13 @@ export async function sendFamilyRetreatPaymentRequest(
       payment_reminder_sent_at: new Date().toISOString(),
       amount_due: agreedPence / 100,
     }).eq("id", id)
-    await supabase.from("activity_log").insert({
+    const { error: acceptedLogError } = await supabase.from("activity_log").insert({
+      admin_id: auditUser.id,
       action: "family_retreat_payment_request_email_accepted",
       entity_type: "family_retreat_booking", entity_id: id,
       metadata: { attempt_id: attemptId, recipient: booking.email, reference, amount_pence: outstandingPence, provider: "nowdonate", email_id: result.data.id, tracking_saved: !saveError },
     })
+    if (acceptedLogError) console.error("[family-retreat] email accepted but audit log failed", { bookingId: id, code: acceptedLogError.code })
     revalidatePath("/dashboard/family-initiative/retreat")
     return {
       emailStatus: "sent",
@@ -943,11 +950,13 @@ export async function sendFamilyRetreatPaymentRequest(
     }
   } catch (error) {
     console.error("[family-retreat] payment request email failed", { bookingId: id, error })
-    await supabase.from("activity_log").insert({
+    const { error: failedLogError } = await supabase.from("activity_log").insert({
+      admin_id: auditUser.id,
       action: "family_retreat_payment_request_email_failed",
       entity_type: "family_retreat_booking", entity_id: id,
       metadata: { attempt_id: attemptId, recipient: booking.email, reference, amount_pence: outstandingPence, reason: error instanceof Error ? error.message.slice(0, 180) : "unknown" },
     })
+    if (failedLogError) console.error("[family-retreat] failed email audit log write", { bookingId: id, code: failedLogError.code })
     revalidatePath("/dashboard/family-initiative/retreat")
     return {
       emailStatus: "failed",
