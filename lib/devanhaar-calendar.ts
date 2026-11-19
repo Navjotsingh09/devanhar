@@ -54,9 +54,19 @@ function parseDate(spec: { key: string; val: string } | null): { date: Date; all
   const [, y, mo, d, hh, mm, ss, utc] = hit
   const allDay = !hh || spec.key.includes("VALUE=DATE;") || spec.key.endsWith("VALUE=DATE")
   const tzMatch = /TZID="?([^;"]+)/.exec(spec.key)
+  // Outlook sometimes exports a Windows timezone name rather than an IANA identifier.
+  const timezoneAliases: Record<string, string> = {
+    "GMT STANDARD TIME": "Europe/London",
+    "GREENWICH STANDARD TIME": "Atlantic/Reykjavik",
+    "W. EUROPE STANDARD TIME": "Europe/Berlin",
+    "CENTRAL EUROPE STANDARD TIME": "Europe/Budapest",
+    "EASTERN STANDARD TIME": "America/New_York",
+    "PACIFIC STANDARD TIME": "America/Los_Angeles",
+  }
+  const timezone = tzMatch ? (timezoneAliases[tzMatch[1].toUpperCase()] || tzMatch[1]) : null
   let epoch = Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(hh || 0), Number(mm || 0), Number(ss || 0))
-  if (hh && !utc && tzMatch) {
-    try { epoch = zonedEpoch(Number(y), Number(mo), Number(d), Number(hh), Number(mm), Number(ss || 0), tzMatch[1]) }
+  if (hh && !utc && timezone) {
+    try { epoch = zonedEpoch(Number(y), Number(mo), Number(d), Number(hh), Number(mm), Number(ss || 0), timezone) }
     catch { /* Unknown Outlook timezone: display the supplied wall clock in UTC rather than inventing an offset. */ }
   }
   const date = new Date(epoch)
