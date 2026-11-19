@@ -5,6 +5,7 @@ import { retreatMoney, retreatProgress, type RetreatTrackerEvent } from "@/lib/f
 import { RetreatBookingTracker } from './family-retreat-tracker'
 import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { Archive, CheckCircle, Download, RefreshCw, Search, Trash2, Wallet, XCircle, Mail, AlertTriangle } from "lucide-react"
 
@@ -17,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   removeFamilyRetreatBooking,
+  addFamilyRetreatCamper,
   logFamilyRetreatReminder,
   checkFamilyRetreatProviderPayment,
   sendFamilyRetreatPaymentRequest,
@@ -286,6 +288,16 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   // Guardrail: keep one inline panel open at a time to prevent overlapping controls.
   const [activeConfirmRow, setActiveConfirmRow] = useState<string | null>(null)
   const [activeAdditionalRow, setActiveAdditionalRow] = useState<string | null>(null)
+  const [activeCamperRow, setActiveCamperRow] = useState<string | null>(null)
+  const [camperType, setCamperType] = useState<"adult" | "child">("adult")
+  const [camperFirstName, setCamperFirstName] = useState("")
+  const [camperLastName, setCamperLastName] = useState("")
+  const [camperAge, setCamperAge] = useState("")
+  const [camperDob, setCamperDob] = useState("")
+  const [camperConsent, setCamperConsent] = useState(false)
+  const [camperDietary, setCamperDietary] = useState("")
+  const [camperMedical, setCamperMedical] = useState("")
+  const router = useRouter()
 
   const [confirmAdults, setConfirmAdults] = useState<Record<string, string>>({})
   const [confirmAmount, setConfirmAmount] = useState<Record<string, string>>({})
@@ -475,6 +487,42 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
     )
   }
 
+  function openCamperForm(id: string) {
+    setActiveCamperRow(current => current === id ? null : id)
+    setActiveAdditionalRow(null)
+    setActiveConfirmRow(null)
+    setCamperType("adult")
+    setCamperFirstName("")
+    setCamperLastName("")
+    setCamperAge("")
+    setCamperDob("")
+    setCamperConsent(false)
+    setCamperDietary("")
+    setCamperMedical("")
+  }
+
+  function saveCamper(booking: FamilyRetreatBooking) {
+    startTransition(async () => {
+      try {
+        const result = await addFamilyRetreatCamper(booking.id, {
+          type: camperType,
+          firstName: camperFirstName,
+          lastName: camperLastName,
+          ...(camperType === "adult"
+            ? { age: Number(camperAge) }
+            : { dateOfBirth: camperDob, guardianConsent: camperConsent }),
+          dietaryNotes: camperDietary,
+          medicalNotes: camperMedical,
+        })
+        setActiveCamperRow(null)
+        setRowMessage(booking.id, { type: "success", text: `Camper details saved to this booking. Total recorded campers: ${result.totalCampers}. Payment and booking status unchanged.` })
+        router.refresh()
+      } catch (error) {
+        setRowMessage(booking.id, { type: "error", text: error instanceof Error ? error.message : "Could not save camper details." })
+      }
+    })
+  }
+
   function handleArchive(booking: FamilyRetreatBooking) {
     if (!window.confirm("Archive this application?")) return
     run(booking.id, () => removeFamilyRetreatBooking(booking.id, "archive"), "Application archived.")
@@ -585,10 +633,10 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                             <p>{details.title ? `${details.title} · ` : ''}Adult age: {details.age}</p>
                             <p>Address: {details.address}, {booking.city}, {booking.postcode}, {booking.country}</p>
                             {adults.map((adult, i) => (
-                              <p key={i}>Adult {i + 1}: {adult.first_name} {adult.last_name} · Age: {adult.age ?? 'Not recorded'}</p>
+                              <p key={i}>Adult {i + 1}: {adult.first_name} {adult.last_name} · Age: {adult.age ?? 'Not recorded'}{(adult as Record<string, unknown>).dietary_notes ? ` · Dietary: ${(adult as Record<string, unknown>).dietary_notes}` : ''}{(adult as Record<string, unknown>).medical_notes ? ` · Medical: ${(adult as Record<string, unknown>).medical_notes}` : ''}</p>
                             ))}
                             {children.map((child, i) => (
-                              <p key={i}>Child or infant {i + 1}: {child.first_name} {child.last_name} · Age at booking: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}</p>
+                              <p key={i}>Child or infant {i + 1}: {child.first_name} {child.last_name} · Age at booking: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}{(child as Record<string, unknown>).dietary_notes ? ` · Dietary: ${(child as Record<string, unknown>).dietary_notes}` : ''}{(child as Record<string, unknown>).medical_notes ? ` · Medical: ${(child as Record<string, unknown>).medical_notes}` : ''}</p>
                             ))}
                             {children.length > 0 && <>
                               <p>Parent or guardian of all children: {details.guardian_of_all ? 'Yes' : 'No'}</p>
@@ -630,6 +678,14 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                         <TableCell className="text-xs text-muted-foreground">{retreatSubmittedAt(booking.created_at)}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
+                            {booking.booking_details && !['archived', 'declined'].includes(booking.status) && (
+                              <Button type="button" size="sm" variant="outline"
+                                aria-expanded={activeCamperRow === booking.id}
+                                disabled={isPending}
+                                onClick={() => openCamperForm(booking.id)}>
+                                {activeCamperRow === booking.id ? "Close camper form" : "Add camper details"}
+                              </Button>
+                            )}
                             {tracker && <Button type="button" size="sm" variant="outline" aria-expanded={trackingRow === booking.id} onClick={() => { setRefundShortcut(0); setTrackingRow(current => current === booking.id ? null : booking.id) }}>
                               {trackingRow === booking.id ? 'Hide tracker' : 'Contact, payment & refunds'}
                             </Button>}
@@ -674,6 +730,63 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                           </div>
                         </TableCell>
                       </TableRow>
+
+                      {activeCamperRow === booking.id && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="bg-blue-50/50">
+                            <div className="max-w-3xl space-y-4 rounded-lg border bg-white p-4">
+                              <div>
+                                <h3 className="font-semibold text-[#142e45]">Add camper to {reference}</h3>
+                                <p className="mt-1 text-xs text-muted-foreground">Add the new camper's details to this existing booking. No payment link, invoice, or email is created.</p>
+                              </div>
+                              <div className="grid gap-3 sm:grid-cols-3">
+                                <label className="text-sm font-medium">Camper type
+                                  <select className="mt-1 w-full rounded-md border bg-white px-3 py-2 text-sm"
+                                    value={camperType} onChange={event => setCamperType(event.target.value as "adult" | "child")}>
+                                    <option value="adult">Adult (18+)</option>
+                                    <option value="child">Child / infant (under 18)</option>
+                                  </select>
+                                </label>
+                                <label className="text-sm font-medium">First name
+                                  <Input className="mt-1" maxLength={100} value={camperFirstName} onChange={event => setCamperFirstName(event.target.value)} />
+                                </label>
+                                <label className="text-sm font-medium">Last name
+                                  <Input className="mt-1" maxLength={100} value={camperLastName} onChange={event => setCamperLastName(event.target.value)} />
+                                </label>
+                                {camperType === "adult" ? (
+                                  <label className="text-sm font-medium">Age
+                                    <Input className="mt-1" type="number" min={18} max={120} value={camperAge} onChange={event => setCamperAge(event.target.value)} />
+                                  </label>
+                                ) : (
+                                  <label className="text-sm font-medium">Date of birth
+                                    <Input className="mt-1" type="date" max={new Date().toISOString().slice(0,10)} value={camperDob} onChange={event => setCamperDob(event.target.value)} />
+                                  </label>
+                                )}
+                              </div>
+                              {camperType === "child" && (
+                                <label className="flex items-start gap-2 text-sm">
+                                  <input type="checkbox" className="mt-1" checked={camperConsent} onChange={event => setCamperConsent(event.target.checked)} />
+                                  I confirm the child's parent or legal guardian has consented to adding this child to the booking.
+                                </label>
+                              )}
+                              <div className="grid gap-3 sm:grid-cols-2">
+                                <label className="text-sm font-medium">Dietary requirements (optional)
+                                  <Textarea className="mt-1" maxLength={1000} rows={2} value={camperDietary} onChange={event => setCamperDietary(event.target.value)} />
+                                </label>
+                                <label className="text-sm font-medium">Medical / accessibility information (optional)
+                                  <Textarea className="mt-1" maxLength={1000} rows={2} value={camperMedical} onChange={event => setCamperMedical(event.target.value)} />
+                                </label>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button size="sm" disabled={isPending || !camperFirstName.trim() || !camperLastName.trim() || (camperType === "child" && (!camperDob || !camperConsent)) || (camperType === "adult" && !camperAge)} onClick={() => saveCamper(booking)}>
+                                  {isPending ? "Saving…" : "Save camper details"}
+                                </Button>
+                                <Button size="sm" variant="outline" disabled={isPending} onClick={() => setActiveCamperRow(null)}>Cancel</Button>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
 
                       {tracker && trackingRow === booking.id && (
                         <TableRow><TableCell colSpan={7} className="whitespace-normal">
