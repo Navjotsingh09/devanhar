@@ -481,6 +481,104 @@ export async function syncFamilyRetreatPayment(id: string): Promise<{ paid: bool
   }
 }
 
+/**
+ * Add an attendee to an existing SFR booking after the organiser agrees extra
+ * places. This is a data-only operation: it never touches payment columns,
+ * checkout links, tracker quotes, booking status or email delivery.
+ */
+export async function addFamilyRetreatCamper(
+  id: string,
+  input: {
+    type: "adult" | "child"
+    firstName: string
+    lastName: string
+    age?: number
+    dateOfBirth?: string
+    guardianConsent?: boolean
+    dietaryNotes?: string
+    medicalNotes?: string
+  },
+) {
+  const supabase = await getSupabaseAdmin()
+  const firstName = String(input.firstName || "").trim()
+  const lastName = String(input.lastName || "").trim()
+  if (!firstName || !lastName || firstName.length > 100 || lastName.length > 100)
+    throw new Error("Enter the camper's first and last name (up to 100 characters each).")
+  if (input.type !== "adult" && input.type !== "child")
+    throw new Error("Choose whether this camper is an adult or a child.")
+  const dietaryNotes = String(input.dietaryNotes || "").trim().slice(0, 1000)
+  const medicalNotes = String(input.medicalNotes || "").trim().slice(0, 1000)
+  const { data: booking, error } = await supabase.from("family_retreat_bookings")
+    .select("id, status, first_name, last_name, booking_details, adults_attending, children_attending")
+    .eq("id", id).single()
+  if (error || !booking) throw new Error("Booking not found.")
+  if (booking.status === "archived" || booking.status === "declined")
+    throw new Error("Cannot add campers to an archived or declined booking.")
+  if (!booking.booking_details) throw new Error("This booking has no detailed camper form; review its existing attendees first.")
+
+  const adults: Array<Record<string, unknown>> = Array.isArray(booking.adults_attending)
+    ? [...booking.adults_attending] : []
+  const children: Array<Record<string, unknown>> = Array.isArray(booking.children_attending)
+    ? [...booking.children_attending] : []
+  // Older SFR records may have the lead adult in the booking columns only.
+  if (!adults.length && (booking.first_name || booking.last_name)) {
+    adults.push({
+      first_name: booking.first_name,
+      last_name: booking.last_name,
+      age: (booking.booking_details as Record<string, unknown>)?.age ?? null,
+    })
+  }
+
+  const nameMatch = (person: Record<string, unknown>) =>
+    String(person.first_name || "").trim().toLowerCase() === firstName.toLowerCase() &&
+    String(person.last_name || "").trim().toLowerCase() === lastName.toLowerCase()
+
+  if (input.type === "adult") {
+    const age = Number(input.age)
+    if (!Number.isInteger(age) || age < 18 || age > 120) throw new Error("Enter an adult age between 18 and 120.")
+    if (adults.length >= 25) throw new Error("Maximum of 25 adults per booking.")
+    if (adults.some(nameMatch)) throw new Error("An adult with this name is already recorded. Review the booking details.")
+    adults.push({ first_name: firstName, last_name: lastName, age,
+      ...(dietaryNotes ? { dietary_notes: dietaryNotes } : {}),
+      ...(medicalNotes ? { medical_notes: medicalNotes } : {}),
+    })
+  } else {
+    const dateOfBirth = String(input.dateOfBirth || "")
+    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(dateOfBirth))
+      throw new Error("Enter the child's date of birth.")
+    const dob = new Date(dateOfBirth + "T12:00:00Z")
+    const today = new Date()
+    if (Number.isNaN(dob.getTime()) || dob.toISOString().slice(0, 10) !== dateOfBirth ||
+      dob > today || dob.getUTCFullYear() < today.getUTCFullYear() - 18)
+      throw new Error("Enter a valid date of birth for a camper under 18.")
+    let childAge = today.getUTCFullYear() - dob.getUTCFullYear()
+    const birthdayThisYear = new Date(Date.UTC(today.getUTCFullYear(), dob.getUTCMonth(), dob.getUTCDate()))
+    if (today < birthdayThisYear) childAge--
+    if (childAge < 0 || childAge >= 18) throw new Error("Child must be under 18.")
+    if (!input.guardianConsent) throw new Error("Confirm parent or guardian consent before adding a child.")
+    if (children.length >= 10) throw new Error("Maximum of 10 children per booking.")
+    if (children.some(person => nameMatch(person) && person.date_of_birth === dateOfBirth))
+      throw new Error("This child is already on the booking.")
+    children.push({ first_name: firstName, last_name: lastName, date_of_birth: dateOfBirth,
+      guardian_consent_recorded: true,
+      ...(dietaryNotes ? { dietary_notes: dietaryNotes } : {}),
+      ...(medicalNotes ? { medical_notes: medicalNotes } : {}),
+    })
+  }
+  const { error: updateError } = await supabase.from("family_retreat_bookings")
+    .update({ adults_attending: adults, children_attending: children })
+    .eq("id", id)
+  if (updateError) throw new Error("Could not save camper details.")
+  await supabase.from("activity_log").insert({
+    action: "family_retreat_camper_added",
+    entity_type: "family_retreat_booking",
+    entity_id: id,
+    metadata: { camper_type: input.type, attendee_count: adults.length + children.length },
+  })
+  revalidatePath("/dashboard/family-initiative/retreat")
+  return { totalCampers: adults.length + children.length }
+}
+
 export async function sendFamilyRetreatAdditionalCharge(
   id: string,
   payload: { amount: number; referenceNote: string },
