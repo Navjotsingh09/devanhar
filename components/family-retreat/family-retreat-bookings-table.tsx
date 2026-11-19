@@ -22,6 +22,8 @@ import {
   getFamilyRetreatNotes,
   addFamilyRetreatHistoryNote,
   type FamilyRetreatHistoryNote,
+  getFamilyRetreatEmailHistory,
+  type FamilyRetreatEmailHistoryItem,
   logFamilyRetreatReminder,
   checkFamilyRetreatProviderPayment,
   sendFamilyRetreatPaymentRequest,
@@ -298,6 +300,9 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
   const [activeAdditionalRow, setActiveAdditionalRow] = useState<string | null>(null)
   const [activeCamperRow, setActiveCamperRow] = useState<string | null>(null)
   const [activeNotesRow, setActiveNotesRow] = useState<string | null>(null)
+  const [activeEmailRow, setActiveEmailRow] = useState<string | null>(null)
+  const [emailHistory, setEmailHistory] = useState<Record<string, FamilyRetreatEmailHistoryItem[]>>({})
+  const [emailLoading, setEmailLoading] = useState(false)
   const [notesHistory, setNotesHistory] = useState<Record<string, FamilyRetreatHistoryNote[]>>({})
   const [noteKind, setNoteKind] = useState<"staff" | "client">("staff")
   const [newNote, setNewNote] = useState("")
@@ -498,6 +503,18 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
       },
       "Additional payment link and reference email sent.",
     )
+  }
+
+  async function openEmailHistory(id: string) {
+    if (activeEmailRow === id) { setActiveEmailRow(null); return }
+    setActiveEmailRow(id)
+    setEmailLoading(true)
+    try {
+      const items = await getFamilyRetreatEmailHistory(id)
+      setEmailHistory(current => ({ ...current, [id]: items }))
+    } catch (error) {
+      setRowMessage(id, { type: "error", text: error instanceof Error ? error.message : "Could not load email history." })
+    } finally { setEmailLoading(false) }
   }
 
   async function openNotesHistory(id: string) {
@@ -723,6 +740,11 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
                             <Button type="button" size="sm" variant="outline"
+                              aria-expanded={activeEmailRow === booking.id} disabled={isPending}
+                              onClick={() => openEmailHistory(booking.id)}>
+                              <Mail className="mr-1 h-3.5 w-3.5" /> {activeEmailRow === booking.id ? "Hide email history" : "Email history"}
+                            </Button>
+                            <Button type="button" size="sm" variant="outline"
                               aria-expanded={activeNotesRow === booking.id} disabled={isPending}
                               onClick={() => openNotesHistory(booking.id)}>
                               {activeNotesRow === booking.id ? "Hide notes history" : "Staff & client notes"}
@@ -779,6 +801,40 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                           </div>
                         </TableCell>
                       </TableRow>
+
+                      {activeEmailRow === booking.id && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="bg-slate-50/60">
+                            <section className="max-w-5xl space-y-3 rounded-xl border bg-white p-4" aria-label="Payment email history">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h3 className="font-semibold text-[#142e45]">Payment email history · {reference}</h3>
+                                  <p className="text-xs text-muted-foreground">Each send attempt, provider acceptance and tracked payment-button visits. Accepted does not mean delivered.</p>
+                                </div>
+                                <Button type="button" variant="outline" size="sm" onClick={() => { setActiveEmailRow(null); void openEmailHistory(booking.id) }}>Refresh</Button>
+                              </div>
+                              {emailLoading ? <p className="text-sm">Loading history…</p> : (emailHistory[booking.id] || []).length === 0
+                                ? <p className="text-sm text-muted-foreground">No tracked payment emails recorded for this booking.</p>
+                                : <div className="overflow-x-auto"><table className="w-full text-left text-xs">
+                                    <thead><tr className="border-b"><th className="p-2">Sent / attempted (UK)</th><th className="p-2">Recipient</th><th className="p-2">Status</th><th className="p-2">Link visits</th><th className="p-2">Provider ID / detail</th></tr></thead>
+                                    <tbody>{(emailHistory[booking.id] || []).map(item => (
+                                      <tr key={item.id} className="border-b align-top">
+                                        <td className="p-2 whitespace-nowrap">{new Date(item.created_at).toLocaleString("en-GB", { timeZone: "Europe/London" })}</td>
+                                        <td className="p-2 break-all">{item.recipient}</td>
+                                        <td className="p-2 font-medium capitalize">{item.status}</td>
+                                        <td className="p-2">
+                                          <strong>{item.click_count}</strong>
+                                          {item.clicks.length > 0 && <details><summary className="cursor-pointer text-blue-700">Visit times</summary>{item.clicks.map((at, i) => <div key={i}>{new Date(at).toLocaleString("en-GB", { timeZone: "Europe/London" })}</div>)}</details>}
+                                        </td>
+                                        <td className="p-2 break-all">{item.provider_email_id || "—"}{item.reason && <p className="text-red-700">{item.reason}</p>}</td>
+                                      </tr>
+                                    ))}</tbody>
+                                  </table></div>}
+                              <p className="text-xs text-muted-foreground">Link visits can include automated security scans. Payment confirmation is checked separately. Delivery/bounce events require a connected Resend webhook.</p>
+                            </section>
+                          </TableCell>
+                        </TableRow>
+                      )}
 
                       {activeNotesRow === booking.id && (
                         <TableRow>
