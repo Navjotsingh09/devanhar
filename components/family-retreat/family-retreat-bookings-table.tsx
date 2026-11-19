@@ -431,6 +431,12 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
       try {
         const result = await sendFamilyRetreatPaymentRequest(booking.id, { restoreDeclined: restoring })
         setRowMessage(booking.id, { type: result.emailStatus === "sent" ? "success" : "error", text: result.detail })
+        if (activeEmailRow === booking.id) {
+          try {
+            const items = await getFamilyRetreatEmailHistory(booking.id)
+            setEmailHistory(current => ({ ...current, [booking.id]: items }))
+          } catch { /* Keep send result visible; the history panel can be refreshed. */ }
+        }
       } catch (error) {
         setRowMessage(booking.id, {
           type: "error", text: error instanceof Error ? error.message : "Payment email could not be sent.",
