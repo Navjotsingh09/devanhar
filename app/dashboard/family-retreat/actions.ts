@@ -684,6 +684,80 @@ export async function removeFamilyRetreatBooking(id: string, mode: "archive" | "
   revalidatePath("/dashboard/family-initiative/retreat")
 }
 
+/**
+ * Append-only, booking-scoped staff notes. A client conversation note records
+ * what the camper told the staff member; it is NOT a client-authored message.
+ * Never overwrite internal_notes or any payment/status fields.
+ */
+export type FamilyRetreatHistoryNote = {
+  id: string
+  category: "staff" | "client"
+  note: string
+  author: string
+  created_at: string
+}
+
+export async function getFamilyRetreatNotes(id: string): Promise<FamilyRetreatHistoryNote[]> {
+  const supabase = await getSupabaseAdmin()
+  const { data: booking, error: bookingError } = await supabase.from("family_retreat_bookings")
+    .select("id").eq("id", id).maybeSingle()
+  if (bookingError || !booking) throw new Error("Booking not found.")
+  const { data, error } = await supabase.from("activity_log")
+    .select("id, action, metadata, created_at")
+    .eq("entity_type", "family_retreat_booking").eq("entity_id", id)
+    .in("action", ["family_retreat_staff_note", "family_retreat_client_note"])
+    .order("created_at", { ascending: false }).limit(1000)
+  if (error) throw new Error("Could not load staff notes history.")
+  return (data || []).flatMap(row => {
+    const m = row.metadata && typeof row.metadata === "object" ? row.metadata as Record<string, unknown> : {}
+    const note = typeof m.note === "string" ? m.note : ""
+    if (!note) return []
+    return [{
+      id: String(row.id),
+      category: row.action === "family_retreat_staff_note" ? "staff" as const : "client" as const,
+      note,
+      author: typeof m.author === "string" && m.author ? m.author : "Staff member",
+      created_at: row.created_at,
+    }]
+  })
+}
+
+export async function addFamilyRetreatHistoryNote(
+  id: string,
+  category: "staff" | "client",
+  value: string,
+): Promise<void> {
+  const supabase = await getSupabaseAdmin()
+  const { getRequestStaff } = await import("@/lib/crm/request-staff")
+  const staff = await getRequestStaff()
+  if (!staff.user || staff.authError || staff.profile.error || !staff.profile.data ||
+      !(['admin', 'super_admin'].includes(staff.profile.data.role) ||
+        staff.grants.data?.some(row => row.programme === "family"))) {
+    throw new Error("Family Retreat staff access is required.")
+  }
+  const note = String(value || "").trim()
+  if (!["staff", "client"].includes(category))
+    throw new Error("Choose Staff notes or Client conversation notes.")
+  if (!note || note.length > 3000)
+    throw new Error("Please enter a note between 1 and 3,000 characters.")
+  const { data: booking, error: bookingError } = await supabase.from("family_retreat_bookings")
+    .select("id").eq("id", id).maybeSingle()
+  if (bookingError || !booking) throw new Error("Booking not found.")
+  const { error } = await supabase.from("activity_log").insert({
+    admin_id: staff.user.id,
+    action: category === "staff" ? "family_retreat_staff_note" : "family_retreat_client_note",
+    entity_type: "family_retreat_booking",
+    entity_id: id,
+    metadata: {
+      note,
+      author: staff.profile.data.full_name?.trim() || "Staff member",
+      category,
+    },
+  })
+  if (error) throw new Error("Could not save note to history.")
+  revalidatePath("/dashboard/family-initiative/retreat")
+}
+
 export async function updateFamilyRetreatNotes(id: string, notes: string) {
   const supabase = (await getSupabaseAdmin())
   const { error } = await supabase
