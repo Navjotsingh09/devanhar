@@ -872,11 +872,24 @@ export async function sendFamilyRetreatPaymentRequest(
     `<strong>Type your booking reference exactly as shown: ${escapeHtml(reference)}.</strong>`,
   )
   const subject = `Payment request – Sikh Family Retreat (${reference})`
+  const { randomUUID } = await import("crypto")
+  const attemptId = randomUUID()
+  const clickToken = randomUUID() + randomUUID().replace(/-/g, "")
+  const trackedPaymentUrl = SITE_URL.replace(/\\/$/, "") + "/api/sfr/payment-click/" + clickToken
+  const { error: attemptError } = await supabase.from("activity_log").insert({
+    action: "family_retreat_payment_email_attempt",
+    entity_type: "family_retreat_booking", entity_id: id,
+    metadata: {
+      attempt_id: attemptId, click_token: clickToken, payment_url: paymentUrl,
+      recipient: booking.email, subject, reference, amount_pence: outstandingPence,
+    },
+  })
+  if (attemptError) return { emailStatus: "failed", detail: "Could not establish email tracking. No email was sent.", reference }
   const text = [
     `Dear ${name},`, "", "Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.", "",
     "The Sikh Family Retreat team has prepared a payment request for your booking.",
     `Booking reference: ${reference}`, `Amount outstanding: ${money}`, "",
-    "Pay securely using the link below:", paymentUrl, "", instructions, "",
+    "Pay securely using the link below:", trackedPaymentUrl, "", instructions, "",
     "Once the payment is verified, the team will update your booking status.",
     "", ...familyRetreatSignatureLines,
   ].join("\n")
@@ -885,7 +898,7 @@ export async function sendFamilyRetreatPaymentRequest(
     `<p>Dear ${escapeHtml(name)},</p><p>Waheguru Ji Ka Khalsa, Waheguru Ji Ki Fateh Ji.</p>`,
     "<p>The Sikh Family Retreat team has prepared a payment request for your booking.</p>",
     `<p><strong>Booking reference:</strong> ${escapeHtml(reference)}<br><strong>Amount outstanding:</strong> ${escapeHtml(money)}</p>`,
-    `<p><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#152d46;color:#fff;padding:12px 22px;text-decoration:none;border-radius:8px;font-weight:bold">Pay securely · ${escapeHtml(money)}</a></p>`,
+    `<p><a href="${escapeHtml(trackedPaymentUrl)}" style="display:inline-block;background:#152d46;color:#fff;padding:12px 22px;text-decoration:none;border-radius:8px;font-weight:bold">Pay securely · ${escapeHtml(money)}</a></p>`,
     `<p>${instructionsHtml}</p>`,
     "<p>Once payment is verified, the team will update your booking status.</p>",
     familyRetreatSignatureHtml, "</div>",
@@ -918,7 +931,7 @@ export async function sendFamilyRetreatPaymentRequest(
     await supabase.from("activity_log").insert({
       action: "family_retreat_payment_request_email_accepted",
       entity_type: "family_retreat_booking", entity_id: id,
-      metadata: { reference, amount_pence: outstandingPence, provider: "nowdonate", email_id: result.data.id, tracking_saved: !saveError },
+      metadata: { attempt_id: attemptId, recipient: booking.email, reference, amount_pence: outstandingPence, provider: "nowdonate", email_id: result.data.id, tracking_saved: !saveError },
     })
     revalidatePath("/dashboard/family-initiative/retreat")
     return {
@@ -933,7 +946,7 @@ export async function sendFamilyRetreatPaymentRequest(
     await supabase.from("activity_log").insert({
       action: "family_retreat_payment_request_email_failed",
       entity_type: "family_retreat_booking", entity_id: id,
-      metadata: { reference, amount_pence: outstandingPence, reason: error instanceof Error ? error.message.slice(0, 180) : "unknown" },
+      metadata: { attempt_id: attemptId, recipient: booking.email, reference, amount_pence: outstandingPence, reason: error instanceof Error ? error.message.slice(0, 180) : "unknown" },
     })
     revalidatePath("/dashboard/family-initiative/retreat")
     return {
@@ -942,6 +955,70 @@ export async function sendFamilyRetreatPaymentRequest(
       reference,
     }
   }
+}
+
+export type FamilyRetreatEmailHistoryItem = {
+  id: string
+  created_at: string
+  recipient: string
+  subject: string
+  reference: string
+  amount_pence: number
+  provider_email_id: string | null
+  status: string
+  click_count: number
+  clicks: string[]
+  reason: string | null
+}
+
+export async function getFamilyRetreatEmailHistory(bookingId: string): Promise<FamilyRetreatEmailHistoryItem[]> {
+  const supabase = await getSupabaseAdmin()
+  const { data: booking, error: bookingError } = await supabase.from("family_retreat_bookings")
+    .select("id").eq("id", bookingId).maybeSingle()
+  if (bookingError || !booking) throw new Error("Booking not found")
+  const { data, error } = await supabase.from("activity_log")
+    .select("id, action, metadata, created_at")
+    .eq("entity_type", "family_retreat_booking").eq("entity_id", bookingId)
+    .in("action", [
+      "family_retreat_payment_email_attempt",
+      "family_retreat_payment_request_email_accepted",
+      "family_retreat_payment_request_email_failed",
+      "family_retreat_payment_email_click",
+      "family_retreat_payment_email_delivery",
+    ]).order("created_at", { ascending: true }).limit(2000)
+  if (error) throw new Error("Email history could not be loaded")
+  type Entry = { id:string; created_at:string; action:string; metadata:Record<string,unknown> | null }
+  const rows = (data || []) as Entry[]
+  const events = rows.filter(row => row.action === "family_retreat_payment_email_click")
+  const deliveries = rows.filter(row => row.action === "family_retreat_payment_email_delivery")
+  const attempts = rows.filter(row => row.action === "family_retreat_payment_email_attempt")
+  const legacy = rows.filter(row => [
+    "family_retreat_payment_request_email_accepted", "family_retreat_payment_request_email_failed",
+  ].includes(row.action) && !row.metadata?.attempt_id)
+  return [...attempts, ...legacy].map(row => {
+    const m = row.metadata || {}
+    const attemptId = String(m.attempt_id || row.id)
+    const related = rows.filter(e => e !== row && String(e.metadata?.attempt_id || "") === attemptId)
+    const success = related.find(e => e.action === "family_retreat_payment_request_email_accepted")
+    const failure = related.find(e => e.action === "family_retreat_payment_request_email_failed")
+    const delivery = deliveries.filter(e => String(e.metadata?.attempt_id || "") === attemptId).at(-1)
+    const clicks = events.filter(e => String(e.metadata?.attempt_id || "") === attemptId).map(e => e.created_at)
+    return {
+      id: attemptId,
+      created_at: row.created_at,
+      recipient: String(m.recipient || success?.metadata?.recipient || "Not recorded"),
+      subject: String(m.subject || "Sikh Family Retreat payment request"),
+      reference: String(m.reference || ""),
+      amount_pence: Number(m.amount_pence || 0),
+      provider_email_id: String(success?.metadata?.email_id || m.email_id || "") || null,
+      status: String(delivery?.metadata?.status ||
+        (success || row.action === "family_retreat_payment_request_email_accepted" ? "accepted" :
+         failure || row.action === "family_retreat_payment_request_email_failed" ? "failed" : "attempted")),
+      click_count: clicks.length,
+      clicks,
+      reason: String(failure?.metadata?.reason || m.reason || delivery?.metadata?.reason || "") || null,
+    }
+  }).sort((a,b) => b.created_at.localeCompare(a.created_at))
 }
 
 /**
