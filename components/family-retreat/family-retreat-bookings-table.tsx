@@ -811,8 +811,14 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                                   <h3 className="font-semibold text-[#142e45]">Payment email history · {reference}</h3>
                                   <p className="text-xs text-muted-foreground">Each send attempt, provider acceptance and tracked payment-button visits. Accepted does not mean delivered.</p>
                                 </div>
-                                <Button type="button" variant="outline" size="sm" onClick={() => { setActiveEmailRow(null); void openEmailHistory(booking.id) }}>Refresh</Button>
+                                <Button type="button" variant="outline" size="sm" onClick={async () => { setEmailLoading(true); try { const history = await getFamilyRetreatEmailHistory(booking.id); setEmailHistory(current => ({ ...current, [booking.id]: history })) } catch (error) { setRowMessage(booking.id, { type: "error", text: error instanceof Error ? error.message : "Could not refresh email history." }) } finally { setEmailLoading(false) } }}>Refresh</Button>
                               </div>
+                              {!emailLoading && (emailHistory[booking.id] || []).length > 0 && <div className="flex flex-wrap gap-3 text-sm">
+                                <span><strong>{(emailHistory[booking.id] || []).length}</strong> attempts</span>
+                                <span><strong>{(emailHistory[booking.id] || []).filter(item => ["sent", "accepted", "delivered", "delayed"].includes(item.status)).length}</strong> accepted/sent</span>
+                                <span><strong>{(emailHistory[booking.id] || []).filter(item => ["failed", "bounced", "complained"].includes(item.status)).length}</strong> failed/bounced</span>
+                                <span><strong>{(emailHistory[booking.id] || []).reduce((sum,item) => sum + item.click_count, 0)}</strong> payment-link visits</span>
+                              </div>}
                               {emailLoading ? <p className="text-sm">Loading history…</p> : (emailHistory[booking.id] || []).length === 0
                                 ? <p className="text-sm text-muted-foreground">No tracked payment emails recorded for this booking.</p>
                                 : <div className="overflow-x-auto"><table className="w-full text-left text-xs">
