@@ -995,7 +995,7 @@ export async function getFamilyRetreatEmailHistory(bookingId: string): Promise<F
   const legacy = rows.filter(row => [
     "family_retreat_payment_request_email_accepted", "family_retreat_payment_request_email_failed",
   ].includes(row.action) && !row.metadata?.attempt_id)
-  return [...attempts, ...legacy].map(row => {
+  const history: FamilyRetreatEmailHistoryItem[] = [...attempts, ...legacy].map(row => {
     const m = row.metadata || {}
     const attemptId = String(m.attempt_id || row.id)
     const related = rows.filter(e => e !== row && String(e.metadata?.attempt_id || "") === attemptId)
@@ -1019,6 +1019,28 @@ export async function getFamilyRetreatEmailHistory(bookingId: string): Promise<F
       reason: String(failure?.metadata?.reason || m.reason || delivery?.metadata?.reason || "") || null,
     }
   }).sort((a,b) => b.created_at.localeCompare(a.created_at))
+
+  // Resend's read API reports the latest verified provider status even before
+  // a signed webhook has been configured. Never infer delivery from acceptance.
+  if (process.env.RESEND_API_KEY) {
+    const { Resend } = await import("resend")
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const tracked = history.filter(item => item.provider_email_id).slice(0, 30)
+    for (let i = 0; i < tracked.length; i += 5) {
+      await Promise.all(tracked.slice(i, i + 5).map(async item => {
+        try {
+          const result = await resend.emails.get(item.provider_email_id!)
+          const event = result.data?.last_event
+          if (!result.error && typeof event === "string" && event) {
+            item.status = event === "delivery_delayed" ? "delayed" : event
+          }
+        } catch {
+          // Keep the locally recorded status if Resend is temporarily unavailable.
+        }
+      }))
+    }
+  }
+  return history
 }
 
 /**
