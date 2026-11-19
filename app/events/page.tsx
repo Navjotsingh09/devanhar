@@ -101,9 +101,14 @@ export default async function EventsPage({ cmsCopy: suppliedCopy }: {cmsCopy?:Pa
                   form. Choose an event below to review details and submit your
                   registration inputs.
                 </p>
-                <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-sm font-semibold">
-                  <Link href="#events-grid">Browse Events</Link>
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-sm font-semibold">
+                    <Link href="#events-grid">Browse Events</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="rounded-full px-8 py-6 text-sm font-semibold">
+                    <Link href="/calender"><CalendarDays className="mr-2 h-4 w-4" />Community Calendar</Link>
+                  </Button>
+                </div>
               </div>
               <div className="relative">
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
