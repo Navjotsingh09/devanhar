@@ -875,7 +875,7 @@ export async function sendFamilyRetreatPaymentRequest(
   const { randomUUID } = await import("crypto")
   const attemptId = randomUUID()
   const clickToken = randomUUID() + randomUUID().replace(/-/g, "")
-  const trackedPaymentUrl = SITE_URL.replace(/\\/$/, "") + "/api/sfr/payment-click/" + clickToken
+  const trackedPaymentUrl = (SITE_URL.endsWith("/") ? SITE_URL.slice(0, -1) : SITE_URL) + "/api/sfr/payment-click/" + clickToken
   const { error: attemptError } = await supabase.from("activity_log").insert({
     action: "family_retreat_payment_email_attempt",
     entity_type: "family_retreat_booking", entity_id: id,
