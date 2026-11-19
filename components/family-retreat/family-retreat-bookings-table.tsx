@@ -1,7 +1,7 @@
 "use client"
 
 import { isRetreatBookingEvent, RETREAT_BOOKING_EVENTS, retreatAccommodationLabel, retreatChildAge, retreatChildCounts, retreatReference, retreatSubmittedAt } from "@/lib/family-retreat-booking-details"
-import { retreatMoney, retreatProgress, type RetreatTrackerEvent } from "@/lib/family-retreat-tracker"
+import { readRetreatQuote, retreatMoney, retreatProgress, type RetreatTrackerEvent } from "@/lib/family-retreat-tracker"
 import { RetreatBookingTracker } from './family-retreat-tracker'
 import { deviceLabel } from "@/lib/booking-device"
 import { Fragment, useMemo, useState, useTransition } from "react"
@@ -824,8 +824,22 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                                         <p className="mt-1 whitespace-pre-wrap break-words">{entry.note}</p>
                                       </li>
                                     ))}
-                                    {(notesHistory[booking.id] || []).length === 0 && (
-                                      <li className="text-sm text-muted-foreground">No separate notes saved yet. Previous conversations remain in the tracker activity history.</li>
+                                    {events.filter(event => event.note && String(event.note).trim()).map(event => (
+                                      <li key={`tracker-${event.id}`} className="rounded-lg border px-3 py-2 text-sm">
+                                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                                          <span className="rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-900">
+                                            {event.action === "contacted" ? "Client conversation · staff-recorded" : "Staff activity note"}
+                                          </span>
+                                          <span className="text-muted-foreground">{event.actor_name} · {retreatSubmittedAt(event.created_at)}</span>
+                                        </div>
+                                        <p className="mt-1 whitespace-pre-wrap break-words">
+                                          {event.action === "link_sent" ? (readRetreatQuote(event.note)?.note || event.note) : event.note}
+                                        </p>
+                                      </li>
+                                    ))}
+                                    {(notesHistory[booking.id] || []).length === 0 &&
+                                      !events.some(event => event.note && String(event.note).trim()) && (
+                                      <li className="text-sm text-muted-foreground">No notes recorded for this booking yet.</li>
                                     )}
                                   </ol>
                                 )}
