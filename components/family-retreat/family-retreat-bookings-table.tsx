@@ -44,12 +44,17 @@ type ChildPerson = {
   first_name?: string
   last_name?: string
   date_of_birth?: string
+  dietary_notes?: string
+  medical_notes?: string
+  guardian_consent_recorded?: boolean
 }
 
 type AdultPerson = {
   first_name?: string
   last_name?: string
   age?: number
+  dietary_notes?: string
+  medical_notes?: string
 }
 
 export type FamilyRetreatBooking = {
@@ -633,10 +638,10 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                             <p>{details.title ? `${details.title} · ` : ''}Adult age: {details.age}</p>
                             <p>Address: {details.address}, {booking.city}, {booking.postcode}, {booking.country}</p>
                             {adults.map((adult, i) => (
-                              <p key={i}>Adult {i + 1}: {adult.first_name} {adult.last_name} · Age: {adult.age ?? 'Not recorded'}{(adult as Record<string, unknown>).dietary_notes ? ` · Dietary: ${(adult as Record<string, unknown>).dietary_notes}` : ''}{(adult as Record<string, unknown>).medical_notes ? ` · Medical: ${(adult as Record<string, unknown>).medical_notes}` : ''}</p>
+                              <p key={i}>Adult {i + 1}: {adult.first_name} {adult.last_name} · Age: {adult.age ?? 'Not recorded'}{adult.dietary_notes ? ` · Dietary: ${adult.dietary_notes}` : ''}{adult.medical_notes ? ` · Medical: ${adult.medical_notes}` : ''}</p>
                             ))}
                             {children.map((child, i) => (
-                              <p key={i}>Child or infant {i + 1}: {child.first_name} {child.last_name} · Age at booking: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}{(child as Record<string, unknown>).dietary_notes ? ` · Dietary: ${(child as Record<string, unknown>).dietary_notes}` : ''}{(child as Record<string, unknown>).medical_notes ? ` · Medical: ${(child as Record<string, unknown>).medical_notes}` : ''}</p>
+                              <p key={i}>Child or infant {i + 1}: {child.first_name} {child.last_name} · Age at booking: {retreatChildAge(child.date_of_birth || '', new Date(booking.created_at)) ?? 'Unknown'} · DOB: {child.date_of_birth}{child.dietary_notes ? ` · Dietary: ${child.dietary_notes}` : ''}{child.medical_notes ? ` · Medical: ${child.medical_notes}` : ''}</p>
                             ))}
                             {children.length > 0 && <>
                               <p>Parent or guardian of all children: {details.guardian_of_all ? 'Yes' : 'No'}</p>
