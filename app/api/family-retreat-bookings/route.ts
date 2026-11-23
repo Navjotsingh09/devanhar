@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please tell us whether you require transport.' }, { status: 400 })
     }
     if (!RETREAT_ACCOMMODATION.some((option) => option.value === body.accommodation_preference)) {
-      return NextResponse.json({ error: 'Please choose an accommodation option.' }, { status: 400 })
+      return NextResponse.json({ error: 'Please choose a valid booking option.' }, { status: 400 })
     }
 
     const requiredFields = [
@@ -208,8 +208,8 @@ export async function POST(request: NextRequest) {
             ...(payload.booking_details.guardian_of_all ? [] : ['Written permission required before confirming the booking.']),
           ] : []),
           '',
-          '-- Accommodation and needs',
-          `Accommodation preference: ${retreatAccommodationLabel(payload.accommodation_preference)}`,
+          '-- Booking option and needs',
+          `Booking option: ${retreatAccommodationLabel(payload.accommodation_preference)}`,
           `Dietary needs: ${payload.dietary_requirements || 'None stated'}`,
           `Medical and accessibility needs: ${payload.medical_requirements || 'None stated'}`,
           '',
