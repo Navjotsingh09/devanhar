@@ -14,14 +14,26 @@ export function isRetreatBookingOpen(event: RetreatBookingEvent) {
   return (process.env.FAMILY_RETREAT_BOOKING_EVENTS || '').split(',').some((value) => value.trim() === event)
 }
 
+// Public booking options. Do not offer the old onsite ensuite option.
 export const RETREAT_ACCOMMODATION = [
-  { value: 'option-1', label: 'Option 1: Onsite family room with shared facilities' },
-  { value: 'option-2', label: 'Option 2: Onsite ensuite family accommodation' },
-  { value: 'option-3', label: 'Option 3: Offsite ensuite family accommodation' },
+  { value: 'hilston-park', label: 'Hilston Park' },
+  { value: 'hotel', label: 'Hotel' },
+  { value: 'family-pass-1-day', label: '1-day family pass' },
+  { value: 'family-pass-2-day', label: '2-day family pass' },
 ] as const
 
+// Historical bookings must retain the exact meaning of their original selection.
+// These values are displayed to staff but cannot be selected for new applications.
+const LEGACY_RETREAT_ACCOMMODATION: Record<string, string> = {
+  'option-1': 'Onsite family room with shared facilities (previous option)',
+  'option-2': 'Onsite ensuite family accommodation (previous option)',
+  'option-3': 'Offsite ensuite family accommodation (previous option)',
+}
+
 export function retreatAccommodationLabel(value: string | null | undefined) {
-  return RETREAT_ACCOMMODATION.find((option) => option.value === value)?.label || value || 'Not specified'
+  return RETREAT_ACCOMMODATION.find((option) => option.value === value)?.label
+    || (value ? LEGACY_RETREAT_ACCOMMODATION[value] : undefined)
+    || value || 'Not specified'
 }
 
 export function retreatReference(number: number | string | null | undefined) {
