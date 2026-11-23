@@ -154,7 +154,7 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
     }
     if (children.length && !form.guardian) return "Please answer the parent or guardian question."
     if (children.length && !form.parent_consent) return "Please confirm parent or guardian consent before submitting."
-    if (!form.accommodation_preference) return "Please choose an accommodation preference."
+    if (!RETREAT_ACCOMMODATION.some(option => option.value === form.accommodation_preference)) return "Please choose a booking option."
     if (!form.transport_required) return "Please tell us whether you require transport."
     if (!NAME_REGEX.test(form.emergency_contact_name.trim())) return "Please enter the emergency contact's full name."
     if (form.emergency_contact_relationship.trim().length < 2) return "Please enter the emergency contact's relationship to you."
@@ -334,16 +334,19 @@ export function FamilyRetreatBookingForm({ event }: { event: RetreatBookingEvent
         </fieldset>}
       </div>
 
-      {/* Accommodation */}
+      {/* Residential and day attendance options share the existing booking field. */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Accommodation preference</h3>
-        <p className="text-sm text-muted-foreground">Your retreat price includes all meals, activities and accommodation. The total cost depends on the accommodation you choose, with Option 1 (an onsite family room with shared facilities) being the most affordable choice. All accommodation is subject to availability and confirmation by the SFI team.</p>
+        <h3 className="text-lg font-semibold text-foreground border-b border-border pb-3">Booking option</h3>
+        <p className="text-sm text-muted-foreground">Choose a residential stay at Hilston Park or a hotel, or a family day pass if you do not need accommodation. All bookings, attendance dates, availability and prices are confirmed with you by the Sikh Family Retreat team.</p>
         <div>
-          <Label htmlFor="accommodation_preference">Accommodation preference</Label>
+          <Label htmlFor="accommodation_preference">Booking option *</Label>
           <Select value={form.accommodation_preference} onValueChange={(v) => update("accommodation_preference", v)}>
-            <SelectTrigger id="accommodation_preference"><SelectValue placeholder="Select preference" /></SelectTrigger>
+            <SelectTrigger id="accommodation_preference"><SelectValue placeholder="Select a booking option" /></SelectTrigger>
             <SelectContent>{RETREAT_ACCOMMODATION.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
           </Select>
+          {form.accommodation_preference.startsWith("family-pass-") && (
+            <p className="mt-2 text-sm text-muted-foreground">Family passes are for day attendance only and do not include overnight accommodation. The team will confirm which day(s) you can attend and the cost before payment.</p>
+          )}
         </div>
       </div>
 
