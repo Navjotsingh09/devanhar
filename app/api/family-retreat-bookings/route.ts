@@ -252,6 +252,7 @@ export async function POST(request: NextRequest) {
             '',
             `Retreat: ${retreat.title} · ${retreat.date}`,
             `Booking reference: ${reference}`,
+            `Booking option requested: ${retreatAccommodationLabel(payload.accommodation_preference)}`,
             '',
             'We have received your family\'s details and a sevadaar from the team will now review your form. They will contact you directly to confirm availability, discuss the cost for your family, explain how to make payment and answer any questions you may have.',
             '',
