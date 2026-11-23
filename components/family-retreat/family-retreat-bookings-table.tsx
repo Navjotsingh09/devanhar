@@ -710,7 +710,7 @@ export function FamilyRetreatBookingsTable({ bookings, tracker = null, reviewer 
                               <p>Consent declaration: {details.parent_consent ? 'Confirmed' : 'Not recorded'}</p>
                               {details.guardian_of_all === false && <p className="font-semibold">Written permission required before confirmation.</p>}
                             </>}
-                            <p>Accommodation: {retreatAccommodationLabel(booking.accommodation_preference)}</p>
+                            <p>Booking option: {retreatAccommodationLabel(booking.accommodation_preference)}</p>
                             <p>Dietary: {booking.dietary_requirements || 'None stated'}</p>
                             <p>Medical and accessibility: {booking.medical_requirements || 'None stated'}</p>
                             <p>Emergency contact: {booking.emergency_contact_name} ({booking.emergency_contact_relationship}) · {booking.emergency_contact_phone}</p>
