@@ -31,7 +31,7 @@ function bookingSetup() {
   }, { NEXT_PUBLIC_SUPABASE_URL: 'https://fixture.invalid', SUPABASE_SERVICE_ROLE_KEY: 'fixture', RESEND_API_KEY: 'fixture' })
   const body = {
     event: 'new-year-reset', age: '35', guardian: 'yes', parent_consent: true, transport_required: 'no',
-    accommodation_preference: 'option-1', first_name: 'Test', last_name: 'Example', email: 'test@example.invalid',
+    accommodation_preference: 'hilston-park', first_name: 'Test', last_name: 'Example', email: 'test@example.invalid',
     phone: '07000000000', address: 'Example Street', city: 'Example', postcode: 'TEST 1AA', country: 'UK',
     emergency_contact_name: 'Example Contact', emergency_contact_relationship: 'Friend', emergency_contact_phone: '07000000001',
     heard_about_retreat: 'Website', children: [{ first_name: 'Test', last_name: 'Example', date_of_birth: '2015-01-01' }],
@@ -92,12 +92,33 @@ test('invalid additional adults and missing child consent are rejected before sa
   assert.equal(saved.length, 0)
 })
 
-test('in-flight old forms remain accepted without inventing additional adult totals', async () => {
+test('bookings without additional-adult details remain accepted without inventing totals', async () => {
   const { saved, emails, route, body } = bookingSetup()
   const response = await route.POST({ json: async () => body, headers: new Headers() })
   assert.equal(response.status, 200)
   assert.equal(saved[0].row.adults_attending, undefined)
   assert.match(emails[0].text, /additional adults not recorded/)
+})
+
+test('SFR booking options include two day passes and exclude new onsite ensuite applications', async () => {
+  const { details } = bookingSetup()
+  assert.deepEqual(Array.from(details.RETREAT_ACCOMMODATION, option => option.label), [
+    'Hilston Park', 'Hotel', '1-day family pass', '2-day family pass',
+  ])
+  for (const option of details.RETREAT_ACCOMMODATION) {
+    const { route, saved, emails, body } = bookingSetup()
+    body.accommodation_preference = option.value
+    const response = await route.POST({ json: async () => body, headers: new Headers() })
+    assert.equal(response.status, 200, option.label)
+    assert.equal(saved[0].row.accommodation_preference, option.value)
+    assert.match(emails[0].text, new RegExp(option.label.replace(/[.*+?^${}()|[\]\\]/g, '\\test('infant classification uses the UK booking date and handles unknown ages', () => {')))
+  }
+  const { route, saved, body } = bookingSetup()
+  body.accommodation_preference = 'option-2'
+  const removed = await route.POST({ json: async () => body, headers: new Headers() })
+  assert.equal(removed.status, 400)
+  assert.equal(saved.length, 0)
+  assert.match(details.retreatAccommodationLabel('option-2'), /previous option/)
 })
 
 test('infant classification uses the UK booking date and handles unknown ages', () => {
