@@ -111,7 +111,7 @@ test('SFR booking options include two day passes and exclude new onsite ensuite 
     const response = await route.POST({ json: async () => body, headers: new Headers() })
     assert.equal(response.status, 200, option.label)
     assert.equal(saved[0].row.accommodation_preference, option.value)
-    assert.match(emails[0].text, new RegExp(option.label.replace(/[.*+?^${}()|[\]\\]/g, '\\test('infant classification uses the UK booking date and handles unknown ages', () => {')))
+    assert.ok(emails[0].text.includes(option.label))
   }
   const { route, saved, body } = bookingSetup()
   body.accommodation_preference = 'option-2'
