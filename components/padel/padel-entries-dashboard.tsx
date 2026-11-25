@@ -29,6 +29,27 @@ const paymentLabels = { paid: 'Verified paid', pending: 'Awaiting payment', unve
 
 export function PadelEntriesDashboard({ entries }: { entries: PadelEntry[] }) {
   const router = useRouter()
+  const [exporting, setExporting] = useState(false)
+  const downloadAmsterdam = async () => {
+    setExporting(true)
+    try {
+      const response = await fetch('/api/spa-admin/registrations/export', { cache: 'no-store' })
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || 'Unable to export applications')
+      }
+      const url = URL.createObjectURL(await response.blob())
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'SPA-Amsterdam-Applications.xlsx'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      toast.success('Amsterdam applications downloaded')
+    } catch (error) { toast.error(error instanceof Error ? error.message : 'Unable to export applications') }
+    finally { setExporting(false) }
+  }
   const [filter, setFilter] = useState('active')
   const [paymentFilter, setPaymentFilter] = useState('all')
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -49,6 +70,7 @@ export function PadelEntriesDashboard({ entries }: { entries: PadelEntry[] }) {
     } catch (error) { toast.error(error instanceof Error ? error.message : 'Unable to save') }
   })
   return <div className="space-y-4">
+    <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={exporting} onClick={downloadAmsterdam}>{exporting ? 'Preparing Excel…' : 'Download Amsterdam Applications (.xlsx)'}</Button><p className="text-xs text-muted-foreground">All Amsterdam applications, including archived records, regardless of filters.</p></div>
     <div className="flex flex-wrap items-center gap-2" aria-label="Application filters">{[
       ['active', 'All active'], ['pending', 'Awaiting decision'], ['approved', 'Approved'], ['declined', 'Declined'], ['archived', 'Archived'],
     ].map(([value, label]) => <Button key={value} size="sm" variant={filter === value ? 'default' : 'outline'} aria-pressed={filter === value} onClick={() => setFilter(value)}>{label} ({entries.filter(e => value === 'active' ? e.status !== 'archived' : e.status === value).length})</Button>)}
